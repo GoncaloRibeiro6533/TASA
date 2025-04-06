@@ -11,7 +11,7 @@ package pt.isel
  */
 
 data class Location(
-    val id: Long,
+    val id: Int,
     val name: String,
     val latitude: Double,
     val longitude: Double,

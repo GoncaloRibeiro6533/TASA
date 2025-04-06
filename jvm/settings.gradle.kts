@@ -11,3 +11,4 @@ rootProject.name = "tasa"
 include("domain")
 include("service")
 include("repository")
+
