@@ -1,6 +1,6 @@
-import location.MockLocationRepository
 import org.junit.jupiter.api.BeforeEach
 import pt.isel.User
+import pt.isel.location.MockLocationRepository
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

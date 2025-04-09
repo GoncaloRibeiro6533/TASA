@@ -1,6 +1,6 @@
 import org.junit.jupiter.api.BeforeEach
 import pt.isel.User
-import user.MockUserRepository
+import pt.isel.user.MockUserRepository
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

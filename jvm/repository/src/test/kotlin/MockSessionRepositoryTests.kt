@@ -5,7 +5,7 @@ import pt.isel.Sha256TokenEncoder
 import pt.isel.User
 import pt.isel.UsersDomain
 import pt.isel.UsersDomainConfig
-import session.MockSessionRepository
+import pt.isel.session.MockSessionRepository
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.hours

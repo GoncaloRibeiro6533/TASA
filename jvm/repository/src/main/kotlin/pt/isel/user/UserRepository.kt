@@ -1,4 +1,4 @@
-package user
+package pt.isel.user
 
 import pt.isel.User
 

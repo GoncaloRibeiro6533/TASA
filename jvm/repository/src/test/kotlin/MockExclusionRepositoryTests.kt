@@ -1,8 +1,8 @@
-import exclusion.MockExclusionRepository
 import org.junit.jupiter.api.BeforeEach
 import pt.isel.AppExclusion
 import pt.isel.ContactExclusion
 import pt.isel.User
+import pt.isel.exclusion.MockExclusionRepository
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

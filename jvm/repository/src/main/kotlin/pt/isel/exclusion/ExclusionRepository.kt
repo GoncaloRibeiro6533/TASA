@@ -1,4 +1,4 @@
-package exclusion
+package pt.isel.exclusion
 
 import pt.isel.AppExclusion
 import pt.isel.ContactExclusion

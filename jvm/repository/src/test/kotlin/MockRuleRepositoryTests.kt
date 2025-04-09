@@ -5,7 +5,7 @@ import pt.isel.Event
 import pt.isel.Location
 import pt.isel.Rule
 import pt.isel.User
-import rule.MockRuleRepository
+import pt.isel.rule.MockRuleRepository
 import kotlin.test.assertEquals
 
 class MockRuleRepositoryTests {

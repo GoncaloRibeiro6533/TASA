@@ -1,4 +1,4 @@
-package rule
+package pt.isel.rule
 
 import kotlinx.datetime.Instant
 import pt.isel.Event

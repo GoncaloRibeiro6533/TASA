@@ -1,4 +1,4 @@
-package location
+package pt.isel.location
 
 import pt.isel.Location
 import pt.isel.User

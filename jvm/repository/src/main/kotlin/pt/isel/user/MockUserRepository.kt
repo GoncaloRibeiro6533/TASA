@@ -1,6 +1,7 @@
-package user
+package pt.isel.user
 
 import pt.isel.User
+import kotlin.collections.get
 
 class MockUserRepository : UserRepository {
     private var currentId = 0

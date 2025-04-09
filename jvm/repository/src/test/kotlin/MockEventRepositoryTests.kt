@@ -1,8 +1,8 @@
 
-import event.MockEventRepository
 import org.junit.jupiter.api.BeforeEach
 import pt.isel.Event
 import pt.isel.User
+import pt.isel.event.MockEventRepository
 import kotlin.test.Test
 
 class MockEventRepositoryTests {

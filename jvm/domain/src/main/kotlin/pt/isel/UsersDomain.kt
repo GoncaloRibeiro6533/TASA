@@ -70,6 +70,19 @@ class UsersDomain(
         }
     }
 
+    fun getSessionExpiration(
+        createdAt: Instant,
+        lastUsedAt: Instant,
+    ): Instant {
+        val absoluteExpiration = createdAt + config.tokenTtl
+        val rollingExpiration = lastUsedAt + config.tokenRollingTtl
+        return if (absoluteExpiration < rollingExpiration) {
+            absoluteExpiration
+        } else {
+            rollingExpiration
+        }
+    }
+
     fun createTokenValidationInformation(token: String) = tokenEncoder.createValidationInformation(token)
 
     fun isSessionTimeValid(

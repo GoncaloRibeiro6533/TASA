@@ -12,7 +12,7 @@ repositories {
 
 dependencies {
     implementation(project(":domain"))
-    testImplementation(kotlin("test"))
+    implementation(project(":repository"))
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
 
@@ -25,6 +25,11 @@ dependencies {
 
     // To use SLF4J -> Logger
     implementation("org.slf4j:slf4j-api:2.0.16")
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+    testImplementation(kotlin("test"))
 }
 
 tasks.test {

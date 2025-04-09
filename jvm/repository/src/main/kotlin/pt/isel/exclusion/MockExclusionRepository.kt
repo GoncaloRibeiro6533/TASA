@@ -1,9 +1,10 @@
-package exclusion
+package pt.isel.exclusion
 
 import pt.isel.AppExclusion
 import pt.isel.ContactExclusion
 import pt.isel.Exclusion
 import pt.isel.User
+import kotlin.collections.get
 
 class MockExclusionRepository : ExclusionRepository {
     private var appExclusionId = 0

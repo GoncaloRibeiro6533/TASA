@@ -1,4 +1,4 @@
-package event
+package pt.isel.event
 
 import pt.isel.Event
 import pt.isel.User

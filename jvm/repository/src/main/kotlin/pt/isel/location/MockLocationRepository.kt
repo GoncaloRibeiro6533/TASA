@@ -1,7 +1,8 @@
-package location
+package pt.isel.location
 
 import pt.isel.Location
 import pt.isel.User
+import kotlin.collections.get
 
 class MockLocationRepository : LocationRepository {
     private var currentId = 0

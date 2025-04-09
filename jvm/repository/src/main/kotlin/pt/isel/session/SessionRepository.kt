@@ -1,4 +1,4 @@
-package session
+package pt.isel.session
 
 import kotlinx.datetime.Instant
 import pt.isel.Session
