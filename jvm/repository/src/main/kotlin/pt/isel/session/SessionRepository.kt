@@ -30,7 +30,7 @@ interface SessionRepository {
 
     fun deleteSession(session: Session): Boolean
 
-    fun clear(): Unit
+    fun clear()
 
     fun updateSession(
         session: Session,

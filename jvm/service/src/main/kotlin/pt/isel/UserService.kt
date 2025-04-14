@@ -202,7 +202,7 @@ class UserService(
         }
 
     /**
-     * Deletes a user by their ID.
+     * Deletes a user by it's ID.
      * @param userId the ID of the user
      * @return an [Either] containing true on success or a [UserError] on failure.
      */
@@ -215,7 +215,7 @@ class UserService(
         }
 
     /**
-     * Retrieves a user by their token.
+     * Retrieves a user by it's token.
      * @param token the token of the user session
      * @return the [User] on success or null if the session is expired or the user is not found.
      */

@@ -34,5 +34,5 @@ interface EventRepository {
         user: User,
     ): Boolean
 
-    fun clear(): Unit
+    fun clear()
 }

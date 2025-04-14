@@ -70,7 +70,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `when register is called with the valid parameters should create a user`(trxManager: TransactionManager)  {
+    fun `when register is called with the valid parameters should create a user`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -83,7 +83,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `when register is called with username blank should return error`(trxManager: TransactionManager)  {
+    fun `when register is called with username blank should return error`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -96,7 +96,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `when register is called with email blank should return error`(trxManager: TransactionManager)  {
+    fun `when register is called with email blank should return error`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -109,7 +109,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `when register is called with password blank should return error`(trxManager: TransactionManager)  {
+    fun `when register is called with password blank should return error`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -122,7 +122,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `when register is called with invalid email format should return error`(trxManager: TransactionManager)  {
+    fun `when register is called with invalid email format should return error`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -141,7 +141,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `when register is called with email already registered should return error`(trxManager: TransactionManager)  {
+    fun `when register is called with email already registered should return error`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -156,7 +156,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `when register is called with username too long should return error`(trxManager: TransactionManager)  {
+    fun `when register is called with username too long should return error`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -174,7 +174,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `when register is called with username too short should return error`(trxManager: TransactionManager)  {
+    fun `when register is called with username too short should return error`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -192,7 +192,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `when register is called and username already exists should return error`(trxManager: TransactionManager)  {
+    fun `when register is called and username already exists should return error`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -207,7 +207,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `when register is called with a weak password`(trxManager: TransactionManager)  {
+    fun `when register is called with a weak password`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -220,7 +220,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `when login is called with valid parameters should succeed`(trxManager: TransactionManager)  {
+    fun `when login is called with valid parameters should succeed`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -235,7 +235,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `when login is called with blank username should return error`(trxManager: TransactionManager)  {
+    fun `when login is called with blank username should return error`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -250,7 +250,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `when login is called with blank password should return error`(trxManager: TransactionManager)  {
+    fun `when login is called with blank password should return error`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -265,7 +265,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `when login is called with username that does not exists should return error`(trxManager: TransactionManager)  {
+    fun `when login is called with username that does not exists should return error`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -280,7 +280,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `when login is called and password does not match should return error`(trxManager: TransactionManager)  {
+    fun `when login is called and password does not match should return error`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -295,7 +295,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `when logoutUser is called with a valid token should succeeds`(trxManager: TransactionManager)  {
+    fun `when logoutUser is called with a valid token should succeeds`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -313,7 +313,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `when logoutUser is called with a blank token should return error`()  {
+    fun `when logoutUser is called with a blank token should return error`() {
         val service =
             createUserService(
                 trxManager = TransactionManagerInMem(),
@@ -328,7 +328,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `when logoutUser is called with a invalid format token should return error`()  {
+    fun `when logoutUser is called with a invalid format token should return error`() {
         val service =
             createUserService(
                 trxManager = TransactionManagerInMem(),
@@ -343,7 +343,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `when logoutUser is called with a non-existing token should return error`(trxManager: TransactionManager)  {
+    fun `when logoutUser is called with a non-existing token should return error`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -358,7 +358,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `getUserById should return a User with the corresponding identifier`(trxManager: TransactionManager)  {
+    fun `getUserById should return a User with the corresponding identifier`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -382,7 +382,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `getUserById should return error when id is negative`(trxManager: TransactionManager)  {
+    fun `getUserById should return error when id is negative`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -395,7 +395,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `getUserById should return error when user does not exists`(trxManager: TransactionManager)  {
+    fun `getUserById should return error when user does not exists`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -408,7 +408,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `findUserByUsername should return a list of user if any match`(trxManager: TransactionManager)  {
+    fun `findUserByUsername should return a list of user if any match`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -450,7 +450,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `updateUsername should succeeds if given valid parameters`(trxManager: TransactionManager)  {
+    fun `updateUsername should succeeds if given valid parameters`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -468,7 +468,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `updateUsername should return error if new username is blank`(trxManager: TransactionManager)  {
+    fun `updateUsername should return error if new username is blank`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -484,7 +484,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `updateUsername should return error if newUsername has wrong length`(trxManager: TransactionManager)  {
+    fun `updateUsername should return error if newUsername has wrong length`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -503,7 +503,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `update username should return error if newUsername already exists`(trxManager: TransactionManager)  {
+    fun `update username should return error if newUsername already exists`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -522,7 +522,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `deleteUser should succeed if given existing user and valid id`(trxManager: TransactionManager)  {
+    fun `deleteUser should succeed if given existing user and valid id`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -537,7 +537,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `deleteUser should return error if given negative id`(trxManager: TransactionManager)  {
+    fun `deleteUser should return error if given negative id`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -550,7 +550,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `deleteUser should return error if given non-existing user`(trxManager: TransactionManager)  {
+    fun `deleteUser should return error if given non-existing user`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -563,7 +563,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `getUserByToken should succeed if token is valid and session is valid`(trxManager: TransactionManager)  {
+    fun `getUserByToken should succeed if token is valid and session is valid`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -584,7 +584,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `getUserByToken should return null if token is blank`(trxManager: TransactionManager)  {
+    fun `getUserByToken should return null if token is blank`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
@@ -596,7 +596,7 @@ class UserServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `getUserByToken should return null if token is invalid`(trxManager: TransactionManager)  {
+    fun `getUserByToken should return null if token is invalid`(trxManager: TransactionManager) {
         val service =
             createUserService(
                 trxManager = trxManager,
