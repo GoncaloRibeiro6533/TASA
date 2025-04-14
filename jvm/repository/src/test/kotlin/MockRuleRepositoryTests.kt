@@ -3,10 +3,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import pt.isel.Event
 import pt.isel.Location
-import pt.isel.Rule
+import pt.isel.RuleEvent
+import pt.isel.RuleLocation
 import pt.isel.User
 import pt.isel.rule.MockRuleRepository
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class MockRuleRepositoryTests {
     private val repo = MockRuleRepository()
@@ -46,30 +48,33 @@ class MockRuleRepositoryTests {
                 endTime = Instant.parse("2025-06-01T01:00:00Z"),
             )
         val expectedRule =
-            Rule(
+            RuleEvent(
                 id = 0,
                 startTime = Instant.parse("2025-06-01T00:00:00Z"),
                 endTime = Instant.parse("2025-06-01T01:00:00Z"),
+                event = event,
             )
         assertEquals(expectedRule.startTime, sut.startTime)
         assertEquals(expectedRule.endTime, sut.endTime)
         assertEquals(expectedRule.id, sut.id)
+        assertEquals(expectedRule.event, sut.event)
     }
 
     @Test
     fun `createLocationRule should create a location rule and return it`() {
         val sut =
             repo.createLocationRule(
-                locationId = location.id,
+                location = location,
                 user = user,
                 startTime = Instant.parse("2025-06-01T00:00:00Z"),
                 endTime = Instant.parse("2025-06-01T01:00:00Z"),
             )
         val expectedRule =
-            Rule(
+            RuleLocation(
                 id = 0,
                 startTime = Instant.parse("2025-06-01T00:00:00Z"),
                 endTime = Instant.parse("2025-06-01T01:00:00Z"),
+                location,
             )
         assertEquals(expectedRule.startTime, sut.startTime)
         assertEquals(expectedRule.endTime, sut.endTime)
@@ -87,19 +92,19 @@ class MockRuleRepositoryTests {
             )
         val rule2 =
             repo.createLocationRule(
-                locationId = location.id,
+                location = location,
                 user = user,
                 startTime = Instant.parse("2025-06-01T02:00:00Z"),
                 endTime = Instant.parse("2025-06-01T03:00:00Z"),
             )
         val sut = repo.findAll()
         assertEquals(2, sut.size)
-        assertEquals(rule1, sut[0])
-        assertEquals(rule2, sut[1])
+        assertTrue(sut.contains(rule1))
+        assertTrue(sut.contains(rule2))
     }
 
     @Test
-    fun `findById should return the rule with the given id`() {
+    fun `findRuleEventById should return the rule with the given id`() {
         val rule =
             repo.createEventRule(
                 event = event,
@@ -107,13 +112,32 @@ class MockRuleRepositoryTests {
                 startTime = Instant.parse("2025-06-01T00:00:00Z"),
                 endTime = Instant.parse("2025-06-01T01:00:00Z"),
             )
-        val sut = repo.findById(rule.id)
+        val sut = repo.findRuleEventById(rule.id)
         assertEquals(rule, sut)
     }
 
     @Test
-    fun `findById should return null if the rule with the given id does not exist`() {
-        val sut = repo.findById(999)
+    fun `findRuleLocationById should return the rule with the given id`() {
+        val rule =
+            repo.createLocationRule(
+                user = user,
+                startTime = Instant.parse("2025-06-01T00:00:00Z"),
+                endTime = Instant.parse("2025-06-01T01:00:00Z"),
+                location = location,
+            )
+        val sut = repo.findRuleLocationById(rule.id)
+        assertEquals(rule, sut)
+    }
+
+    @Test
+    fun `findRuleLocationById should return null if the rule with the given id does not exist`() {
+        val sut = repo.findRuleLocationById(999)
+        assertEquals(null, sut)
+    }
+
+    @Test
+    fun `findRuleEventById should return null if the rule with the given id does not exist`() {
+        val sut = repo.findRuleEventById(999)
         assertEquals(null, sut)
     }
 
@@ -128,19 +152,19 @@ class MockRuleRepositoryTests {
             )
         val rule2 =
             repo.createLocationRule(
-                locationId = location.id,
+                location = location,
                 user = user,
                 startTime = Instant.parse("2025-06-01T02:00:00Z"),
                 endTime = Instant.parse("2025-06-01T03:00:00Z"),
             )
         val sut = repo.findByUserId(user)
         assertEquals(2, sut.size)
-        assertEquals(rule1, sut[0])
-        assertEquals(rule2, sut[1])
+        assertTrue(sut.contains(rule1))
+        assertTrue(sut.contains(rule2))
     }
 
     @Test
-    fun `update should update the rule and return it`() {
+    fun `update should update the rule event and return it`() {
         val rule =
             repo.createEventRule(
                 event = event,
@@ -149,17 +173,40 @@ class MockRuleRepositoryTests {
                 endTime = Instant.parse("2025-06-01T01:00:00Z"),
             )
         val sut =
-            repo.update(
+            repo.updateRuleEvent(
                 rule = rule,
                 startTime = Instant.parse("2025-06-01T01:00:00Z"),
                 endTime = Instant.parse("2025-06-01T02:00:00Z"),
             )
+        assertEquals(rule.id, sut.id)
+        assertEquals(rule.event, sut.event)
         assertEquals(Instant.parse("2025-06-01T01:00:00Z"), sut.startTime)
         assertEquals(Instant.parse("2025-06-01T02:00:00Z"), sut.endTime)
     }
 
     @Test
-    fun `delete should remove the rule and return true`() {
+    fun `update should update the rule location and return it`() {
+        val rule =
+            repo.createLocationRule(
+                user = user,
+                startTime = Instant.parse("2025-06-01T00:00:00Z"),
+                endTime = Instant.parse("2025-06-01T01:00:00Z"),
+                location = location,
+            )
+        val sut =
+            repo.updateRuleLocation(
+                rule = rule,
+                startTime = Instant.parse("2025-06-01T01:00:00Z"),
+                endTime = Instant.parse("2025-06-01T02:00:00Z"),
+            )
+        assertEquals(rule.id, sut.id)
+        assertEquals(rule.location, sut.location)
+        assertEquals(Instant.parse("2025-06-01T01:00:00Z"), sut.startTime)
+        assertEquals(Instant.parse("2025-06-01T02:00:00Z"), sut.endTime)
+    }
+
+    @Test
+    fun `delete should remove the rule event and return true`() {
         val rule =
             repo.createEventRule(
                 event = event,
@@ -167,21 +214,23 @@ class MockRuleRepositoryTests {
                 startTime = Instant.parse("2025-06-01T00:00:00Z"),
                 endTime = Instant.parse("2025-06-01T01:00:00Z"),
             )
-        val sut = repo.delete(rule)
+        val sut = repo.deleteRuleEvent(rule)
         assertEquals(true, sut)
-        assertEquals(null, repo.findById(rule.id))
+        assertEquals(null, repo.findRuleEventById(rule.id))
     }
 
     @Test
-    fun `delete should return false if the rule does not exist`() {
+    fun `delete should remove the rule location and return true`() {
         val rule =
-            Rule(
-                id = 999,
+            repo.createLocationRule(
+                user = user,
                 startTime = Instant.parse("2025-06-01T00:00:00Z"),
                 endTime = Instant.parse("2025-06-01T01:00:00Z"),
+                location = location,
             )
-        val sut = repo.delete(rule)
-        assertEquals(false, sut)
+        val sut = repo.deleteLocationEvent(rule)
+        assertEquals(true, sut)
+        assertEquals(null, repo.findRuleLocationById(rule.id))
     }
 
     @Test
@@ -193,7 +242,7 @@ class MockRuleRepositoryTests {
             endTime = Instant.parse("2025-06-01T01:00:00Z"),
         )
         repo.createLocationRule(
-            locationId = location.id,
+            location = location,
             user = user,
             startTime = Instant.parse("2025-06-01T02:00:00Z"),
             endTime = Instant.parse("2025-06-01T03:00:00Z"),

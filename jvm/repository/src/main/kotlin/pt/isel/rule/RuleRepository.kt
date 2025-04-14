@@ -2,7 +2,10 @@ package pt.isel.rule
 
 import kotlinx.datetime.Instant
 import pt.isel.Event
+import pt.isel.Location
 import pt.isel.Rule
+import pt.isel.RuleEvent
+import pt.isel.RuleLocation
 import pt.isel.User
 
 /**
@@ -14,28 +17,38 @@ interface RuleRepository {
         user: User,
         startTime: Instant,
         endTime: Instant,
-    ): Rule
+    ): RuleEvent
 
     fun createLocationRule(
-        locationId: Int,
+        location: Location,
         user: User,
         startTime: Instant,
         endTime: Instant,
-    ): Rule
+    ): RuleLocation
 
     fun findAll(): List<Rule>
 
-    fun findById(id: Int): Rule?
+    fun findRuleEventById(id: Int): RuleEvent?
+
+    fun findRuleLocationById(id: Int): RuleLocation?
 
     fun findByUserId(user: User): List<Rule>
 
-    fun update(
-        rule: Rule,
+    fun updateRuleEvent(
+        rule: RuleEvent,
         startTime: Instant,
         endTime: Instant,
-    ): Rule
+    ): RuleEvent
 
-    fun delete(rule: Rule): Boolean
+    fun updateRuleLocation(
+        rule: RuleLocation,
+        startTime: Instant,
+        endTime: Instant,
+    ): RuleLocation
+
+    fun deleteRuleEvent(rule: RuleEvent): Boolean
+
+    fun deleteLocationEvent(rule: RuleLocation): Boolean
 
     fun clear()
 }

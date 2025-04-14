@@ -9,7 +9,7 @@ import kotlinx.datetime.Instant
  * @property endTime the rule's end time
  * @throws IllegalArgumentException if any of the parameters is invalid
  */
-data class Rule(
+sealed class Rule(
     val id: Int,
     val startTime: Instant,
     val endTime: Instant,

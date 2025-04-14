@@ -56,16 +56,20 @@ class ExclusionService(
             if (userId < 0) return@run failure(ExclusionError.NegativeIdentifier)
             if (contactName.isBlank()) return@run failure(ExclusionError.BlankContactName)
             if (contactPhone.isBlank()) return@run failure(ExclusionError.BlankPhoneNumber)
-            if (contactName.length > ContactExclusion.MAX_NAME_LENGTH)
+            if (contactName.length > ContactExclusion.MAX_NAME_LENGTH) {
                 return@run failure(ExclusionError.ContactNameTooLong)
-            if (contactPhone.length > ContactExclusion.MAX_PHONE_NUMBER_LENGTH)
+            }
+            if (contactPhone.length > ContactExclusion.MAX_PHONE_NUMBER_LENGTH) {
                 return@run failure(ExclusionError.PhoneNumberTooLong)
+            }
             val user =
                 userRepo.findById(userId)
                     ?: return@run failure(ExclusionError.UserNotFound)
             if (exclusionRepo.findContactExclusionsByUserId(user)
                     .any { it.name == contactName && it.phoneNumber == contactPhone }
-            ) return@run failure(ExclusionError.ExclusionAlreadyExists)
+            ) {
+                return@run failure(ExclusionError.ExclusionAlreadyExists)
+            }
             val exclusion =
                 exclusionRepo.createContactExclusion(
                     contactName = contactName,
@@ -179,7 +183,6 @@ class ExclusionService(
             success(result)
         }
 
-
     /**
      * Updates an existing contact exclusion for a specific user.
      *
@@ -197,28 +200,31 @@ class ExclusionService(
         userId: Int,
         exclusionId: Int,
         contactName: String,
-        phoneNumber: String
-    ) : Either<ExclusionError, ContactExclusion> =
+        phoneNumber: String,
+    ): Either<ExclusionError, ContactExclusion> =
         trxManager.run {
             if (userId < 0) return@run failure(ExclusionError.NegativeIdentifier)
             if (exclusionId < 0) return@run failure(ExclusionError.NegativeIdentifier)
             if (contactName.isBlank()) return@run failure(ExclusionError.BlankContactName)
             if (phoneNumber.isBlank()) return@run failure(ExclusionError.BlankPhoneNumber)
-            if (contactName.length > ContactExclusion.MAX_NAME_LENGTH)
+            if (contactName.length > ContactExclusion.MAX_NAME_LENGTH) {
                 return@run failure(ExclusionError.ContactNameTooLong)
-            if (phoneNumber.length > ContactExclusion.MAX_PHONE_NUMBER_LENGTH)
+            }
+            if (phoneNumber.length > ContactExclusion.MAX_PHONE_NUMBER_LENGTH) {
                 return@run failure(ExclusionError.PhoneNumberTooLong)
+            }
             val user =
                 userRepo.findById(userId)
                     ?: return@run failure(ExclusionError.UserNotFound)
             val exclusion =
                 exclusionRepo.findContactExclusionsByUserId(user).find { it.id == exclusionId }
                     ?: return@run failure(ExclusionError.ExclusionNotFound)
-            val result = exclusionRepo.updateContactExclusion(
-                contactExclusion = exclusion,
-                contactName = contactName,
-                phoneNumber = phoneNumber,
-            )
+            val result =
+                exclusionRepo.updateContactExclusion(
+                    contactExclusion = exclusion,
+                    contactName = contactName,
+                    phoneNumber = phoneNumber,
+                )
             success(result)
         }
 
@@ -238,7 +244,7 @@ class ExclusionService(
         userId: Int,
         exclusionId: Int,
         appName: String,
-    ) : Either<ExclusionError, AppExclusion> =
+    ): Either<ExclusionError, AppExclusion> =
         trxManager.run {
             if (userId < 0) return@run failure(ExclusionError.NegativeIdentifier)
             if (appName.isBlank()) return@run failure(ExclusionError.AppNameBlank)
@@ -252,11 +258,11 @@ class ExclusionService(
             val exclusion =
                 exclusionRepo.findAppExclusionsByUserId(user).find { it.id == exclusionId }
                     ?: return@run failure(ExclusionError.ExclusionNotFound)
-            val result = exclusionRepo.updateAppExclusion(
-                appExclusion = exclusion,
-                appName = appName,
-            )
+            val result =
+                exclusionRepo.updateAppExclusion(
+                    appExclusion = exclusion,
+                    appName = appName,
+                )
             success(result)
         }
-
 }

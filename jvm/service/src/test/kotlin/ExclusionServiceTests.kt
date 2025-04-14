@@ -18,12 +18,10 @@ import java.util.stream.Stream
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
 class ExclusionServiceTests {
-
     companion object {
         @JvmStatic
         fun transactionManagers(): Stream<TransactionManager> =
@@ -58,15 +56,11 @@ class ExclusionServiceTests {
         private fun createUserService(
             trxManager: TransactionManager,
             testClock: TestClock,
-            tokenTtl: Duration = 30.days,
-            tokenRollingTtl: Duration = 30.minutes,
-            maxTokensPerUser: Int = 3,
         ) = UserService(
             trxManager,
             usersDomain,
             testClock,
         )
-
     }
 
     @ParameterizedTest
@@ -115,14 +109,14 @@ class ExclusionServiceTests {
     @MethodSource("transactionManagers")
     fun `create contact exclusion with negative user id should return error`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
-        val sut = exclusionService.createContactExclusion(-1,  "John Doe", "123456789")
+        val sut = exclusionService.createContactExclusion(-1, "John Doe", "123456789")
         assertTrue(sut is Failure)
         assertIs<ExclusionError.NegativeIdentifier>(sut.value)
     }
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `create contact exclusion with contactName too long should return error`(trxManager: TransactionManager){
+    fun `create contact exclusion with contactName too long should return error`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val userService = createUserService(trxManager, TestClock())
         val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
@@ -135,24 +129,25 @@ class ExclusionServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `create contact exclusion with phoneNumber too long should return erro`(trxManager: TransactionManager){
+    fun `create contact exclusion with phoneNumber too long should return erro`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val userService = createUserService(trxManager, TestClock())
         val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
         assertTrue(user is Success)
         assertIs<User>(user.value)
-        val sut = exclusionService.createContactExclusion(
-            user.value.id,
-            "John Doe",
-            "123456789" + "1".repeat(ContactExclusion.MAX_PHONE_NUMBER_LENGTH))
+        val sut =
+            exclusionService.createContactExclusion(
+                user.value.id,
+                "John Doe",
+                "123456789" + "1".repeat(ContactExclusion.MAX_PHONE_NUMBER_LENGTH),
+            )
         assertTrue(sut is Failure)
         assertIs<ExclusionError.PhoneNumberTooLong>(sut.value)
-
     }
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `create contact exclusion with id from a user that does not exists should return error`(trxManager: TransactionManager){
+    fun `create contact exclusion with id from a user that does not exists should return error`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val sut = exclusionService.createContactExclusion(99999999, "John Doe", "123456789")
         assertTrue(sut is Failure)
@@ -177,10 +172,9 @@ class ExclusionServiceTests {
         assertIs<ExclusionError.ExclusionAlreadyExists>(sut.value)
     }
 
-
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `create App exclusion should succeed`(trxManager: TransactionManager){
+    fun `create App exclusion should succeed`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val userService = createUserService(trxManager, TestClock())
         val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
@@ -195,7 +189,7 @@ class ExclusionServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `create app exclusion called with user id less than 0 should return error`(trxManager: TransactionManager){
+    fun `create app exclusion called with user id less than 0 should return error`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val sut = exclusionService.createAppExclusion(-1, "Tasa")
         assertTrue(sut is Failure)
@@ -204,7 +198,7 @@ class ExclusionServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `create app exclusion called with blank app name should return error`(trxManager: TransactionManager){
+    fun `create app exclusion called with blank app name should return error`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val userService = createUserService(trxManager, TestClock())
         val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
@@ -217,7 +211,7 @@ class ExclusionServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `create app exclusion called with app name too long should return error`(trxManager: TransactionManager){
+    fun `create app exclusion called with app name too long should return error`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val userService = createUserService(trxManager, TestClock())
         val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
@@ -230,7 +224,7 @@ class ExclusionServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `create app exclusion should return error if user does not exists`(trxManager: TransactionManager){
+    fun `create app exclusion should return error if user does not exists`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val sut = exclusionService.createAppExclusion(1, "Tasa")
         assertTrue(sut is Failure)
@@ -239,7 +233,7 @@ class ExclusionServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `create app should return error if exclusion for given app already exists`(trxManager: TransactionManager){
+    fun `create app should return error if exclusion for given app already exists`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val userService = createUserService(trxManager, TestClock())
         val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
@@ -255,7 +249,7 @@ class ExclusionServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `get all exclusions should return empty list if no exclusions exist`(trxManager: TransactionManager){
+    fun `get all exclusions should return empty list if no exclusions exist`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val userService = createUserService(trxManager, TestClock())
         val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
@@ -268,7 +262,7 @@ class ExclusionServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `get all exclusions should return all existing exclusions of user`(trxManager: TransactionManager){
+    fun `get all exclusions should return all existing exclusions of user`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val userService = createUserService(trxManager, TestClock())
         val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
@@ -292,7 +286,7 @@ class ExclusionServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `get all exclusions should return error if user does not exists`(trxManager: TransactionManager){
+    fun `get all exclusions should return error if user does not exists`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val sut = exclusionService.getUserExclusions(1)
         assertTrue(sut is Failure)
@@ -301,7 +295,7 @@ class ExclusionServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `get all exclusions should return error if user id is negative`(trxManager: TransactionManager){
+    fun `get all exclusions should return error if user id is negative`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val sut = exclusionService.getUserExclusions(-1)
         assertTrue(sut is Failure)
@@ -310,7 +304,7 @@ class ExclusionServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `delete app exclusion should return error if user id is negative`(trxManager: TransactionManager){
+    fun `delete app exclusion should return error if user id is negative`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val sut = exclusionService.deleteAppExclusion(-1, 1)
         assertTrue(sut is Failure)
@@ -319,7 +313,7 @@ class ExclusionServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `delete app exclusion should return error if exclusion id is negative`(trxManager: TransactionManager){
+    fun `delete app exclusion should return error if exclusion id is negative`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val userService = createUserService(trxManager, TestClock())
         val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
@@ -332,7 +326,7 @@ class ExclusionServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `delete app exclusion should return error if user does not exists`(trxManager: TransactionManager){
+    fun `delete app exclusion should return error if user does not exists`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val userService = createUserService(trxManager, TestClock())
         val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
@@ -341,14 +335,14 @@ class ExclusionServiceTests {
         val exclusion = exclusionService.createAppExclusion(user.value.id, "Tasa")
         assertTrue(exclusion is Success)
         assertIs<AppExclusion>(exclusion.value)
-        val sut = exclusionService.deleteAppExclusion(user.value.id+ 9999, exclusion.value.id)
+        val sut = exclusionService.deleteAppExclusion(user.value.id + 9999, exclusion.value.id)
         assertTrue(sut is Failure)
         assertIs<ExclusionError.UserNotFound>(sut.value)
     }
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `delete app exclusion should return error if app exclusion with given id does not exists`(trxManager: TransactionManager){
+    fun `delete app exclusion should return error if app exclusion with given id does not exists`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val userService = createUserService(trxManager, TestClock())
         val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
@@ -359,10 +353,9 @@ class ExclusionServiceTests {
         assertIs<ExclusionError.ExclusionNotFound>(sut.value)
     }
 
-
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `delete app exclusion should succeed`(trxManager: TransactionManager){
+    fun `delete app exclusion should succeed`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val userService = createUserService(trxManager, TestClock())
         val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
@@ -378,17 +371,16 @@ class ExclusionServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `delete contact exclusion should return error if user id is negative`(trxManager: TransactionManager){
+    fun `delete contact exclusion should return error if user id is negative`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val sut = exclusionService.deleteContactExclusion(-1, 1)
         assertTrue(sut is Failure)
         assertIs<ExclusionError.NegativeIdentifier>(sut.value)
     }
 
-
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `delete contact exclusion should return error if user does not exists`(trxManager: TransactionManager){
+    fun `delete contact exclusion should return error if user does not exists`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val userService = createUserService(trxManager, TestClock())
         val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
@@ -397,14 +389,14 @@ class ExclusionServiceTests {
         val exclusion = exclusionService.createContactExclusion(user.value.id, "John Doe", "123456789")
         assertTrue(exclusion is Success)
         assertIs<ContactExclusion>(exclusion.value)
-        val sut = exclusionService.deleteContactExclusion(user.value.id+ 9999, exclusion.value.id)
+        val sut = exclusionService.deleteContactExclusion(user.value.id + 9999, exclusion.value.id)
         assertTrue(sut is Failure)
         assertIs<ExclusionError.UserNotFound>(sut.value)
     }
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `delete contact exclusion should return error if exclusion id is negative`(trxManager: TransactionManager){
+    fun `delete contact exclusion should return error if exclusion id is negative`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val userService = createUserService(trxManager, TestClock())
         val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
@@ -417,7 +409,7 @@ class ExclusionServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `delete contact exclusion should return error if contact exclusion does not exists`(trxManager: TransactionManager){
+    fun `delete contact exclusion should return error if contact exclusion does not exists`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val userService = createUserService(trxManager, TestClock())
         val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
@@ -430,7 +422,7 @@ class ExclusionServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `delete contact exclusion should succeeds`(trxManager: TransactionManager){
+    fun `delete contact exclusion should succeeds`(trxManager: TransactionManager) {
         val exclusionService = ExclusionService(trxManager)
         val userService = createUserService(trxManager, TestClock())
         val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
@@ -443,7 +435,6 @@ class ExclusionServiceTests {
         assertTrue(sut is Success)
         assertTrue(sut.value)
     }
-
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
@@ -515,12 +506,13 @@ class ExclusionServiceTests {
         val contactExclusion = exclusionService.createContactExclusion(user.value.id, "John Doe", "123456789")
         assertTrue(contactExclusion is Success)
         val longPhoneNumber = "9".repeat(ContactExclusion.MAX_PHONE_NUMBER_LENGTH + 1)
-        val sut = exclusionService.updateContactExclusion(
-            user.value.id,
-            contactExclusion.value.id,
-            "Jane Doe",
-            longPhoneNumber
-        )
+        val sut =
+            exclusionService.updateContactExclusion(
+                user.value.id,
+                contactExclusion.value.id,
+                "Jane Doe",
+                longPhoneNumber,
+            )
         assertTrue(sut is Failure)
         assertIs<ExclusionError.PhoneNumberTooLong>(sut.value)
     }
