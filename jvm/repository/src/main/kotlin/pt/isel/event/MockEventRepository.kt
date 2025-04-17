@@ -33,17 +33,19 @@ class MockEventRepository : EventRepository {
     override fun findByUserId(user: User): List<Event> = events[user.id]?.toList() ?: emptyList()
 
     override fun update(
-        event: Event,
         user: User,
+        event: Event,
+        newTitle: String,
     ): Event {
         events[user.id]?.remove(event)
-        events[user.id]?.add(event)
-        return event
+        val newEvent = event.copy(title = newTitle)
+        events[user.id]?.add(newEvent)
+        return newEvent
     }
 
     override fun delete(
-        event: Event,
         user: User,
+        event: Event,
     ): Boolean {
         return events[user.id]?.remove(event) == true
     }

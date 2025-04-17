@@ -23,6 +23,7 @@ bin/
 *.iml
 *.ipr
 out/
+htmlReport/
 !**/src/main/**/out/
 !**/src/test/**/out/
 

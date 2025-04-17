@@ -25,13 +25,14 @@ interface EventRepository {
     fun findByUserId(user: User): List<Event>
 
     fun update(
-        event: Event,
         user: User,
+        event: Event,
+        newTitle: String,
     ): Event
 
     fun delete(
-        event: Event,
         user: User,
+        event: Event,
     ): Boolean
 
     fun clear()

@@ -4,6 +4,7 @@ import pt.isel.Event
 import pt.isel.User
 import pt.isel.event.MockEventRepository
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class MockEventRepositoryTests {
     private val repo = MockEventRepository()
@@ -75,16 +76,17 @@ class MockEventRepositoryTests {
 
     @Test
     fun `update should update the Event and return it`() {
-        val updatedEvent = event.copy(title = "Updated Event")
         repo.create(event.id, event.calendarId, event.title, user)
-        val sut = repo.update(updatedEvent, user)
-        assert(sut == updatedEvent)
+        val sut = repo.update(user, event, "Updated Event")
+        assertEquals(event.id, sut.id)
+        assertEquals(event.calendarId, sut.calendarId)
+        assertEquals("Updated Event", sut.title)
     }
 
     @Test
     fun `delete should remove the Event and return true`() {
         repo.create(event.id, event.calendarId, event.title, user)
-        val sut = repo.delete(event, user)
+        val sut = repo.delete(user, event)
         assert(sut)
     }
 }
