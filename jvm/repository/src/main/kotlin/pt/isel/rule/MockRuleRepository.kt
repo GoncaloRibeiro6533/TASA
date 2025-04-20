@@ -27,6 +27,7 @@ class MockRuleRepository : RuleRepository {
                 id = eventRuleId++,
                 startTime = startTime,
                 endTime = endTime,
+                creator = user,
                 event = event,
             )
         eventRules.computeIfAbsent(user.id) { mutableListOf() }
@@ -45,6 +46,7 @@ class MockRuleRepository : RuleRepository {
                 id = locationRuleId++,
                 startTime = startTime,
                 endTime = endTime,
+                creator = user,
                 location = location,
             )
         locationRules.computeIfAbsent(user.id) { mutableListOf() }
@@ -81,6 +83,7 @@ class MockRuleRepository : RuleRepository {
                 id = rule.id,
                 startTime = startTime,
                 endTime = endTime,
+                creator = rule.creator,
                 event = rule.event,
             )
         eventRules[key]?.removeIf { it.id == rule.id }
@@ -100,6 +103,7 @@ class MockRuleRepository : RuleRepository {
                 id = rule.id,
                 startTime = startTime,
                 endTime = endTime,
+                creator = rule.creator,
                 location = rule.location,
             )
         locationRules[key]?.add(

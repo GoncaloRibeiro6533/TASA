@@ -19,7 +19,6 @@ import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
@@ -58,9 +57,6 @@ class UserServiceTests {
         private fun createUserService(
             trxManager: TransactionManager,
             testClock: TestClock,
-            tokenTtl: Duration = 30.days,
-            tokenRollingTtl: Duration = 30.minutes,
-            maxTokensPerUser: Int = 3,
         ) = UserService(
             trxManager,
             usersDomain,

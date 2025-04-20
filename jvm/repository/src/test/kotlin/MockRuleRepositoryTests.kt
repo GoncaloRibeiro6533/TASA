@@ -53,6 +53,7 @@ class MockRuleRepositoryTests {
                 startTime = Instant.parse("2025-06-01T00:00:00Z"),
                 endTime = Instant.parse("2025-06-01T01:00:00Z"),
                 event = event,
+                creator = user,
             )
         assertEquals(expectedRule.startTime, sut.startTime)
         assertEquals(expectedRule.endTime, sut.endTime)
@@ -74,7 +75,8 @@ class MockRuleRepositoryTests {
                 id = 0,
                 startTime = Instant.parse("2025-06-01T00:00:00Z"),
                 endTime = Instant.parse("2025-06-01T01:00:00Z"),
-                location,
+                location = location,
+                creator = user,
             )
         assertEquals(expectedRule.startTime, sut.startTime)
         assertEquals(expectedRule.endTime, sut.endTime)

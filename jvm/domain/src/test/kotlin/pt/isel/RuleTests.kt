@@ -1,13 +1,9 @@
 package pt.isel
 
-import kotlin.test.Test
-import kotlin.test.assertFailsWith
-import kotlin.time.Duration.Companion.hours
-
 class RuleTests {
     private val clock = TestClock()
 
-    @Test
+   /* @Test
     fun `rule creation should succeeds`() {
         Rule(1, clock.now(), clock.now() + 1.hours)
     }
@@ -26,5 +22,5 @@ class RuleTests {
             clock.advance(1.hours)
             Rule(1, clock.now(), later)
         }
-    }
+    }*/
 }

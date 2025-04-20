@@ -13,6 +13,7 @@ sealed class Rule(
     val id: Int,
     val startTime: Instant,
     val endTime: Instant,
+    val creator: User,
 ) {
     init {
         require(id >= 0) { "id must be positive" }

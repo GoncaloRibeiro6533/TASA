@@ -20,17 +20,31 @@ class UsersDomain(
     private val tokenEncoder: TokenEncoder,
     private val config: UsersDomainConfig,
 ) {
+    /**
+     * Validates the email format.
+     * @param email the email to validate
+     * @return true if the email is valid, false otherwise
+     */
     fun isValidEmail(email: String): Boolean {
         val emailRegex = "^[a-zA-Z0-9._%+-]+@[a-z.-]+\\.[a-z]{2,4}$"
         return email.matches(emailRegex.toRegex())
     }
 
+    /**
+     * Generates a random token value.
+     * @return the generated token value
+     */
     fun generateTokenValue(): String =
         ByteArray(config.tokenSizeInBytes).let { byteArray ->
             SecureRandom.getInstanceStrong().nextBytes(byteArray)
             getUrlEncoder().encodeToString(byteArray)
         }
 
+    /**
+     * Checks if the given token can be a valid token.
+     * @param token the token to check
+     * @return true if the token can be valid, false otherwise
+     */
     fun canBeToken(token: String): Boolean =
         try {
             getUrlDecoder().decode(token).size == config.tokenSizeInBytes

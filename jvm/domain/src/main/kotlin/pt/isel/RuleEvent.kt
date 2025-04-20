@@ -6,11 +6,11 @@ class RuleEvent(
     id: Int,
     startTime: Instant,
     endTime: Instant,
+    creator: User,
     val event: Event,
-) : Rule(id, startTime, endTime) {
-
+) : Rule(id, startTime, endTime, creator) {
     override fun toString(): String {
-        return "RuleEvent(id=$id, startTime=$startTime, endTime=$endTime, event=$event)"
+        return "RuleEvent(id=$id, startTime=$startTime, endTime=$endTime, creator= $creator, event=$event)"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -25,9 +25,10 @@ class RuleEvent(
         id: Int = this.id,
         startTime: Instant = this.startTime,
         endTime: Instant = this.endTime,
+        creator: User = this.creator,
         event: Event = this.event,
     ): RuleEvent {
-        return RuleEvent(id, startTime, endTime, event)
+        return RuleEvent(id, startTime, endTime, creator, event)
     }
 
     override fun hashCode(): Int {

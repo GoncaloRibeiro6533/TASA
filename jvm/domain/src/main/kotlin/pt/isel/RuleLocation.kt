@@ -6,11 +6,11 @@ class RuleLocation(
     id: Int,
     startTime: Instant,
     endTime: Instant,
+    creator: User,
     val location: Location,
-) : Rule(id, startTime, endTime) {
-
+) : Rule(id, startTime, endTime, creator) {
     override fun toString(): String {
-        return "RuleLocation(id=$id, startTime=$startTime, endTime=$endTime, location=$location)"
+        return "RuleLocation(id=$id, startTime=$startTime, endTime=$endTime, creator=$creator,location=$location)"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -25,9 +25,10 @@ class RuleLocation(
         id: Int = this.id,
         startTime: Instant = this.startTime,
         endTime: Instant = this.endTime,
+        creator: User = this.creator,
         location: Location = this.location,
     ): RuleLocation {
-        return RuleLocation(id, startTime, endTime, location)
+        return RuleLocation(id, startTime, endTime, creator, location)
     }
 
     override fun hashCode(): Int {
