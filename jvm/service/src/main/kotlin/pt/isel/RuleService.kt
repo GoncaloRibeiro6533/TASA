@@ -6,7 +6,7 @@ import pt.isel.transaction.TransactionManager
 
 /**
  * Represents the possible errors that can occur while applying or validating rules.
- * This is a sealed class, with specific error types defined as data objects inheriting from it.
+ * This is a sealed class, with specific error types defined as data objects inherited from it.
  */
 sealed class RuleError {
     data object NegativeIdentifier : RuleError()

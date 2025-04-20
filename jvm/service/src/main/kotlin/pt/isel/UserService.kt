@@ -49,8 +49,6 @@ sealed class UserError {
     data object WeakPassword : UserError()
 
     data object InvalidTokenFormat : UserError()
-
-    data object NotAllowed : UserError()
 }
 
 /**
@@ -217,7 +215,7 @@ class UserService(
         }
 
     /**
-     * Retrieves a user by it's token.
+     * Retrieves a user by its token.
      * @param token the token of the user session
      * @return the [User] on success or null if the session is expired or the user is not found.
      */
