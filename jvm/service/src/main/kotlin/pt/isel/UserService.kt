@@ -49,6 +49,8 @@ sealed class UserError {
     data object WeakPassword : UserError()
 
     data object InvalidTokenFormat : UserError()
+
+    data object NotAllowed : UserError()
 }
 
 /**

@@ -14,8 +14,6 @@ sealed class EventError {
 
     data object InvalidEventLocation : EventError()
 
-    data object InvalidEventDescription : EventError()
-
     data object NotAllowed : EventError()
 
     data object AlreadyExists : EventError()
@@ -42,6 +40,11 @@ class EventService(
             }
             if (title.isBlank()) {
                 return@run failure(EventError.InvalidEventName)
+            }
+            if (eventRepo.findByUserId(userRepo.findById(userId) ?: return@run failure(EventError.UserNotFound))
+                    .any { it.id == eventId && it.calendarId == calendarId }
+            ) {
+                return@run failure(EventError.AlreadyExists)
             }
             val user = userRepo.findById(userId) ?: return@run failure(EventError.UserNotFound)
             return@run success(

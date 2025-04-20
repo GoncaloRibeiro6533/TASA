@@ -10,7 +10,7 @@ data class Event(
     val id: Long,
     val calendarId: Long,
     val title: String,
-    //TODO may add creator [User] later
+    // TODO may add creator [User] later
 ) {
     init {
         require(id >= 0) { "id must be positive" }
