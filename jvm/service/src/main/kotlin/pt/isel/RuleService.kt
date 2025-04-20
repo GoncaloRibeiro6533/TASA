@@ -47,7 +47,7 @@ sealed class RuleError {
  * This class uses a transactional context to ensure consistent state changes.
  *
  * @constructor
- * @param trxManager Manages transactional contexts for database operations.
+ * @property trxManager Manages transactional contexts for database operations.
  */
 @Named
 class RuleService(

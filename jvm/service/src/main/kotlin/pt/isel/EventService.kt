@@ -31,7 +31,7 @@ sealed class EventError {
  *
  * @constructor Initializes the `EventService` with the provided `TransactionManager`.
  *
- * @param trxManager The transaction manager used to execute operations within a transactional context.
+ * @property trxManager The transaction manager used to execute operations within a transactional context.
  */
 @Named
 class EventService(

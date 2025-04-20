@@ -32,7 +32,7 @@ sealed class ExclusionError {
  *
  * @constructor Initializes the `ExclusionService` with the provided `TransactionManager`.
  *
- * @param trxManager The transaction manager used to execute operations within a transactional context.
+ * @property trxManager The transaction manager used to execute operations within a transactional context.
  */
 @Named
 class ExclusionService(

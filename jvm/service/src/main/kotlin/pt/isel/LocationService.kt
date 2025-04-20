@@ -29,7 +29,7 @@ sealed class LocationError {
  *
  * @constructor Initializes the `LocationService` with the provided `TransactionManager`.
  *
- * @param trxManager The transaction manager used to execute operations within a transactional context.
+ * @property trxManager The transaction manager used to execute operations within a transactional context.
  */
 @Named
 class LocationService(
