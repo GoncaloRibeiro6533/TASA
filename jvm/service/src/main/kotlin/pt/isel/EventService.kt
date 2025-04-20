@@ -38,7 +38,7 @@ class EventService(
     private val trxManager: TransactionManager,
 ) {
     /**
-     * Creates a event for a user.
+     * Creates an event for a user.
      *
      * @param eventId The ID of the event to be created.
      * @param calendarId The ID of the calendar to which the event belongs.
