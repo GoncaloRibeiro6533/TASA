@@ -10,6 +10,5 @@ data class TokenValidationInfo(
 ) {
     init {
         require(validationInfo.isNotBlank()) { "token must not be blank" }
-        // require(usersDomain.isTokenValid(validationInfo)) { "token must be valid" }
     }
 }

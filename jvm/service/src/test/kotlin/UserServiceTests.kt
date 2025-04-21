@@ -226,7 +226,7 @@ class UserServiceTests {
         assertTrue(user is Success)
         val sut = service.loginUser("Bob", "Tasa_2025")
         assertTrue(sut is Success)
-        assertIs<TokenExternalInfo>(sut.value)
+        assertIs<Pair<User, TokenExternalInfo>>(sut.value)
     }
 
     @ParameterizedTest
@@ -301,8 +301,8 @@ class UserServiceTests {
         assertTrue(user is Success)
         val session = service.loginUser("Bob", "Tasa_2025")
         assertTrue(session is Success)
-        assertIs<TokenExternalInfo>(session.value)
-        val sut = service.logoutUser(session.value.token)
+        assertIs<TokenExternalInfo>(session.value.second)
+        val sut = service.logoutUser(session.value.second.token)
         assertTrue(sut is Success)
         assertTrue(sut.value)
     }
@@ -570,7 +570,8 @@ class UserServiceTests {
         assertIs<User>(user.value)
         val session = service.loginUser("Bob", "Tasa_2025")
         assertTrue(session is Success)
-        val sut = service.getUserByToken(session.value.token)
+        assertIs<Pair<User, TokenExternalInfo>>(session.value)
+        val sut = service.getUserByToken(session.value.second.token)
         assertNotNull(sut)
         assertIs<User>(sut)
         assertEquals(user.value.id, sut.id)

@@ -100,7 +100,7 @@ class UserService(
     fun loginUser(
         username: String,
         password: String,
-    ): Either<UserError, TokenExternalInfo> =
+    ): Either<UserError, Pair<User, TokenExternalInfo>> =
         trxManager.run {
             if (password.isBlank()) return@run failure(UserError.PasswordCannotBeBlank)
             if (username.isBlank()) return@run failure(UserError.UsernameCannotBeBlank)
@@ -124,11 +124,12 @@ class UserService(
                     usersDomain.getSessionExpiration(now, now),
                 )
             return@run success(
-                TokenExternalInfo(
-                    token = token,
-                    refreshToken = refreshToken,
-                    newSession.expirationDate,
-                ),
+                user to
+                    TokenExternalInfo(
+                        token = token,
+                        refreshToken = refreshToken,
+                        newSession.expirationDate,
+                    ),
             )
         }
 
@@ -144,8 +145,7 @@ class UserService(
             val session =
                 sessionRepo.findByToken(usersDomain.createTokenValidationInformation(token))
                     ?: return@run failure(UserError.SessionExpired)
-            sessionRepo.deleteSession(session)
-            return@run success(true)
+            return@run success(sessionRepo.deleteSession(session))
         }
 
     /**

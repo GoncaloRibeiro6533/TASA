@@ -11,8 +11,8 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":domain"))
-    implementation(project(":repository"))
+    api(project(":domain"))
+    api(project(":repository"))
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
 
