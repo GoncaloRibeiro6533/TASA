@@ -63,4 +63,24 @@ sealed class Problem(
     data object InvalidTokenFormat : Problem(URI("$PROBLEM_URI_PATH/invalid-token-format"))
 
     data object UsernameTooShort : Problem(URI("$PROBLEM_URI_PATH/username-too-short"))
+
+    data object NotAllowed : Problem(URI("$PROBLEM_URI_PATH/not-allowed"))
+
+    data object InvalidCoordinate : Problem(URI("$PROBLEM_URI_PATH/invalid-coordinate"))
+
+    data object InvalidLatitude : Problem(URI("$PROBLEM_URI_PATH/invalid-latitude"))
+
+    data object InvalidLongitude : Problem(URI("$PROBLEM_URI_PATH/invalid-longitude"))
+
+    data object InvalidRadius : Problem(URI("$PROBLEM_URI_PATH/invalid-radius"))
+
+    data object EndTimeMustBeBeforeStartTime : Problem(URI("$PROBLEM_URI_PATH/end-time-must-be-before-start-time"))
+
+    data object StartTimeMustBeBeforeEndTime : Problem(URI("$PROBLEM_URI_PATH/start-time-must-be-before-end-time"))
+
+    data object RuleNotFound : Problem(URI("$PROBLEM_URI_PATH/rule-not-found"))
+
+    data object TitleCannotBeBlank : Problem(URI("$PROBLEM_URI_PATH/title-cannot-be-blank"))
+
+    data object RuleAlreadyExistsForGivenTime : Problem(URI("$PROBLEM_URI_PATH/rule-already-exists-for-given-time"))
 }

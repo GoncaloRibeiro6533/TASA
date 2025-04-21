@@ -32,12 +32,6 @@ sealed class RuleError {
     data object InvalidRadius : RuleError()
 
     data object NotAllowed : RuleError()
-
-    data object ErrorDeletingRule : RuleError()
-
-    data object ErrorCreatingRule : RuleError()
-
-    data object ErrorUpdatingRule : RuleError()
 }
 
 /**
