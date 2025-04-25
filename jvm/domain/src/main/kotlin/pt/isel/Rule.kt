@@ -7,6 +7,7 @@ import kotlinx.datetime.Instant
  * @property id the rule's id
  * @property startTime the rule's start time
  * @property endTime the rule's end time
+ * @property creator the user that created the rule
  * @throws IllegalArgumentException if any of the parameters is invalid
  */
 sealed class Rule(

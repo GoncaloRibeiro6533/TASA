@@ -83,4 +83,44 @@ sealed class Problem(
     data object TitleCannotBeBlank : Problem(URI("$PROBLEM_URI_PATH/title-cannot-be-blank"))
 
     data object RuleAlreadyExistsForGivenTime : Problem(URI("$PROBLEM_URI_PATH/rule-already-exists-for-given-time"))
+
+    data object ContactNameCannotBeBlank : Problem(URI("$PROBLEM_URI_PATH/contact-name-cannot-be-blank"))
+
+    data object ContactPhoneNumberCannotBeBlank : Problem(URI("$PROBLEM_URI_PATH/contact-phone-number-cannot-be-blank"))
+
+    data object ContactNameTooLong : Problem(URI("$PROBLEM_URI_PATH/contact-name-too-long"))
+
+    data object PhoneNumberTooLong : Problem(URI("$PROBLEM_URI_PATH/phone-number-too-long"))
+
+    data object AppNameCannotBeBlank : Problem(URI("$PROBLEM_URI_PATH/app-name-cannot-be-blank"))
+
+    data object AppNameTooLong : Problem(URI("$PROBLEM_URI_PATH/app-name-too-long"))
+
+    data object ExclusionAlreadyExists : Problem(URI("$PROBLEM_URI_PATH/exclusion-already-exists"))
+
+    data object ExclusionNotFound : Problem(URI("$PROBLEM_URI_PATH/exclusion-not-found"))
+
+    data object InvalidExclusionIdentifier : Problem(URI("$PROBLEM_URI_PATH/invalid-exclusion-identifier"))
+
+    data object InvalidExclusionType : Problem(URI("$PROBLEM_URI_PATH/invalid-exclusion-type"))
+
+    data object InvalidExclusionIdentifierFormat : Problem(URI("$PROBLEM_URI_PATH/invalid-exclusion-identifier-format"))
+
+    data object InvalidExclusionTypeFormat : Problem(URI("$PROBLEM_URI_PATH/invalid-exclusion-type-format"))
+
+    data object EventAlreadyExists : Problem(URI("$PROBLEM_URI_PATH/event-already-exists"))
+
+    data object EventNotFound : Problem(URI("$PROBLEM_URI_PATH/event-not-found"))
+
+    data object EventNameCannotBeBlank : Problem(URI("$PROBLEM_URI_PATH/event-name-cannot-be-blank"))
+
+    data object LocationAlreadyExists : Problem(URI("$PROBLEM_URI_PATH/location-already-exists"))
+
+    data object LocationNotFound : Problem(URI("$PROBLEM_URI_PATH/location-not-found"))
+
+    data object InvalidLocationName : Problem(URI("$PROBLEM_URI_PATH/invalid-location-name"))
+
+    data object InvalidLocationCoordinates : Problem(URI("$PROBLEM_URI_PATH/invalid-location-coordinates"))
+
+    data object InvalidLocationRadius : Problem(URI("$PROBLEM_URI_PATH/invalid-location-radius"))
 }

@@ -26,3 +26,9 @@ data class Session(
         require(lastUsedAt >= createdAt) { "lastUsedAt must be after createdAt" }
     }
 }
+
+data class Token(
+    val tokenValidationInfo: TokenValidationInfo,
+    val createdAt: Instant,
+    val lastUsedAt: Instant,
+)
