@@ -135,7 +135,7 @@ class EventServiceTests {
                 userId = user.value.id,
             )
         assertTrue(event is Failure)
-        assertIs<EventError.InvalidEventName>(event.value)
+        assertIs<EventError.EventNameCannotBeBlank>(event.value)
     }
 
     @ParameterizedTest
@@ -275,7 +275,7 @@ class EventServiceTests {
                 userId = user.value.id,
             )
         assertTrue(updatedEvent is Failure)
-        assertIs<EventError.InvalidEventName>(updatedEvent.value)
+        assertIs<EventError.EventNameCannotBeBlank>(updatedEvent.value)
     }
 
     @ParameterizedTest

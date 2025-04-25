@@ -11,11 +11,7 @@ sealed class EventError {
 
     data object NegativeIdentifier : EventError()
 
-    data object InvalidEventName : EventError()
-
-    data object InvalidEventDate : EventError()
-
-    data object InvalidEventLocation : EventError()
+    data object EventNameCannotBeBlank : EventError()
 
     data object NotAllowed : EventError()
 
@@ -58,7 +54,7 @@ class EventService(
                 return@run failure(EventError.NegativeIdentifier)
             }
             if (title.isBlank()) {
-                return@run failure(EventError.InvalidEventName)
+                return@run failure(EventError.EventNameCannotBeBlank)
             }
             val user = userRepo.findById(userId) ?: return@run failure(EventError.UserNotFound)
             if (eventRepo.findByUserId(user)
@@ -98,7 +94,7 @@ class EventService(
                 return@run failure(EventError.NegativeIdentifier)
             }
             if (newTitle.isBlank()) {
-                return@run failure(EventError.InvalidEventName)
+                return@run failure(EventError.EventNameCannotBeBlank)
             }
             val user = userRepo.findById(userId) ?: return@run failure(EventError.UserNotFound)
             val event = eventRepo.findById(eventId, calendarId, user) ?: return@run failure(EventError.EventNotFound)
@@ -107,6 +103,21 @@ class EventService(
             return@run success(event.copy(title = newTitle))
         }
     }
+
+    fun getEvent(
+        eventId: Long,
+        calendarId: Long,
+        userId: Int,
+    ): Either<EventError, Event> =
+        trxManager.run {
+            if (eventId < 0 || calendarId < 0) {
+                return@run failure(EventError.NegativeIdentifier)
+            }
+            val user = userRepo.findById(userId) ?: return@run failure(EventError.UserNotFound)
+            val event = eventRepo.findById(eventId, calendarId, user) ?: return@run failure(EventError.EventNotFound)
+            if (event !in eventRepo.findByUserId(user)) return@run failure(EventError.NotAllowed)
+            return@run success(event)
+        }
 
     /**
      * Retrieves all events of a user.
@@ -122,6 +133,8 @@ class EventService(
             return@run success(eventRepo.findByUserId(user))
         }
     }
+
+    // TODO add date skip
 
     /**
      * Deletes an event of a user.
