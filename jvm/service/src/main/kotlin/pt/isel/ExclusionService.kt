@@ -23,6 +23,10 @@ sealed class ExclusionError {
     data object ContactNameTooLong : ExclusionError()
 
     data object PhoneNumberTooLong : ExclusionError()
+
+    data object NotAllowed : ExclusionError()
+
+    data object RuleNotFound : ExclusionError()
 }
 
 /**
@@ -131,6 +135,130 @@ class ExclusionService(
             success(exclusions)
         }
 
+    fun getExclusionsOfRuleEvent(
+        userId: User,
+        ruleId: Int,
+    ): Either<ExclusionError, List<Exclusion>> =
+        trxManager.run {
+            if (userId.id < 0) return@run failure(ExclusionError.NegativeIdentifier)
+            if (ruleId < 0) return@run failure(ExclusionError.NegativeIdentifier)
+            val rule =
+                ruleRepo.findRuleEventById(ruleId)
+                    ?: return@run failure(ExclusionError.ExclusionNotFound)
+            val user =
+                userRepo.findById(userId.id)
+                    ?: return@run failure(ExclusionError.UserNotFound)
+            if (user.id != rule.creator.id) return@run failure(ExclusionError.NotAllowed)
+            val exclusions = exclusionRepo.findExclusionsByRuleId(rule)
+            success(exclusions)
+        }
+
+    fun getExclusionsOfRuleLocation(
+        userId: User,
+        ruleId: Int,
+    ): Either<ExclusionError, List<Exclusion>> =
+        trxManager.run {
+            if (userId.id < 0) return@run failure(ExclusionError.NegativeIdentifier)
+            if (ruleId < 0) return@run failure(ExclusionError.NegativeIdentifier)
+            val rule =
+                ruleRepo.findRuleLocationById(ruleId)
+                    ?: return@run failure(ExclusionError.ExclusionNotFound)
+            val user =
+                userRepo.findById(userId.id)
+                    ?: return@run failure(ExclusionError.UserNotFound)
+            if (user.id != rule.creator.id) return@run failure(ExclusionError.NotAllowed)
+            val exclusions = exclusionRepo.findExclusionsByRuleId(rule)
+            success(exclusions)
+        }
+
+    fun addAppExclusionToRuleEvent(
+        userId: User,
+        ruleId: Int,
+        exclusionId: Int,
+    ): Either<ExclusionError, Boolean> =
+        trxManager.run {
+            if (userId.id < 0 || ruleId < 0 || exclusionId < 0) return@run failure(ExclusionError.NegativeIdentifier)
+            val rule =
+                ruleRepo.findRuleEventById(ruleId)
+                    ?: return@run failure(ExclusionError.ExclusionNotFound)
+            val user = userRepo.findById(userId.id) ?: return@run failure(ExclusionError.UserNotFound)
+            if (rule.creator.id != user.id) return@run failure(ExclusionError.NotAllowed)
+            val exclusion =
+                exclusionRepo.findByIdAppExclusions(exclusionId)
+                    ?: return@run failure(ExclusionError.ExclusionNotFound)
+            if (exclusion !in exclusionRepo.findExclusionsByRuleId(rule)) {
+                return@run failure(ExclusionError.NotAllowed)
+            }
+            val result = exclusionRepo.addAppExclusionToRuleEvent(rule, exclusion)
+            success(result)
+        }
+
+    fun addAppExclusionToRuleLocation(
+        userId: User,
+        ruleId: Int,
+        exclusionId: Int,
+    ): Either<ExclusionError, Boolean> =
+        trxManager.run {
+            if (userId.id < 0 || ruleId < 0 || exclusionId < 0) return@run failure(ExclusionError.NegativeIdentifier)
+            val rule =
+                ruleRepo.findRuleLocationById(ruleId)
+                    ?: return@run failure(ExclusionError.ExclusionNotFound)
+            val user = userRepo.findById(userId.id) ?: return@run failure(ExclusionError.UserNotFound)
+            if (rule.creator.id != user.id) return@run failure(ExclusionError.NotAllowed)
+            val exclusion: AppExclusion =
+                exclusionRepo.findByIdAppExclusions(exclusionId)
+                    ?: return@run failure(ExclusionError.ExclusionNotFound)
+            if (exclusion !in exclusionRepo.findExclusionsByRuleId(rule)) {
+                return@run failure(ExclusionError.NotAllowed)
+            }
+            val result = exclusionRepo.addAppExclusionToRuleLocation(rule, exclusion)
+            success(result)
+        }
+
+    fun addContactExclusionToRuleEvent(
+        userId: User,
+        ruleId: Int,
+        exclusionId: Int,
+    ): Either<ExclusionError, Boolean> =
+        trxManager.run {
+            if (userId.id < 0 || ruleId < 0 || exclusionId < 0) return@run failure(ExclusionError.NegativeIdentifier)
+            val rule =
+                ruleRepo.findRuleEventById(ruleId)
+                    ?: return@run failure(ExclusionError.ExclusionNotFound)
+            val user = userRepo.findById(userId.id) ?: return@run failure(ExclusionError.UserNotFound)
+            if (rule.creator.id != user.id) return@run failure(ExclusionError.NotAllowed)
+            val exclusion =
+                exclusionRepo.findByIdContactExclusions(exclusionId)
+                    ?: return@run failure(ExclusionError.ExclusionNotFound)
+            if (exclusion !in exclusionRepo.findExclusionsByRuleId(rule)) {
+                return@run failure(ExclusionError.NotAllowed)
+            }
+            val result = exclusionRepo.addContactExclusionToRuleEvent(rule, exclusion)
+            success(result)
+        }
+
+    fun addContactExclusionToRuleLocation(
+        userId: User,
+        ruleId: Int,
+        exclusionId: Int,
+    ): Either<ExclusionError, Boolean> =
+        trxManager.run {
+            if (userId.id < 0 || ruleId < 0 || exclusionId < 0) return@run failure(ExclusionError.NegativeIdentifier)
+            val rule =
+                ruleRepo.findRuleLocationById(ruleId)
+                    ?: return@run failure(ExclusionError.ExclusionNotFound)
+            val user = userRepo.findById(userId.id) ?: return@run failure(ExclusionError.UserNotFound)
+            if (rule.creator.id != user.id) return@run failure(ExclusionError.NotAllowed)
+            val exclusion =
+                exclusionRepo.findByIdContactExclusions(exclusionId)
+                    ?: return@run failure(ExclusionError.ExclusionNotFound)
+            if (exclusion !in exclusionRepo.findExclusionsByRuleId(rule)) {
+                return@run failure(ExclusionError.NotAllowed)
+            }
+            val result = exclusionRepo.addContactExclusionToRuleLocation(rule, exclusion)
+            success(result)
+        }
+
     /**
      * Deletes an app exclusion for a specified user.
      *
@@ -199,19 +327,22 @@ class ExclusionService(
     fun updateContactExclusion(
         userId: Int,
         exclusionId: Int,
-        contactName: String,
-        phoneNumber: String,
+        contactName: String?,
+        phoneNumber: String?,
     ): Either<ExclusionError, ContactExclusion> =
         trxManager.run {
-            if (userId < 0) return@run failure(ExclusionError.NegativeIdentifier)
-            if (exclusionId < 0) return@run failure(ExclusionError.NegativeIdentifier)
-            if (contactName.isBlank()) return@run failure(ExclusionError.BlankContactName)
-            if (phoneNumber.isBlank()) return@run failure(ExclusionError.BlankPhoneNumber)
-            if (contactName.length > ContactExclusion.MAX_NAME_LENGTH) {
-                return@run failure(ExclusionError.ContactNameTooLong)
+            if (userId < 0 || exclusionId < 0) return@run failure(ExclusionError.NegativeIdentifier)
+            if (contactName != null) {
+                if (contactName.isBlank()) return@run failure(ExclusionError.BlankContactName)
+                if (contactName.length > ContactExclusion.MAX_NAME_LENGTH) {
+                    return@run failure(ExclusionError.ContactNameTooLong)
+                }
             }
-            if (phoneNumber.length > ContactExclusion.MAX_PHONE_NUMBER_LENGTH) {
-                return@run failure(ExclusionError.PhoneNumberTooLong)
+            if (phoneNumber != null) {
+                if (phoneNumber.isBlank()) return@run failure(ExclusionError.BlankPhoneNumber)
+                if (phoneNumber.length > ContactExclusion.MAX_PHONE_NUMBER_LENGTH) {
+                    return@run failure(ExclusionError.PhoneNumberTooLong)
+                }
             }
             val user =
                 userRepo.findById(userId)
@@ -222,10 +353,90 @@ class ExclusionService(
             val result =
                 exclusionRepo.updateContactExclusion(
                     contactExclusion = exclusion,
-                    contactName = contactName,
-                    phoneNumber = phoneNumber,
+                    contactName = contactName ?: exclusion.name,
+                    phoneNumber = phoneNumber ?: exclusion.phoneNumber,
                 )
             success(result)
+        }
+
+    fun addExclusionContactToRuleEvent(
+        userId: Int,
+        exclusionId: Int,
+        ruleId: Int,
+    ): Either<ExclusionError, Unit> =
+        trxManager.run {
+            if (userId < 0 || exclusionId < 0 || ruleId < 0) return@run failure(ExclusionError.NegativeIdentifier)
+            val user = userRepo.findById(userId) ?: return@run failure(ExclusionError.UserNotFound)
+            val exclusion =
+                exclusionRepo.findByIdContactExclusions(exclusionId)
+                    ?: return@run failure(ExclusionError.ExclusionNotFound)
+            val rule = ruleRepo.findRuleEventById(ruleId) ?: return@run failure(ExclusionError.RuleNotFound)
+            if (user.id != rule.creator.id) return@run failure(ExclusionError.NotAllowed)
+            if (exclusion !in exclusionRepo.findContactExclusionsByUserId(user)) {
+                return@run failure(ExclusionError.NotAllowed)
+            }
+            exclusionRepo.addContactExclusionToRuleEvent(rule, exclusion)
+            success(Unit)
+        }
+
+    fun addExclusionContactToRuleLocation(
+        userId: Int,
+        exclusionId: Int,
+        ruleId: Int,
+    ): Either<ExclusionError, Unit> =
+        trxManager.run {
+            if (userId < 0 || exclusionId < 0 || ruleId < 0) return@run failure(ExclusionError.NegativeIdentifier)
+            val user = userRepo.findById(userId) ?: return@run failure(ExclusionError.UserNotFound)
+            val exclusion =
+                exclusionRepo.findByIdContactExclusions(exclusionId)
+                    ?: return@run failure(ExclusionError.ExclusionNotFound)
+            val rule = ruleRepo.findRuleLocationById(ruleId) ?: return@run failure(ExclusionError.RuleNotFound)
+            if (user.id != rule.creator.id) return@run failure(ExclusionError.NotAllowed)
+            if (exclusion !in exclusionRepo.findContactExclusionsByUserId(user)) {
+                return@run failure(ExclusionError.NotAllowed)
+            }
+            exclusionRepo.addContactExclusionToRuleLocation(rule, exclusion)
+            success(Unit)
+        }
+
+    fun addExclusionAppToRuleEvent(
+        userId: Int,
+        exclusionId: Int,
+        ruleId: Int,
+    ): Either<ExclusionError, Unit> =
+        trxManager.run {
+            if (userId < 0 || exclusionId < 0 || ruleId < 0) return@run failure(ExclusionError.NegativeIdentifier)
+            val user = userRepo.findById(userId) ?: return@run failure(ExclusionError.UserNotFound)
+            val exclusion =
+                exclusionRepo.findByIdAppExclusions(exclusionId)
+                    ?: return@run failure(ExclusionError.ExclusionNotFound)
+            val rule = ruleRepo.findRuleEventById(ruleId) ?: return@run failure(ExclusionError.RuleNotFound)
+            if (user.id != rule.creator.id) return@run failure(ExclusionError.NotAllowed)
+            if (exclusion !in exclusionRepo.findAppExclusionsByUserId(user)) {
+                return@run failure(ExclusionError.NotAllowed)
+            }
+            exclusionRepo.addAppExclusionToRuleEvent(rule, exclusion)
+            success(Unit)
+        }
+
+    fun addExclusionAppToRuleLocation(
+        userId: Int,
+        exclusionId: Int,
+        ruleId: Int,
+    ): Either<ExclusionError, Unit> =
+        trxManager.run {
+            if (userId < 0 || exclusionId < 0 || ruleId < 0) return@run failure(ExclusionError.NegativeIdentifier)
+            val user = userRepo.findById(userId) ?: return@run failure(ExclusionError.UserNotFound)
+            val exclusion =
+                exclusionRepo.findByIdAppExclusions(exclusionId)
+                    ?: return@run failure(ExclusionError.ExclusionNotFound)
+            val rule = ruleRepo.findRuleLocationById(ruleId) ?: return@run failure(ExclusionError.RuleNotFound)
+            if (user.id != rule.creator.id) return@run failure(ExclusionError.NotAllowed)
+            if (exclusion !in exclusionRepo.findAppExclusionsByUserId(user)) {
+                return@run failure(ExclusionError.NotAllowed)
+            }
+            exclusionRepo.addAppExclusionToRuleLocation(rule, exclusion)
+            success(Unit)
         }
 
     /**
@@ -246,12 +457,11 @@ class ExclusionService(
         appName: String,
     ): Either<ExclusionError, AppExclusion> =
         trxManager.run {
-            if (userId < 0) return@run failure(ExclusionError.NegativeIdentifier)
+            if (userId < 0 || exclusionId < 0) return@run failure(ExclusionError.NegativeIdentifier)
             if (appName.isBlank()) return@run failure(ExclusionError.AppNameBlank)
             if (appName.length > AppExclusion.MAX_NAME_LENGTH) {
                 return@run failure(ExclusionError.AppNameTooLong)
             }
-            if (exclusionId < 0) return@run failure(ExclusionError.NegativeIdentifier)
             val user =
                 userRepo.findById(userId)
                     ?: return@run failure(ExclusionError.UserNotFound)

@@ -3,7 +3,11 @@ package pt.isel.exclusion
 import pt.isel.AppExclusion
 import pt.isel.ContactExclusion
 import pt.isel.Exclusion
+import pt.isel.Rule
+import pt.isel.RuleEvent
+import pt.isel.RuleLocation
 import pt.isel.User
+import kotlin.collections.emptyList
 import kotlin.collections.get
 
 class MockExclusionRepository : ExclusionRepository {
@@ -11,6 +15,10 @@ class MockExclusionRepository : ExclusionRepository {
     private var contactExclusionId = 0
     private val appExclusions = mutableMapOf<Int, MutableList<AppExclusion>>()
     private val contactExclusions = mutableMapOf<Int, MutableList<ContactExclusion>>()
+
+    // RuleID to List<ExclusionId>
+    private val appExclusionsRules = mutableMapOf<Int, MutableList<Int>>()
+    private val contactExclusionsRules = mutableMapOf<Int, MutableList<Int>>()
 
     override fun createAppExclusion(
         appName: String,
@@ -66,6 +74,12 @@ class MockExclusionRepository : ExclusionRepository {
         return appExclusions[user.id]?.toList() ?: emptyList()
     }
 
+    override fun findExclusionsByRuleId(rule: Rule): List<Exclusion> {
+        val listAppExclusion = appExclusionsRules[rule.id]?.mapNotNull { findByIdAppExclusions(it) } ?: return emptyList()
+        val listContactExclusion = contactExclusionsRules[rule.id]?.mapNotNull { findByIdContactExclusions(it) } ?: return emptyList()
+        return listAppExclusion + listContactExclusion
+    }
+
     override fun findContactExclusionsByUserId(user: User): List<ContactExclusion> {
         return contactExclusions[user.id]?.toList() ?: emptyList()
     }
@@ -74,6 +88,51 @@ class MockExclusionRepository : ExclusionRepository {
         val appExclusionsList = appExclusions[user.id]?.toList() ?: emptyList()
         val contactExclusionsList = contactExclusions[user.id]?.toList() ?: emptyList()
         return appExclusionsList + contactExclusionsList
+    }
+
+    override fun addAppExclusionToRule(
+        ruleId: Int,
+        exclusionId: Int,
+    ): Boolean {
+        appExclusionsRules.computeIfAbsent(ruleId) { mutableListOf() }
+            .add(exclusionId)
+        return true
+    }
+
+    override fun removeAppExclusionFromRule(
+        ruleId: Int,
+        exclusionId: Int,
+    ): Boolean {
+        val exclusions = appExclusionsRules[ruleId]
+        return if (exclusions != null) {
+            appExclusionsRules[ruleId]?.remove(exclusionId)
+            true
+        } else {
+            false
+        }
+    }
+
+    override fun removeContactExclusionFromRule(
+        ruleId: Int,
+        exclusionId: Int,
+    ): Boolean {
+        val exclusions = contactExclusionsRules[ruleId]
+        return if (exclusions != null) {
+            contactExclusionsRules[ruleId]?.remove(exclusionId)
+            true
+        } else {
+            false
+        }
+    }
+
+    override fun addContactExclusionToRule(
+        ruleId: Int,
+        exclusionId: Int,
+    ): Boolean {
+        contactExclusionsRules.computeIfAbsent(ruleId) {
+            mutableListOf()
+        }.add(exclusionId)
+        return true
     }
 
     override fun updateAppExclusion(
@@ -122,5 +181,33 @@ class MockExclusionRepository : ExclusionRepository {
         appExclusions.clear()
         appExclusionId = 0
         contactExclusionId = 0
+    }
+
+    override fun addAppExclusionToRuleEvent(
+        rule: RuleEvent,
+        exclusion: AppExclusion,
+    ): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun addAppExclusionToRuleLocation(
+        rule: RuleLocation,
+        exclusion: AppExclusion,
+    ): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun addContactExclusionToRuleEvent(
+        rule: RuleEvent,
+        exclusion: ContactExclusion,
+    ): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun addContactExclusionToRuleLocation(
+        rule: RuleLocation,
+        exclusion: ContactExclusion,
+    ): Boolean {
+        TODO("Not yet implemented")
     }
 }
