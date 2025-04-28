@@ -1,27 +1,23 @@
-package com.tasa.newlocation
+package com.tasa.start
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.tasa.authentication.login.LoginActivity
+import com.tasa.authentication.register.RegisterActivity
 import com.tasa.homepage.HomePageActivity
 import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
-import org.osmdroid.config.Configuration
 
-
-
-class MapActivity : ComponentActivity() {
+class StartActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val prefs = applicationContext.getSharedPreferences("osmdroid", MODE_PRIVATE)
-        Configuration.getInstance().load(applicationContext, prefs)
-
-
         setContent {
             TasaTheme {
-                MapScreen(
-                    onNavigationBack = {navigateTo(this, HomePageActivity::class.java)}
+                StartScreen(
+                    onLoginRequested = {navigateTo(this, LoginActivity::class.java)},
+                    onRegisterRequested = {navigateTo(this, RegisterActivity::class.java)}
                 )
             }
         }
