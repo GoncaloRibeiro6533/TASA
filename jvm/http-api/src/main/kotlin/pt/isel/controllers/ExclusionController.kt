@@ -61,7 +61,7 @@ class ExclusionController(
         }
     }
 
-    @GetMapping("/contact")
+    @GetMapping("/all")
     fun getExclusions(authUser: AuthenticatedUser): ResponseEntity<*> {
         val result = exclusionService.getUserExclusions(authUser.user.id)
         return when (result) {
@@ -146,7 +146,7 @@ class ExclusionController(
                 id,
             )
         return when (result) {
-            is Success -> ResponseEntity.status(HttpStatus.NO_CONTENT).body(null)
+            is Success -> ResponseEntity.ok().body(null)
             is Failure -> result.value.toResponse()
         }
     }
@@ -164,7 +164,7 @@ class ExclusionController(
                 ruleId,
             )
         return when (result) {
-            is Success -> ResponseEntity.status(HttpStatus.OK).body(result.value)
+            is Success -> ResponseEntity.ok().body(null)
             is Failure -> result.value.toResponse()
         }
     }
@@ -226,7 +226,7 @@ class ExclusionController(
 
     @PutMapping("/add/{exclusionId}/rule/{ruleId}")
     fun addAppExclusionToRuleLocation(
-        authUser: AuthenticatedUser,
+           authUser: AuthenticatedUser,
         @PathVariable exclusionId: Int,
         @PathVariable ruleId: Int,
     ): ResponseEntity<*> {

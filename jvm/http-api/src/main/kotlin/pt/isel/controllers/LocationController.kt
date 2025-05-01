@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -73,6 +74,42 @@ class LocationController(
                         locations = result.value,
                     ),
                 )
+            is Failure -> result.value.toResponse()
+        }
+    }
+
+    @PutMapping("/{id}/update/name/{name}")
+    fun updateLocationName(
+        authUser: AuthenticatedUser,
+        @PathVariable id: Int,
+        @PathVariable name: String,
+    ): ResponseEntity<*> {
+        val result: Either<LocationError, Location> =
+            locationService.updateLocationName(
+                userId = authUser.user.id,
+                locationId = id,
+                name = name,
+            )
+        return when (result) {
+            is Success -> ResponseEntity.ok(result.value)
+            is Failure -> result.value.toResponse()
+        }
+    }
+
+    @PutMapping("/{id}/update/radius")
+    fun updateLocationRadius(
+        authUser: AuthenticatedUser,
+        @PathVariable id: Int,
+        @RequestBody radius: Double,
+    ): ResponseEntity<*> {
+        val result: Either<LocationError, Location> =
+            locationService.updateLocationRadius(
+                userId = authUser.user.id,
+                locationId = id,
+                radius = radius,
+            )
+        return when (result) {
+            is Success -> ResponseEntity.ok(result.value)
             is Failure -> result.value.toResponse()
         }
     }

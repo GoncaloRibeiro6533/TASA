@@ -23,7 +23,6 @@ import pt.isel.models.user.UserRegisterInput
 
 /**
  * Controller for managing users.
- *
  * @property userService the user service
  */
 @RestController

@@ -89,7 +89,7 @@ class EventController(
         }
     }
 
-    @DeleteMapping("event/remove/{id}/calendar/{calendarId}")
+    @DeleteMapping("/remove/{id}/calendar/{calendarId}")
     fun deleteEvent(
         authUser: AuthenticatedUser,
         @PathVariable id: Long,
