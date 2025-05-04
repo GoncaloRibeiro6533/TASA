@@ -75,8 +75,8 @@ class UsersDomain(
     }
 
     fun getSessionExpiration(session: Session): Instant {
-        val absoluteExpiration = session.createdAt + config.tokenTtl
-        val rollingExpiration = session.lastUsedAt + config.tokenRollingTtl
+        val absoluteExpiration = session.token.createdAt + config.tokenTtl
+        val rollingExpiration = session.token.lastUsedAt + config.tokenRollingTtl
         return if (absoluteExpiration < rollingExpiration) {
             absoluteExpiration
         } else {
@@ -97,6 +97,11 @@ class UsersDomain(
         }
     }
 
+    // TODO improve
+    fun getRefreshTokenExpiration(createdAt: Instant): Instant {
+        return createdAt + config.tokenTtl * 2
+    }
+
     fun createTokenValidationInformation(token: String) = tokenEncoder.createValidationInformation(token)
 
     fun isSessionTimeValid(
@@ -104,9 +109,9 @@ class UsersDomain(
         session: Session,
     ): Boolean {
         val now = clock.now()
-        return session.createdAt <= now &&
-            (now - session.createdAt) <= config.tokenTtl &&
-            (now - session.lastUsedAt) <= config.tokenRollingTtl
+        return session.token.createdAt <= now &&
+            (now - session.token.createdAt) <= config.tokenTtl &&
+            (now - session.token.lastUsedAt) <= config.tokenRollingTtl
     }
 
     val maxNumberOfTokensPerUser = config.maxTokensPerUser

@@ -1,7 +1,10 @@
+import kotlinx.datetime.toInstant
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import pt.isel.RefreshToken
 import pt.isel.Session
 import pt.isel.Sha256TokenEncoder
+import pt.isel.Token
 import pt.isel.User
 import pt.isel.UsersDomain
 import pt.isel.UsersDomainConfig
@@ -43,73 +46,97 @@ class MockSessionRepositoryTests {
 
     @Test
     fun `create should create a session and return it`() {
+        val token =
+            Token(
+                tokenValidationInfo = tokenEncoder.createValidationInformation("token"),
+                createdAt = "2025-06-01T00:00:00Z".toInstant(),
+                lastUsedAt = "2025-06-01T01:00:00Z".toInstant(),
+                expiresAt = "2025-06-03T00:00:00Z".toInstant(),
+            )
+        val refreshToken =
+            RefreshToken(
+                tokenValidationInfo = tokenEncoder.createValidationInformation("refreshToken"),
+                createdAt = "2025-06-01T00:00:00Z".toInstant(),
+                expiresAt = "2025-06-06T01:00:00Z".toInstant(),
+            )
         val expected =
             Session(
-                token = usersDomain.createTokenValidationInformation(usersDomain.generateTokenValue()),
-                refreshToken = usersDomain.createTokenValidationInformation(usersDomain.generateTokenValue()),
+                id = 0,
+                token = token,
+                refreshToken = refreshToken,
                 userId = user.id,
-                createdAt = clock.now(),
-                lastUsedAt = clock.now(),
-                expirationDate = clock.now() + usersDomainConfig.tokenTtl,
             )
         val sut =
             repo.createSession(
                 user,
                 expected.token,
                 expected.refreshToken,
-                expected.createdAt,
-                expected.lastUsedAt,
-                expected.expirationDate,
+                usersDomainConfig.maxTokensPerUser,
             )
         assertEquals(expected.token, sut.token)
         assertEquals(expected.refreshToken, sut.refreshToken)
         assertEquals(expected.userId, sut.userId)
-        assertEquals(expected.createdAt, sut.createdAt)
-        assertEquals(expected.lastUsedAt, sut.lastUsedAt)
-        assertEquals(expected.expirationDate, sut.expirationDate)
     }
 
     @Test
     fun `findByToken should return the session with the given token`() {
+        val token =
+            Token(
+                tokenValidationInfo = tokenEncoder.createValidationInformation("token"),
+                createdAt = "2025-06-01T00:00:00Z".toInstant(),
+                lastUsedAt = "2025-06-01T01:00:00Z".toInstant(),
+                expiresAt = "2025-06-03T00:00:00Z".toInstant(),
+            )
+        val refreshToken =
+            RefreshToken(
+                tokenValidationInfo = tokenEncoder.createValidationInformation("refreshToken"),
+                createdAt = "2025-06-01T00:00:00Z".toInstant(),
+                expiresAt = "2025-06-06T01:00:00Z".toInstant(),
+            )
         val expected =
             Session(
-                token = usersDomain.createTokenValidationInformation(usersDomain.generateTokenValue()),
-                refreshToken = usersDomain.createTokenValidationInformation(usersDomain.generateTokenValue()),
+                id = 0,
+                token = token,
+                refreshToken = refreshToken,
                 userId = user.id,
-                createdAt = clock.now(),
-                lastUsedAt = clock.now(),
-                expirationDate = clock.now() + usersDomainConfig.tokenTtl,
             )
         repo.createSession(
             user,
             expected.token,
             expected.refreshToken,
-            expected.createdAt,
-            expected.lastUsedAt,
-            expected.expirationDate,
+            usersDomainConfig.maxTokensPerUser,
         )
-        val sut = repo.findByToken(expected.token)
+        val sut = repo.findByToken(expected.token.tokenValidationInfo)
         assertEquals(expected, sut)
     }
 
     @Test
     fun `findByUserId should return the session with the given userId`() {
+        val token =
+            Token(
+                tokenValidationInfo = tokenEncoder.createValidationInformation("token"),
+                createdAt = "2025-06-01T00:00:00Z".toInstant(),
+                lastUsedAt = "2025-06-01T01:00:00Z".toInstant(),
+                expiresAt = "2025-06-03T00:00:00Z".toInstant(),
+            )
+        val refreshToken =
+            RefreshToken(
+                tokenValidationInfo = tokenEncoder.createValidationInformation("refreshToken"),
+                createdAt = "2025-06-01T00:00:00Z".toInstant(),
+                expiresAt = "2025-06-06T01:00:00Z".toInstant(),
+            )
         val expected =
             Session(
-                token = usersDomain.createTokenValidationInformation(usersDomain.generateTokenValue()),
-                refreshToken = usersDomain.createTokenValidationInformation(usersDomain.generateTokenValue()),
+                id = 0,
+                token = token,
+                refreshToken = refreshToken,
                 userId = user.id,
-                createdAt = clock.now(),
-                lastUsedAt = clock.now(),
-                expirationDate = clock.now() + usersDomainConfig.tokenTtl,
             )
         repo.createSession(
             user,
             expected.token,
             expected.refreshToken,
-            expected.createdAt,
-            expected.lastUsedAt,
-            expected.expirationDate,
+            usersDomainConfig.maxTokensPerUser,
         )
         val sut = repo.findByUser(user)
         assertEquals(1, sut.size)
@@ -118,22 +145,31 @@ class MockSessionRepositoryTests {
 
     @Test
     fun `deleteSession should remove the session from the repository`() {
+        val token =
+            Token(
+                tokenValidationInfo = tokenEncoder.createValidationInformation("token"),
+                createdAt = "2025-06-01T00:00:00Z".toInstant(),
+                lastUsedAt = "2025-06-01T01:00:00Z".toInstant(),
+                expiresAt = "2025-06-03T00:00:00Z".toInstant(),
+            )
+        val refreshToken =
+            RefreshToken(
+                tokenValidationInfo = tokenEncoder.createValidationInformation("refreshToken"),
+                createdAt = "2025-06-01T00:00:00Z".toInstant(),
+                expiresAt = "2025-06-06T01:00:00Z".toInstant(),
+            )
         val expected =
             Session(
-                token = usersDomain.createTokenValidationInformation(usersDomain.generateTokenValue()),
-                refreshToken = usersDomain.createTokenValidationInformation(usersDomain.generateTokenValue()),
+                id = 0,
+                token = token,
+                refreshToken = refreshToken,
                 userId = user.id,
-                createdAt = clock.now(),
-                lastUsedAt = clock.now(),
-                expirationDate = clock.now() + usersDomainConfig.tokenTtl,
             )
         repo.createSession(
             user,
             expected.token,
             expected.refreshToken,
-            expected.createdAt,
-            expected.lastUsedAt,
-            expected.expirationDate,
+            usersDomainConfig.maxTokensPerUser,
         )
         val deleted = repo.deleteSession(expected)
         assertEquals(true, deleted)
@@ -143,50 +179,74 @@ class MockSessionRepositoryTests {
 
     @Test
     fun `updateSession should update the session and return it`() {
+        val token =
+            Token(
+                tokenValidationInfo = tokenEncoder.createValidationInformation("token"),
+                createdAt = "2025-06-01T00:00:00Z".toInstant(),
+                lastUsedAt = "2025-06-01T01:00:00Z".toInstant(),
+                expiresAt = "2025-06-03T00:00:00Z".toInstant(),
+            )
+        val refreshToken =
+            RefreshToken(
+                tokenValidationInfo = tokenEncoder.createValidationInformation("refreshToken"),
+                createdAt = "2025-06-01T00:00:00Z".toInstant(),
+                expiresAt = "2025-06-06T01:00:00Z".toInstant(),
+            )
         val expected =
             Session(
-                token = usersDomain.createTokenValidationInformation(usersDomain.generateTokenValue()),
-                refreshToken = usersDomain.createTokenValidationInformation(usersDomain.generateTokenValue()),
+                id = 0,
+                token = token,
+                refreshToken = refreshToken,
                 userId = user.id,
-                createdAt = clock.now(),
-                lastUsedAt = clock.now(),
-                expirationDate = clock.now() + usersDomainConfig.tokenTtl,
             )
         repo.createSession(
             user,
             expected.token,
             expected.refreshToken,
-            expected.createdAt,
-            expected.lastUsedAt,
-            expected.expirationDate,
+            usersDomainConfig.maxTokensPerUser,
         )
-        val updated = repo.updateSession(expected, clock.now())
-        assertEquals(expected.token, updated.token)
-        assertEquals(expected.refreshToken, updated.refreshToken)
+        val lastUsedInstant = clock.now()
+        val updated = repo.updateSession(expected, lastUsedInstant)
+        assertEquals(
+            expected.token.tokenValidationInfo.validationInfo,
+            updated.token.tokenValidationInfo.validationInfo,
+        )
+        assertEquals(
+            expected.refreshToken.tokenValidationInfo.validationInfo,
+            updated.refreshToken.tokenValidationInfo.validationInfo,
+        )
         assertEquals(expected.userId, updated.userId)
-        assertEquals(expected.createdAt, updated.createdAt)
-        assertEquals(clock.now(), updated.lastUsedAt)
-        assertEquals(expected.expirationDate, updated.expirationDate)
+        assertEquals(expected.token.createdAt, updated.token.createdAt)
+        assertEquals(lastUsedInstant, updated.token.lastUsedAt)
     }
 
     @Test
     fun `getSessionHistory should return the session history for the given user`() {
+        val token =
+            Token(
+                tokenValidationInfo = tokenEncoder.createValidationInformation("token"),
+                createdAt = "2025-06-01T00:00:00Z".toInstant(),
+                lastUsedAt = "2025-06-01T01:00:00Z".toInstant(),
+                expiresAt = "2025-06-03T00:00:00Z".toInstant(),
+            )
+        val refreshToken =
+            RefreshToken(
+                tokenValidationInfo = tokenEncoder.createValidationInformation("refreshToken"),
+                createdAt = "2025-06-01T00:00:00Z".toInstant(),
+                expiresAt = "2025-06-06T01:00:00Z".toInstant(),
+            )
         val expected =
             Session(
-                token = usersDomain.createTokenValidationInformation(usersDomain.generateTokenValue()),
-                refreshToken = usersDomain.createTokenValidationInformation(usersDomain.generateTokenValue()),
+                id = 0,
+                token = token,
+                refreshToken = refreshToken,
                 userId = user.id,
-                createdAt = clock.now(),
-                lastUsedAt = clock.now(),
-                expirationDate = clock.now() + usersDomainConfig.tokenTtl,
             )
         repo.createSession(
             user,
             expected.token,
             expected.refreshToken,
-            expected.createdAt,
-            expected.lastUsedAt,
-            expected.expirationDate,
+            usersDomainConfig.maxTokensPerUser,
         )
         val sut = repo.getSessionHistory(user, 10, 0)
         assertEquals(1, sut.size)
@@ -195,22 +255,31 @@ class MockSessionRepositoryTests {
 
     @Test
     fun `clear should remove all sessions from the repository`() {
+        val token =
+            Token(
+                tokenValidationInfo = tokenEncoder.createValidationInformation("token"),
+                createdAt = "2025-06-01T00:00:00Z".toInstant(),
+                lastUsedAt = "2025-06-01T01:00:00Z".toInstant(),
+                expiresAt = "2025-06-03T00:00:00Z".toInstant(),
+            )
+        val refreshToken =
+            RefreshToken(
+                tokenValidationInfo = tokenEncoder.createValidationInformation("refreshToken"),
+                createdAt = "2025-06-01T00:00:00Z".toInstant(),
+                expiresAt = "2025-06-06T01:00:00Z".toInstant(),
+            )
         val expected =
             Session(
-                token = usersDomain.createTokenValidationInformation(usersDomain.generateTokenValue()),
-                refreshToken = usersDomain.createTokenValidationInformation(usersDomain.generateTokenValue()),
+                id = 0,
+                token = token,
+                refreshToken = refreshToken,
                 userId = user.id,
-                createdAt = clock.now(),
-                lastUsedAt = clock.now(),
-                expirationDate = clock.now() + usersDomainConfig.tokenTtl,
             )
         repo.createSession(
             user,
             expected.token,
             expected.refreshToken,
-            expected.createdAt,
-            expected.lastUsedAt,
-            expected.expirationDate,
+            usersDomainConfig.maxTokensPerUser,
         )
         repo.clear()
         val sut = repo.findByUser(user)

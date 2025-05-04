@@ -112,23 +112,34 @@ class UserService(
                 return@run failure(UserError.NoMatchingPassword)
             }
             val now = clock.now()
-            val token = usersDomain.generateTokenValue()
-            val refreshToken = usersDomain.generateTokenValue()
+            val tokenValue = usersDomain.generateTokenValue()
+            val refreshTokenValue = usersDomain.generateTokenValue()
+            val token =
+                Token(
+                    tokenValidationInfo = usersDomain.createTokenValidationInformation(tokenValue),
+                    createdAt = now,
+                    lastUsedAt = now,
+                    expiresAt = usersDomain.getSessionExpiration(now, now),
+                )
+            val refreshToken =
+                RefreshToken(
+                    tokenValidationInfo = usersDomain.createTokenValidationInformation(refreshTokenValue),
+                    createdAt = now,
+                    expiresAt = usersDomain.getRefreshTokenExpiration(now),
+                )
             val newSession =
                 sessionRepo.createSession(
                     user,
-                    usersDomain.createTokenValidationInformation(token),
-                    usersDomain.createTokenValidationInformation(refreshToken),
-                    now,
-                    now,
-                    usersDomain.getSessionExpiration(now, now),
+                    token,
+                    refreshToken,
+                    usersDomain.maxNumberOfTokensPerUser,
                 )
             return@run success(
                 user to
                     TokenExternalInfo(
-                        token = token,
-                        refreshToken = refreshToken,
-                        newSession.expirationDate,
+                        token = tokenValue,
+                        refreshToken = refreshTokenValue,
+                        token.expiresAt,
                     ),
             )
         }

@@ -159,9 +159,9 @@ class ExclusionController(
     ): ResponseEntity<*> {
         val result =
             exclusionService.addContactExclusionToRuleEvent(
-                authUser.user,
-                exclusionId,
-                ruleId,
+                userId = authUser.user,
+                ruleId = ruleId,
+                exclusionId = exclusionId,
             )
         return when (result) {
             is Success -> ResponseEntity.ok().body(null)
@@ -177,9 +177,9 @@ class ExclusionController(
     ): ResponseEntity<*> {
         val result =
             exclusionService.addAppExclusionToRuleEvent(
-                authUser.user,
-                exclusionId,
-                ruleId,
+                userId = authUser.user,
+                ruleId = ruleId,
+                exclusionId = exclusionId,
             )
         return when (result) {
             is Success -> ResponseEntity.status(HttpStatus.OK).body(result.value)
@@ -195,9 +195,9 @@ class ExclusionController(
     ): ResponseEntity<*> {
         val result =
             exclusionService.addContactExclusionToRuleLocation(
-                authUser.user,
-                exclusionId,
-                ruleId,
+                userId = authUser.user,
+                ruleId = ruleId,
+                exclusionId = exclusionId,
             )
         return when (result) {
             is Success -> ResponseEntity.status(HttpStatus.OK).body(result.value)
@@ -213,9 +213,9 @@ class ExclusionController(
     ): ResponseEntity<*> {
         val result =
             exclusionService.addAppExclusionToRuleLocation(
-                authUser.user,
-                exclusionId,
-                ruleId,
+                userId = authUser.user,
+                ruleId = ruleId,
+                exclusionId = exclusionId,
             )
         return when (result) {
             is Success -> ResponseEntity.status(HttpStatus.OK).body(result.value)

@@ -96,11 +96,11 @@ class LocationController(
         }
     }
 
-    @PutMapping("/{id}/update/radius")
+    @PutMapping("/{id}/update/radius/{radius}")
     fun updateLocationRadius(
         authUser: AuthenticatedUser,
         @PathVariable id: Int,
-        @RequestBody radius: Double,
+        @PathVariable radius: Double,
     ): ResponseEntity<*> {
         val result: Either<LocationError, Location> =
             locationService.updateLocationRadius(

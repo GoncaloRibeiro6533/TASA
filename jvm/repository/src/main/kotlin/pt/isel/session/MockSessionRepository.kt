@@ -1,16 +1,21 @@
 package pt.isel.session
 
 import kotlinx.datetime.Instant
+import pt.isel.RefreshToken
 import pt.isel.Session
+import pt.isel.Token
 import pt.isel.TokenValidationInfo
 import pt.isel.User
 
 class MockSessionRepository : SessionRepository {
     private val sessions = mutableMapOf<Int, MutableList<Session>>()
+    private var sessionId = 0
+    private val tokens = mutableMapOf<Int, Token>()
+    private val refreshTokens = mutableMapOf<Int, RefreshToken>()
 
     override fun findByToken(token: TokenValidationInfo): Session? {
         return sessions.values.flatten().find {
-            it.token == token
+            it.token.tokenValidationInfo == token
         }
     }
 
@@ -20,20 +25,16 @@ class MockSessionRepository : SessionRepository {
 
     override fun createSession(
         user: User,
-        token: TokenValidationInfo,
-        refreshToken: TokenValidationInfo,
-        createdAt: Instant,
-        lastTimeUsed: Instant,
-        expirationDate: Instant,
+        token: Token,
+        refreshToken: RefreshToken,
+        maxTokens: Int,
     ): Session {
         val session =
             Session(
+                id = sessionId++,
                 token = token,
                 refreshToken = refreshToken,
                 userId = user.id,
-                createdAt = createdAt,
-                lastUsedAt = lastTimeUsed,
-                expirationDate = expirationDate,
             )
         sessions.computeIfAbsent(user.id) { mutableListOf() }
             .add(session)
@@ -62,7 +63,11 @@ class MockSessionRepository : SessionRepository {
         session: Session,
         lastTimeUsed: Instant,
     ): Session {
-        val updatedSession = session.copy(lastUsedAt = lastTimeUsed)
+        val updatedToken = session.token.copy(lastUsedAt = lastTimeUsed)
+        val updatedSession =
+            session.copy(
+                token = updatedToken,
+            )
         sessions[session.userId]?.remove(session)
         sessions[session.userId]?.add(updatedSession)
         return updatedSession

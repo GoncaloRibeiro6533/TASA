@@ -236,7 +236,7 @@ class UserControllerTests {
         val password = "Tasa_2025"
         val userId = controller.register(UserRegisterInput(name, email, password)).body.let { (it as pt.isel.User).id }
         val token = (controller.login(UserLoginCredentialsInput(name, password)).body as LoginOutput).session.token
-        val user = pt.isel.User(userId, name, email)
+        val user = User(userId, name, email)
         // first logout
         val resp1 = controller.logout(AuthenticatedUser(user, token))
         assertEquals(HttpStatus.OK, resp1.statusCode)

@@ -1,7 +1,9 @@
 package pt.isel.session
 
 import kotlinx.datetime.Instant
+import pt.isel.RefreshToken
 import pt.isel.Session
+import pt.isel.Token
 import pt.isel.TokenValidationInfo
 import pt.isel.User
 
@@ -15,11 +17,9 @@ interface SessionRepository {
 
     fun createSession(
         user: User,
-        token: TokenValidationInfo,
-        refreshToken: TokenValidationInfo,
-        createdAt: Instant,
-        lastTimeUsed: Instant,
-        expirationDate: Instant,
+        token: Token,
+        refreshToken: RefreshToken,
+        maxTokens: Int,
     ): Session
 
     fun getSessionHistory(
