@@ -6,6 +6,8 @@ import io.swagger.v3.oas.models.info.Info
 import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.security.SecurityScheme
 import kotlinx.datetime.Clock
+import org.jdbi.v3.core.Jdbi
+import org.postgresql.ds.PGSimpleDataSource
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
@@ -17,7 +19,9 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import pt.isel.Sha256TokenEncoder
+import pt.isel.TransactionManagerJdbi
 import pt.isel.UsersDomainConfig
+import pt.isel.configureWithAppRequirements
 import pt.isel.pipeline.AuthenticatedUserArgumentResolver
 import pt.isel.pipeline.AuthenticationInterceptor
 import pt.isel.transaction.TransactionManagerInMem
@@ -68,6 +72,19 @@ class OpenApiConfig {
 
 @SpringBootApplication
 class TasaApplication {
+    @Bean
+    fun jdbi() =
+        Jdbi
+            .create(
+                PGSimpleDataSource().apply {
+                    setURL(Environment.getDbUrl())
+                },
+            ).configureWithAppRequirements()
+
+    @Bean
+    @Profile("jdbi")
+    fun trxManagerJdbi(jdbi: Jdbi): TransactionManagerJdbi = TransactionManagerJdbi(jdbi)
+
     @Bean
     @Profile("mem")
     fun trxManagerInMem(): TransactionManagerInMem = TransactionManagerInMem()
