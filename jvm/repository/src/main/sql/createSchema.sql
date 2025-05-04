@@ -17,66 +17,69 @@ DROP TABLE IF EXISTS ps.SESSION;
 DROP TABLE IF EXISTS ps.USER;
 
 CREATE TABLE IF NOT EXISTS  ps.USER (
-	id SERIAL PRIMARY KEY,
-	email VARCHAR(255) UNIQUE NOT NULL,
-	username VARCHAR(40) NOT NULL,
-	passwordHash VARCHAR(255) NOT NULL
-);
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    username VARCHAR(40) NOT NULL,
+    passwordHash VARCHAR(255) NOT NULL
+    );
 
 CREATE TABLE IF NOT EXISTS ps.SESSION(
-	id SERIAL PRIMARY KEY,
-	user_id integer NOT NULL REFERENCES ps.USER(id) ON DELETE CASCADE
-);
+    id SERIAL PRIMARY KEY,
+    user_id integer NOT NULL REFERENCES ps.USER(id) ON DELETE CASCADE
+    );
 
 
 CREATE TABLE IF NOT EXISTS  ps.ACCESS_TOKEN(
-	token VARCHAR(256) PRIMARY KEY,
-	session_id INTEGER NOT NULL REFERENCES ps.SESSION(id) ON DELETE CASCADE,
+    token VARCHAR(256) PRIMARY KEY,
+    session_id INTEGER NOT NULL REFERENCES ps.SESSION(id) ON DELETE CASCADE,
     created_at bigint not null,
     last_used_at bigint not NULL,
     expire_at bigint NOT NULL
-);
+    );
 
 CREATE TABLE IF NOT EXISTS  ps.REFRESH_TOKEN(
-	token VARCHAR(256) PRIMARY KEY,
-	session_id INTEGER NOT NULL  REFERENCES ps.SESSION(id) ON DELETE CASCADE,
+    token VARCHAR(256) PRIMARY KEY,
+    session_id INTEGER NOT NULL  REFERENCES ps.SESSION(id) ON DELETE CASCADE,
     created_at bigint NOT NULL,
     expire_at bigint NOT NULL
-);
+    );
 
 CREATE  TABLE IF NOT EXISTS  ps.EVENT(
-	event_id BIGINT UNIQUE NOT NULL,
-	calendar_id BIGINT NOT NULL,
-	PRIMARY KEY (calendar_id, event_id, user_id),
-	title VARCHAR(300) NOT NULL,
-	user_id INTEGER NOT NULL REFERENCES ps.USER(id) ON DELETE CASCADE
-);
+    event_id BIGINT UNIQUE NOT NULL,
+    calendar_id BIGINT NOT NULL,
+    PRIMARY KEY (calendar_id, event_id, user_id),
+    title VARCHAR(300) NOT NULL,
+    user_id INTEGER NOT NULL REFERENCES ps.USER(id) ON DELETE CASCADE
+    );
 
 CREATE TABLE IF NOT EXISTS ps.LOCATION(
-	id SERIAL UNIQUE NOT NULL,
-	name VARCHAR(60),
-	latitude DOUBLE PRECISION NOT NULL,
+    id SERIAL UNIQUE NOT NULL,
+    name VARCHAR(60),
+    latitude DOUBLE PRECISION NOT NULL,
     longitude DOUBLE PRECISION NOT NULL,
+    radius DOUBLE PRECISION CHECK(radius >= 0),
     UNIQUE(name,user_id),
     user_id integer NOT NULL REFERENCES ps.USER(id) ON DELETE CASCADE,
     PRIMARY KEY (id, user_id)
-);
+    );
+
+
 
 
 CREATE TABLE IF NOT EXISTS  ps.EXCEPTION_APP(
-	id SERIAL PRIMARY KEY,
-	app_name VARCHAR(90) NOT NULL,
-	user_id INTEGER NOT NULL REFERENCES ps.USER(id) ON DELETE CASCADE,
-	UNIQUE(user_id, app_name)
-);
+    id SERIAL PRIMARY KEY,
+    app_name VARCHAR(90) NOT NULL,
+    user_id INTEGER NOT NULL REFERENCES ps.USER(id) ON DELETE CASCADE,
+    UNIQUE(user_id, app_name)
+    );
 
 CREATE TABLE IF NOT EXISTS ps.EXCEPTION_CONTACT(
-	id SERIAL PRIMARY KEY,
-	name VARCHAR(90) NOT NULL,
-	phone_number VARCHAR(50),
-	user_id INTEGER NOT NULL REFERENCES ps.USER(id) ON DELETE CASCADE,
-	UNIQUE(user_id, name, phone_number)
-);
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(90) NOT NULL,
+    phone_number VARCHAR(50),
+    user_id INTEGER NOT NULL REFERENCES ps.USER(id) ON DELETE CASCADE,
+    UNIQUE(user_id, name, phone_number)
+    );
 
 
 CREATE TABLE IF NOT EXISTS ps.RULE_EVENT (
@@ -88,48 +91,47 @@ CREATE TABLE IF NOT EXISTS ps.RULE_EVENT (
     user_id      INTEGER NOT NULL,
     UNIQUE(user_id, start_time, end_time, calendar_id, event_id),
     CONSTRAINT fk_re_ruleevent_user
-        FOREIGN KEY (user_id)
-        REFERENCES ps.USER(id)
-        ON DELETE CASCADE,
+    FOREIGN KEY (user_id)
+    REFERENCES ps.USER(id)
+    ON DELETE CASCADE,
     CONSTRAINT fk_re_ruleevent_event
-        FOREIGN KEY (calendar_id, event_id, user_id)
-        REFERENCES ps.EVENT (calendar_id, event_id, user_id)
-        ON DELETE CASCADE
-);
+    FOREIGN KEY (calendar_id, event_id, user_id)
+    REFERENCES ps.EVENT (calendar_id, event_id, user_id)
+    ON DELETE CASCADE
+    );
 
 
 
 CREATE TABLE IF NOT EXISTS  ps.RULE_LOCATION(
-	id serial PRIMARY KEY,
-	start_time TIMESTAMP NOT NULL,
-	end_time TIMESTAMP NOT NULL,
-	location_id INTEGER NOT NULL REFERENCES ps.LOCATION(id) ON DELETE CASCADE,
-	user_id INTEGER NOT NULL REFERENCES ps.USER(id) ON DELETE CASCADE,
-	UNIQUE(start_time, end_time, location_id, user_id)
-);
+    id serial PRIMARY KEY,
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
+    location_id INTEGER NOT NULL REFERENCES ps.LOCATION(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES ps.USER(id) ON DELETE CASCADE,
+    UNIQUE(start_time, end_time, location_id, user_id)
+    );
 
 
 CREATE TABLE IF NOT EXISTS ps.EXCEPTION_APP_RULE_EVENT(
-	exception_id INTEGER NOT NULL REFERENCES ps.EXCEPTION_APP(id) ON DELETE CASCADE,
-	rule_id INTEGER NOT NULL REFERENCES ps.RULE_EVENT(id) ON DELETE CASCADE,
-	PRIMARY KEY (exception_id, rule_id)
-);
+    exception_id INTEGER NOT NULL REFERENCES ps.EXCEPTION_APP(id) ON DELETE CASCADE,
+    rule_id INTEGER NOT NULL REFERENCES ps.RULE_EVENT(id) ON DELETE CASCADE,
+    PRIMARY KEY (exception_id, rule_id)
+    );
 
 CREATE TABLE IF NOT EXISTS ps.EXCEPTION_CONTACT_RULE_EVENT(
-	exception_id INTEGER NOT NULL REFERENCES ps.EXCEPTION_CONTACT(id) ON DELETE CASCADE,
-	rule_id INTEGER NOT NULL REFERENCES ps.RULE_EVENT(id) ON DELETE CASCADE,
-	PRIMARY KEY (exception_id, rule_id)
-);
+    exception_id INTEGER NOT NULL REFERENCES ps.EXCEPTION_CONTACT(id) ON DELETE CASCADE,
+    rule_id INTEGER NOT NULL REFERENCES ps.RULE_EVENT(id) ON DELETE CASCADE,
+    PRIMARY KEY (exception_id, rule_id)
+    );
 
 CREATE TABLE IF NOT EXISTS ps.EXCEPTION_CONTACT_RULE_LOCATION(
-	exception_id INTEGER NOT NULL REFERENCES ps.EXCEPTION_CONTACT(id) ON DELETE CASCADE,
-	rule_id INTEGER NOT NULL REFERENCES ps.RULE_LOCATION(id) ON DELETE CASCADE,
-	PRIMARY KEY (exception_id, rule_id)
-);
+    exception_id INTEGER NOT NULL REFERENCES ps.EXCEPTION_CONTACT(id) ON DELETE CASCADE,
+    rule_id INTEGER NOT NULL REFERENCES ps.RULE_LOCATION(id) ON DELETE CASCADE,
+    PRIMARY KEY (exception_id, rule_id)
+    );
 
 CREATE TABLE IF NOT EXISTS ps.EXCEPTION_APP_RULE_LOCATION(
-	exception_id INTEGER NOT NULL REFERENCES ps.EXCEPTION_APP(id) ON DELETE CASCADE,
-	rule_id INTEGER NOT NULL REFERENCES ps.RULE_LOCATION(id) ON DELETE CASCADE,
-	PRIMARY KEY (exception_id, rule_id)
-);
-
+    exception_id INTEGER NOT NULL REFERENCES ps.EXCEPTION_APP(id) ON DELETE CASCADE,
+    rule_id INTEGER NOT NULL REFERENCES ps.RULE_LOCATION(id) ON DELETE CASCADE,
+    PRIMARY KEY (exception_id, rule_id)
+    );
