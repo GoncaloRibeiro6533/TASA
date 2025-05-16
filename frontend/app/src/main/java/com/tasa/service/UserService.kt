@@ -1,6 +1,7 @@
-package com.tasa.service.mock
+package com.tasa.service
 
 import com.tasa.domain.ApiError
+import com.tasa.domain.user.AuthenticatedUser
 import com.tasa.domain.user.User
 import com.tasa.utils.Either
 
@@ -12,7 +13,7 @@ interface UserService {
     suspend fun login(
         username: String,
         password: String,
-    ): Either<ApiError, User>
+    ): Either<ApiError, AuthenticatedUser>
 
     suspend fun register(
         username: String,

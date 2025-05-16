@@ -6,11 +6,13 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.tasa.domain.UserInfoRepository
 import com.tasa.infrastructure.UserInfoRepo
-import com.tasa.service.mock.repo.UserRepoMock
+import com.tasa.service.UserService
+import com.tasa.service.fake.UserServiceFake
 
 class TasaApplication : Application(), DependenciesContainer {
-    override val userRepo: UserRepoMock by lazy {
-        UserRepoMock()
+
+    override val userService: UserService by lazy {
+        UserServiceFake()
     }
 
     override val preferencesDataStore: DataStore<Preferences>
