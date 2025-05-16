@@ -13,17 +13,15 @@ import kotlinx.datetime.Instant
  * @throws IllegalArgumentException if any of the parameters is invalid
  */
 data class Session(
-    val token: TokenValidationInfo,
-    val refreshToken: TokenValidationInfo,
+    val id: Int,
+    val token: Token,
+    val refreshToken: RefreshToken,
     val userId: Int,
-    val createdAt: Instant,
-    val lastUsedAt: Instant,
-    val expirationDate: Instant,
 ) {
     init {
         require(userId >= 0) { "userId must be positive" }
-        require(expirationDate > createdAt) { "expirationDate must be after createdAt" }
-        require(lastUsedAt >= createdAt) { "lastUsedAt must be after createdAt" }
+        // require(expirationDate > createdAt) { "expirationDate must be after createdAt" }
+        // require(lastUsedAt >= createdAt) { "lastUsedAt must be after createdAt" }
     }
 }
 
@@ -31,4 +29,11 @@ data class Token(
     val tokenValidationInfo: TokenValidationInfo,
     val createdAt: Instant,
     val lastUsedAt: Instant,
+    val expiresAt: Instant,
+)
+
+data class RefreshToken(
+    val tokenValidationInfo: TokenValidationInfo,
+    val createdAt: Instant,
+    val expiresAt: Instant,
 )

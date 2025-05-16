@@ -1,11 +1,11 @@
 package pt.isel
 
-import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 
 class RuleLocation(
     id: Int,
-    startTime: Instant,
-    endTime: Instant,
+    startTime: LocalDateTime,
+    endTime: LocalDateTime,
     creator: User,
     val location: Location,
 ) : Rule(id, startTime, endTime, creator) {
@@ -23,8 +23,8 @@ class RuleLocation(
 
     fun copy(
         id: Int = this.id,
-        startTime: Instant = this.startTime,
-        endTime: Instant = this.endTime,
+        startTime: LocalDateTime = this.startTime,
+        endTime: LocalDateTime = this.endTime,
         creator: User = this.creator,
         location: Location = this.location,
     ): RuleLocation {

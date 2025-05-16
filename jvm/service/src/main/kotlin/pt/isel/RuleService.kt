@@ -1,7 +1,7 @@
 package pt.isel
 
 import jakarta.inject.Named
-import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 import pt.isel.transaction.TransactionManager
 
 /**
@@ -32,6 +32,10 @@ sealed class RuleError {
     data object InvalidRadius : RuleError()
 
     data object NotAllowed : RuleError()
+
+    data object EventNotFound : RuleError()
+
+    data object LocationNotFound : RuleError()
 }
 
 /**
@@ -64,15 +68,13 @@ class RuleService(
         userId: Int,
         eventId: Long,
         calendarId: Long,
-        title: String,
-        startTime: Instant,
-        endTime: Instant,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
     ): Either<RuleError, RuleEvent> =
         trxManager.run {
             if (userId < 0 || eventId < 0 || calendarId < 0) {
                 return@run failure(RuleError.NegativeIdentifier)
             }
-            if (title.isBlank()) return@run failure(RuleError.TitleCannotBeBlank)
             if (startTime > endTime || startTime == endTime) {
                 return@run failure(RuleError.StartTimeMustBeBeforeEndTime)
             }
@@ -90,7 +92,10 @@ class RuleService(
             }
             val event =
                 eventRepo.findById(eventId, calendarId, user)
-                    ?: eventRepo.create(eventId, calendarId, title, user)
+                    ?: return@run failure(RuleError.EventNotFound)
+            if (!eventRepo.findByUserId(user).contains(event)) {
+                return@run failure(RuleError.NotAllowed)
+            }
             val rule =
                 ruleRepo.createEventRule(
                     event,
@@ -117,26 +122,14 @@ class RuleService(
      */
     fun createLocationRule(
         userId: Int,
-        title: String,
-        startTime: Instant,
-        endTime: Instant,
-        name: String,
-        latitude: Double,
-        longitude: Double,
-        radius: Double,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+        locationId: Int,
     ): Either<RuleError, RuleLocation> =
         trxManager.run {
-            if (title.isBlank()) return@run failure(RuleError.TitleCannotBeBlank)
             if (startTime > endTime || startTime == endTime) {
                 return@run failure(RuleError.StartTimeMustBeBeforeEndTime)
             }
-            if (latitude !in Location.MIN_LATITUDE..Location.MAX_LATITUDE) {
-                return@run failure(RuleError.InvalidLatitude)
-            }
-            if (longitude !in Location.MIN_LONGITUDE..Location.MAX_LONGITUDE) {
-                return@run failure(RuleError.InvalidLongitude)
-            }
-            if (radius <= 0.0) return@run failure(RuleError.InvalidRadius)
             if (userId < 0) return@run failure(RuleError.NegativeIdentifier)
             val user = userRepo.findById(userId) ?: return@run failure(RuleError.UserNotFound)
             if (ruleRepo.findByUserId(user).any {
@@ -151,16 +144,9 @@ class RuleService(
                 return@run failure(RuleError.RuleAlreadyExistsForGivenTime)
             }
             val location =
-                locationRepo.findByUserId(user).find {
-                    it.name == name &&
-                        it.latitude == latitude && it.longitude == longitude && it.radius == radius
-                } ?: locationRepo.create(
-                    name,
-                    latitude,
-                    longitude,
-                    radius,
-                    user,
-                )
+                locationRepo.findById(locationId)
+                    ?: return@run failure(RuleError.LocationNotFound)
+            if (!locationRepo.findByUserId(user).contains(location)) return@run failure(RuleError.NotAllowed)
             val rule =
                 ruleRepo.createLocationRule(
                     location,
@@ -238,8 +224,8 @@ class RuleService(
     fun updateEventRule(
         userId: Int,
         ruleId: Int,
-        startTime: Instant,
-        endTime: Instant,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
     ): Either<RuleError, RuleEvent> =
         trxManager.run {
             if (startTime >= endTime) return@run failure(RuleError.StartTimeMustBeBeforeEndTime)
@@ -277,8 +263,8 @@ class RuleService(
     fun updateLocationRule(
         userId: Int,
         ruleId: Int,
-        startTime: Instant,
-        endTime: Instant,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
     ): Either<RuleError, RuleLocation> =
         trxManager.run {
             if (startTime >= endTime) return@run failure(RuleError.StartTimeMustBeBeforeEndTime)
@@ -353,11 +339,11 @@ class RuleService(
 
     // TODO move
     fun checkCollisionTime(
-        startTimeX: Instant,
-        endTimeX: Instant,
-        startTimeZ: Instant,
-        endTimeZ: Instant,
+        startTimeX: LocalDateTime,
+        endTimeX: LocalDateTime,
+        startTimeY: LocalDateTime,
+        endTimeY: LocalDateTime,
     ): Boolean {
-        return startTimeX <= endTimeZ && endTimeX >= startTimeZ
+        return startTimeX <= endTimeY && endTimeX >= startTimeY
     }
 }

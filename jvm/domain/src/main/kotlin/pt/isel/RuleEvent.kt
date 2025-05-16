@@ -1,11 +1,11 @@
 package pt.isel
 
-import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 
 class RuleEvent(
     id: Int,
-    startTime: Instant,
-    endTime: Instant,
+    startTime: LocalDateTime,
+    endTime: LocalDateTime,
     creator: User,
     val event: Event,
 ) : Rule(id, startTime, endTime, creator) {
@@ -23,8 +23,8 @@ class RuleEvent(
 
     fun copy(
         id: Int = this.id,
-        startTime: Instant = this.startTime,
-        endTime: Instant = this.endTime,
+        startTime: LocalDateTime = this.startTime,
+        endTime: LocalDateTime = this.endTime,
         creator: User = this.creator,
         event: Event = this.event,
     ): RuleEvent {

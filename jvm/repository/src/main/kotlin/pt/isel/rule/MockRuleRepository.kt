@@ -1,6 +1,6 @@
 package pt.isel.rule
 
-import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 import pt.isel.Event
 import pt.isel.Location
 import pt.isel.Rule
@@ -9,8 +9,7 @@ import pt.isel.RuleLocation
 import pt.isel.User
 
 class MockRuleRepository : RuleRepository {
-    private var eventRuleId = 0
-    private var locationRuleId = 0
+    private var ruleId = 0
 
     // <UserId,Rule>
     private val eventRules = mutableMapOf<Int, MutableList<RuleEvent>>()
@@ -19,12 +18,12 @@ class MockRuleRepository : RuleRepository {
     override fun createEventRule(
         event: Event,
         user: User,
-        startTime: Instant,
-        endTime: Instant,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
     ): RuleEvent {
         val rule =
             RuleEvent(
-                id = eventRuleId++,
+                id = ruleId++,
                 startTime = startTime,
                 endTime = endTime,
                 creator = user,
@@ -38,12 +37,12 @@ class MockRuleRepository : RuleRepository {
     override fun createLocationRule(
         location: Location,
         user: User,
-        startTime: Instant,
-        endTime: Instant,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
     ): RuleLocation {
         val rule =
             RuleLocation(
-                id = locationRuleId++,
+                id = ruleId++,
                 startTime = startTime,
                 endTime = endTime,
                 creator = user,
@@ -74,8 +73,8 @@ class MockRuleRepository : RuleRepository {
 
     override fun updateRuleEvent(
         rule: RuleEvent,
-        startTime: Instant,
-        endTime: Instant,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
     ): RuleEvent {
         val key = eventRules.entries.find { it.value.contains(rule) }?.key
         val updatedRule =
@@ -93,8 +92,8 @@ class MockRuleRepository : RuleRepository {
 
     override fun updateRuleLocation(
         rule: RuleLocation,
-        startTime: Instant,
-        endTime: Instant,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
     ): RuleLocation {
         val key = locationRules.entries.find { it.value.contains(rule) }?.key
         locationRules[key]?.removeIf { it.id == rule.id }
@@ -127,7 +126,6 @@ class MockRuleRepository : RuleRepository {
     override fun clear() {
         locationRules.clear()
         eventRules.clear()
-        locationRuleId = 0
-        eventRuleId = 0
+        ruleId = 0
     }
 }

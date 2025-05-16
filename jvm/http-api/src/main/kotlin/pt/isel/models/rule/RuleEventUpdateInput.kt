@@ -1,10 +1,8 @@
 package pt.isel.models.rule
 
-import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 
 data class RuleEventUpdateInput(
-    val eventId: Long,
-    val calendarId: Long,
-    val startTime: Instant,
-    val endTime: Instant,
+    val startTime: LocalDateTime,
+    val endTime: LocalDateTime,
 )

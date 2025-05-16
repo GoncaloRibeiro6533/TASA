@@ -52,13 +52,9 @@ class RuleController(
         val result: Either<RuleError, RuleLocation> =
             ruleService.createLocationRule(
                 userId = authUser.user.id,
-                title = rule.title,
                 startTime = rule.startTime,
                 endTime = rule.endTime,
-                name = rule.name,
-                latitude = rule.latitude,
-                longitude = rule.longitude,
-                radius = rule.radius,
+                locationId = rule.locationId,
             )
         return when (result) {
             is Success -> ResponseEntity.status(HttpStatus.CREATED).body(result.value)
@@ -84,7 +80,6 @@ class RuleController(
                 userId = authUser.user.id,
                 eventId = rule.eventId,
                 calendarId = rule.calendarId,
-                title = rule.title,
                 startTime = rule.startTime,
                 endTime = rule.endTime,
             )
@@ -96,13 +91,13 @@ class RuleController(
     }
 
     /**
-     * Updates the time of a event rule
+     * Updates the time of an event rule
      *
      * @param authUser the authenticated user
      * @param rule the rule input
      * @return the response entity with the updated rule
      */
-    @PutMapping("/event/update/{id}")
+    @PutMapping("/event/{id}/update/time")
     fun updateRuleEvent(
         authUser: AuthenticatedUser,
         @PathVariable id: Int,
@@ -138,7 +133,7 @@ class RuleController(
      * @param rule the rule input
      * @return the response entity with the updated rule
      */
-    @PutMapping("/location/update/{id}")
+    @PutMapping("/location/{id}/update")
     fun updateRuleLocation(
         authUser: AuthenticatedUser,
         @PathVariable id: Int,
@@ -228,7 +223,7 @@ class RuleController(
      * @param authUser the authenticated user
      * @return the response entity with the list of rules
      */
-    @GetMapping("/user/all")
+    @GetMapping("/all")
     fun getAllRulesFromUser(authUser: AuthenticatedUser): ResponseEntity<*> {
         val result = ruleService.getRulesByUser(authUser.user.id)
         return when (result) {
@@ -316,6 +311,8 @@ class RuleController(
             is RuleError.StartTimeMustBeBeforeEndTime -> Problem.StartTimeMustBeBeforeEndTime.response(HttpStatus.BAD_REQUEST)
             is RuleError.TitleCannotBeBlank -> Problem.TitleCannotBeBlank.response(HttpStatus.BAD_REQUEST)
             is RuleError.UserNotFound -> Problem.UserNotFound.response(HttpStatus.NOT_FOUND)
+            is RuleError.EventNotFound -> Problem.EventNotFound.response(HttpStatus.NOT_FOUND)
+            is RuleError.LocationNotFound -> Problem.LocationNotFound.response(HttpStatus.NOT_FOUND)
         }
     }
 }

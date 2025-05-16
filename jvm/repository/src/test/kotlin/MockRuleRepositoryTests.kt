@@ -1,4 +1,4 @@
-import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import pt.isel.Event
@@ -44,14 +44,14 @@ class MockRuleRepositoryTests {
             repo.createEventRule(
                 event = event,
                 user = user,
-                startTime = Instant.parse("2025-06-01T00:00:00Z"),
-                endTime = Instant.parse("2025-06-01T01:00:00Z"),
+                startTime = LocalDateTime.parse("2025-06-01T00:00:00"),
+                endTime = LocalDateTime.parse("2025-06-01T01:00:00"),
             )
         val expectedRule =
             RuleEvent(
                 id = 0,
-                startTime = Instant.parse("2025-06-01T00:00:00Z"),
-                endTime = Instant.parse("2025-06-01T01:00:00Z"),
+                startTime = LocalDateTime.parse("2025-06-01T00:00:00"),
+                endTime = LocalDateTime.parse("2025-06-01T01:00:00"),
                 event = event,
                 creator = user,
             )
@@ -67,14 +67,14 @@ class MockRuleRepositoryTests {
             repo.createLocationRule(
                 location = location,
                 user = user,
-                startTime = Instant.parse("2025-06-01T00:00:00Z"),
-                endTime = Instant.parse("2025-06-01T01:00:00Z"),
+                startTime = LocalDateTime.parse("2025-06-01T00:00:00"),
+                endTime = LocalDateTime.parse("2025-06-01T01:00:00"),
             )
         val expectedRule =
             RuleLocation(
                 id = 0,
-                startTime = Instant.parse("2025-06-01T00:00:00Z"),
-                endTime = Instant.parse("2025-06-01T01:00:00Z"),
+                startTime = LocalDateTime.parse("2025-06-01T00:00:00"),
+                endTime = LocalDateTime.parse("2025-06-01T01:00:00"),
                 location = location,
                 creator = user,
             )
@@ -89,15 +89,15 @@ class MockRuleRepositoryTests {
             repo.createEventRule(
                 event = event,
                 user = user,
-                startTime = Instant.parse("2025-06-01T00:00:00Z"),
-                endTime = Instant.parse("2025-06-01T01:00:00Z"),
+                startTime = LocalDateTime.parse("2025-06-01T00:00:00"),
+                endTime = LocalDateTime.parse("2025-06-01T01:00:00"),
             )
         val rule2 =
             repo.createLocationRule(
                 location = location,
                 user = user,
-                startTime = Instant.parse("2025-06-01T02:00:00Z"),
-                endTime = Instant.parse("2025-06-01T03:00:00Z"),
+                startTime = LocalDateTime.parse("2025-06-01T02:00:00"),
+                endTime = LocalDateTime.parse("2025-06-01T03:00:00"),
             )
         val sut = repo.findAll()
         assertEquals(2, sut.size)
@@ -111,8 +111,8 @@ class MockRuleRepositoryTests {
             repo.createEventRule(
                 event = event,
                 user = user,
-                startTime = Instant.parse("2025-06-01T00:00:00Z"),
-                endTime = Instant.parse("2025-06-01T01:00:00Z"),
+                startTime = LocalDateTime.parse("2025-06-01T00:00:00"),
+                endTime = LocalDateTime.parse("2025-06-01T01:00:00"),
             )
         val sut = repo.findRuleEventById(rule.id)
         assertEquals(rule, sut)
@@ -123,8 +123,8 @@ class MockRuleRepositoryTests {
         val rule =
             repo.createLocationRule(
                 user = user,
-                startTime = Instant.parse("2025-06-01T00:00:00Z"),
-                endTime = Instant.parse("2025-06-01T01:00:00Z"),
+                startTime = LocalDateTime.parse("2025-06-01T00:00:00"),
+                endTime = LocalDateTime.parse("2025-06-01T01:00:00"),
                 location = location,
             )
         val sut = repo.findRuleLocationById(rule.id)
@@ -149,15 +149,15 @@ class MockRuleRepositoryTests {
             repo.createEventRule(
                 event = event,
                 user = user,
-                startTime = Instant.parse("2025-06-01T00:00:00Z"),
-                endTime = Instant.parse("2025-06-01T01:00:00Z"),
+                startTime = LocalDateTime.parse("2025-06-01T00:00:00"),
+                endTime = LocalDateTime.parse("2025-06-01T01:00:00"),
             )
         val rule2 =
             repo.createLocationRule(
                 location = location,
                 user = user,
-                startTime = Instant.parse("2025-06-01T02:00:00Z"),
-                endTime = Instant.parse("2025-06-01T03:00:00Z"),
+                startTime = LocalDateTime.parse("2025-06-01T02:00:00"),
+                endTime = LocalDateTime.parse("2025-06-01T03:00:00"),
             )
         val sut = repo.findByUserId(user)
         assertEquals(2, sut.size)
@@ -171,19 +171,19 @@ class MockRuleRepositoryTests {
             repo.createEventRule(
                 event = event,
                 user = user,
-                startTime = Instant.parse("2025-06-01T00:00:00Z"),
-                endTime = Instant.parse("2025-06-01T01:00:00Z"),
+                startTime = LocalDateTime.parse("2025-06-01T00:00:00"),
+                endTime = LocalDateTime.parse("2025-06-01T01:00:00"),
             )
         val sut =
             repo.updateRuleEvent(
                 rule = rule,
-                startTime = Instant.parse("2025-06-01T01:00:00Z"),
-                endTime = Instant.parse("2025-06-01T02:00:00Z"),
+                startTime = LocalDateTime.parse("2025-06-01T01:00:00"),
+                endTime = LocalDateTime.parse("2025-06-01T02:00:00"),
             )
         assertEquals(rule.id, sut.id)
         assertEquals(rule.event, sut.event)
-        assertEquals(Instant.parse("2025-06-01T01:00:00Z"), sut.startTime)
-        assertEquals(Instant.parse("2025-06-01T02:00:00Z"), sut.endTime)
+        assertEquals(LocalDateTime.parse("2025-06-01T01:00:00"), sut.startTime)
+        assertEquals(LocalDateTime.parse("2025-06-01T02:00:00"), sut.endTime)
     }
 
     @Test
@@ -191,20 +191,20 @@ class MockRuleRepositoryTests {
         val rule =
             repo.createLocationRule(
                 user = user,
-                startTime = Instant.parse("2025-06-01T00:00:00Z"),
-                endTime = Instant.parse("2025-06-01T01:00:00Z"),
+                startTime = LocalDateTime.parse("2025-06-01T00:00:00"),
+                endTime = LocalDateTime.parse("2025-06-01T01:00:00"),
                 location = location,
             )
         val sut =
             repo.updateRuleLocation(
                 rule = rule,
-                startTime = Instant.parse("2025-06-01T01:00:00Z"),
-                endTime = Instant.parse("2025-06-01T02:00:00Z"),
+                startTime = LocalDateTime.parse("2025-06-01T01:00:00"),
+                endTime = LocalDateTime.parse("2025-06-01T02:00:00"),
             )
         assertEquals(rule.id, sut.id)
         assertEquals(rule.location, sut.location)
-        assertEquals(Instant.parse("2025-06-01T01:00:00Z"), sut.startTime)
-        assertEquals(Instant.parse("2025-06-01T02:00:00Z"), sut.endTime)
+        assertEquals(LocalDateTime.parse("2025-06-01T01:00:00"), sut.startTime)
+        assertEquals(LocalDateTime.parse("2025-06-01T02:00:00"), sut.endTime)
     }
 
     @Test
@@ -213,8 +213,8 @@ class MockRuleRepositoryTests {
             repo.createEventRule(
                 event = event,
                 user = user,
-                startTime = Instant.parse("2025-06-01T00:00:00Z"),
-                endTime = Instant.parse("2025-06-01T01:00:00Z"),
+                startTime = LocalDateTime.parse("2025-06-01T00:00:00"),
+                endTime = LocalDateTime.parse("2025-06-01T01:00:00"),
             )
         val sut = repo.deleteRuleEvent(rule)
         assertEquals(true, sut)
@@ -226,8 +226,8 @@ class MockRuleRepositoryTests {
         val rule =
             repo.createLocationRule(
                 user = user,
-                startTime = Instant.parse("2025-06-01T00:00:00Z"),
-                endTime = Instant.parse("2025-06-01T01:00:00Z"),
+                startTime = LocalDateTime.parse("2025-06-01T00:00:00"),
+                endTime = LocalDateTime.parse("2025-06-01T01:00:00"),
                 location = location,
             )
         val sut = repo.deleteLocationEvent(rule)
@@ -240,14 +240,14 @@ class MockRuleRepositoryTests {
         repo.createEventRule(
             event = event,
             user = user,
-            startTime = Instant.parse("2025-06-01T00:00:00Z"),
-            endTime = Instant.parse("2025-06-01T01:00:00Z"),
+            startTime = LocalDateTime.parse("2025-06-01T00:00:00"),
+            endTime = LocalDateTime.parse("2025-06-01T01:00:00"),
         )
         repo.createLocationRule(
             location = location,
             user = user,
-            startTime = Instant.parse("2025-06-01T02:00:00Z"),
-            endTime = Instant.parse("2025-06-01T03:00:00Z"),
+            startTime = LocalDateTime.parse("2025-06-01T02:00:00"),
+            endTime = LocalDateTime.parse("2025-06-01T03:00:00"),
         )
         repo.clear()
         assertEquals(0, repo.findAll().size)

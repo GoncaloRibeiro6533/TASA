@@ -186,8 +186,11 @@ class ExclusionService(
             val exclusion =
                 exclusionRepo.findByIdAppExclusions(exclusionId)
                     ?: return@run failure(ExclusionError.ExclusionNotFound)
-            if (exclusion !in exclusionRepo.findExclusionsByRuleId(rule)) {
+            if (exclusion !in exclusionRepo.findAppExclusionsByUserId(user)) {
                 return@run failure(ExclusionError.NotAllowed)
+            }
+            if (exclusion in exclusionRepo.findExclusionsByRuleId(rule)) {
+                return@run failure(ExclusionError.ExclusionAlreadyExists)
             }
             val result = exclusionRepo.addAppExclusionToRuleEvent(rule, exclusion)
             success(result)
@@ -208,8 +211,11 @@ class ExclusionService(
             val exclusion: AppExclusion =
                 exclusionRepo.findByIdAppExclusions(exclusionId)
                     ?: return@run failure(ExclusionError.ExclusionNotFound)
-            if (exclusion !in exclusionRepo.findExclusionsByRuleId(rule)) {
+            if (exclusion !in exclusionRepo.findAppExclusionsByUserId(user)) {
                 return@run failure(ExclusionError.NotAllowed)
+            }
+            if (exclusion in exclusionRepo.findExclusionsByRuleId(rule)) {
+                return@run failure(ExclusionError.ExclusionAlreadyExists)
             }
             val result = exclusionRepo.addAppExclusionToRuleLocation(rule, exclusion)
             success(result)
@@ -230,8 +236,11 @@ class ExclusionService(
             val exclusion =
                 exclusionRepo.findByIdContactExclusions(exclusionId)
                     ?: return@run failure(ExclusionError.ExclusionNotFound)
-            if (exclusion !in exclusionRepo.findExclusionsByRuleId(rule)) {
+            if (exclusion !in exclusionRepo.findContactExclusionsByUserId(user)) {
                 return@run failure(ExclusionError.NotAllowed)
+            }
+            if (exclusion in exclusionRepo.findExclusionsByRuleId(rule)) {
+                return@run failure(ExclusionError.ExclusionAlreadyExists) // TODO
             }
             val result = exclusionRepo.addContactExclusionToRuleEvent(rule, exclusion)
             success(result)
@@ -252,7 +261,10 @@ class ExclusionService(
             val exclusion =
                 exclusionRepo.findByIdContactExclusions(exclusionId)
                     ?: return@run failure(ExclusionError.ExclusionNotFound)
-            if (exclusion !in exclusionRepo.findExclusionsByRuleId(rule)) {
+            if (exclusion in exclusionRepo.findExclusionsByRuleId(rule)) {
+                return@run failure(ExclusionError.ExclusionAlreadyExists)
+            }
+            if (exclusion !in exclusionRepo.findContactExclusionsByUserId(user)) {
                 return@run failure(ExclusionError.NotAllowed)
             }
             val result = exclusionRepo.addContactExclusionToRuleLocation(rule, exclusion)

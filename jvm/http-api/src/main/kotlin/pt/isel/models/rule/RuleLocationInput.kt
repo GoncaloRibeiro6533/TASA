@@ -1,13 +1,9 @@
 package pt.isel.models.rule
 
-import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 
 data class RuleLocationInput(
-    val title: String,
-    val startTime: Instant,
-    val endTime: Instant,
-    val name: String,
-    val latitude: Double,
-    val longitude: Double,
-    val radius: Double,
+    val startTime: LocalDateTime,
+    val endTime: LocalDateTime,
+    val locationId: Int,
 )

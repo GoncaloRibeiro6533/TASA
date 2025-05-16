@@ -1,6 +1,6 @@
 package pt.isel
 
-import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 
 /**
  * Represents a rule of silence defined by its id, startTime and endTime.
@@ -12,8 +12,8 @@ import kotlinx.datetime.Instant
  */
 sealed class Rule(
     val id: Int,
-    val startTime: Instant,
-    val endTime: Instant,
+    val startTime: LocalDateTime,
+    val endTime: LocalDateTime,
     val creator: User,
 ) {
     init {
