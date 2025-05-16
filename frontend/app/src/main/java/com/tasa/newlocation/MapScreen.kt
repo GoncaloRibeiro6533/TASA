@@ -9,8 +9,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.tasa.ui.NavigationHandlers
-import com.tasa.ui.TopBar
+import com.tasa.ui.components.NavigationHandlers
+import com.tasa.ui.components.TopBar
 import org.osmdroid.util.GeoPoint
 
 @Composable

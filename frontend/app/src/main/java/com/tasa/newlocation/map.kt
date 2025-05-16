@@ -3,7 +3,6 @@ package com.tasa.newlocation
 import android.preference.PreferenceManager
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import org.osmdroid.config.Configuration
 import org.osmdroid.events.MapEventsReceiver
@@ -19,7 +18,6 @@ fun OSMDroidMap(
     center: GeoPoint = GeoPoint(38.7169, -9.1399), // Lisbon
     onCoordinateSelected: ((GeoPoint) -> Unit)? = null,
 ) {
-
     AndroidView(
         modifier = modifier,
         factory = { ctx ->

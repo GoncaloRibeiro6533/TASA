@@ -3,4 +3,6 @@
     <string name="top_bar_go_back">Back</string>
     <string name="top_bar_navigate_to_about">About\n</string>
     <string name="top_bar_open_menu">Menu</string>
+    <string name="loading_label">Loading…</string>
+    <string name="error_icon_description">Error</string>
 </resources>

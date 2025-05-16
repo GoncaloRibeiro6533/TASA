@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.tasa.ui.NavigationHandlers
-import com.tasa.ui.TopBar
+import com.tasa.ui.components.NavigationHandlers
+import com.tasa.ui.components.TopBar
 import com.tasa.ui.theme.TasaTheme
 
 @Composable

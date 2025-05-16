@@ -10,8 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.tasa.ui.NavigationHandlers
-import com.tasa.ui.TopBar
+import com.tasa.ui.components.NavigationHandlers
+import com.tasa.ui.components.TopBar
 import com.tasa.ui.theme.TasaTheme
 
 @Composable
