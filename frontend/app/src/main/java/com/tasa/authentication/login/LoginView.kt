@@ -27,31 +27,30 @@ import com.tasa.authentication.components.validateUsername
 import com.tasa.authentication.login.components.LoginButton
 import com.tasa.authentication.login.components.LoginTextFields
 
-
 @Composable
 fun LoginView(
     onSubmit: (String, String) -> Unit,
-    onRegisterRequested: () -> Unit
-){
+    onRegisterRequested: () -> Unit,
+) {
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
-    val invalidFields = (username.isEmpty() || password.isEmpty()) ||
+    val invalidFields =
+        (username.isEmpty() || password.isEmpty()) ||
             username.isNotEmpty() && !validateUsername(username) ||
             password.isNotEmpty() && !validatePassword(password)
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(16.dp).fillMaxWidth()
+        modifier = Modifier.padding(16.dp).fillMaxWidth(),
     ) {
-
         Row(
             modifier = Modifier.padding(16.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.Center,
         ) {
             Text(
                 text = "Login",
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
             )
         }
         LoginTextFields(
@@ -59,42 +58,40 @@ fun LoginView(
             password = password,
             onUsernameChangeCallback = { username = it },
             onPasswordChangeCallback = { password = it },
-            modifier = Modifier
+            modifier = Modifier,
         )
         LoginButton(
             enabled = !invalidFields,
             modifier = Modifier,
             onLoginClickCallback = {
                 onSubmit(username, password)
-            }
+            },
         )
 
-        val annotatedString = buildAnnotatedString {
-            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
-                append("Sign Up")
+        val annotatedString =
+            buildAnnotatedString {
+                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                    append("Sign Up")
+                }
             }
-        }
-        Row (
-            horizontalArrangement = Arrangement.Center
-        ){
-            Text(text = "Don't have an account?"
-                , style = TextStyle(fontSize = 18.sp))
+        Row(
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Text(text = "Don't have an account?", style = TextStyle(fontSize = 18.sp))
             Text(
                 text = annotatedString,
                 style = TextStyle(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
-                modifier = Modifier.clickable { onRegisterRequested() }
+                modifier = Modifier.clickable { onRegisterRequested() },
             )
         }
     }
-
 }
-
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewLoginView() {
     LoginView(
         onSubmit = { _, _ -> },
-        onRegisterRequested = { }
+        onRegisterRequested = { },
     )
 }

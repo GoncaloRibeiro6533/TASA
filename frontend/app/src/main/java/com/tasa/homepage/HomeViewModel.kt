@@ -5,15 +5,15 @@ import androidx.lifecycle.ViewModel
 
 sealed interface HomeScreenState {
     data object Idle : HomeScreenState
+
     data object Logged : HomeScreenState
+
     data object NotLogged : HomeScreenState
 }
 
 class HomePageScreenViewModel(
-    initialState: HomeScreenState = HomeScreenState.Idle
-
-): ViewModel() {
+    initialState: HomeScreenState = HomeScreenState.Idle,
+) : ViewModel() {
     var state: HomeScreenState by mutableStateOf<HomeScreenState>(initialState)
         private set
-
 }

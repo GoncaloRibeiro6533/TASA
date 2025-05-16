@@ -1,6 +1,5 @@
 package com.tasa.ui
 
-
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
@@ -20,7 +19,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.tasa.R
 import com.tasa.ui.theme.TasaTheme
 
-
 /**
  * Used to aggregate [TopBar] navigation handlers. If a handler is null, the corresponding
  * navigation element is not displayed.
@@ -31,7 +29,7 @@ import com.tasa.ui.theme.TasaTheme
 data class NavigationHandlers(
     val onBackRequested: (() -> Unit)? = null,
     val onAboutRequested: (() -> Unit)? = null,
-    val onMenuRequested: (() -> Unit)? = null
+    val onMenuRequested: (() -> Unit)? = null,
 )
 
 const val NavigateBackTestTag = "NavigateBack"
@@ -42,14 +40,14 @@ const val AboutButtonTestTag = "AboutButton"
 @Composable
 fun TopBar(
     navigation: NavigationHandlers = NavigationHandlers(),
-    content : @Composable () -> Unit = {
+    content: @Composable () -> Unit = {
         Text(
             text = "TASA",
             modifier = Modifier,
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight(500),
         )
-    }
+    },
 ) {
     TopAppBar(
         title = { content() },
@@ -57,21 +55,21 @@ fun TopBar(
             if (navigation.onBackRequested != null) {
                 IconButton(
                     onClick = navigation.onBackRequested,
-                    modifier = Modifier.testTag(NavigateBackTestTag)
+                    modifier = Modifier.testTag(NavigateBackTestTag),
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(id = R.string.top_bar_go_back)
+                        contentDescription = stringResource(id = R.string.top_bar_go_back),
                     )
                 }
             } else if (navigation.onMenuRequested != null) {
                 IconButton(
-                    onClick = navigation.onMenuRequested ,
-                    modifier = Modifier.testTag(MenuButtonTestTag)
+                    onClick = navigation.onMenuRequested,
+                    modifier = Modifier.testTag(MenuButtonTestTag),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Menu,
-                        contentDescription = stringResource(id = R.string.top_bar_open_menu)
+                        contentDescription = stringResource(id = R.string.top_bar_open_menu),
                     )
                 }
             }
@@ -80,15 +78,15 @@ fun TopBar(
             if (navigation.onAboutRequested != null) {
                 IconButton(
                     onClick = navigation.onAboutRequested,
-                    modifier = Modifier.testTag(AboutButtonTestTag)
+                    modifier = Modifier.testTag(AboutButtonTestTag),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Info,
-                        contentDescription = stringResource(id = R.string.top_bar_navigate_to_about)
+                        contentDescription = stringResource(id = R.string.top_bar_navigate_to_about),
                     )
                 }
             }
-        }
+        },
     )
 }
 

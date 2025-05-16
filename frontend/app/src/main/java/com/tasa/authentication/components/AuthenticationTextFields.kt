@@ -3,7 +3,6 @@ package com.tasa.authentication.components
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
-
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -20,23 +19,26 @@ fun AuthenticationTextField(
     maxLength: Int? = null,
     forbiddenCharacters: List<Char> = listOf<Char>(' ', '\n', '\t'),
     errorMessage: String? = null,
-    visualTransformation: VisualTransformation = VisualTransformation.None
+    visualTransformation: VisualTransformation = VisualTransformation.None,
 ) {
     TextField(
         label = {
             Text(
-                text = "$label${if (required) " *" else ""}" +
-                        if (errorMessage != null) " - $errorMessage" else ""
+                text =
+                    "$label${if (required) " *" else ""}" +
+                        if (errorMessage != null) " - $errorMessage" else "",
             )
         },
         value = value,
         onValueChange = {
-            var filteredValue = it.filter {
-                    c ->
-                c !in forbiddenCharacters
-            }
-            if (maxLength != null && filteredValue.length > maxLength)
+            var filteredValue =
+                it.filter {
+                        c ->
+                    c !in forbiddenCharacters
+                }
+            if (maxLength != null && filteredValue.length > maxLength) {
                 filteredValue = filteredValue.substring(0 until maxLength)
+            }
 
             onValueChange(filteredValue)
         },
@@ -49,10 +51,11 @@ fun AuthenticationTextField(
                 KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     autoCorrect = false,
-                ) } else {
+                )
+            } else {
                 KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                 )
-            }
+            },
     )
 }

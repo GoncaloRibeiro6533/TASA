@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 fun UsernameTextField(
     username: String,
     onUsernameChangeCallback: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val invalidUsernameMessage = "Username shoudl have atleast 3 characters."
     val invalidUsername = username.isNotEmpty() && !validateUsername(username)
@@ -20,7 +20,7 @@ fun UsernameTextField(
         modifier = Modifier.fillMaxWidth().then(modifier),
         required = true,
         maxLength = MAX_USERNAME_LENGTH,
-        forbiddenCharacters = listOf(' ','\n', '\t'),
-        errorMessage = if (invalidUsername) invalidUsernameMessage else null
+        forbiddenCharacters = listOf(' ', '\n', '\t'),
+        errorMessage = if (invalidUsername) invalidUsernameMessage else null,
     )
 }

@@ -10,31 +10,26 @@ import com.tasa.ui.NavigationHandlers
 import com.tasa.ui.TopBar
 import com.tasa.ui.theme.TasaTheme
 
-
 @Composable
-fun RegisterScreen(
-    onNavigationBack: () -> Unit = { }
-) {
-
+fun RegisterScreen(onNavigationBack: () -> Unit = { }) {
     TasaTheme {
         Scaffold(
-            modifier = Modifier
-                .fillMaxSize(),
-            topBar = { TopBar(NavigationHandlers(onBackRequested = onNavigationBack)) }
-
+            modifier =
+                Modifier
+                    .fillMaxSize(),
+            topBar = { TopBar(NavigationHandlers(onBackRequested = onNavigationBack)) },
         ) { innerPadding ->
 
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
             ) {
-
                 RegisterView(
-                    onSubmit = {_, _, _ -> }
+                    onSubmit = { _, _, _ -> },
                 )
             }
         }
     }
-
 }

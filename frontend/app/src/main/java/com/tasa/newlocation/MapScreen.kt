@@ -3,8 +3,6 @@ package com.tasa.newlocation
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,24 +14,22 @@ import com.tasa.ui.TopBar
 import org.osmdroid.util.GeoPoint
 
 @Composable
-fun MapScreen(
-    onNavigationBack: () -> Unit
-) {
-
+fun MapScreen(onNavigationBack: () -> Unit) {
     var selectedPoint by remember { mutableStateOf<GeoPoint?>(null) }
     Scaffold(
         topBar = {
             TopBar(NavigationHandlers(onBackRequested = onNavigationBack))
-        }
+        },
     ) { padding ->
         OSMDroidMap(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding),
             center = selectedPoint ?: GeoPoint(38.7169, -9.1399),
             onCoordinateSelected = { point ->
                 selectedPoint = point
-            }
+            },
         )
     }
 }

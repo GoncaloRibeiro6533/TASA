@@ -14,7 +14,7 @@ class NewEvenActivity : ComponentActivity() {
         setContent {
             TasaTheme {
                 NewEventScreen(
-                    onNavigationBack = {navigateTo(this, HomePageActivity::class.java)}
+                    onNavigationBack = { navigateTo(this, HomePageActivity::class.java) },
                 )
             }
         }

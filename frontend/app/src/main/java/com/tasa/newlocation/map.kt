@@ -13,14 +13,12 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 
-
 @Composable
 fun OSMDroidMap(
     modifier: Modifier = Modifier,
     center: GeoPoint = GeoPoint(38.7169, -9.1399), // Lisbon
-    onCoordinateSelected: ((GeoPoint) -> Unit)? = null
+    onCoordinateSelected: ((GeoPoint) -> Unit)? = null,
 ) {
-    val context = LocalContext.current
 
     AndroidView(
         modifier = modifier,
@@ -34,31 +32,33 @@ fun OSMDroidMap(
                 controller.setZoom(15.0)
                 controller.setCenter(center)
 
-                val marker = Marker(this).apply {
-                    position = center
-                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                    title = "Selected Point"
-                }
+                val marker =
+                    Marker(this).apply {
+                        position = center
+                        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                        title = "Selected Point"
+                    }
                 overlays.add(marker)
 
-                val mapEventsReceiver = object : MapEventsReceiver {
-                    override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
-                        return false
+                val mapEventsReceiver =
+                    object : MapEventsReceiver {
+                        override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
+                            return false
+                        }
+
+                        override fun longPressHelper(p: GeoPoint?): Boolean {
+                            p ?: return false
+
+                            // Move the marker
+                            marker.position = p
+                            controller.animateTo(p)
+                            invalidate() // redraw the map
+
+                            // Call the callback
+                            onCoordinateSelected?.invoke(p)
+                            return true
+                        }
                     }
-
-                    override fun longPressHelper(p: GeoPoint?): Boolean {
-                        p ?: return false
-
-                        // Move the marker
-                        marker.position = p
-                        controller.animateTo(p)
-                        invalidate() // redraw the map
-
-                        // Call the callback
-                        onCoordinateSelected?.invoke(p)
-                        return true
-                    }
-                }
 
                 val eventsOverlay = MapEventsOverlay(mapEventsReceiver)
                 overlays.add(eventsOverlay)
@@ -72,6 +72,6 @@ fun OSMDroidMap(
 
                  */
             }
-        }
+        },
     )
 }

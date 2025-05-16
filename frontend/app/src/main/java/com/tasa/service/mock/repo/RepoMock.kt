@@ -6,5 +6,4 @@ interface RepoMock {
 
 class RepoMockImpl() : RepoMock {
     override val userRepoMock: UserRepoMock = UserRepoMock()
-
 }

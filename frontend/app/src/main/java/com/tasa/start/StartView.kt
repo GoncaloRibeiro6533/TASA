@@ -4,9 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -29,18 +27,18 @@ import com.tasa.R
 fun StartView(
     onLoginRequested: () -> Unit,
     onRegisterRequested: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize(),
     ) {
         Image(
-            modifier = Modifier
-                .padding(10.dp)
-                .size(250.dp),
+            modifier =
+                Modifier
+                    .padding(10.dp)
+                    .size(250.dp),
             painter = painterResource(id = R.drawable.tasa_logo),
             contentDescription = "TASA logo",
         )
@@ -49,29 +47,41 @@ fun StartView(
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight(500),
             modifier = Modifier.padding(bottom = 30.dp),
-            fontSize = 30.sp
+            fontSize = 30.sp,
         )
         Button(
             onClick = onLoginRequested,
-            modifier = Modifier
-                .width(150.dp)
-                .padding(5.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isSystemInDarkTheme()) Color.White
-                else Color.Black,
-            )
+            modifier =
+                Modifier
+                    .width(150.dp)
+                    .padding(5.dp),
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor =
+                        if (isSystemInDarkTheme()) {
+                            Color.White
+                        } else {
+                            Color.Black
+                        },
+                ),
         ) {
             Text(text = "Log In")
         }
         Button(
             onClick = onRegisterRequested,
-            modifier = Modifier
-                .width(150.dp)
-                .padding(5.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isSystemInDarkTheme()) Color.White
-                else Color.Black,
-            )
+            modifier =
+                Modifier
+                    .width(150.dp)
+                    .padding(5.dp),
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor =
+                        if (isSystemInDarkTheme()) {
+                            Color.White
+                        } else {
+                            Color.Black
+                        },
+                ),
         ) {
             Text(text = "Register")
         }

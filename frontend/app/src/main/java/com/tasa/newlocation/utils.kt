@@ -11,18 +11,15 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Overlay
 
-
 @Composable
-fun OSMDroidMap(
-    onCoordinateSelected: (GeoPoint) -> Unit
-) {
+fun OSMDroidMap(onCoordinateSelected: (GeoPoint) -> Unit) {
     val context = LocalContext.current
 
     AndroidView(factory = {
         // Configure OSMDroid
         Configuration.getInstance().load(
             context,
-            context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE)
+            context.getSharedPreferences("osmdroid", Context.MODE_PRIVATE),
         )
 
         val map = MapView(context)
@@ -35,21 +32,29 @@ fun OSMDroidMap(
         mapController.setCenter(GeoPoint(38.7169, -9.1399)) // Lisbon
 
         // Set long press listener to pick point
-        map.overlays.add(object : Overlay() {
-            override fun onLongPress(e: MotionEvent?, mapView: MapView?): Boolean {
-                e ?: return false
-                mapView ?: return false
+        map.overlays.add(
+            object : Overlay() {
+                override fun onLongPress(
+                    e: MotionEvent?,
+                    mapView: MapView?,
+                ): Boolean {
+                    e ?: return false
+                    mapView ?: return false
 
-                val projection = mapView.projection
-                val geoPoint = projection.fromPixels(e.x.toInt(), e.y.toInt()) as GeoPoint
-                onCoordinateSelected(geoPoint)
-                return true
-            }
+                    val projection = mapView.projection
+                    val geoPoint = projection.fromPixels(e.x.toInt(), e.y.toInt()) as GeoPoint
+                    onCoordinateSelected(geoPoint)
+                    return true
+                }
 
-            override fun onSingleTapConfirmed(e: MotionEvent?, mapView: MapView?): Boolean {
-                return false
-            }
-        })
+                override fun onSingleTapConfirmed(
+                    e: MotionEvent?,
+                    mapView: MapView?,
+                ): Boolean {
+                    return false
+                }
+            },
+        )
 
         map
     })

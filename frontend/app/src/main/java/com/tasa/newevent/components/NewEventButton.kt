@@ -22,6 +22,6 @@ fun AddEventButton(
         modifier = modifier.padding(BUTTON_PADDING.dp),
         text = "AddEvent",
         painter = painterResource(id = R.drawable.ic_round_login_24),
-        contentDescription = "Button to register screen"
+        contentDescription = "Button to register screen",
     )
 }

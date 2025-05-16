@@ -2,7 +2,6 @@ package com.tasa.authentication.components
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
@@ -14,11 +13,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 
 private const val BUTTON_PADDING = 6
-
 
 @Composable
 fun IconButton(
@@ -28,19 +25,19 @@ fun IconButton(
     modifier: Modifier = Modifier,
     iconModifier: Modifier = Modifier,
     text: String? = null,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) {
     Button(
         onClick = onClick,
         modifier = modifier,
         shape = CircleShape,
         enabled = enabled,
-        contentPadding = if (text == null) PaddingValues(0.dp) else ButtonDefaults.ContentPadding
+        contentPadding = if (text == null) PaddingValues(0.dp) else ButtonDefaults.ContentPadding,
     ) {
         Icon(
             painter = painter,
             contentDescription = contentDescription,
-            modifier = iconModifier
+            modifier = iconModifier,
         )
 
         if (text != null) {

@@ -3,7 +3,6 @@ package com.tasa.authentication.register
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
 //noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -13,9 +12,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.paint
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tasa.authentication.components.validateEmail
@@ -25,15 +22,14 @@ import com.tasa.authentication.register.components.RegisterButton
 import com.tasa.authentication.register.components.RegisterTextFields
 
 @Composable
-fun RegisterView(
-    onSubmit: (String, String, String) -> Unit,
-) {
+fun RegisterView(onSubmit: (String, String, String) -> Unit) {
     val orientation = LocalConfiguration.current.orientation
     var email by rememberSaveable { mutableStateOf("") }
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
-    val invalidFields = email.isEmpty() || username.isEmpty() || password.isEmpty() ||
+    val invalidFields =
+        email.isEmpty() || username.isEmpty() || password.isEmpty() ||
             (email.isNotEmpty() && !validateEmail(email)) ||
             (username.isNotEmpty() && !validateUsername(username)) ||
             (password.isNotEmpty() && !validatePassword(password))
@@ -47,9 +43,8 @@ fun RegisterView(
         onUsernameChange = { username = it.trim() },
         onPasswordChange = { password = it.trim() },
         invalidFields = invalidFields,
-        onSubmit = onSubmit
+        onSubmit = onSubmit,
     )
-
 }
 
 @Composable
@@ -65,13 +60,14 @@ fun PortraitRegisterLayout(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth()
+        modifier =
+            Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
     ) {
         Text(
             text = "Register",
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp),
         )
 
         RegisterTextFields(
@@ -81,12 +77,12 @@ fun PortraitRegisterLayout(
             onEmailChangeCallback = onEmailChange,
             onUsernameChangeCallback = onUsernameChange,
             onPasswordChangeCallback = onPasswordChange,
-            modifier = Modifier
+            modifier = Modifier,
         )
 
         RegisterButton(
             enabled = !invalidFields,
-            modifier = Modifier
+            modifier = Modifier,
         ) {
             onSubmit(username, password, email)
         }

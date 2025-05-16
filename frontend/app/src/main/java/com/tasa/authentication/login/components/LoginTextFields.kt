@@ -10,10 +10,8 @@ import androidx.compose.ui.unit.dp
 import com.tasa.authentication.components.PasswordTextField
 import com.tasa.authentication.components.UsernameTextField
 
-
 private const val USERNAME_TO_PASSWORD_PADDING = 8
 private const val TEXT_FIELD_WIDTH_FACTOR = 0.6f
-
 
 @Composable
 fun LoginTextFields(
@@ -21,19 +19,18 @@ fun LoginTextFields(
     password: String,
     onUsernameChangeCallback: (String) -> Unit,
     onPasswordChangeCallback: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxWidth(TEXT_FIELD_WIDTH_FACTOR)) {
         UsernameTextField(
             username = username,
             onUsernameChangeCallback = onUsernameChangeCallback,
-            modifier = Modifier.padding(bottom = USERNAME_TO_PASSWORD_PADDING.dp)
-
+            modifier = Modifier.padding(bottom = USERNAME_TO_PASSWORD_PADDING.dp),
         )
         PasswordTextField(
             password = password,
             onPasswordChangeCallback = onPasswordChangeCallback,
-            modifier = Modifier
+            modifier = Modifier,
         )
     }
 }
@@ -45,6 +42,6 @@ fun LoginTextFieldsPreview() {
         username = "Bob",
         password = "password_of_bob",
         onUsernameChangeCallback = {},
-        onPasswordChangeCallback = {}
+        onPasswordChangeCallback = {},
     )
 }

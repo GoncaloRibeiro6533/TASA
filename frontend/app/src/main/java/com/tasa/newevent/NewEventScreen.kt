@@ -16,32 +16,27 @@ import com.tasa.ui.TopBar
 import com.tasa.ui.theme.TasaTheme
 
 @Composable
-fun NewEventScreen(
-    onNavigationBack: () -> Unit
-) {
+fun NewEventScreen(onNavigationBack: () -> Unit) {
     TasaTheme {
         Scaffold(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background),
             topBar = {
                 TopBar(NavigationHandlers(onBackRequested = onNavigationBack))
-            }
-
+            },
         ) { innerPadding ->
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
             ) {
-
                 NewEventView()
-
             }
-
         }
     }
 }

@@ -14,7 +14,7 @@ class RegisterActivity : ComponentActivity() {
         setContent {
             TasaTheme {
                 RegisterScreen(
-                    onNavigationBack = { navigateTo(this, StartActivity::class.java) }
+                    onNavigationBack = { navigateTo(this, StartActivity::class.java) },
                 )
             }
         }

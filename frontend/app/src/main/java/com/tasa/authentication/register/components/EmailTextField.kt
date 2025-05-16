@@ -10,7 +10,7 @@ import com.tasa.authentication.components.validateEmail
 fun EmailTextField(
     email: String,
     onEmailChangeCallback: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val invalidEmailMessage = "Invalid email"
     val invalidEmail = email.isNotEmpty() && !validateEmail(email)
@@ -21,6 +21,6 @@ fun EmailTextField(
         onValueChange = onEmailChangeCallback,
         modifier = Modifier.fillMaxWidth().then(modifier),
         required = true,
-        errorMessage = if (invalidEmail) invalidEmailMessage else null
+        errorMessage = if (invalidEmail) invalidEmailMessage else null,
     )
 }

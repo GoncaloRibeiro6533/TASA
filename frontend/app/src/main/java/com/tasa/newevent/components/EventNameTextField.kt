@@ -9,9 +9,8 @@ import com.tasa.authentication.components.MAX_EVENT_NAME_LENGTH
 fun EventNameTextField(
     eventName: String,
     onEventNameChangeCallback: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-
     NewEventTextField(
         label = "Event Name",
         value = eventName,
@@ -19,6 +18,6 @@ fun EventNameTextField(
         modifier = Modifier.fillMaxWidth().then(modifier),
         required = true,
         maxLength = MAX_EVENT_NAME_LENGTH,
-        forbiddenCharacters = listOf(' ','\n', '\t')
+        forbiddenCharacters = listOf(' ', '\n', '\t'),
     )
 }

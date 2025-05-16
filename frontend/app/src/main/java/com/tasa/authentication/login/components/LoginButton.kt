@@ -7,8 +7,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.tasa.authentication.components.IconButton
 
-
-
 private const val BUTTON_PADDING = 16
 
 /**
@@ -21,7 +19,7 @@ private const val BUTTON_PADDING = 16
 fun LoginButton(
     enabled: Boolean = true,
     onLoginClickCallback: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     IconButton(
         onClick = onLoginClickCallback,
@@ -29,6 +27,6 @@ fun LoginButton(
         modifier = modifier.padding(BUTTON_PADDING.dp),
         text = "Login",
         painter = painterResource(id = com.tasa.R.drawable.ic_round_login_24),
-        contentDescription = "LoginButton"
+        contentDescription = "LoginButton",
     )
 }

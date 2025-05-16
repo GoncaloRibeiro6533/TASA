@@ -8,8 +8,6 @@ import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
 import org.osmdroid.config.Configuration
 
-
-
 class MapActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,11 +15,10 @@ class MapActivity : ComponentActivity() {
         val prefs = applicationContext.getSharedPreferences("osmdroid", MODE_PRIVATE)
         Configuration.getInstance().load(applicationContext, prefs)
 
-
         setContent {
             TasaTheme {
                 MapScreen(
-                    onNavigationBack = {navigateTo(this, HomePageActivity::class.java)}
+                    onNavigationBack = { navigateTo(this, HomePageActivity::class.java) },
                 )
             }
         }

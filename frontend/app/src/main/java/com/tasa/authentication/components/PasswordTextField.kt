@@ -9,7 +9,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 fun PasswordTextField(
     password: String,
     onPasswordChangeCallback: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val invalidPasswordMessage = "Password should have at least 8 characters."
     val invalidPassword = password.isNotEmpty() && !validatePassword(password)
@@ -22,6 +22,6 @@ fun PasswordTextField(
         modifier = modifier.fillMaxWidth(),
         required = true,
         maxLength = MAX_PASSWORD_LENGTH,
-        errorMessage = if (invalidPassword) invalidPasswordMessage else null
+        errorMessage = if (invalidPassword) invalidPasswordMessage else null,
     )
 }
