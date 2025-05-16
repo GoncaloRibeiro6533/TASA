@@ -18,7 +18,8 @@ import com.tasa.ui.theme.TasaTheme
 @Composable
 fun HomePageScreen(
     onNavigationToMap: () -> Unit,
-    onNavigationToNewEvent: () -> Unit
+    onNavigationToNewEvent: () -> Unit,
+    onNavigateToMyEvents: () -> Unit
 ) {
     TasaTheme {
         Scaffold(
@@ -39,7 +40,7 @@ fun HomePageScreen(
 
             ) {
 
-                HomePageView(onNavigationToMap, onNavigationToNewEvent)
+                HomePageView(onNavigationToMap, onNavigationToNewEvent, onNavigateToMyEvents)
 
             }
 
@@ -50,5 +51,5 @@ fun HomePageScreen(
 @Preview(showBackground = true)
 @Composable
 fun HomePageScreenPreview() {
-    HomePageScreen({}, {})
+    HomePageScreen({}, {}, {})
 }

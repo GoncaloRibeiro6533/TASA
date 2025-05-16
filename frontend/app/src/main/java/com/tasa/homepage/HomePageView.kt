@@ -27,10 +27,11 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun HomePageView(
     onNavigationToMap: () -> Unit,
-    onNavigationNewEvent: () -> Unit
+    onNavigationToNewEvent: () -> Unit,
+    onNavigationToMyEvents: () -> Unit
 ) {
 
-    HomePageLayout(onNavigationToMap, onNavigationNewEvent)
+    HomePageLayout(onNavigationToMap, onNavigationToNewEvent, onNavigationToMyEvents)
 
 }
 @Composable
@@ -48,8 +49,9 @@ fun TextBox(text: String) {
 
 @Composable
 fun HomePageLayout(
-    onNavigationToMap: () -> Unit ={},
-    onNavigationNewEvent: () -> Unit ={}
+    onNavigationToMap: () -> Unit,
+    onNavigationToNewEvent: () -> Unit,
+    onNavigationToMyEvents: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -83,7 +85,7 @@ fun HomePageLayout(
                 TextBox("MY LOCATIONS")
             }
             Button(
-                onClick = {},
+                onClick = {onNavigationToMyEvents()},
                 modifier = Modifier
                     .weight(1f)
                     .aspectRatio(aspectRatio)
@@ -120,7 +122,7 @@ fun HomePageLayout(
                 TextBox("MY EXCEPTIONS")
             }
             Button(
-                onClick = {onNavigationNewEvent()},
+                onClick = {onNavigationToNewEvent()},
                 modifier = Modifier
                     .weight(1f)
                     .aspectRatio(1f)
@@ -137,5 +139,5 @@ fun HomePageLayout(
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
-    HomePageView({} , {})
+    HomePageView({} , {}, {})
 }
