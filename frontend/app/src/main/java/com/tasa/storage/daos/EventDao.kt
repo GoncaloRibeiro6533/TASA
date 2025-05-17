@@ -33,4 +33,7 @@ interface EventDao {
         eventId: String,
         calendarId: String,
     )
+
+    @Query("SELECT COUNT(*) FROM event")
+    suspend fun hasEvents(): Boolean
 }

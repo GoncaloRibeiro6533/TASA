@@ -1,17 +1,15 @@
 package com.tasa.domain
 
-import com.tasa.domain.user.User
 import java.time.LocalDateTime
 
 class RuleEvent(
     id: Int? = null,
     startTime: LocalDateTime,
     endTime: LocalDateTime,
-    creator: User,
     val event: Event,
-) : Rule(id, startTime, endTime, creator) {
+) : Rule(id, startTime, endTime) {
     override fun toString(): String {
-        return "RuleEvent(id=$id, startTime=$startTime, endTime=$endTime, creator= $creator, event=$event)"
+        return "RuleEvent(id=$id, startTime=$startTime, endTime=$endTime, event=$event)"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -26,10 +24,9 @@ class RuleEvent(
         id: Int? = this.id,
         startTime: LocalDateTime = this.startTime,
         endTime: LocalDateTime = this.endTime,
-        creator: User = this.creator,
         event: Event = this.event,
     ): RuleEvent {
-        return RuleEvent(id, startTime, endTime, creator, event)
+        return RuleEvent(id, startTime, endTime, event)
     }
 
     override fun hashCode(): Int {
