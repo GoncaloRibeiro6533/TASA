@@ -4,7 +4,7 @@ import com.tasa.domain.user.User
 import java.time.LocalDateTime
 
 class RuleEvent(
-    id: Int,
+    id: Int? = null,
     startTime: LocalDateTime,
     endTime: LocalDateTime,
     creator: User,
@@ -23,7 +23,7 @@ class RuleEvent(
     }
 
     fun copy(
-        id: Int = this.id,
+        id: Int? = this.id,
         startTime: LocalDateTime = this.startTime,
         endTime: LocalDateTime = this.endTime,
         creator: User = this.creator,

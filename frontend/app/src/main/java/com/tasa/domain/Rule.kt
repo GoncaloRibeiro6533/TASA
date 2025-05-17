@@ -12,13 +12,12 @@ import java.time.LocalDateTime
  * @throws IllegalArgumentException if any of the parameters is invalid
  */
 sealed class Rule(
-    val id: Int,
+    val id: Int? = null,
     val startTime: LocalDateTime,
     val endTime: LocalDateTime,
     val creator: User,
 ) {
     init {
-        require(id >= 0) { "id must be positive" }
         require(endTime > startTime) { "endTime must be after starTime" }
     }
 }

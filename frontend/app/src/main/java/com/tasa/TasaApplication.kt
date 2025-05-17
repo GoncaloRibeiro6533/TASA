@@ -7,7 +7,10 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
 import com.tasa.domain.UserInfoRepository
 import com.tasa.infrastructure.UserInfoRepo
+import com.tasa.repository.TasaRepo
+import com.tasa.service.TasaService
 import com.tasa.service.UserService
+import com.tasa.service.fake.TasaServiceFake
 import com.tasa.service.fake.UserServiceFake
 import com.tasa.storage.TasaDB
 
@@ -28,5 +31,15 @@ class TasaApplication : Application(), DependenciesContainer {
             klass = TasaDB::class.java,
             "tasa-db",
         ).fallbackToDestructiveMigration(false).build()
+    }
+    override val service: TasaService by lazy {
+        TasaServiceFake()
+    }
+
+    override val repo: TasaRepo by lazy {
+        TasaRepo(
+            local = clientDB,
+            remote = service,
+        )
     }
 }
