@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
+import com.tasa.alarm.AlarmScheduler
 import com.tasa.domain.UserInfoRepository
 import com.tasa.infrastructure.UserInfoRepo
 import com.tasa.repository.TasaRepo
@@ -41,5 +42,9 @@ class TasaApplication : Application(), DependenciesContainer {
             local = clientDB,
             remote = service,
         )
+    }
+
+    override val ruleScheduler: AlarmScheduler by lazy {
+        AlarmScheduler(repo)
     }
 }

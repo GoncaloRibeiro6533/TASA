@@ -2,6 +2,7 @@ package com.tasa.storage
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.tasa.storage.daos.AlarmDao
 import com.tasa.storage.daos.AppExceptionDao
 import com.tasa.storage.daos.ContactExceptionDao
 import com.tasa.storage.daos.EventDao
@@ -9,6 +10,7 @@ import com.tasa.storage.daos.LocationDao
 import com.tasa.storage.daos.RuleEventDao
 import com.tasa.storage.daos.RuleLocationDao
 import com.tasa.storage.daos.UserDao
+import com.tasa.storage.entities.AlarmEntity
 import com.tasa.storage.entities.AppExceptionEntity
 import com.tasa.storage.entities.ContactExceptionEntity
 import com.tasa.storage.entities.EventEntity
@@ -26,6 +28,7 @@ import com.tasa.storage.entities.UserEntity
         RuleLocationEntity::class,
         AppExceptionEntity::class,
         ContactExceptionEntity::class,
+        AlarmEntity::class,
     ],
     version = 1,
 )
@@ -43,4 +46,6 @@ abstract class TasaDB : RoomDatabase() {
     abstract fun appExceptionDao(): AppExceptionDao
 
     abstract fun contactExceptionDao(): ContactExceptionDao
+
+    abstract fun alarmDao(): AlarmDao
 }

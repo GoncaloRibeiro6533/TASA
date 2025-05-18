@@ -2,6 +2,7 @@ package com.tasa
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import com.tasa.alarm.AlarmScheduler
 import com.tasa.domain.UserInfoRepository
 import com.tasa.repository.TasaRepo
 import com.tasa.service.TasaService
@@ -16,4 +17,5 @@ interface DependenciesContainer {
     val userInfoRepository: UserInfoRepository
     val clientDB: TasaDB
     val repo: TasaRepo
+    val ruleScheduler: AlarmScheduler
 }
