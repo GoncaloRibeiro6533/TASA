@@ -3,9 +3,10 @@ package com.tasa.repository.interfaces
 import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
+import kotlinx.coroutines.flow.Flow
 
 interface RuleRepositoryInterface {
-    suspend fun fetchRuleEvents(): List<RuleEvent>
+    suspend fun fetchRuleEvents(): Flow<List<RuleEvent>>
 
     suspend fun fetchRuleLocations(): List<RuleLocation>
 

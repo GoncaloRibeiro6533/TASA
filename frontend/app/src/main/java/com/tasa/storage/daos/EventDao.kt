@@ -18,9 +18,9 @@ interface EventDao {
 
     @Query("SELECT * FROM event WHERE calendarId = :calendarId AND eventId = :eventId")
     suspend fun getEventById(
-        eventId: String,
-        calendarId: String,
-    ): EventEntity?
+        eventId: Long,
+        calendarId: Long,
+    ): Flow<EventEntity?>
 
     @Update
     suspend fun updateEvent(event: EventEntity)
@@ -30,8 +30,8 @@ interface EventDao {
 
     @Query("DELETE FROM event WHERE eventId = :eventId AND calendarId = :calendarId")
     suspend fun deleteEvent(
-        eventId: String,
-        calendarId: String,
+        eventId: Long,
+        calendarId: Long,
     )
 
     @Query("SELECT COUNT(*) FROM event")

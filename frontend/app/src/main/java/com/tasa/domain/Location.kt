@@ -1,5 +1,7 @@
 package com.tasa.domain
 
+import com.tasa.storage.entities.LocationEntity
+
 /**
  * Represents a location defined by its name, latitude and longitude.
  * @property id the location's id
@@ -11,14 +13,14 @@ package com.tasa.domain
  */
 
 data class Location(
-    val id: Int,
+    val id: Int? = null,
     val name: String,
     val latitude: Double,
     val longitude: Double,
     val radius: Double,
 ) {
     init {
-        require(id >= 0) { "id must be positive" }
+
         require(name.isNotBlank()) { "name must not be blank" }
         require(name.length <= MAX_NAME_LENGTH) {
             "name must not be longer than $MAX_NAME_LENGTH"
@@ -39,4 +41,13 @@ data class Location(
         const val MAX_LONGITUDE = 180.0
         const val MIN_LONGITUDE = -180.0
     }
+
+    fun toEntity() =
+        LocationEntity(
+            id = id,
+            name = name,
+            latitude = latitude,
+            longitude = longitude,
+            radius = radius,
+        )
 }

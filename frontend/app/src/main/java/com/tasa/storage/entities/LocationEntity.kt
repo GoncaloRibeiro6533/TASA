@@ -1,6 +1,7 @@
 package com.tasa.storage.entities
 
 import androidx.room.Entity
+import com.tasa.domain.Location
 
 @Entity(
     tableName = "location",
@@ -8,8 +9,18 @@ import androidx.room.Entity
 )
 data class LocationEntity(
     val id: Int? = null,
-    val name: Int,
+    val name: String,
     val latitude: Double,
     val longitude: Double,
-    val radius: Int,
-)
+    val radius: Double,
+) {
+    fun toLocation(): Location {
+        return Location(
+            id = id ?: -1,
+            name = name,
+            latitude = latitude,
+            longitude = longitude,
+            radius = radius,
+        )
+    }
+}

@@ -1,6 +1,7 @@
 package com.tasa.storage.entities
 
 import androidx.room.Entity
+import com.tasa.domain.Event
 
 @Entity(
     tableName = "event",
@@ -10,4 +11,12 @@ data class EventEntity(
     val eventId: Long,
     val calendarId: Long,
     val title: String,
-)
+) {
+    fun toEvent(): Event {
+        return Event(
+            id = eventId,
+            calendarId = calendarId,
+            title = title,
+        )
+    }
+}

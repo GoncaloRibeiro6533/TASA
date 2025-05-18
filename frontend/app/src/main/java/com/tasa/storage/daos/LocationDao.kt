@@ -41,4 +41,7 @@ interface LocationDao {
 
     @Query("DELETE FROM location")
     suspend fun clear()
+
+    @Query("SELECT COUNT(*) FROM location")
+    suspend fun hasLocations(): Boolean
 }

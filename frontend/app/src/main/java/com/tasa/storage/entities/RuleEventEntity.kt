@@ -3,6 +3,11 @@ package com.tasa.storage.entities
 import androidx.room.Entity
 import androidx.room.ForeignKey
 
+data class EventKey(
+    val eventId: Long,
+    val calendarId: Long,
+)
+
 @Entity(
     tableName = "rule_event",
     primaryKeys = ["endTime", "startTime"],
