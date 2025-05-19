@@ -5,7 +5,9 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy.Companion.REPLACE
 import androidx.room.Query
 import com.tasa.storage.entities.RuleEventEntity
+import com.tasa.storage.entities.RuleEventWithEvent
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
 
 @Dao
 interface RuleEventDao {
@@ -24,14 +26,20 @@ interface RuleEventDao {
         calendarId: Long,
     ): Flow<RuleEventEntity?>
 
-    @Query("SELECT * FROM rule_event WHERE startTime= :startTime AND endTime= :endTime")
-    fun getRuleEventByStartAndEndTime(
-        startTime: String,
-        endTime: String,
-    ): Flow<RuleEventEntity?>
+    @Query(
+        """
+    SELECT rule_event.*, event.* FROM rule_event
+    INNER JOIN event ON rule_event.eventId = event.eventId AND rule_event.calendarId = event.calendarId
+    WHERE rule_event.startTime = :startTime AND rule_event.endTime = :endTime
+    """,
+    )
+    suspend fun getRuleEventByStartAndEndTime(
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+    ): RuleEventWithEvent?
 
-    @Query("SELECT * FROM rule_event")
-    fun getAllRuleEvents(): Flow<List<RuleEventEntity>>
+    @Query("SELECT * FROM rule_event join event ON rule_event.eventId = event.eventId AND rule_event.calendarId = event.calendarId")
+    fun getAllRuleEvents(): Flow<List<RuleEventWithEvent>>
 
     @Query("UPDATE rule_event SET startTime = :startTime, endTime = :endTime WHERE id = :id")
     suspend fun updateRuleEvent(
@@ -54,9 +62,21 @@ interface RuleEventDao {
         endTime: String,
     )
 
+    @Query("DELETE FROM rule_event WHERE eventId = :eventId AND calendarId = :calendarId")
+    suspend fun deleteRuleEventByEventIdAndCalendarId(
+        eventId: Long,
+        calendarId: Long,
+    )
+
     @Query("DELETE FROM rule_event WHERE id = :id")
     suspend fun deleteRuleEventById(id: Int)
 
     @Query("DELETE FROM rule_event")
     suspend fun clear()
+
+    @Query("SELECT COUNT(*) FROM rule_event WHERE startTime >= :startTime AND endTime <= :endTime")
+    suspend fun isCollision(
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+    ): Boolean
 }

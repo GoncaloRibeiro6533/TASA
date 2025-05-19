@@ -1,5 +1,6 @@
 package com.tasa.domain
 
+import com.tasa.storage.entities.RuleEventEntity
 import java.time.LocalDateTime
 
 class RuleEvent(
@@ -33,5 +34,15 @@ class RuleEvent(
         var result = super.hashCode()
         result = 31 * result + event.hashCode()
         return result
+    }
+
+    fun toRuleEventEntity(): RuleEventEntity {
+        return RuleEventEntity(
+            id = id,
+            startTime = startTime,
+            endTime = endTime,
+            eventId = event.id,
+            calendarId = event.calendarId,
+        )
     }
 }

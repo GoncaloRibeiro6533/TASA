@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
 import com.tasa.storage.entities.EventEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -17,13 +16,17 @@ interface EventDao {
     fun getAllEvents(): Flow<List<EventEntity>>
 
     @Query("SELECT * FROM event WHERE calendarId = :calendarId AND eventId = :eventId")
-    suspend fun getEventById(
+    fun getEventById(
         eventId: Long,
         calendarId: Long,
-    ): Flow<EventEntity?>
+    ): Flow<EventEntity>
 
-    @Update
-    suspend fun updateEvent(event: EventEntity)
+    @Query("UPDATE event SET title = :title WHERE eventId = :eventId AND calendarId = :calendarId")
+    suspend fun updateEvent(
+        eventId: Long,
+        calendarId: Long,
+        title: String,
+    )
 
     @Query("DELETE FROM event")
     suspend fun clear()

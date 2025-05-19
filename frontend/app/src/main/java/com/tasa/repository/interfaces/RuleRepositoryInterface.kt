@@ -1,14 +1,17 @@
 package com.tasa.repository.interfaces
 
+import com.tasa.domain.Event
+import com.tasa.domain.Location
 import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
 
 interface RuleRepositoryInterface {
     suspend fun fetchRuleEvents(): Flow<List<RuleEvent>>
 
-    suspend fun fetchRuleLocations(): List<RuleLocation>
+    suspend fun fetchRuleLocations(): Flow<List<RuleLocation>>
 
     suspend fun fetchRuleEventsById(id: Int): RuleEvent?
 
@@ -17,18 +20,26 @@ interface RuleRepositoryInterface {
     suspend fun fetchRuleLocationsByName(name: String): RuleLocation?
 
     suspend fun fetchRuleEventsCalendarIdAndEventId(
-        calendarId: Long,
-        eventId: Long,
+        calendarId: LocalDateTime,
+        eventId: LocalDateTime,
     ): RuleEvent?
 
     suspend fun fetchRuleByTime(
-        startTime: Long,
-        endTime: Long,
-    ): Rule
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+    ): Rule?
 
-    suspend fun insertRuleEvent(ruleEvent: RuleEvent)
+    suspend fun insertRuleEvent(
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+        event: Event,
+    ): RuleEvent
 
-    suspend fun insertRuleLocation(ruleLocation: RuleLocation)
+    suspend fun insertRuleLocation(
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+        location: Location,
+    ): RuleLocation
 
     suspend fun insertRuleEvents(ruleEvents: List<RuleEvent>)
 
@@ -38,12 +49,15 @@ interface RuleRepositoryInterface {
 
     suspend fun deleteRuleLocationById(id: Int)
 
-    suspend fun deleteRuleEventByName(name: String)
+    suspend fun deleteRuleEventByCalendarIdAndEventId(
+        eventId: Long,
+        calendarId: Long,
+    )
+
+    suspend fun isCollision(
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+    ): Boolean
 
     suspend fun deleteRuleLocationByName(name: String)
-
-    suspend fun deleteRuleEventByCalendarIdAndEventId(
-        calendarId: Long,
-        eventId: Long,
-    )
 }

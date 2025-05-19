@@ -3,6 +3,7 @@ package com.tasa.repository.interfaces
 import com.tasa.domain.Action
 import com.tasa.domain.Alarm
 import com.tasa.storage.TasaDB
+import com.tasa.storage.entities.AlarmEntity
 
 class AlarmRepository(
     private val local: TasaDB,
@@ -11,7 +12,13 @@ class AlarmRepository(
         triggerTime: Long,
         action: Action,
     ): Int {
-        return local.alarmDao().insertAlarm(triggerTime, action)
+        return local.alarmDao().insertAlarm(
+            AlarmEntity(
+                id = 0,
+                triggerTime = triggerTime,
+                action = action,
+            ),
+        ).toInt()
     }
 
     override suspend fun getAlarmById(id: Int): Alarm? {

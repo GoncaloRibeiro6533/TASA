@@ -1,8 +1,8 @@
 package com.tasa.alarm
 
-import android.app.Activity
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Context.ALARM_SERVICE
 import android.content.Intent
 import com.tasa.domain.Action
@@ -20,7 +20,7 @@ class AlarmScheduler(
     fun scheduleAlarm(
         time: TriggerTime,
         action: Action,
-        context: Activity,
+        context: Context,
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             val alarm = repo.alarmRepo.createAlarm(time.value, action)

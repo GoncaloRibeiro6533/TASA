@@ -5,4 +5,5 @@ interface TasaRepoInterface {
     val alarmRepo: AlarmRepositoryInterface
     val locationRepo: LocationRepositoryInterface
     val eventRepo: EventRepositoryInterface
+    val ruleRepo: RuleRepositoryInterface
 }

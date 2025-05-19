@@ -49,7 +49,7 @@ class EventRepository(
     ): Flow<Event?> {
         return local.eventDao().getEventById(eventId, calendarId)
             .map { event ->
-                event?.let {
+                event.let {
                     Event(
                         it.eventId,
                         it.calendarId,
@@ -68,7 +68,11 @@ class EventRepository(
     }
 
     override suspend fun updateEvent(event: Event) {
-        local.eventDao().updateEvent(event.toEventEntity())
+        local.eventDao().updateEvent(
+            eventId = event.id,
+            calendarId = event.calendarId,
+            title = event.title,
+        )
     }
 
     override suspend fun deleteEvent(event: Event) {

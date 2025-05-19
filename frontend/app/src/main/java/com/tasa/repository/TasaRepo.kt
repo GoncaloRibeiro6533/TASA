@@ -1,6 +1,7 @@
 package com.tasa.repository
 
 import com.tasa.repository.interfaces.AlarmRepository
+import com.tasa.repository.interfaces.RuleRepository
 import com.tasa.repository.interfaces.TasaRepoInterface
 import com.tasa.service.TasaService
 import com.tasa.storage.TasaDB
@@ -13,4 +14,5 @@ class TasaRepo(
     override val locationRepo = LocationRepository(local, remote)
     override val eventRepo = EventRepository(local, remote)
     override val alarmRepo = AlarmRepository(local)
+    override val ruleRepo = RuleRepository(local, remote)
 }

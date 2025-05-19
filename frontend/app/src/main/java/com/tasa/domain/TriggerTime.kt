@@ -14,7 +14,7 @@ data class TriggerTime(
         val calendar = getCalendar()
         return LocalDateTime.of(
             calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH) + 1, // Ajuste para base 1
+            calendar.get(Calendar.MONTH) + 1,
             calendar.get(Calendar.DAY_OF_MONTH),
             calendar.get(Calendar.HOUR_OF_DAY),
             calendar.get(Calendar.MINUTE),
@@ -43,4 +43,8 @@ data class TriggerTime(
 
 fun Long.toTriggerTime(): TriggerTime {
     return TriggerTime(this)
+}
+
+fun LocalDateTime.toTriggerTime(): TriggerTime {
+    return TriggerTime(this.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli())
 }

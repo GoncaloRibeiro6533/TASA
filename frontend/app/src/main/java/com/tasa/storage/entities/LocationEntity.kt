@@ -16,7 +16,7 @@ data class LocationEntity(
 ) {
     fun toLocation(): Location {
         return Location(
-            id = id ?: -1,
+            id = id,
             name = name,
             latitude = latitude,
             longitude = longitude,

@@ -2,6 +2,8 @@ package com.tasa.storage
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.tasa.storage.converters.Converters
 import com.tasa.storage.daos.AlarmDao
 import com.tasa.storage.daos.AppExceptionDao
 import com.tasa.storage.daos.ContactExceptionDao
@@ -32,6 +34,7 @@ import com.tasa.storage.entities.UserEntity
     ],
     version = 1,
 )
+@TypeConverters(Converters::class)
 abstract class TasaDB : RoomDatabase() {
     abstract fun userDao(): UserDao
 

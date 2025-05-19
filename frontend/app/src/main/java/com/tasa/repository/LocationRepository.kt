@@ -13,26 +13,24 @@ import kotlinx.coroutines.flow.map
 class LocationRepository(
     private val local: TasaDB,
     private val remote: TasaService,
-): LocationRepositoryInterface {
-
+) : LocationRepositoryInterface {
     private suspend fun hasLocations(): Boolean {
         return local.locationDao().hasLocations()
     }
 
-    private suspend fun getFromApi() =
-        remote.locationService.fetchLocations()
+    private suspend fun getFromApi() = remote.locationService.fetchLocations()
 
     override suspend fun fetchLocations(): Flow<List<Location>> {
         return if (hasLocations()) {
             local.locationDao().getAllLocations().map { it.map { it.toLocation() } }
         } else {
-            when(val locations = getFromApi()){
+            when (val locations = getFromApi()) {
                 is Success -> {
-                    local.locationDao().insertLocations(locations.value.map{it.toEntity()})
+                    local.locationDao().insertLocations(locations.value.map { it.toEntity() })
                     local.locationDao().getAllLocations().map { it.map { it.toLocation() } }
                 }
                 is Failure -> {
-                    throw  TasaException(locations.value.message, null)
+                    throw TasaException(locations.value.message, null)
                 }
             }
         }
@@ -65,6 +63,4 @@ class LocationRepository(
     override suspend fun clear() {
         local.locationDao().clear()
     }
-
-
 }

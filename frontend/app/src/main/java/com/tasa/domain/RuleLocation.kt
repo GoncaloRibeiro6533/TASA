@@ -1,5 +1,6 @@
 package com.tasa.domain
 
+import com.tasa.storage.entities.RuleLocationEntity
 import java.time.LocalDateTime
 
 class RuleLocation(
@@ -33,5 +34,14 @@ class RuleLocation(
         var result = super.hashCode()
         result = 31 * result + location.hashCode()
         return result
+    }
+
+    fun toRuleLocationEntity(): RuleLocationEntity {
+        return RuleLocationEntity(
+            id = id,
+            startTime = startTime,
+            endTime = endTime,
+            locationName = location.name,
+        )
     }
 }
