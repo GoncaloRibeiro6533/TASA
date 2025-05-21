@@ -38,7 +38,13 @@ interface RuleEventDao {
         endTime: LocalDateTime,
     ): RuleEventWithEvent?
 
-    @Query("SELECT * FROM rule_event join event ON rule_event.eventId = event.eventId AND rule_event.calendarId = event.calendarId")
+    @Query(
+        """
+    SELECT rule_event.*, event.* FROM rule_event
+    JOIN event 
+    ON rule_event.eventId = event.eventId AND rule_event.calendarId = event.calendarId
+    """,
+    )
     fun getAllRuleEvents(): Flow<List<RuleEventWithEvent>>
 
     @Query("UPDATE rule_event SET startTime = :startTime, endTime = :endTime WHERE id = :id")

@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 
 interface RuleRepositoryInterface {
+    suspend fun fetchAllRules(): Flow<List<Rule>>
+
     suspend fun fetchRuleEvents(): Flow<List<RuleEvent>>
 
     suspend fun fetchRuleLocations(): Flow<List<RuleLocation>>

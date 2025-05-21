@@ -8,17 +8,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.tasa.ui.components.ErrorAlert
+import com.tasa.ui.components.LoadingView
 import com.tasa.ui.components.TopBar
 import com.tasa.ui.theme.TasaTheme
 
 @Composable
 fun HomePageScreen(
+    viewModel: HomePageScreenViewModel,
     onNavigationToMap: () -> Unit,
     onNavigationToNewEvent: () -> Unit,
     onNavigateToMyEvents: () -> Unit,
+    onFatalError: () -> Unit = { },
 ) {
     TasaTheme {
         Scaffold(
@@ -38,14 +42,22 @@ fun HomePageScreen(
                         .fillMaxSize()
                         .padding(innerPadding),
             ) {
-                HomePageView(onNavigationToMap, onNavigationToNewEvent, onNavigateToMyEvents)
+                when (val state = viewModel.state.collectAsState().value) {
+                    is HomeScreenState.Error -> {
+                        ErrorAlert(
+                            title = "Error",
+                            message = state.error.message,
+                            buttonText = "Close app",
+                            onDismiss = { onFatalError() },
+                        )
+                    }
+                    HomeScreenState.Loading -> LoadingView()
+                    is HomeScreenState.Success ->
+                        HomePageView(state.rules, onNavigationToMap, onNavigationToNewEvent, onNavigateToMyEvents)
+                    HomeScreenState.Uninitialized -> { // Do nothing}
+                    }
+                }
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomePageScreenPreview() {
-    HomePageScreen({}, {}, {})
 }

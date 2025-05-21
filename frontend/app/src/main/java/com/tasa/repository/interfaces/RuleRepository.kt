@@ -8,6 +8,7 @@ import com.tasa.domain.RuleLocation
 import com.tasa.service.TasaService
 import com.tasa.storage.TasaDB
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import java.time.LocalDateTime
 
@@ -15,6 +16,14 @@ class RuleRepository(
     private val local: TasaDB,
     private val remote: TasaService,
 ) : RuleRepositoryInterface {
+    override suspend fun fetchAllRules(): Flow<List<Rule>> {
+        val ruleEvent = local.ruleEventDao().getAllRuleEvents().map { it.map { it.toRuleEvent() } }
+        val ruleLocation = local.ruleLocationDao().getAllRuleLocations().map { it.map { it.toRuleLocation() } }
+        return ruleEvent.combine(ruleLocation) { events, locations ->
+            events + locations
+        }
+    }
+
     override suspend fun fetchRuleEvents(): Flow<List<RuleEvent>> {
         return local.ruleEventDao().getAllRuleEvents().map { it.map { it.toRuleEvent() } }
     }

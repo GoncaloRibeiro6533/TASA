@@ -3,7 +3,6 @@ package com.tasa.storage.entities
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.Junction
 import androidx.room.Relation
 import com.tasa.domain.RuleEvent
 import java.time.LocalDateTime
@@ -26,20 +25,14 @@ data class RuleEventEntity(
     val endTime: LocalDateTime,
     val eventId: Long,
     val calendarId: Long,
-) {
-}
+)
 
 data class RuleEventWithEvent(
     @Embedded val ruleEvent: RuleEventEntity,
     @Relation(
         parentColumn = "eventId",
         entityColumn = "eventId",
-        associateBy =
-            Junction(
-                value = EventEntity::class,
-                parentColumn = "calendarId",
-                entityColumn = "calendarId",
-            ),
+        entity = EventEntity::class,
     )
     val event: EventEntity,
 ) {
