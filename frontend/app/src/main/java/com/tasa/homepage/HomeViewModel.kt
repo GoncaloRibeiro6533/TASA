@@ -59,14 +59,13 @@ class HomePageScreenViewModel(
         _state.value = HomeScreenState.Loading
         return viewModelScope.launch {
             try {
-//                val user = userInfo.getUserInfo() ?: throw TasaException("User not found", null)
                 repo.ruleRepo.fetchAllRules().collect { stream ->
                     _rules.value = stream
                     _state.value = HomeScreenState.Success(rules)
                 }
             } catch (e: Throwable) {
                 _state.value =
-                    HomeScreenState.Error(ApiError("Error getting channels: ${e.message}"))
+                    HomeScreenState.Error(ApiError("Error getting channels"))
             }
         }
     }

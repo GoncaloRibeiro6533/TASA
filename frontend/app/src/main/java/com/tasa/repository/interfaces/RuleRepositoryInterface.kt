@@ -64,4 +64,6 @@ interface RuleRepositoryInterface {
     suspend fun deleteRuleLocationByName(name: String)
 
     suspend fun cleanOldRules(now: LocalDateTime)
+
+    suspend fun clean()
 }

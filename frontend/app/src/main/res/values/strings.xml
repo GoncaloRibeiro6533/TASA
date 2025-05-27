@@ -5,4 +5,8 @@
     <string name="top_bar_open_menu">Menu</string>
     <string name="loading_label">Loading…</string>
     <string name="error_icon_description">Error</string>
+    <string name="email_label">Email</string>
+    <string name="edit_icon_description">edit\n</string>
+    <string name="username_label">Username</string>
+    <string name="profile_icon_description">profile_icon</string>
 </resources>

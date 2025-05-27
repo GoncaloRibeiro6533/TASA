@@ -1,5 +1,6 @@
 package com.tasa.homepage
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.DismissDirection
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.SwipeToDismiss
+import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -28,23 +33,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tasa.calendar.toFormattedDate
+import com.tasa.domain.Event
 import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
+import com.tasa.ui.components.RoundedRectangleWithText
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-
-@Composable
-fun HomePageView(
-    rules: StateFlow<List<Rule>>,
-    onNavigationToMap: () -> Unit,
-    onNavigationToNewEvent: () -> Unit,
-    onNavigationToMyEvents: () -> Unit,
-) {
-    HomePageLayout(rules, onNavigationToMap, onNavigationToNewEvent, onNavigationToMyEvents)
-}
+import java.time.LocalDateTime
 
 @Composable
 fun TextBox(text: String) {
@@ -60,11 +61,11 @@ fun TextBox(text: String) {
 }
 
 @Composable
-fun HomePageLayout(
+fun HomePageView(
     rules: StateFlow<List<Rule>>,
     onNavigationToMap: () -> Unit,
-    onNavigationToNewEvent: () -> Unit,
-    onNavigationToMyEvents: () -> Unit,
+    onNavigateToCreateRuleEvent: () -> Unit,
+    onNavigationToMyExceptions: () -> Unit,
 ) {
     val ruleList = rules.collectAsState().value
     val gray = ButtonDefaults.buttonColors(Color.Gray)
@@ -93,7 +94,13 @@ fun HomePageLayout(
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     items(ruleList) { rule ->
-                        RuleCard(rule)
+                        SwipeableRuleCard(
+                            rule = rule as RuleEvent,
+                            onEdit = { editedRule ->
+                            },
+                            onDelete = { deletedRule ->
+                            },
+                        )
                     }
                 }
             }
@@ -114,7 +121,7 @@ fun HomePageLayout(
                 TextBox("MY LOCATIONS")
             }
             Button(
-                onClick = { onNavigationToMyEvents() },
+                onClick = { onNavigateToCreateRuleEvent() },
                 modifier =
                     Modifier
                         .weight(1f)
@@ -144,7 +151,7 @@ fun HomePageLayout(
                 TextBox("ADD NEW LOCATION")
             }
             Button(
-                onClick = {},
+                onClick = { onNavigationToMyExceptions() },
                 modifier =
                     Modifier
                         .weight(1f)
@@ -155,26 +162,65 @@ fun HomePageLayout(
             ) {
                 TextBox("MY EXCEPTIONS")
             }
-            Button(
-                onClick = { onNavigationToNewEvent() },
-                modifier =
-                    Modifier
-                        .weight(1f)
-                        .aspectRatio(1f)
-                        .padding(4.dp),
-                colors = gray,
-                shape = RectangleShape,
-            ) {
-                TextBox("ADD NEW EVENT")
-            }
         }
     }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun SwipeableRuleCard(
+    rule: RuleEvent,
+    onEdit: (RuleEvent) -> Unit,
+    onDelete: (RuleEvent) -> Unit,
+) {
+    val dismissState = rememberDismissState()
+
+    if (dismissState.isDismissed(DismissDirection.EndToStart)) {
+        onDelete(rule)
+    } else if (dismissState.isDismissed(DismissDirection.StartToEnd)) {
+        onEdit(rule)
+    }
+
+    SwipeToDismiss(
+        state = dismissState,
+        directions = setOf(DismissDirection.StartToEnd, DismissDirection.EndToStart),
+        background = {
+            val direction = dismissState.dismissDirection ?: return@SwipeToDismiss
+            val color =
+                when (direction) {
+                    DismissDirection.StartToEnd -> Color.Blue // Edit
+                    DismissDirection.EndToStart -> Color.Red // Delete
+                }
+
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(color)
+                        .padding(16.dp),
+                contentAlignment =
+                    when (direction) {
+                        DismissDirection.StartToEnd -> Alignment.CenterStart
+                        DismissDirection.EndToStart -> Alignment.CenterEnd
+                    },
+            ) {
+                Text(
+                    text = if (direction == DismissDirection.StartToEnd) "Editar" else "Apagar",
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+            }
+        },
+        dismissContent = {
+            RuleCardEvent(rule = rule)
+        },
+    )
 }
 
 @Composable
 fun HomeActionButton(
     text: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     onClick: () -> Unit,
 ) {
     ElevatedButton(
@@ -197,17 +243,63 @@ fun RuleCard(rule: Rule) {
 }
 
 @Composable
-fun RuleCardEvent(rule: RuleEvent) {
+fun RuleCardEvent(
+    rule: RuleEvent,
+    active: Boolean = false,
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Evento", style = MaterialTheme.typography.titleMedium)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                if (active) {
+                    RoundedRectangleWithText(text = "Ativo", backgroundColor = Color.Green)
+                }
+            }
             Spacer(modifier = Modifier.height(4.dp))
             Text("Início: ${rule.startTime.toFormattedDate()}", style = MaterialTheme.typography.bodyMedium)
             Text("Fim: ${rule.endTime.toFormattedDate()}", style = MaterialTheme.typography.bodyMedium)
-            Text("Título: ${rule.event.title}", style = MaterialTheme.typography.bodyLarge)
+            Text("Evento: ${rule.event.title}", style = MaterialTheme.typography.bodyLarge)
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomePageViewPreview() {
+    val dummyRules: List<Rule> =
+        listOf(
+            RuleEvent(
+                id = 1,
+                startTime = LocalDateTime.now(),
+                endTime = LocalDateTime.now().plusHours(1),
+                event =
+                    Event(
+                        title = "Reunião de equipa",
+                        id = 1,
+                        calendarId = 1,
+                    ),
+            ),
+            RuleEvent(
+                id = 2,
+                startTime = LocalDateTime.now().plusDays(1),
+                endTime = LocalDateTime.now().plusDays(1).plusHours(2),
+                event =
+                    Event(
+                        title = "Almoço de negócios",
+                        id = 2,
+                        calendarId = 1,
+                    ),
+            ),
+        )
+    HomePageView(
+        rules = MutableStateFlow(dummyRules),
+        onNavigationToMap = {},
+        onNavigateToCreateRuleEvent = {},
+        onNavigationToMyExceptions = {},
+    )
 }

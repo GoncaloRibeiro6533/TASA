@@ -10,7 +10,6 @@ import com.tasa.service.TasaService
 import com.tasa.storage.TasaDB
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import java.time.LocalDateTime
 
@@ -137,17 +136,20 @@ class RuleRepository(
     }
 
     override suspend fun cleanOldRules(now: LocalDateTime) {
-        val ruleEvents =
-            local.ruleEventDao().getAllRuleEvents().map { it.map { it.toRuleEvent() } }.collect { rules ->
-                val rulesToDelete = rules.filter { it.endTime.isBefore(now) }
-                val events = rulesToDelete.map { it.event }
-                val eventsNotToDelete = rules.filter { it !in rulesToDelete && it.event in events }.map { it.event }
-                val eventsToDelete =
-                    events.filter { it !in eventsNotToDelete }.forEach {
-                        local.eventDao().deleteEvent(it.id, it.calendarId)
-                    }
-                rulesToDelete.forEach { local.ruleEventDao().deleteRuleEventByStartAndEndTime(it.startTime, it.endTime) }
-                return@collect
-            }
+        local.ruleEventDao().getAllRuleEvents().map { it.map { it.toRuleEvent() } }.collect { rules ->
+            val rulesToDelete = rules.filter { it.endTime.isBefore(now) }
+            val events = rulesToDelete.map { it.event }
+            val eventsNotToDelete = rules.filter { it !in rulesToDelete && it.event in events }.map { it.event }
+                events.filter { it !in eventsNotToDelete }.forEach {
+                    local.eventDao().deleteEvent(it.id, it.calendarId)
+                }
+            rulesToDelete.forEach { local.ruleEventDao().deleteRuleEventByStartAndEndTime(it.startTime, it.endTime) }
+            return@collect
+        }
+    }
+
+    override suspend fun clean() {
+        local.ruleEventDao().clear()
+        local.ruleLocationDao().clear()
     }
 }

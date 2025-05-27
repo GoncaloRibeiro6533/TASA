@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.tasa.ui.components.ErrorAlert
 import com.tasa.ui.components.LoadingView
+import com.tasa.ui.components.NavigationHandlers
 import com.tasa.ui.components.TopBar
 import com.tasa.ui.theme.TasaTheme
 
@@ -20,8 +21,9 @@ import com.tasa.ui.theme.TasaTheme
 fun HomePageScreen(
     viewModel: HomePageScreenViewModel,
     onNavigationToMap: () -> Unit,
-    onNavigationToNewEvent: () -> Unit,
-    onNavigateToMyEvents: () -> Unit,
+    onNavigateToCreateRuleEvent: () -> Unit = {},
+    onNavigateToMyExceptions: () -> Unit = {},
+    onMenuRequested: () -> Unit = { },
     onFatalError: () -> Unit = { },
 ) {
     TasaTheme {
@@ -31,7 +33,7 @@ fun HomePageScreen(
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background),
             topBar = {
-                TopBar()
+                TopBar(NavigationHandlers(onMenuRequested = onMenuRequested))
             },
         ) { innerPadding ->
             Column(
@@ -53,7 +55,12 @@ fun HomePageScreen(
                     }
                     HomeScreenState.Loading -> LoadingView()
                     is HomeScreenState.Success ->
-                        HomePageView(state.rules, onNavigationToMap, onNavigationToNewEvent, onNavigateToMyEvents)
+                        HomePageView(
+                            rules = state.rules,
+                            onNavigationToMap = onNavigationToMap,
+                            onNavigateToCreateRuleEvent = onNavigateToCreateRuleEvent,
+                            onNavigationToMyExceptions = onNavigateToMyExceptions,
+                        )
                     HomeScreenState.Uninitialized -> { // Do nothing}
                     }
                 }
