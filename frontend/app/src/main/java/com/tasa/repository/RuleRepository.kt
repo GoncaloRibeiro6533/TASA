@@ -140,9 +140,9 @@ class RuleRepository(
             val rulesToDelete = rules.filter { it.endTime.isBefore(now) }
             val events = rulesToDelete.map { it.event }
             val eventsNotToDelete = rules.filter { it !in rulesToDelete && it.event in events }.map { it.event }
-                events.filter { it !in eventsNotToDelete }.forEach {
-                    local.eventDao().deleteEvent(it.id, it.calendarId)
-                }
+            events.filter { it !in eventsNotToDelete }.forEach {
+                local.eventDao().deleteEvent(it.id, it.calendarId)
+            }
             rulesToDelete.forEach { local.ruleEventDao().deleteRuleEventByStartAndEndTime(it.startTime, it.endTime) }
             return@collect
         }
