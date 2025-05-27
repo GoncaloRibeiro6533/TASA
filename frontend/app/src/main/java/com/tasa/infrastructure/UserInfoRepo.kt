@@ -44,12 +44,24 @@ class UserInfoRepo(private val store: DataStore<Preferences>) : UserInfoReposito
         val modeValue = preferences[MODE_KEY]
         return Mode.entries.firstOrNull { it.value == modeValue }
     }
+
+    override suspend fun writeDndId(id: String) {
+        store.edit { preferences ->
+            id.writeToPreferences(preferences)
+        }
+    }
+
+    override suspend fun getDndId(): String? {
+        val preferences = store.data.first()
+        return preferences[DND_ID]
+    }
 }
 
 private val USERNAME_KEY = stringPreferencesKey("username")
 private val USER_ID_KEY = stringPreferencesKey("userId")
 private val USER_EMAIL_KEY = stringPreferencesKey("email")
 private val MODE_KEY = stringPreferencesKey("mode")
+private val DND_ID = stringPreferencesKey("dndId")
 
 private fun Preferences.toUser(): User? {
     val username = this[USERNAME_KEY] ?: return null
@@ -67,5 +79,10 @@ private fun User.writeToPreferences(preferences: MutablePreferences): MutablePre
 
 private fun Mode.writeToPreferences(preferences: MutablePreferences): MutablePreferences {
     preferences[MODE_KEY] = value
+    return preferences
+}
+
+private fun String.writeToPreferences(preferences: MutablePreferences): MutablePreferences {
+    preferences[DND_ID] = this
     return preferences
 }

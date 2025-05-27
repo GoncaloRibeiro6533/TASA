@@ -76,6 +76,7 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.room)
     implementation("androidx.compose.material:material:1.6.4")
+    implementation(libs.work.manager)
 
     testImplementation(libs.junit)
 

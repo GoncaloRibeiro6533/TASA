@@ -1,7 +1,8 @@
-package com.tasa.repository.interfaces
+package com.tasa.repository
 
 import com.tasa.domain.Action
 import com.tasa.domain.Alarm
+import com.tasa.repository.interfaces.AlarmRepositoryInterface
 import com.tasa.storage.TasaDB
 import com.tasa.storage.entities.AlarmEntity
 
@@ -44,5 +45,9 @@ class AlarmRepository(
 
     override suspend fun clear(): Int {
         return local.alarmDao().clear()
+    }
+
+    override suspend fun clearOlderAlarms(now: Long) {
+        local.alarmDao().deleteExpiredAlarms(now)
     }
 }

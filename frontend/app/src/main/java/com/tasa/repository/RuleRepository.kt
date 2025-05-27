@@ -1,14 +1,16 @@
-package com.tasa.repository.interfaces
+package com.tasa.repository
 
 import com.tasa.domain.Event
 import com.tasa.domain.Location
 import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
+import com.tasa.repository.interfaces.RuleRepositoryInterface
 import com.tasa.service.TasaService
 import com.tasa.storage.TasaDB
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import java.time.LocalDateTime
 
@@ -18,10 +20,11 @@ class RuleRepository(
 ) : RuleRepositoryInterface {
     override suspend fun fetchAllRules(): Flow<List<Rule>> {
         val ruleEvent = local.ruleEventDao().getAllRuleEvents().map { it.map { it.toRuleEvent() } }
-        val ruleLocation = local.ruleLocationDao().getAllRuleLocations().map { it.map { it.toRuleLocation() } }
+        val ruleLocation =
+            local.ruleLocationDao().getAllRuleLocations().map { it.map { it.toRuleLocation() } }
         return ruleEvent.combine(ruleLocation) { events, locations ->
             events + locations
-        }
+        }.map { it.filter { !it.endTime.isBefore(LocalDateTime.now()) } }
     }
 
     override suspend fun fetchRuleEvents(): Flow<List<RuleEvent>> {
@@ -131,5 +134,20 @@ class RuleRepository(
         eventId: Long,
     ) {
         local.ruleEventDao().deleteRuleEventByEventIdAndCalendarId(eventId, calendarId)
+    }
+
+    override suspend fun cleanOldRules(now: LocalDateTime) {
+        val ruleEvents =
+            local.ruleEventDao().getAllRuleEvents().map { it.map { it.toRuleEvent() } }.collect { rules ->
+                val rulesToDelete = rules.filter { it.endTime.isBefore(now) }
+                val events = rulesToDelete.map { it.event }
+                val eventsNotToDelete = rules.filter { it !in rulesToDelete && it.event in events }.map { it.event }
+                val eventsToDelete =
+                    events.filter { it !in eventsNotToDelete }.forEach {
+                        local.eventDao().deleteEvent(it.id, it.calendarId)
+                    }
+                rulesToDelete.forEach { local.ruleEventDao().deleteRuleEventByStartAndEndTime(it.startTime, it.endTime) }
+                return@collect
+            }
     }
 }

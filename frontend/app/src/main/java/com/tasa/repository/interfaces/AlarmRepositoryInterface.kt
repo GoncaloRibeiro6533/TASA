@@ -22,4 +22,6 @@ interface AlarmRepositoryInterface {
     suspend fun deleteAlarm(id: Int): Int
 
     suspend fun clear(): Int
+
+    suspend fun clearOlderAlarms(now: Long)
 }

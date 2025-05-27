@@ -64,8 +64,8 @@ interface RuleEventDao {
 
     @Query("DELETE FROM rule_event WHERE startTime = :startTime AND endTime = :endTime")
     suspend fun deleteRuleEventByStartAndEndTime(
-        startTime: String,
-        endTime: String,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
     )
 
     @Query("DELETE FROM rule_event WHERE eventId = :eventId AND calendarId = :calendarId")

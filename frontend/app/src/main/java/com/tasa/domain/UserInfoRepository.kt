@@ -15,4 +15,8 @@ interface UserInfoRepository {
     suspend fun writeLastMode(mode: Mode)
 
     suspend fun lastMode(): Mode?
+
+    suspend fun writeDndId(id: String)
+
+    suspend fun getDndId(): String?
 }

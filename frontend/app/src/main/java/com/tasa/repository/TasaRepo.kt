@@ -1,7 +1,5 @@
 package com.tasa.repository
 
-import com.tasa.repository.interfaces.AlarmRepository
-import com.tasa.repository.interfaces.RuleRepository
 import com.tasa.repository.interfaces.TasaRepoInterface
 import com.tasa.service.TasaService
 import com.tasa.storage.TasaDB

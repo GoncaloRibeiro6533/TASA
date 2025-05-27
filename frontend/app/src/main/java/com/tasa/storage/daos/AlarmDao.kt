@@ -30,4 +30,7 @@ interface AlarmDao {
 
     @Query("DELETE FROM alarm")
     suspend fun clear(): Int
+
+    @Query("DELETE FROM alarm WHERE triggerTime < :currentTime")
+    suspend fun deleteExpiredAlarms(currentTime: Long): Int
 }

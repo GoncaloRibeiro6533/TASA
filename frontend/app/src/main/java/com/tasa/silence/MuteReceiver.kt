@@ -6,16 +6,11 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.os.Build
+import android.provider.Settings
 import android.util.Log
 import androidx.annotation.RequiresApi
-import com.tasa.DependenciesContainer
-import com.tasa.TasaApplication
 import com.tasa.domain.Action
 import com.tasa.domain.Mode
-import com.tasa.domain.UserInfoRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class MuteReceiver : BroadcastReceiver() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -25,20 +20,18 @@ class MuteReceiver : BroadcastReceiver() {
     ) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (!notificationManager.isNotificationPolicyAccessGranted) {
-            val intent = Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
+            val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             context.startActivity(intent)
             return
         }
-        val audioManager: AudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         try {
-            val repo = ((context.applicationContext as TasaApplication) as DependenciesContainer).userInfoRepository
             when (intent.getParcelableExtra("action", Action::class.java)) {
                 Action.MUTE -> {
-                    mute(audioManager, repo)
+                    mute(notificationManager)
                 }
                 Action.UNMUTE -> {
-                    unmute(audioManager, repo)
+                    unmute(notificationManager)
                 }
 
                 null -> {}
@@ -50,31 +43,15 @@ class MuteReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun mute(
-        audioManager: AudioManager,
-        repo: UserInfoRepository,
-    ) {
-        val currentMode = audioManager.getCurrentMode()
-        CoroutineScope(Dispatchers.IO).launch {
-            repo.writeLastMode(currentMode)
+    private fun mute(notificationManager: NotificationManager) {
+        if (notificationManager.isNotificationPolicyAccessGranted) {
+            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
         }
-        audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
     }
 
-    private fun unmute(
-        audioManager: AudioManager,
-        repo: UserInfoRepository,
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val lastMode = repo.lastMode()
-            if (lastMode != null) {
-                audioManager.ringerMode =
-                    when (lastMode) {
-                        Mode.SILENT -> AudioManager.RINGER_MODE_SILENT
-                        Mode.VIBRATE -> AudioManager.RINGER_MODE_VIBRATE
-                        Mode.RINGING -> AudioManager.RINGER_MODE_NORMAL
-                    }
-            }
+    private fun unmute(notificationManager: NotificationManager) {
+        if (notificationManager.isNotificationPolicyAccessGranted) {
+            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
         }
     }
 
