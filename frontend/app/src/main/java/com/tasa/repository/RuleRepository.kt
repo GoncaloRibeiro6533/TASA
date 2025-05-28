@@ -23,7 +23,7 @@ class RuleRepository(
             local.ruleLocationDao().getAllRuleLocations().map { it.map { it.toRuleLocation() } }
         return ruleEvent.combine(ruleLocation) { events, locations ->
             events + locations
-        }.map { it.filter { !it.endTime.isBefore(LocalDateTime.now()) } }
+        }.map { it.filter { !it.endTime.isBefore(LocalDateTime.now()) } }.map { it.sortedBy { it.startTime } }
     }
 
     override suspend fun fetchRuleEvents(): Flow<List<RuleEvent>> {
@@ -151,5 +151,38 @@ class RuleRepository(
     override suspend fun clean() {
         local.ruleEventDao().clear()
         local.ruleLocationDao().clear()
+    }
+
+    override suspend fun updateRuleEvent(
+        id: Int?,
+        newStartTime: LocalDateTime,
+        newEndTime: LocalDateTime,
+        oldStartTime: LocalDateTime,
+        oldEndTime: LocalDateTime,
+    ) {
+        if (id != null) {
+            local.ruleEventDao().updateRuleEvent(id, newStartTime, newEndTime)
+        } else {
+            local.ruleEventDao().updateRuleEventByStartAndEndTime(
+                newStartTime,
+                newEndTime,
+                oldStartTime,
+                oldEndTime,
+            )
+        }
+    }
+
+    override suspend fun deleteRuleEventByEventIdAndCalendarIdAndStarTimeAndEndtime(
+        eventId: Long,
+        calendarId: Long,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+    ) {
+        local.ruleEventDao().deleteRuleEventByEventIdAndCalendarIdAndStarTimeAndEndTime(
+            eventId,
+            calendarId,
+            startTime,
+            endTime,
+        )
     }
 }

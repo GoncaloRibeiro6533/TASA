@@ -50,16 +50,16 @@ interface RuleEventDao {
     @Query("UPDATE rule_event SET startTime = :startTime, endTime = :endTime WHERE id = :id")
     suspend fun updateRuleEvent(
         id: Int,
-        startTime: String,
-        endTime: String,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
     )
 
     @Query("UPDATE rule_event SET startTime = :startTime, endTime = :endTime WHERE startTime = :oldStartTime AND endTime = :oldEndTime")
     suspend fun updateRuleEventByStartAndEndTime(
-        startTime: String,
-        endTime: String,
-        oldStartTime: String,
-        oldEndTime: String,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+        oldStartTime: LocalDateTime,
+        oldEndTime: LocalDateTime,
     )
 
     @Query("DELETE FROM rule_event WHERE startTime = :startTime AND endTime = :endTime")
@@ -80,9 +80,17 @@ interface RuleEventDao {
     @Query("DELETE FROM rule_event")
     suspend fun clear()
 
-    @Query("SELECT COUNT(*) FROM rule_event WHERE startTime >= :startTime AND endTime <= :endTime")
+    @Query("SELECT COUNT(*) > 0 FROM rule_event WHERE startTime <= :endTime AND endTime >= :startTime")
     suspend fun isCollision(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
     ): Boolean
+
+    @Query("DELETE FROM rule_event WHERE eventId = :eventId AND calendarId = :calendarId AND startTime = :startTime AND endTime = :endTime")
+    suspend fun deleteRuleEventByEventIdAndCalendarIdAndStarTimeAndEndTime(
+        eventId: Long,
+        calendarId: Long,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+    )
 }

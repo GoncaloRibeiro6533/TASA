@@ -18,6 +18,9 @@ interface AlarmDao {
     @Query("SELECT * FROM alarm")
     suspend fun getAllAlarms(): List<AlarmEntity>
 
+    @Query("SELECT * FROM alarm WHERE triggerTime = :currentTime")
+    suspend fun getAlarmsByTriggerTime(currentTime: Long): AlarmEntity?
+
     @Query("Update alarm SET triggerTime = :triggerTime, `action` = :action WHERE id = :id")
     suspend fun updateAlarm(
         triggerTime: Long,

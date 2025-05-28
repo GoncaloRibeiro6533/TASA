@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Context.ALARM_SERVICE
 import android.content.Intent
+import androidx.core.net.toUri
 import com.tasa.domain.Action
 import com.tasa.domain.TriggerTime
 import com.tasa.repository.TasaRepo
@@ -20,7 +21,11 @@ class AlarmScheduler(
         context: Context,
     ) {
         val alarmId = repo.alarmRepo.createAlarm(time.value, action)
-        val intent = Intent(context, MuteReceiver::class.java).putExtra("action", action)
+        val intent =
+            Intent(context, MuteReceiver::class.java).apply {
+                putExtra("action", action)
+                data = "custom://alarm/$alarmId".toUri() // ← garante que o PendingIntent é único
+            }
         val pendingIntent =
             PendingIntent.getBroadcast(
                 context,
@@ -51,15 +56,22 @@ class AlarmScheduler(
         action: Action,
         context: Context,
     ) {
-        val alarm = repo.alarmRepo.updateAlarm(time.value, action, alarmId)
-        val intent = Intent(context, MuteReceiver::class.java).putExtra("action", action)
+        repo.alarmRepo.updateAlarm(time.value, action, alarmId)
+
+        val intent =
+            Intent(context, MuteReceiver::class.java).apply {
+                putExtra("action", action)
+                data = "custom://alarm/$alarmId".toUri()
+            }
+
         val pendingIntent =
             PendingIntent.getBroadcast(
                 context,
-                alarm,
+                alarmId,
                 intent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
+
         val calendar =
             Calendar.getInstance().apply {
                 set(Calendar.YEAR, time.year)
@@ -69,12 +81,13 @@ class AlarmScheduler(
                 set(Calendar.MINUTE, time.minute)
                 set(Calendar.SECOND, time.second)
             }
-        try {
-            val alarmMgr = context.getSystemService(ALARM_SERVICE) as AlarmManager
-            alarmMgr.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
-        } catch (e: SecurityException) {
-            e.printStackTrace()
-        }
+
+        val alarmMgr = context.getSystemService(ALARM_SERVICE) as AlarmManager
+        alarmMgr.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            calendar.timeInMillis,
+            pendingIntent,
+        )
     }
 
     suspend fun cancelAlarm(
@@ -82,7 +95,12 @@ class AlarmScheduler(
         context: Context,
     ) {
         repo.alarmRepo.deleteAlarm(alarmId)
-        val intent = Intent(context, MuteReceiver::class.java)
+
+        val intent =
+            Intent(context, MuteReceiver::class.java).apply {
+                data = "custom://alarm/$alarmId".toUri()
+            }
+
         val pendingIntent =
             PendingIntent.getBroadcast(
                 context,
@@ -90,6 +108,7 @@ class AlarmScheduler(
                 intent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
+
         val alarmMgr = context.getSystemService(ALARM_SERVICE) as AlarmManager
         alarmMgr.cancel(pendingIntent)
     }

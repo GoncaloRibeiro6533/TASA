@@ -117,25 +117,25 @@ class RuleServiceFake : RuleService {
     }
 
     override suspend fun insertRuleEvent(ruleEvent: RuleEvent): Either<ApiError, RuleEvent> {
-        val newRuleEvent = ruleEvent.copy(id = ++ruleEventId)
+        val newRuleEvent = ruleEvent.copy(id = ++ruleEventId) as RuleEvent
         ruleEvents.add(newRuleEvent)
         return success(newRuleEvent)
     }
 
     override suspend fun insertRuleLocation(ruleLocation: RuleLocation): Either<ApiError, RuleLocation> {
-        val newRuleLocation = ruleLocation.copy(id = ++ruleLocationId)
+        val newRuleLocation = ruleLocation.copy(id = ++ruleLocationId) as RuleLocation
         ruleLocations.add(newRuleLocation)
         return success(newRuleLocation)
     }
 
     override suspend fun insertRuleEvents(ruleEvents: List<RuleEvent>): Either<ApiError, List<RuleEvent>> {
-        val newRuleEvents = ruleEvents.map { it.copy(id = ++ruleEventId) }
+        val newRuleEvents = ruleEvents.map { it.copy(id = ++ruleEventId) } as List<RuleEvent>
         Companion.ruleEvents.addAll(newRuleEvents)
         return success(newRuleEvents)
     }
 
     override suspend fun insertRuleLocations(ruleLocations: List<RuleLocation>): Either<ApiError, List<RuleLocation>> {
-        val newRuleLocations = ruleLocations.map { it.copy(id = ++ruleLocationId) }
+        val newRuleLocations = ruleLocations.map { it.copy(id = ++ruleLocationId) } as List<RuleLocation>
         Companion.ruleLocations.addAll(newRuleLocations)
         return success(newRuleLocations)
     }

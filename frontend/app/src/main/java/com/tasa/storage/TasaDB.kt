@@ -32,7 +32,7 @@ import com.tasa.storage.entities.UserEntity
         ContactExceptionEntity::class,
         AlarmEntity::class,
     ],
-    version = 1,
+    version = 2,
 )
 @TypeConverters(Converters::class)
 abstract class TasaDB : RoomDatabase() {

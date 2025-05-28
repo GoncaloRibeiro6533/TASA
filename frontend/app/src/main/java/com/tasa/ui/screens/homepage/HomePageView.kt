@@ -1,4 +1,4 @@
-package com.tasa.homepage
+package com.tasa.ui.screens.homepage
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +44,7 @@ import com.tasa.domain.Event
 import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
 import com.tasa.ui.components.RoundedRectangleWithText
+import com.tasa.ui.screens.rule.EditRuleActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.time.LocalDateTime
@@ -66,6 +68,8 @@ fun HomePageView(
     onNavigationToMap: () -> Unit,
     onNavigateToCreateRuleEvent: () -> Unit,
     onNavigationToMyExceptions: () -> Unit,
+    onEdit: (EditRuleActivity.RuleParcelableEvent) -> Unit = {},
+    onDelete: (Rule) -> Unit = {},
 ) {
     val ruleList = rules.collectAsState().value
     val gray = ButtonDefaults.buttonColors(Color.Gray)
@@ -97,8 +101,11 @@ fun HomePageView(
                         SwipeableRuleCard(
                             rule = rule as RuleEvent,
                             onEdit = { editedRule ->
+
+                                onEdit(editedRule.toRuleEventParcelable())
                             },
                             onDelete = { deletedRule ->
+                                onDelete(deletedRule)
                             },
                         )
                     }
@@ -175,12 +182,19 @@ fun SwipeableRuleCard(
 ) {
     val dismissState = rememberDismissState()
 
-    if (dismissState.isDismissed(DismissDirection.EndToStart)) {
-        onDelete(rule)
-    } else if (dismissState.isDismissed(DismissDirection.StartToEnd)) {
-        onEdit(rule)
-    }
+    LaunchedEffect(dismissState.currentValue) {
+        when {
+            dismissState.isDismissed(DismissDirection.EndToStart) -> {
+                onDelete(rule)
+                dismissState.reset()
+            }
 
+            dismissState.isDismissed(DismissDirection.StartToEnd) -> {
+                onEdit(rule)
+                dismissState.reset()
+            }
+        }
+    }
     SwipeToDismiss(
         state = dismissState,
         directions = setOf(DismissDirection.StartToEnd, DismissDirection.EndToStart),

@@ -44,4 +44,17 @@ class RuleLocation(
             locationName = location.name,
         )
     }
+
+    override fun copy(
+        id: Int?,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+    ): Rule {
+        return RuleLocation(
+            id = id,
+            startTime = startTime,
+            endTime = endTime,
+            location = this.location,
+        )
+    }
 }

@@ -9,6 +9,8 @@ interface AlarmRepositoryInterface {
         action: Action,
     ): Int
 
+    suspend fun getAlarmByTriggerTime(currentTime: Long): Alarm?
+
     suspend fun getAlarmById(id: Int): Alarm?
 
     suspend fun getAllAlarms(): List<Alarm>

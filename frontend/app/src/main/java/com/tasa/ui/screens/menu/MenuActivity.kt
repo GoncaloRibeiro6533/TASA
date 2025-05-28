@@ -10,8 +10,8 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Person
 import androidx.work.WorkManager
 import com.tasa.DependenciesContainer
-import com.tasa.homepage.HomePageActivity
 import com.tasa.start.StartActivity
+import com.tasa.ui.screens.homepage.HomePageActivity
 import com.tasa.ui.screens.profile.ProfileActivity
 import com.tasa.utils.navigateTo
 

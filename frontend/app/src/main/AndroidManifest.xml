@@ -82,7 +82,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".homepage.HomePageActivity"
+        <activity android:name=".ui.screens.homepage.HomePageActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -108,6 +108,13 @@
             android:name=".ui.screens.profile.ProfileActivity"
             android:exported="true"
             android:label="ProfileActivity"
+            android:theme="@style/Theme.Tasa"
+            android:layoutDirection="ltr"
+            />
+        <activity
+            android:name=".ui.screens.rule.EditRuleActivity"
+            android:exported="true"
+            android:label="EditRuleActivity"
             android:theme="@style/Theme.Tasa"
             android:layoutDirection="ltr"
             />

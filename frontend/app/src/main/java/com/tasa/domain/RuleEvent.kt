@@ -1,6 +1,7 @@
 package com.tasa.domain
 
 import com.tasa.storage.entities.RuleEventEntity
+import com.tasa.ui.screens.rule.EditRuleActivity.RuleParcelableEvent
 import java.time.LocalDateTime
 
 class RuleEvent(
@@ -41,6 +42,30 @@ class RuleEvent(
             id = id,
             startTime = startTime,
             endTime = endTime,
+            eventId = event.id,
+            calendarId = event.calendarId,
+        )
+    }
+
+    override fun copy(
+        id: Int?,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+    ): Rule {
+        return RuleEvent(
+            id = id,
+            startTime = startTime,
+            endTime = endTime,
+            event = this.event,
+        )
+    }
+
+    fun toRuleEventParcelable(): RuleParcelableEvent {
+        return RuleParcelableEvent(
+            id = id,
+            startTime = startTime,
+            endTime = endTime,
+            eventTitle = event.title,
             eventId = event.id,
             calendarId = event.calendarId,
         )

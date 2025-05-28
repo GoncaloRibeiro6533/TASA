@@ -22,6 +22,11 @@ class AlarmRepository(
         ).toInt()
     }
 
+    override suspend fun getAlarmByTriggerTime(currentTime: Long): Alarm? {
+        val alarmEntity = local.alarmDao().getAlarmsByTriggerTime(currentTime)
+        return alarmEntity?.toAlarm()
+    }
+
     override suspend fun getAlarmById(id: Int): Alarm? {
         val alarmEntity = local.alarmDao().getAlarmById(id)
         return alarmEntity?.toAlarm()

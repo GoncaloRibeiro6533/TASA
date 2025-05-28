@@ -8,7 +8,7 @@ import androidx.activity.viewModels
 import com.tasa.DependenciesContainer
 import com.tasa.authentication.login.LoginActivity
 import com.tasa.authentication.register.RegisterActivity
-import com.tasa.homepage.HomePageActivity
+import com.tasa.ui.screens.homepage.HomePageActivity
 import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
 

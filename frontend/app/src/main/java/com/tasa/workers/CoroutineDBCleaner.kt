@@ -19,6 +19,7 @@ class CoroutineDBCleaner(
                 val now = System.currentTimeMillis()
                 repo.alarmRepo.clearOlderAlarms(now)
                 repo.ruleRepo.cleanOldRules(now.toLocalDateTime())
+                // clear event not associated with any rule TODO
                 Result.success()
             } catch (e: Exception) {
                 Result.failure()

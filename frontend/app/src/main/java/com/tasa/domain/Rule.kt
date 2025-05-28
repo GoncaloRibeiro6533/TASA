@@ -17,4 +17,10 @@ sealed class Rule(
     init {
         require(endTime > startTime) { "endTime must be after starTime" }
     }
+
+    abstract fun copy(
+        id: Int? = this.id,
+        startTime: LocalDateTime = this.startTime,
+        endTime: LocalDateTime = this.endTime,
+    ): Rule
 }

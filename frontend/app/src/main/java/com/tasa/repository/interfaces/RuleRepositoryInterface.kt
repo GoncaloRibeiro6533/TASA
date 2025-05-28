@@ -66,4 +66,19 @@ interface RuleRepositoryInterface {
     suspend fun cleanOldRules(now: LocalDateTime)
 
     suspend fun clean()
+
+    suspend fun updateRuleEvent(
+        id: Int? = null,
+        newStartTime: LocalDateTime,
+        newEndTime: LocalDateTime,
+        oldStartTime: LocalDateTime,
+        oldEndTime: LocalDateTime,
+    )
+
+    suspend fun deleteRuleEventByEventIdAndCalendarIdAndStarTimeAndEndtime(
+        eventId: Long,
+        calendarId: Long,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+    )
 }
