@@ -26,7 +26,27 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    environment("JDBC_DATABASE_URL", "jdbc:postgresql://localhost:5434/db?user=dbuser&password=changeit")
+    dependsOn(":repository-jdbi:dbTestsWait")
+    finalizedBy(":repository-jdbi:dbTestsDown")
 }
+
 kotlin {
     jvmToolchain(21)
+}
+
+val composeFileDir: Directory = rootProject.layout.projectDirectory
+val dockerComposePath = composeFileDir.file("docker-compose.yml").toString()
+
+task<Exec>("dbTestsUp") {
+    commandLine("docker", "compose", "-f", dockerComposePath, "up", "-d", "--build", "--force-recreate", "db-tests")
+}
+
+task<Exec>("dbTestsWait") {
+    commandLine("docker", "exec", "db-tests", "/app/bin/wait-for-postgres.sh", "localhost")
+    dependsOn("dbTestsUp")
+}
+
+task<Exec>("dbTestsDown") {
+    commandLine("docker", "compose", "-f", dockerComposePath, "down", "db-tests")
 }

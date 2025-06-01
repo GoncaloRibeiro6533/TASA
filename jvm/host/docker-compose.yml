@@ -1,0 +1,47 @@
+name: "tasa"
+
+services:
+
+  # Nginx service, running the load balancer, listening on port 8080
+  tasa-nginx:
+    container_name: tasa-nginx
+    image: tasa-nginx
+    depends_on:
+      - tasa-jvm
+    ports:
+      - 8080:8080
+    networks:
+      - frontnet
+
+    # JVM service, running the application, listening on port 8080
+  tasa-jvm:
+    image: tasa-jvm
+    hostname: tasa-jvm
+    depends_on:
+      - tasa-postgres-test
+    environment:
+      - JDBC_DATABASE_URL=jdbc:postgresql://tasa-postgres-test:5432/db?user=dbuser&password=changeit
+      - port=8080
+    networks:
+      - backnet
+      - frontnet
+
+    # PostgreSQL service, running the database, listening on port 5432
+  tasa-postgres-test:
+    image: tasa-postgres-test
+    environment:
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=changeit
+      - POSTGRES_DB=db
+    ports:
+        - 5432:5432
+    networks:
+        - backnet
+
+networks:
+    frontnet: {}
+    backnet: {}
+
+
+
+

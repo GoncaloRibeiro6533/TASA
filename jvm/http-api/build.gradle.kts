@@ -27,6 +27,9 @@ dependencies {
     testImplementation("org.jdbi:jdbi3-core:3.37.1")
     testImplementation("org.postgresql:postgresql:42.7.2")
 
+    // For OpenApi docs generation
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
+
     // To use WebTestClient on tests
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
@@ -43,4 +46,10 @@ kotlin {
 
 tasks.test {
     useJUnitPlatform()
+    environment("JDBC_DATABASE_URL", "jdbc:postgresql://localhost:5434/db?user=dbuser&password=changeit")
+    dependsOn(":repository-jdbi:dbTestsWait")
+    finalizedBy(":repository-jdbi:dbTestsDown")
 }
+
+val composeFileDir: Directory = rootProject.layout.projectDirectory
+val dockerComposePath = composeFileDir.file("docker-compose.yml").toString()

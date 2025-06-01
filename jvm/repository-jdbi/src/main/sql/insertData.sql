@@ -1,8 +1,8 @@
 
 -- 1. Users
 INSERT INTO ps.USER (email, username, passwordHash) VALUES
-    ('bob@example.com','bob','hash_bob'),
-    ('alice@example.com','alice','hash_alice');
+    ('bob@example.com','bob','$2a$10$YY/UTCDGYAke5hmLGxG0q.wF9jgjcT6qpkdJBtnTk/Ms36sQ.uPaC'),
+    ('alice@example.com','alice','$2a$10$YY/UTCDGYAke5hmLGxG0q.wF9jgjcT6qpkdJBtnTk/Ms36sQ.uPaC');
 
 -- 2. Sessions
 INSERT INTO ps.SESSION (user_id)

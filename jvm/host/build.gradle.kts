@@ -7,8 +7,9 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
 }
 
-group = "org.example"
-version = "unspecified"
+group = "pt.isel"
+version = "0.1.0-SNAPSHOT"
+
 
 repositories {
     mavenCentral()
@@ -39,9 +40,69 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
+tasks.bootRun {
+    environment("JDBC_DATABASE_URL", "jdbc:postgresql://localhost/postgres?user=postgres&password=postgres")
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+    environment("JDBC_DATABASE_URL", "jdbc:postgresql://localhost:5434/db?user=dbuser&password=changeit")
+    dependsOn(":repository-jdbi:dbTestsWait")
+    finalizedBy(":repository-jdbi:dbTestsDown")
+}
+
+
 tasks.test {
     useJUnitPlatform()
 }
 kotlin {
     jvmToolchain(21)
+}
+
+task<Copy>("extractUberJar") {
+    dependsOn("assemble")
+    // opens the JAR containing everything...
+    from(zipTree(layout.buildDirectory.file("libs/host-$version.jar").get().toString()))
+    // ... into the 'build/dependency' folder
+    into("build/dependency")
+}
+
+val dockerImageJvm = "tasa-jvm"
+val dockerImageNginx = "tasa-nginx"
+val dockerImagePostgresTest = "tasa-postgres-test"
+
+task<Exec>("buildImageJvm") {
+    dependsOn("extractUberJar")
+    commandLine("docker", "build", "-t", dockerImageJvm, "-f", "test-infra/Dockerfile-jvm", ".")
+}
+
+task<Exec>("buildImageNginx") {
+    commandLine("docker", "build", "-t", dockerImageNginx, "-f", "test-infra/Dockerfile-nginx", ".")
+}
+task<Exec>("buildImagePostgresTest") {
+    commandLine(
+        "docker",
+        "build",
+        "-t",
+        dockerImagePostgresTest,
+        "-f",
+        "test-infra/Dockerfile-postgres-test",
+        "../repository-jdbi",
+    )
+}
+
+
+task("buildImageAll") {
+    dependsOn("buildImageJvm")
+    dependsOn("buildImageNginx")
+    dependsOn("buildImagePostgresTest")
+    // dependsOn("buildImageUbuntu")
+}
+
+task<Exec>("allUp") {
+    commandLine("docker", "compose", "up", "--force-recreate", "-d")
+}
+
+task<Exec>("allDown") {
+    commandLine("docker", "compose", "down")
 }
