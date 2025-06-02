@@ -1,7 +1,7 @@
 
 <h1 align="center">
   <br>
-  <img src="docs/imgs/logo.png" alt="" width="200">
+  <img src="docs/imgs/logo.png" alt="" width="120">
   <br>TASA - Theater Auto Silence App<br>
 </h1>
 
