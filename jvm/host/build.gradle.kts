@@ -10,7 +10,6 @@ plugins {
 group = "pt.isel"
 version = "0.1.0-SNAPSHOT"
 
-
 repositories {
     mavenCentral()
 }
@@ -51,10 +50,10 @@ tasks.withType<Test> {
     finalizedBy(":repository-jdbi:dbTestsDown")
 }
 
-
 tasks.test {
     useJUnitPlatform()
 }
+
 kotlin {
     jvmToolchain(21)
 }
@@ -79,6 +78,7 @@ task<Exec>("buildImageJvm") {
 task<Exec>("buildImageNginx") {
     commandLine("docker", "build", "-t", dockerImageNginx, "-f", "test-infra/Dockerfile-nginx", ".")
 }
+
 task<Exec>("buildImagePostgresTest") {
     commandLine(
         "docker",
@@ -91,7 +91,6 @@ task<Exec>("buildImagePostgresTest") {
     )
 }
 
-
 task("buildImageAll") {
     dependsOn("buildImageJvm")
     dependsOn("buildImageNginx")
@@ -99,7 +98,8 @@ task("buildImageAll") {
     // dependsOn("buildImageUbuntu")
 }
 
-task<Exec>("allUp") {
+task<Exec>("startAll") {
+    dependsOn("buildImageAll")
     commandLine("docker", "compose", "up", "--force-recreate", "-d")
 }
 

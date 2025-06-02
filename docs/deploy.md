@@ -1,57 +1,44 @@
 # How to run the project
 
-## Build the docker images
+## Start, scale, and stop containers
 
-- To run the docker version you should move to jvm folder:
+- Required Software:
+  - [Docker](https://www.docker.com/) (installed and running)
+  - [Gradle](https://gradle.org/install/) 
+  - [Java 21](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) 
 
-```bash
-cd code/jvm
- ```
+## Deployment Steps
 
-- Builds the JVM image with Tasa backend HTTP API:
+1. First, clone the repository:
 
-  ```bash
-  ./gradlew buildImageJvm
-  ```
+```
+    git clone https://github.com/GoncaloRibeiro6533/TASA
+````
+2. Move to the project directory:
 
-- Builds the Postgres image for testing:
+``` bash
+    cd jvm
+```
 
-  ```bash
-  ./gradlew buildImagePostgresTest
-  ```
+3. Run the following command to start the containers:
 
-- Builds the Nginx image:
-
-  ```bash
-  ./gradlew buildImageNginx
-  ```
-
-OR
-
-- Builds all images:
-
-  ```bash
-  ./gradlew buildImageAll
-  ```
-
-## Start, scale, and stop services
+``` bash
+  ./gradlew startAll
+```
 
 ### Server will start on port 8080  
 
-- Starts all services:
-
-  ```bash
-  ./gradlew allUp
-  ```
 
 - Credentials of users already registered:
   - username: bob
   - password: Tasa_2025
 
-- Stops all services:
-  
+- In the [docs folder](https://github.com/GoncaloRibeiro6533/TASA/blob/main/docs/Endpoints.postman_collection.json), you can find the Postman collection with all the endpoints of the API and
+    the example requests to test the API.
+
+- To stop the containers, you can run the following command in the `scripts` folder:
   ```bash
-  ./gradlew allDown
+    ./gradlew allDown
   ```
 
 - To scale the dynamic JVM service:
