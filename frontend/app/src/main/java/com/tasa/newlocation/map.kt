@@ -2,6 +2,9 @@ package com.tasa.newlocation
 
 import android.preference.PreferenceManager
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import org.osmdroid.config.Configuration
@@ -18,6 +21,19 @@ fun OSMDroidMap(
     center: GeoPoint = GeoPoint(38.7169, -9.1399), // Lisbon
     onCoordinateSelected: ((GeoPoint) -> Unit)? = null,
 ) {
+
+    // Remember MapView across recompositions
+    val mapViewRef = remember { mutableStateOf<MapView?>(null) }
+    val markerRef = remember { mutableStateOf<Marker?>(null) }
+
+    // Update the map when center changes
+    LaunchedEffect(center) {
+        mapViewRef.value?.let { map ->
+            markerRef.value?.position = center
+            map.controller.animateTo(center)
+            map.invalidate()
+        }
+    }
     AndroidView(
         modifier = modifier,
         factory = { ctx ->
@@ -40,9 +56,7 @@ fun OSMDroidMap(
 
                 val mapEventsReceiver =
                     object : MapEventsReceiver {
-                        override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
-                            return false
-                        }
+                        override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean = false
 
                         override fun longPressHelper(p: GeoPoint?): Boolean {
                             p ?: return false
@@ -60,6 +74,9 @@ fun OSMDroidMap(
 
                 val eventsOverlay = MapEventsOverlay(mapEventsReceiver)
                 overlays.add(eventsOverlay)
+
+                mapViewRef.value = this
+                markerRef.value = marker
 
                 /* Marker
                 val marker = Marker(this)
