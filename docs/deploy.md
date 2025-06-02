@@ -8,7 +8,7 @@
 cd code/jvm
  ```
 
-- Builds the JVM image with ChImp backend HTTP API:
+- Builds the JVM image with Tasa backend HTTP API:
 
   ```bash
   ./gradlew buildImageJvm
