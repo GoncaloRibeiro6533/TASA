@@ -36,7 +36,6 @@ class MuteReceiver : BroadcastReceiver() {
 
                 null -> {}
             }
-
             Log.d("Alarm", "Alarme disparado")
         } catch (ex: Throwable) {
             Log.e("Alarm", "Erro ao agendar alarme: ${ex.message}")
