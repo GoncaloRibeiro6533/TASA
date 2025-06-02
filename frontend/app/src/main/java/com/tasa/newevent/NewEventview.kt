@@ -19,12 +19,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.tasa.domain.Event
 import com.tasa.newevent.components.AddEventButton
 import com.tasa.newevent.components.EventTextFields
 import java.util.*
 
 @Composable
-fun NewEventView() {
+fun NewEventView(
+    onAddEvent: (Event) -> Unit
+) {
     var eventName by rememberSaveable { mutableStateOf("") }
     var startDateTime by rememberSaveable { mutableStateOf("") }
     var endDateTime by rememberSaveable { mutableStateOf("") }
@@ -151,7 +154,10 @@ fun NewEventView() {
         AddEventButton(
             enabled = !invalidFields,
             modifier = Modifier,
-        ) {}
+        ) {
+            val event = Event(1, 1, eventName)
+            onAddEvent(event)
+        }
     }
 }
 
@@ -187,5 +193,5 @@ fun AddEventButton(
 @Preview(showBackground = true)
 @Composable
 fun NewEventViewPreview() {
-    NewEventView()
+    NewEventView {}
 }

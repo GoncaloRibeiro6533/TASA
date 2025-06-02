@@ -168,3 +168,5 @@ fun PreviewCreateRulEventView() {
         )
     CreateRulEventView(event = event)
 }
+
+

@@ -19,7 +19,7 @@ class LoginActivity : ComponentActivity() {
             LoginScreenViewModelFactory(
                 userService = userService,
             )
-        },
+        }
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
