@@ -4,8 +4,7 @@
 
 - Required Software:
   - [Docker](https://www.docker.com/) (installed and running)
-  - [Gradle](https://gradle.org/install/) 
-  - [Java 21](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) 
+  - [Java 21](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
 
 ## Deployment Steps
 
@@ -14,20 +13,20 @@
 ```
     git clone https://github.com/GoncaloRibeiro6533/TASA
 ````
-2. Move to the project directory:
+
+2.Move to the project directory:
 
 ``` bash
     cd jvm
 ```
 
-3. Run the following command to start the containers:
+3.Run the following command to start the containers:
 
 ``` bash
   ./gradlew startAll
 ```
 
 ### Server will start on port 8080  
-
 
 - Credentials of users already registered:
   - username: bob
@@ -36,7 +35,8 @@
 - In the [docs folder](https://github.com/GoncaloRibeiro6533/TASA/blob/main/docs/Endpoints.postman_collection.json), you can find the Postman collection with all the endpoints of the API and
     the example requests to test the API.
 
-- To stop the containers, you can run the following command in the `scripts` folder:
+- To stop the containers, you can run the following command in the jvm folder:
+  
   ```bash
     ./gradlew allDown
   ```
