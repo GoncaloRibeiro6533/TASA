@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import com.tasa.DependenciesContainer
-import com.tasa.calendar.CalendarActivity
+import com.tasa.ui.screens.calendar.CalendarActivity
 import com.tasa.ui.screens.homepage.HomePageActivity
 import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo

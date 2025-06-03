@@ -4,11 +4,9 @@ import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.media.AudioManager
 import android.provider.Settings
 import android.util.Log
 import com.tasa.domain.Action
-import com.tasa.domain.Mode
 
 class MuteReceiver : BroadcastReceiver() {
     override fun onReceive(

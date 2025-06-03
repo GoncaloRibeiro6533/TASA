@@ -1,4 +1,4 @@
-package com.tasa.calendar
+package com.tasa.ui.screens.calendar
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
