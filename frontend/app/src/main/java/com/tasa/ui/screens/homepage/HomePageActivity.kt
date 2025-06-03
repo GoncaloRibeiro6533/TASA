@@ -1,15 +1,20 @@
 package com.tasa.ui.screens.homepage
 
+import android.Manifest
+import android.app.NotificationManager
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.tasa.DependenciesContainer
-import com.tasa.calendar.CalendarActivity
 import com.tasa.domain.Rule
 import com.tasa.newlocation.MapActivity
+import com.tasa.ui.screens.calendar.CalendarActivity
 import com.tasa.ui.screens.menu.MenuActivity
 import com.tasa.ui.screens.rule.EditRuleActivity
 import com.tasa.ui.theme.TasaTheme
@@ -32,8 +37,21 @@ class HomePageActivity : ComponentActivity() {
         },
     )
 
+    fun checkAndRequestNotificationPolicyPermission(activity: ComponentActivity) {
+        val permission = Manifest.permission.ACCESS_NOTIFICATION_POLICY
+        if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, arrayOf(permission), 1)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val notificationManager = this.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        if (!notificationManager.isNotificationPolicyAccessGranted) {
+            val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            this.startActivity(intent)
+        }
         viewModel.loadLocalData()
         setContent {
             TasaTheme {

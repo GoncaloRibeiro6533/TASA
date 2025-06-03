@@ -11,8 +11,7 @@ import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
 import kotlin.getValue
 
-class NewEvenActivity : ComponentActivity() {
-
+class NewEventActivity : ComponentActivity() {
     private val service by lazy { (application as DependenciesContainer).service }
 
     private val viewModel by viewModels<NewEventViewModel>(
@@ -31,7 +30,7 @@ class NewEvenActivity : ComponentActivity() {
                 NewEventScreen(
                     viewModel = viewModel,
                     onNavigationBack = { navigateTo(this, HomePageActivity::class.java) },
-                    onAddedEvent = { navigateTo(this, CalendarActivity::class.java)}
+                    onAddedEvent = { navigateTo(this, CalendarActivity::class.java) },
                 )
             }
         }

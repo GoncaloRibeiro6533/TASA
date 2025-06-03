@@ -1,6 +1,5 @@
 package com.tasa.ui.screens.homepage
 
-import android.app.Activity
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -78,7 +77,10 @@ class HomePageScreenViewModel(
         }
     }
 
-    fun cancelRule(rule: Rule, context: Context) {
+    fun cancelRule(
+        rule: Rule,
+        context: Context,
+    ) {
         viewModelScope.launch {
             try {
                 when (rule) {

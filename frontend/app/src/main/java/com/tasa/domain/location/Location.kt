@@ -7,6 +7,5 @@ class Location(
     val name: String,
     val center: GeoPoint,
     val radius: Int,
-    val adress: String
-) {
-}
+    val adress: String,
+)

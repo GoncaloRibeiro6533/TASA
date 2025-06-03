@@ -5,23 +5,37 @@ import android.content.Context
 import android.provider.CalendarContract
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tasa.calendar.components.EventCard
 import com.tasa.domain.Event
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 @Composable
-fun CalendarEventView(
-    onAddEvent: (Event) -> Unit
-) {
+fun CalendarEventView(onAddEvent: (Event) -> Unit) {
     val context = LocalContext.current
     var events by remember { mutableStateOf(listOf<String>()) }
     var hasPermission by remember { mutableStateOf(false) }
@@ -37,7 +51,6 @@ fun CalendarEventView(
     LaunchedEffect(Unit) {
         requestPermissionLauncher.launch(Manifest.permission.READ_CALENDAR)
     }
-
 
     Column(modifier = Modifier.padding(16.dp)) {
         Text("Calendar Events", style = MaterialTheme.typography.headlineMedium)
@@ -61,10 +74,12 @@ fun CalendarEventView(
                         if (events.isEmpty()) {
                             Text("No events loaded.")
                         } else {
-                            Column(modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(max = 300.dp)
-                                .verticalScroll(rememberScrollState())
+                            Column(
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(max = 300.dp)
+                                        .verticalScroll(rememberScrollState()),
                             ) {
                                 events.forEach { event ->
                                     EventCard(eventName = event, onAddEvent = { onAddEvent(Event(1, 1, event)) })
@@ -77,13 +92,12 @@ fun CalendarEventView(
                         TextButton(onClick = { showDialog = false }) {
                             Text("Close")
                         }
-                    }
+                    },
                 )
             }
         }
     }
 }
-
 
 fun getCalendarEvents(context: Context): List<String> {
     val events = mutableListOf<String>()
@@ -117,4 +131,10 @@ fun getCalendarEvents(context: Context): List<String> {
     }
 
     return events
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CalendarEventViewPreview() {
+    CalendarEventView(onAddEvent = {})
 }

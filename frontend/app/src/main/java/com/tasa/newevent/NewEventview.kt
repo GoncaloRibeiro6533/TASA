@@ -2,16 +2,18 @@ package com.tasa.newevent
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -22,12 +24,10 @@ import androidx.compose.ui.unit.dp
 import com.tasa.domain.Event
 import com.tasa.newevent.components.AddEventButton
 import com.tasa.newevent.components.EventTextFields
-import java.util.*
+import java.util.Calendar
 
 @Composable
-fun NewEventView(
-    onAddEvent: (Event) -> Unit
-) {
+fun NewEventView(onAddEvent: (Event) -> Unit) {
     var eventName by rememberSaveable { mutableStateOf("") }
     var startDateTime by rememberSaveable { mutableStateOf("") }
     var endDateTime by rememberSaveable { mutableStateOf("") }

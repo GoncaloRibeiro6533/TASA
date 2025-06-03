@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.tasa.DependenciesContainer
-import com.tasa.calendar.toLocalDateTime
+import com.tasa.domain.toLocalDateTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -27,6 +27,3 @@ class CoroutineDBCleaner(
         }
     }
 }
-
-
-

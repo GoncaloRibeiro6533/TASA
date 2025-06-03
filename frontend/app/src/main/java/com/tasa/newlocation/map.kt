@@ -21,7 +21,6 @@ fun OSMDroidMap(
     center: GeoPoint = GeoPoint(38.7169, -9.1399), // Lisbon
     onCoordinateSelected: ((GeoPoint) -> Unit)? = null,
 ) {
-
     // Remember MapView across recompositions
     val mapViewRef = remember { mutableStateOf<MapView?>(null) }
     val markerRef = remember { mutableStateOf<Marker?>(null) }

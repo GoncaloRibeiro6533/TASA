@@ -1,6 +1,10 @@
 package com.tasa.domain
 
-enum class Action {
-    MUTE,
-    UNMUTE,
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+enum class Action(val value: String) : Parcelable {
+    MUTE("mute"),
+    UNMUTE("unmute"),
 }

@@ -5,6 +5,8 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Context.ALARM_SERVICE
 import android.content.Intent
+import android.os.Parcelable
+import android.util.Log
 import androidx.core.net.toUri
 import com.tasa.domain.Action
 import com.tasa.domain.TriggerTime
@@ -23,8 +25,8 @@ class AlarmScheduler(
         val alarmId = repo.alarmRepo.createAlarm(time.value, action)
         val intent =
             Intent(context, MuteReceiver::class.java).apply {
-                putExtra("action", action)
-                data = "custom://alarm/$alarmId".toUri() // ← garante que o PendingIntent é único
+                putExtra("action", action as Parcelable)
+                data = "custom://alarm/$alarmId".toUri() // garante que o PendingIntent é único
             }
         val pendingIntent =
             PendingIntent.getBroadcast(
@@ -44,9 +46,10 @@ class AlarmScheduler(
             }
         try {
             val alarmMgr = context.getSystemService(ALARM_SERVICE) as AlarmManager
+            Log.d("Alarm", "Alarme agendado para ${calendar.time}")
             alarmMgr.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
-        } catch (e: SecurityException) {
-            e.printStackTrace()
+        } catch (e: Throwable) {
+            Log.d("Alarm", "Erro ao agendar alarme: ${e.message}")
         }
     }
 
@@ -60,7 +63,7 @@ class AlarmScheduler(
 
         val intent =
             Intent(context, MuteReceiver::class.java).apply {
-                putExtra("action", action)
+                putExtra("action", action.value)
                 data = "custom://alarm/$alarmId".toUri()
             }
 
@@ -81,7 +84,6 @@ class AlarmScheduler(
                 set(Calendar.MINUTE, time.minute)
                 set(Calendar.SECOND, time.second)
             }
-
         val alarmMgr = context.getSystemService(ALARM_SERVICE) as AlarmManager
         alarmMgr.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,

@@ -5,15 +5,12 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
-import android.os.Build
 import android.provider.Settings
 import android.util.Log
-import androidx.annotation.RequiresApi
 import com.tasa.domain.Action
 import com.tasa.domain.Mode
 
 class MuteReceiver : BroadcastReceiver() {
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onReceive(
         context: Context,
         intent: Intent,
@@ -23,10 +20,9 @@ class MuteReceiver : BroadcastReceiver() {
             val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             context.startActivity(intent)
-            return
         }
         try {
-            when (intent.getParcelableExtra("action", Action::class.java)) {
+            when (intent.getParcelableExtra<Action>("action")) {
                 Action.MUTE -> {
                     mute(notificationManager)
                 }
@@ -44,22 +40,15 @@ class MuteReceiver : BroadcastReceiver() {
 
     private fun mute(notificationManager: NotificationManager) {
         if (notificationManager.isNotificationPolicyAccessGranted) {
+            Log.d("Alarm", "Muting")
             notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
         }
     }
 
     private fun unmute(notificationManager: NotificationManager) {
         if (notificationManager.isNotificationPolicyAccessGranted) {
+            Log.d("Alarm", "Unmuting")
             notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
-        }
-    }
-
-    private fun AudioManager.getCurrentMode(): Mode {
-        return when (ringerMode) {
-            AudioManager.RINGER_MODE_SILENT -> Mode.SILENT
-            AudioManager.RINGER_MODE_VIBRATE -> Mode.VIBRATE
-            AudioManager.RINGER_MODE_NORMAL -> Mode.RINGING
-            else -> Mode.RINGING
         }
     }
 }

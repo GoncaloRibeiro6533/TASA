@@ -26,10 +26,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.tasa.calendar.toFormattedDate
 import com.tasa.domain.Event
 import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
+import com.tasa.domain.toFormattedDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 

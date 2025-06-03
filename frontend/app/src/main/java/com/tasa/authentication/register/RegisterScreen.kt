@@ -17,7 +17,8 @@ import com.tasa.ui.theme.TasaTheme
 fun RegisterScreen(
     viewModel: RegisterScreenViewModel,
     onRegisterSuccessful: () -> Unit,
-    onNavigationBack: () -> Unit = { }) {
+    onNavigationBack: () -> Unit = { },
+) {
     TasaTheme {
         Scaffold(
             modifier =
@@ -32,11 +33,12 @@ fun RegisterScreen(
                         .fillMaxSize()
                         .padding(innerPadding),
             ) {
-                when(val currentState = viewModel.state.collectAsState().value) {
+                when (val currentState = viewModel.state.collectAsState().value) {
                     is RegisterScreenState.Idle -> {
                         RegisterView(
                             onSubmit = { email, username, password ->
-                                viewModel.registerUser(email, username, password) },
+                                viewModel.registerUser(email, username, password)
+                            },
                         )
                     }
                     is RegisterScreenState.Loading -> {
@@ -45,7 +47,7 @@ fun RegisterScreen(
                     is RegisterScreenState.Success -> {
                         SuccessView(
                             message = "User registered successfully",
-                            onButtonClick = {onRegisterSuccessful()}
+                            onButtonClick = { onRegisterSuccessful() },
                         )
                     }
                     is RegisterScreenState.Error -> {
@@ -53,11 +55,10 @@ fun RegisterScreen(
                             title = "Error",
                             message = currentState.error.message,
                             buttonText = "Ok",
-                            onDismiss = { viewModel.setIdleState() }
+                            onDismiss = { viewModel.setIdleState() },
                         )
                     }
                 }
-
             }
         }
     }

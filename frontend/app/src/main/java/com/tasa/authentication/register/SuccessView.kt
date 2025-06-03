@@ -26,36 +26,38 @@ import androidx.compose.ui.unit.dp
 fun SuccessView(
     message: String = "Operation Successful!",
     buttonText: String = "Continue",
-    onButtonClick: () -> Unit
+    onButtonClick: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Icon(
             imageVector = Icons.Default.CheckCircle,
             contentDescription = "Success Icon",
             tint = Color.Green,
-            modifier = Modifier.size(100.dp)
+            modifier = Modifier.size(100.dp),
         )
         Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = message,
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
         )
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = onButtonClick,
             modifier = Modifier.fillMaxWidth(0.5f),
-            colors = ButtonColors(
-                containerColor = Color.DarkGray,
-                contentColor = Color.White,
-                disabledContentColor = Color.Gray,
-                disabledContainerColor = Color.LightGray
-            )
+            colors =
+                ButtonColors(
+                    containerColor = Color.DarkGray,
+                    contentColor = Color.White,
+                    disabledContentColor = Color.Gray,
+                    disabledContainerColor = Color.LightGray,
+                ),
         ) {
             Text(text = buttonText)
         }
@@ -68,6 +70,6 @@ fun SuccessViewPreview() {
     SuccessView(
         message = "Operation Successful!",
         buttonText = "Continue",
-        onButtonClick = {}
+        onButtonClick = {},
     )
 }

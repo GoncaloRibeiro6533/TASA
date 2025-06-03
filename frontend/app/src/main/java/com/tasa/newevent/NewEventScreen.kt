@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.tasa.authentication.register.SuccessView
 import com.tasa.ui.components.ErrorAlert
 import com.tasa.ui.components.LoadingView
@@ -23,7 +22,8 @@ import com.tasa.ui.theme.TasaTheme
 fun NewEventScreen(
     viewModel: NewEventViewModel,
     onNavigationBack: () -> Unit,
-    onAddedEvent: () -> Unit) {
+    onAddedEvent: () -> Unit,
+) {
     TasaTheme {
         Scaffold(
             modifier =
@@ -42,10 +42,10 @@ fun NewEventScreen(
                         .fillMaxSize()
                         .padding(innerPadding),
             ) {
-                when(val currentState = viewModel.state.collectAsState().value) {
+                when (val currentState = viewModel.state.collectAsState().value) {
                     is NewEventScreenState.Idle -> {
                         NewEventView(
-                            onAddEvent = { event -> viewModel.addEvent(event) }
+                            onAddEvent = { event -> viewModel.addEvent(event) },
                         )
                     }
                     is NewEventScreenState.Loading -> {
@@ -54,7 +54,7 @@ fun NewEventScreen(
                     is NewEventScreenState.Success -> {
                         SuccessView(
                             message = "Event added successfully",
-                            onButtonClick = {onAddedEvent()}
+                            onButtonClick = { onAddedEvent() },
                         )
                     }
                     is NewEventScreenState.Error -> {
@@ -62,7 +62,7 @@ fun NewEventScreen(
                             title = "Add Event Error",
                             message = currentState.error.message,
                             buttonText = "Ok",
-                            onDismiss = { viewModel.setIdleState()}
+                            onDismiss = { viewModel.setIdleState() },
                         )
                     }
                 }

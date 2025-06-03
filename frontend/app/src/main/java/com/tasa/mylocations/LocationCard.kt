@@ -25,13 +25,12 @@ import androidx.compose.ui.unit.sp
 import com.tasa.domain.location.Location
 import com.tasa.ui.theme.TasaTheme
 import org.osmdroid.util.GeoPoint
-import java.time.LocalDateTime
 
 @Composable
 fun LocationCard(
     location: Location,
     onEdit: (Int) -> Unit,
-    onDelete: (Int) -> Unit
+    onDelete: (Int) -> Unit,
 ) {
     val name = location.name
     val adress = location.adress
@@ -39,21 +38,22 @@ fun LocationCard(
     val greenColor = Color(0xFF5CB338)
     val redColor = Color.Red
 
-
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Spacer(Modifier.padding(10.dp))
                 Column {
@@ -63,19 +63,17 @@ fun LocationCard(
             }
             Row(
                 modifier = Modifier,
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.End,
             ) {
-
-
                 Spacer(Modifier.width(16.dp))
                 IconButton(
                     onClick = { onDelete(location.id) },
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = "Decline Invitation",
-                        tint = redColor
+                        tint = redColor,
                     )
                 }
 
@@ -83,12 +81,12 @@ fun LocationCard(
 
                 IconButton(
                     onClick = { onEdit(location.id) },
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = "Accept Invitation",
-                        tint = greenColor
+                        tint = greenColor,
                     )
                 }
             }
@@ -99,15 +97,14 @@ fun LocationCard(
 @Preview(showBackground = false)
 @Composable
 fun LocationCardPreview() {
-
-
-    val loc1 = Location(
-        id = 1,
-        name = "Cinema",
-        center = GeoPoint(1, 3),
-        radius = 50,
-        adress = "Centro Comercial Colombo"
-    )
+    val loc1 =
+        Location(
+            id = 1,
+            name = "Cinema",
+            center = GeoPoint(1, 3),
+            radius = 50,
+            adress = "Centro Comercial Colombo",
+        )
 
     TasaTheme {
         Column {

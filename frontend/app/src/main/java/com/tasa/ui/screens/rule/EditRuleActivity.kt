@@ -115,7 +115,10 @@ class EditRuleActivity : ComponentActivity() {
         setContent {
             EditRuleScreen(
                 viewModel = viewModel,
-                onBackPressed = { finish() },
+                onBackPressed = {
+                    navigateTo(this, HomePageActivity::class.java)
+                    finish()
+                },
                 onRuleUpdate = {
                         startTime, endTime ->
                     viewModel.updateRule(
@@ -124,7 +127,10 @@ class EditRuleActivity : ComponentActivity() {
                         this,
                     )
                 },
-                onRuleUpdated = {},
+                onRuleUpdated = {
+                    navigateTo(this, HomePageActivity::class.java)
+                    finish()
+                },
                 onError = {
                     navigateTo(this, HomePageActivity::class.java)
                     finish()

@@ -11,8 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.tasa.authentication.register.RegisterScreen
-import com.tasa.newevent.NewEventView
 import com.tasa.ui.components.ErrorAlert
 import com.tasa.ui.components.LoadingView
 import com.tasa.ui.components.NavigationHandlers
@@ -23,7 +21,8 @@ import com.tasa.ui.theme.TasaTheme
 fun CalendarScreen(
     viewModel: CalendarScreenViewModel,
     onAddedEvent: () -> Unit,
-    onNavigationBack: () -> Unit) {
+    onNavigationBack: () -> Unit,
+) {
     TasaTheme {
         Scaffold(
             modifier =
@@ -42,28 +41,26 @@ fun CalendarScreen(
                         .fillMaxSize()
                         .padding(innerPadding),
             ) {
-                when(val currentState = viewModel.state.collectAsState().value){
+                when (val currentState = viewModel.state.collectAsState().value) {
                     is CalendarScreenState.Idle -> {
-                        CalendarEventView(onAddEvent = {event -> viewModel.addEvent(event)})
+                        CalendarEventView(onAddEvent = { event -> viewModel.addEvent(event) })
                     }
                     is CalendarScreenState.Loading -> {
                         LoadingView()
                     }
                     is CalendarScreenState.Success -> {
-                        onAddedEvent() //Remove added event
+                        onAddedEvent() // Remove added event
                     }
                     is CalendarScreenState.Error -> {
                         ErrorAlert(
                             title = "Add Event Error",
                             message = currentState.error.message,
                             buttonText = "Ok",
-                            onDismiss = { viewModel.setIdleState()}
+                            onDismiss = { viewModel.setIdleState() },
                         )
                     }
                 }
             }
-
         }
     }
-
 }
