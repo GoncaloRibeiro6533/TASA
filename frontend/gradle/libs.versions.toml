@@ -13,6 +13,10 @@ datastore = "1.1.6"
 ksp = "2.0.21-1.0.27"
 room = "2.7.1"
 workManager = "2.10.0"
+play-services-location = "21.1.0"
+coroutines = "1.7.3"
+accompanist = "0.32.0"
+
 
 
 [libraries]
@@ -38,6 +42,9 @@ androidx-datastore = { group = "androidx.datastore", name="datastore-preferences
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 work-manager = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager" }
+play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "play-services-location" }
+kotlin-coroutines-play = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "coroutines" }
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
 
 
 [plugins]

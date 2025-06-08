@@ -77,6 +77,10 @@ dependencies {
     implementation(libs.room)
     implementation("androidx.compose.material:material:1.6.4")
     implementation(libs.work.manager)
+    implementation(libs.play.services.location)
+    implementation(libs.kotlin.coroutines.play)
+    implementation(libs.accompanist.permissions)
+
 
     testImplementation(libs.junit)
 
