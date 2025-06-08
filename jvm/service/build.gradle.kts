@@ -26,15 +26,23 @@ dependencies {
     // To use SLF4J -> Logger
     implementation("org.slf4j:slf4j-api:2.0.16")
 
+    testImplementation("org.jdbi:jdbi3-core:3.37.1")
+    testImplementation("org.postgresql:postgresql:42.7.2")
+
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0")
+    testImplementation(project(":repository-jdbi"))
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
     testImplementation(kotlin("test"))
 }
 
 tasks.test {
     useJUnitPlatform()
+    environment("DB_URL", "jdbc:postgresql://localhost:5432/db?user=dbuser&password=changeit")
+    dependsOn(":repository-jdbi:dbTestsWait")
+    finalizedBy(":repository-jdbi:dbTestsDown")
 }
+
 kotlin {
     jvmToolchain(21)
 }

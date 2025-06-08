@@ -345,334 +345,6 @@
 			]
 		},
 		{
-			"name": "Exclusion",
-			"item": [
-				{
-					"name": "Create contact exclusion",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "\r\n{\r\n    \"contactName\":\"Alice\",\r\n    \"contcatPhoneNumber\": \"+351921658954\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/exclusion/contact",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"exclusion",
-								"contact"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create app exclusion",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "\r\n{\r\n    \"appName\":\"Slack\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/exclusion/app",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"exclusion",
-								"app"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get all exclusions from User",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/exclusion/all",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"exclusion",
-								"all"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add contact exclusion to Rule Event",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/exclusion/contact/event/3/4",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"exclusion",
-								"contact",
-								"event",
-								"3",
-								"4"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add contact exclusion to Rule Event",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/exclusion/contact/location/3/3",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"exclusion",
-								"contact",
-								"location",
-								"3",
-								"3"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add app exclusion to Rule Event",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/exclusion/app/event/3/4",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"exclusion",
-								"app",
-								"event",
-								"3",
-								"4"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add app exclusion to Rule Location",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/exclusion/app/location/3/3",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"exclusion",
-								"app",
-								"location",
-								"3",
-								"3"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Contact Exclusion",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/exclusion/update/contact/3?contactName=Alice New Number&contactPhoneNumber=9666999887",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"exclusion",
-								"update",
-								"contact",
-								"3"
-							],
-							"query": [
-								{
-									"key": "contactName",
-									"value": "Alice New Number"
-								},
-								{
-									"key": "contactPhoneNumber",
-									"value": "9666999887"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update App Exclusion",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/exclusion/update/app/3/NewSlack",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"exclusion",
-								"update",
-								"app",
-								"3",
-								"NewSlack"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "New Request",
-					"request": {
-						"method": "GET",
-						"header": []
-					},
-					"response": []
-				}
-			]
-		},
-		{
 			"name": "Rule",
 			"item": [
 				{
@@ -1141,6 +813,33 @@
 							"path": [
 								"user",
 								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "{{baseUrl}}/user/register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"\",\r\n    \"email:\": \"bob@example.com\",\r\n    \"password\": \"Tasa_2025\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/user/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"register"
 							]
 						}
 					},

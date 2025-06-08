@@ -1,5 +1,7 @@
 package pt.isel
 
+import org.jdbi.v3.core.Jdbi
+import org.postgresql.ds.PGSimpleDataSource
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import pt.isel.transaction.TransactionManager
 import pt.isel.transaction.TransactionManagerInMem
@@ -9,22 +11,19 @@ import kotlin.time.Duration.Companion.minutes
 
 class RuleControllerTests {
     companion object {
-        // TODO
-
-        /*private val jdbi =
+        private val jdbi =
             Jdbi
                 .create(
                     PGSimpleDataSource().apply {
                         setURL(Environment.getDbUrl())
                     },
                 ).configureWithAppRequirements()
-         */
 
         @JvmStatic
         fun transactionManagers(): Stream<TransactionManager> =
             Stream.of(
                 TransactionManagerInMem().also { cleanup(it) },
-                // TODO   TransactionManagerJdbi(jdbi).also { cleanup(it) },
+                TransactionManagerJdbi(jdbi).also { cleanup(it) },
             )
 
         private fun cleanup(trxManager: TransactionManager) {
@@ -32,7 +31,6 @@ class RuleControllerTests {
                 userRepo.clear()
                 sessionRepo.clear()
                 ruleRepo.clear()
-                exclusionRepo.clear()
                 eventRepo.clear()
                 locationRepo.clear()
             }

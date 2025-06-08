@@ -1,15 +1,19 @@
+import org.jdbi.v3.core.Jdbi
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import org.postgresql.ds.PGSimpleDataSource
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import pt.isel.Failure
 import pt.isel.Sha256TokenEncoder
 import pt.isel.Success
 import pt.isel.TokenExternalInfo
+import pt.isel.TransactionManagerJdbi
 import pt.isel.User
 import pt.isel.UserError
 import pt.isel.UserService
 import pt.isel.UsersDomain
 import pt.isel.UsersDomainConfig
+import pt.isel.configureWithAppRequirements
 import pt.isel.transaction.TransactionManager
 import pt.isel.transaction.TransactionManagerInMem
 import java.util.stream.Stream
@@ -24,11 +28,19 @@ import kotlin.time.Duration.Companion.minutes
 
 class UserServiceTests {
     companion object {
+        private val jdbi =
+            Jdbi
+                .create(
+                    PGSimpleDataSource().apply {
+                        setURL(Environment.getDbUrl())
+                    },
+                ).configureWithAppRequirements()
+
         @JvmStatic
         fun transactionManagers(): Stream<TransactionManager> =
             Stream.of(
                 TransactionManagerInMem().also { cleanup(it) },
-                // add JDBI TODO
+                TransactionManagerJdbi(jdbi).also { cleanup(it) },
             )
 
         private fun cleanup(trxManager: TransactionManager) {
@@ -36,7 +48,6 @@ class UserServiceTests {
                 userRepo.clear()
                 sessionRepo.clear()
                 ruleRepo.clear()
-                exclusionRepo.clear()
                 eventRepo.clear()
                 locationRepo.clear()
             }
