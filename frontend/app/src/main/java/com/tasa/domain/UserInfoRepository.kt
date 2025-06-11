@@ -16,7 +16,19 @@ interface UserInfoRepository {
 
     suspend fun lastMode(): Mode?
 
-    suspend fun writeDndId(id: String)
+    suspend fun writeLanguage(language: Language)
 
-    suspend fun getDndId(): String?
+    suspend fun getLanguage(): Language?
+
+    val lastActivity: Flow<Int?>
+
+    suspend fun writeLastActivity(activity: Int)
+
+    suspend fun getLastActivity(): Int?
+
+    val lastActivityTransition: Flow<Int?>
+
+    suspend fun writeLastActivityTransition(transitionType: Int)
+
+    suspend fun getLastActivityTransition(): Int?
 }

@@ -21,6 +21,8 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
 
 
 
@@ -41,6 +43,12 @@
         <receiver android:name=".silence.BootReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".newlocation.UserActivityReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.location.ACTIVITY_TRANSITION_RESULT" />
+                <!--<action android:name="com.google.android.gms.location.ACTIVITY_RECOGNITION_RESULT" />-->
             </intent-filter>
         </receiver>
         <activity

@@ -81,7 +81,6 @@ dependencies {
     implementation(libs.kotlin.coroutines.play)
     implementation(libs.accompanist.permissions)
 
-
     testImplementation(libs.junit)
 
     androidTestImplementation(libs.androidx.junit)
