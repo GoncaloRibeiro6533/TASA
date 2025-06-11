@@ -2,7 +2,7 @@ package com.tasa.newlocation
 
 import android.content.Context
 import android.view.MotionEvent
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import org.osmdroid.config.Configuration
@@ -63,7 +63,10 @@ fun OSMDroidMap(onCoordinateSelected: (GeoPoint) -> Unit) {
     })
 }
 
-fun drawCircle(center: GeoPoint, radius: Double): Polygon {
+fun drawCircle(
+    center: GeoPoint,
+    radius: Double,
+): Polygon {
     val earthRadius = 6371000.0 // meters
     val lat = center.latitude * Math.PI / 180
     val lon = center.longitude * Math.PI / 180
@@ -75,10 +78,11 @@ fun drawCircle(center: GeoPoint, radius: Double): Polygon {
         val dy = radius * sin(angle)
         val pointLat = lat + (dy / earthRadius)
         val pointLon = lon + (dx / (earthRadius * cos(lat)))
-        val geoPoint = GeoPoint(
-            pointLat * 180 / Math.PI,
-            pointLon * 180 / Math.PI
-        )
+        val geoPoint =
+            GeoPoint(
+                pointLat * 180 / Math.PI,
+                pointLon * 180 / Math.PI,
+            )
         points.add(geoPoint)
     }
 
@@ -89,4 +93,3 @@ fun drawCircle(center: GeoPoint, radius: Double): Polygon {
         outlinePaint.strokeWidth = 3f
     }
 }
-

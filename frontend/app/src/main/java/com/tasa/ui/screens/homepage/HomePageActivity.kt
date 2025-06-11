@@ -14,9 +14,9 @@ import androidx.core.content.ContextCompat
 import com.tasa.DependenciesContainer
 import com.tasa.domain.Rule
 import com.tasa.mylocations.MyLocationsActivity
+import com.tasa.newlocation.MapActivity
 import com.tasa.ui.screens.calendar.CalendarActivity
 import com.tasa.ui.screens.menu.MenuActivity
-import com.tasa.newlocation.MapActivity
 import com.tasa.ui.screens.rule.EditRuleActivity
 import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo

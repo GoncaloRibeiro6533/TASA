@@ -20,7 +20,7 @@ import org.osmdroid.views.overlay.Polygon
 @Composable
 fun OSMDroidMap(
     modifier: Modifier = Modifier,
-    center: GeoPoint = GeoPoint(38.7169, -9.1399), // Lisbon
+    center: GeoPoint = GeoPoint(38.7169, -9.1399),
     circleCenter: GeoPoint? = null,
     circleRadius: Double? = null,
     currentLocation: GeoPoint? = null,
@@ -30,7 +30,6 @@ fun OSMDroidMap(
     val mapViewRef = remember { mutableStateOf<MapView?>(null) }
     val circleOverlayRef = remember { mutableStateOf<Polygon?>(null) }
     val deviceLocationMarkerRef = remember { mutableStateOf<Marker?>(null) }
-
 
     val userMarkerRef = remember { mutableStateOf<Marker?>(null) }
     val locationMarkerRef = remember { mutableStateOf<Marker?>(null) }
@@ -45,12 +44,13 @@ fun OSMDroidMap(
         // Atualizar ou criar marcador de localização do dispositivo
         if (currentLocation != null) {
             if (deviceLocationMarkerRef.value == null) {
-                val deviceMarker = Marker(map).apply {
-                    position = currentLocation
-                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-                    title = "Localização atual"
-                    icon = map.context.getDrawable(android.R.drawable.presence_online)
-                }
+                val deviceMarker =
+                    Marker(map).apply {
+                        position = currentLocation
+                        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+                        title = "Localização atual"
+                        icon = map.context.getDrawable(android.R.drawable.presence_online)
+                    }
                 map.overlays.add(deviceMarker)
                 deviceLocationMarkerRef.value = deviceMarker
             } else {
@@ -84,14 +84,12 @@ fun OSMDroidMap(
 
                 val userMarker =
                     Marker(this).apply {
-                    position = center
-                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                    title = "Selected Point"
-                }
+                        position = center
+                        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                        title = "Selected Point"
+                    }
                 overlays.add(userMarker)
                 userMarkerRef.value = userMarker
-
-
 
                 val mapEventsReceiver =
                     object : MapEventsReceiver {
@@ -115,7 +113,7 @@ fun OSMDroidMap(
                 overlays.add(eventsOverlay)
 
                 mapViewRef.value = this
-                //markerRef.value = marker
+                // markerRef.value = marker
 
                 /* Marker
                 val marker = Marker(this)

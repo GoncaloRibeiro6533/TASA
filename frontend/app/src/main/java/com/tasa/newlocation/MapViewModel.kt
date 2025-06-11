@@ -3,23 +3,16 @@ package com.tasa.newlocation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.tasa.service.LocationService
-import com.tasa.authentication.login.LoginScreenState
-import com.tasa.authentication.login.LoginScreenViewModel
-import com.tasa.domain.CalendarEvent
 import com.tasa.domain.Location
-import com.tasa.newevent.NewEventScreenState
-import com.tasa.service.UserService
+import com.tasa.service.LocationService
 import com.tasa.utils.Failure
 import com.tasa.utils.Success
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 sealed interface MapScreenState {
-
     object Loading : MapScreenState
 
     object Idle : MapScreenState
@@ -27,22 +20,17 @@ sealed interface MapScreenState {
     data class Success(val location: Location) : MapScreenState
 
     data class Error(val message: String) : MapScreenState
-
 }
 
 class MapScreenViewModel(
-    private val locationService: LocationService
-): ViewModel() {
-
+    private val locationService: LocationService,
+) : ViewModel() {
     private val _state =
         MutableStateFlow<MapScreenState>(MapScreenState.Idle)
     val state = _state.asStateFlow()
 
-    fun addLocation(
-        location: Location
-    ) {
-        if(_state.value == MapScreenState.Loading) {
-
+    fun addLocation(location: Location) {
+        if (_state.value == MapScreenState.Loading) {
             _state.value = MapScreenState.Loading
             viewModelScope.launch {
                 delay(1000)
@@ -55,7 +43,6 @@ class MapScreenViewModel(
                         _state.value = MapScreenState.Error(loc.value.message)
                     }
                 }
-
             }
         }
     }
