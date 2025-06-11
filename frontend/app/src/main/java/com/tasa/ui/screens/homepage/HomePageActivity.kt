@@ -66,7 +66,7 @@ class HomePageActivity : ComponentActivity() {
                         navigateTo(this, CalendarActivity::class.java)
                     },
                     onNavigationToMap = {
-                        startActivity(Intent(this, MapActivity::class.java))
+                        startActivity(Intent(this, com.tasa.ui.screens.newLocation.MapActivity::class.java))
                         finish()
                     },
                     onNavigateToMyExceptions = {

@@ -1,6 +1,6 @@
 package com.tasa.newlocation
 
-import android.preference.PreferenceManager
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -73,7 +73,10 @@ fun OSMDroidMap(
     AndroidView(
         modifier = modifier,
         factory = { ctx ->
-            Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx))
+            Configuration.getInstance().load(
+                ctx,
+                ctx.getSharedPreferences("osmdroid", Context.MODE_PRIVATE),
+            )
 
             MapView(ctx).apply {
                 setTileSource(TileSourceFactory.MAPNIK)

@@ -119,6 +119,15 @@
             android:launchMode="singleTask">
         </activity>
 
+        <activity
+            android:name=".ui.screens.newLocation.MapActivity"
+            android:exported="true"
+            android:label="MapActivity"
+            android:theme="@style/Theme.Tasa"
+            android:layoutDirection="ltr"
+            />
+
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDx9yxX-EXAMPLE-KEY-tHE12QuEO" />

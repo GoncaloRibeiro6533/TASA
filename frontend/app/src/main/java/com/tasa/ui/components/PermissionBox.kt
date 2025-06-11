@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -125,4 +126,19 @@ fun PermissionBox(
         description,
         contentAlignment,
     ) { onGranted() }
+}
+
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun PermissionBoxPreview() {
+    PermissionBox(
+        permissions = listOf("android.permission.ACCESS_FINE_LOCATION"),
+        requiredPermissions = listOf("android.permission.ACCESS_FINE_LOCATION"),
+        description = "This is a sample description for the permissions required.",
+    ) {
+        Box(modifier = Modifier.Companion.fillMaxSize()) {
+            // Content to show when permission is granted
+        }
+    }
 }
