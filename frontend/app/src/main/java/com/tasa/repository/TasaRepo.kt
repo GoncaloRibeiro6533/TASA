@@ -13,4 +13,5 @@ class TasaRepo(
     override val eventRepo = EventRepository(local, remote)
     override val alarmRepo = AlarmRepository(local)
     override val ruleRepo = RuleRepository(local, remote)
+    override val geofenceRepo = GeofenceRepository(local)
 }

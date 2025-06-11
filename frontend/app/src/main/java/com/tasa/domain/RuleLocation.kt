@@ -36,12 +36,13 @@ class RuleLocation(
         return result
     }
 
-    fun toRuleLocationEntity(): RuleLocationEntity {
+    fun toRuleLocationEntity(geofenceId: Int): RuleLocationEntity {
         return RuleLocationEntity(
             id = id,
             startTime = startTime,
             endTime = endTime,
             locationName = location.name,
+            geofenceId = geofenceId,
         )
     }
 

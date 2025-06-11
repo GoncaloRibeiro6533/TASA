@@ -6,4 +6,5 @@ interface TasaRepoInterface {
     val locationRepo: LocationRepositoryInterface
     val eventRepo: EventRepositoryInterface
     val ruleRepo: RuleRepositoryInterface
+    val geofenceRepo: GeofenceRepositoryInterface
 }

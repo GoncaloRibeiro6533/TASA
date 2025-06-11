@@ -58,4 +58,7 @@ interface RuleLocationDao {
         startTime: LocalDateTime,
         endTime: LocalDateTime,
     ): Boolean
+
+    @Query("SELECT * FROM rule_location WHERE geofenceId = :id")
+    suspend fun getRuleLocationByGeofenceId(id: Int): List<RuleLocationEntity>
 }

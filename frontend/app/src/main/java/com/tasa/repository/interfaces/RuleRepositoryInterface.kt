@@ -41,11 +41,12 @@ interface RuleRepositoryInterface {
         startTime: LocalDateTime,
         endTime: LocalDateTime,
         location: Location,
+        geofenceId: Int,
     ): RuleLocation
 
     suspend fun insertRuleEvents(ruleEvents: List<RuleEvent>)
 
-    suspend fun insertRuleLocations(ruleLocations: List<RuleLocation>)
+    suspend fun insertRuleLocations(ruleLocations: Map<RuleLocation, Int>)
 
     suspend fun deleteRuleEventById(id: Int)
 

@@ -97,6 +97,7 @@ class RuleRepository(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
         location: Location,
+        geofenceId: Int,
     ): RuleLocation {
         val ruleLocation =
             RuleLocation(
@@ -104,7 +105,7 @@ class RuleRepository(
                 endTime = endTime,
                 location = location,
             )
-        local.ruleLocationDao().insertRuleLocation(ruleLocation.toRuleLocationEntity())
+        local.ruleLocationDao().insertRuleLocation(ruleLocation.toRuleLocationEntity(geofenceId))
         return ruleLocation
     }
 
@@ -112,8 +113,12 @@ class RuleRepository(
         local.ruleEventDao().insertRuleEvents(ruleEvents.map { it.toRuleEventEntity() })
     }
 
-    override suspend fun insertRuleLocations(ruleLocations: List<RuleLocation>) {
-        local.ruleLocationDao().insertRuleLocations(ruleLocations.map { it.toRuleLocationEntity() })
+    override suspend fun insertRuleLocations(ruleLocations: Map<RuleLocation, Int>) {
+        local.ruleLocationDao().insertRuleLocations(
+            ruleLocations.map {
+                it.key.toRuleLocationEntity(it.value)
+            },
+        )
     }
 
     override suspend fun deleteRuleEventById(id: Int) {
