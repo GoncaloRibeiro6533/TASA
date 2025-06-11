@@ -10,9 +10,11 @@ import android.util.Log
 import androidx.core.net.toUri
 import com.tasa.domain.Action
 import com.tasa.domain.TriggerTime
+import com.tasa.domain.toTriggerTime
 import com.tasa.repository.TasaRepo
 import com.tasa.silence.MuteReceiver
 import java.util.Calendar
+import kotlin.time.Duration.Companion.minutes
 
 class AlarmScheduler(
     private val repo: TasaRepo,
@@ -113,5 +115,16 @@ class AlarmScheduler(
 
         val alarmMgr = context.getSystemService(ALARM_SERVICE) as AlarmManager
         alarmMgr.cancel(pendingIntent)
+    }
+
+    suspend fun rescheduleAllAlarms(context: Context) {
+        val alarms = repo.alarmRepo.getAllAlarms()
+        val now = Calendar.getInstance().timeInMillis
+        alarms.filter {
+            it.triggerTime >= now ||
+                it.triggerTime < now.minus(10.minutes.inWholeMinutes)
+        }.forEach { alarm ->
+            scheduleAlarm(alarm.triggerTime.toTriggerTime(), alarm.action, context)
+        }
     }
 }

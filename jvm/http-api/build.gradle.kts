@@ -22,7 +22,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.16")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
     // for JDBI and Postgres Tests
-    // testImplementation(project(":repository-jdbi"))
+    testImplementation(project(":repository-jdbi"))
     testImplementation(project(":repository"))
     testImplementation("org.jdbi:jdbi3-core:3.37.1")
     testImplementation("org.postgresql:postgresql:42.7.2")

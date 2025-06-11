@@ -22,10 +22,10 @@ class MuteReceiver : BroadcastReceiver() {
         try {
             when (intent.getParcelableExtra<Action>("action")) {
                 Action.MUTE -> {
-                    mute(notificationManager)
+                    DndManager.mute(notificationManager)
                 }
                 Action.UNMUTE -> {
-                    unmute(notificationManager)
+                    DndManager.unmute(notificationManager)
                 }
 
                 null -> {}
@@ -33,20 +33,6 @@ class MuteReceiver : BroadcastReceiver() {
             Log.d("Alarm", "Alarme disparado")
         } catch (ex: Throwable) {
             Log.e("Alarm", "Erro ao agendar alarme: ${ex.message}")
-        }
-    }
-
-    private fun mute(notificationManager: NotificationManager) {
-        if (notificationManager.isNotificationPolicyAccessGranted) {
-            Log.d("Alarm", "Muting")
-            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY)
-        }
-    }
-
-    private fun unmute(notificationManager: NotificationManager) {
-        if (notificationManager.isNotificationPolicyAccessGranted) {
-            Log.d("Alarm", "Unmuting")
-            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
         }
     }
 }

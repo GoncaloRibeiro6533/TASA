@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.tasa.domain.Language
 import com.tasa.domain.Mode
 import com.tasa.domain.UserInfoRepository
 import com.tasa.domain.user.User
@@ -45,23 +46,58 @@ class UserInfoRepo(private val store: DataStore<Preferences>) : UserInfoReposito
         return Mode.entries.firstOrNull { it.value == modeValue }
     }
 
-    override suspend fun writeDndId(id: String) {
+    override suspend fun writeLanguage(language: Language) {
         store.edit { preferences ->
-            id.writeToPreferences(preferences)
+            language.writeToPreferences(preferences)
         }
     }
 
-    override suspend fun getDndId(): String? {
+    override suspend fun getLanguage(): Language? {
         val preferences = store.data.first()
-        return preferences[DND_ID]
+        val languageCode = preferences[LANGUAGE_KEY] ?: return null
+        return Language.ALL_LANGUAGES.firstOrNull { it.code == languageCode }
     }
+
+    override suspend fun writeLastActivity(activity: Int) {
+        store.edit { preferences ->
+            preferences[ACTIVITY_KEY] = activity.toString()
+        }
+    }
+
+    override suspend fun getLastActivity(): Int? {
+        val preferences = store.data.first()
+        return preferences[ACTIVITY_KEY]?.toIntOrNull()
+    }
+
+    override val lastActivity: Flow<Int?> =
+        store.data.map { preferences ->
+            preferences[ACTIVITY_KEY]?.toIntOrNull()
+        }
+
+    override suspend fun writeLastActivityTransition(transitionType: Int) {
+        store.edit { preferences ->
+            preferences[TRANSITION_KEY] = transitionType.toString()
+        }
+    }
+
+    override suspend fun getLastActivityTransition(): Int? {
+        val preferences = store.data.first()
+        return preferences[TRANSITION_KEY]?.toIntOrNull()
+    }
+
+    override val lastActivityTransition: Flow<Int?> =
+        store.data.map { preferences ->
+            preferences[TRANSITION_KEY]?.toIntOrNull()
+        }
 }
 
 private val USERNAME_KEY = stringPreferencesKey("username")
 private val USER_ID_KEY = stringPreferencesKey("userId")
 private val USER_EMAIL_KEY = stringPreferencesKey("email")
 private val MODE_KEY = stringPreferencesKey("mode")
-private val DND_ID = stringPreferencesKey("dndId")
+private val LANGUAGE_KEY = stringPreferencesKey("language")
+private val ACTIVITY_KEY = stringPreferencesKey("activity")
+private val TRANSITION_KEY = stringPreferencesKey("transition")
 
 private fun Preferences.toUser(): User? {
     val username = this[USERNAME_KEY] ?: return null
@@ -82,7 +118,12 @@ private fun Mode.writeToPreferences(preferences: MutablePreferences): MutablePre
     return preferences
 }
 
+private fun Language.writeToPreferences(preferences: MutablePreferences): MutablePreferences {
+    preferences[LANGUAGE_KEY] = this.code
+    return preferences
+}
+
 private fun String.writeToPreferences(preferences: MutablePreferences): MutablePreferences {
-    preferences[DND_ID] = this
+    preferences[ACTIVITY_KEY] = this
     return preferences
 }

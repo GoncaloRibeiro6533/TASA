@@ -1,7 +1,9 @@
 package pt.isel
 
+import org.jdbi.v3.core.Jdbi
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import org.postgresql.ds.PGSimpleDataSource
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import pt.isel.controllers.UserController
@@ -21,22 +23,19 @@ import kotlin.time.Duration.Companion.minutes
 
 class UserControllerTests {
     companion object {
-        // TODO
-
-        /*private val jdbi =
+        private val jdbi =
             Jdbi
                 .create(
                     PGSimpleDataSource().apply {
                         setURL(Environment.getDbUrl())
                     },
                 ).configureWithAppRequirements()
-         */
 
         @JvmStatic
         fun transactionManagers(): Stream<TransactionManager> =
             Stream.of(
                 TransactionManagerInMem().also { cleanup(it) },
-                // TODO   TransactionManagerJdbi(jdbi).also { cleanup(it) },
+                TransactionManagerJdbi(jdbi).also { cleanup(it) },
             )
 
         private fun cleanup(trxManager: TransactionManager) {
@@ -44,7 +43,6 @@ class UserControllerTests {
                 userRepo.clear()
                 sessionRepo.clear()
                 ruleRepo.clear()
-                exclusionRepo.clear()
                 eventRepo.clear()
                 locationRepo.clear()
             }
