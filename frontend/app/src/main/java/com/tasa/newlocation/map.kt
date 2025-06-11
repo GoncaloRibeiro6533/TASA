@@ -1,6 +1,7 @@
 package com.tasa.newlocation
 
 import android.preference.PreferenceManager
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -14,25 +15,61 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.Polygon
 
 @Composable
 fun OSMDroidMap(
     modifier: Modifier = Modifier,
     center: GeoPoint = GeoPoint(38.7169, -9.1399), // Lisbon
+    circleCenter: GeoPoint? = null,
+    circleRadius: Double? = null,
+    currentLocation: GeoPoint? = null,
     onCoordinateSelected: ((GeoPoint) -> Unit)? = null,
 ) {
     // Remember MapView across recompositions
     val mapViewRef = remember { mutableStateOf<MapView?>(null) }
-    val markerRef = remember { mutableStateOf<Marker?>(null) }
+    val circleOverlayRef = remember { mutableStateOf<Polygon?>(null) }
+    val deviceLocationMarkerRef = remember { mutableStateOf<Marker?>(null) }
 
-    // Update the map when center changes
-    LaunchedEffect(center) {
-        mapViewRef.value?.let { map ->
-            markerRef.value?.position = center
-            map.controller.animateTo(center)
-            map.invalidate()
+
+    val userMarkerRef = remember { mutableStateOf<Marker?>(null) }
+    val locationMarkerRef = remember { mutableStateOf<Marker?>(null) }
+
+    LaunchedEffect(mapViewRef.value, center, circleCenter, circleRadius, currentLocation) {
+        val map = mapViewRef.value ?: return@LaunchedEffect
+
+        // Atualizar posição do marcador selecionado
+        userMarkerRef.value?.position = center
+        map.controller.animateTo(center)
+
+        // Atualizar ou criar marcador de localização do dispositivo
+        if (currentLocation != null) {
+            if (deviceLocationMarkerRef.value == null) {
+                val deviceMarker = Marker(map).apply {
+                    position = currentLocation
+                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+                    title = "Localização atual"
+                    icon = map.context.getDrawable(android.R.drawable.presence_online)
+                }
+                map.overlays.add(deviceMarker)
+                deviceLocationMarkerRef.value = deviceMarker
+            } else {
+                deviceLocationMarkerRef.value?.position = currentLocation
+            }
         }
+
+        // Atualizar círculo
+        circleOverlayRef.value?.let { map.overlays.remove(it) }
+        circleOverlayRef.value = null
+        if (circleCenter != null && circleRadius != null) {
+            val newCircle = drawCircle(circleCenter, circleRadius)
+            map.overlays.add(newCircle)
+            circleOverlayRef.value = newCircle
+        }
+
+        map.invalidate()
     }
+
     AndroidView(
         modifier = modifier,
         factory = { ctx ->
@@ -45,13 +82,16 @@ fun OSMDroidMap(
                 controller.setZoom(15.0)
                 controller.setCenter(center)
 
-                val marker =
+                val userMarker =
                     Marker(this).apply {
-                        position = center
-                        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                        title = "Selected Point"
-                    }
-                overlays.add(marker)
+                    position = center
+                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                    title = "Selected Point"
+                }
+                overlays.add(userMarker)
+                userMarkerRef.value = userMarker
+
+
 
                 val mapEventsReceiver =
                     object : MapEventsReceiver {
@@ -59,9 +99,9 @@ fun OSMDroidMap(
 
                         override fun longPressHelper(p: GeoPoint?): Boolean {
                             p ?: return false
-
+                            Log.d("MapEvents", "Long pressed at: ${p.latitude}, ${p.longitude}")
                             // Move the marker
-                            marker.position = p
+                            userMarker.position = p
                             controller.animateTo(p)
                             invalidate() // redraw the map
 
@@ -75,7 +115,7 @@ fun OSMDroidMap(
                 overlays.add(eventsOverlay)
 
                 mapViewRef.value = this
-                markerRef.value = marker
+                //markerRef.value = marker
 
                 /* Marker
                 val marker = Marker(this)
