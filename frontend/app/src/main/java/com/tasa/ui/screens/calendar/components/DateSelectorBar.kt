@@ -22,7 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.tasa.R
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -68,12 +70,12 @@ fun DateSelectorBar(
 
                     openDatePicker.value = false
                 }) {
-                    Text("OK")
+                    Text(stringResource(R.string.ok))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { openDatePicker.value = false }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.cancel))
                 }
             },
         ) {
@@ -92,7 +94,7 @@ fun DateSelectorBar(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         IconButton(onClick = { openDatePicker.value = true }) {
-            Icon(Icons.Default.DateRange, contentDescription = "Abrir calendário")
+            Icon(Icons.Default.DateRange, contentDescription = stringResource(R.string.open_calendar))
         }
 
         days.forEach { date ->

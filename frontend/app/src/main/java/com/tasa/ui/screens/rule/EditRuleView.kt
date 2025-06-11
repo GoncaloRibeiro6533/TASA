@@ -24,8 +24,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.tasa.R
 import com.tasa.domain.Event
 import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
@@ -60,15 +62,15 @@ fun EditRuleEventView(
                 .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("Editar Regra", style = MaterialTheme.typography.headlineSmall)
+        Text(stringResource(R.string.edit_rule_event_title), style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Início atual: ${rule.startTime.toFormattedDate()}")
-        Text("Fim atual: ${rule.endTime.toFormattedDate()}")
+        Text(stringResource(R.string.current_start_time) + ": ${rule.startTime.toFormattedDate()}")
+        Text(stringResource(R.string.current_end_time) + ": ${rule.endTime.toFormattedDate()}")
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Text("Hora de Início", style = MaterialTheme.typography.bodyLarge)
+        Text(stringResource(R.string.new_current_start_time), style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedButton(
             modifier = Modifier.fillMaxWidth(),
@@ -82,7 +84,7 @@ fun EditRuleEventView(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Hora de Fim", style = MaterialTheme.typography.bodyLarge)
+        Text(stringResource(R.string.new_current_end_time), style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedButton(
             modifier = Modifier.fillMaxWidth(),
@@ -101,7 +103,7 @@ fun EditRuleEventView(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             OutlinedButton(onClick = onCancel) {
-                Text("Cancelar")
+                Text(stringResource(R.string.cancel))
             }
             Button(
                 onClick = {
@@ -109,7 +111,7 @@ fun EditRuleEventView(
                 },
                 enabled = valid,
             ) {
-                Text("Atualizar")
+                Text(stringResource(R.string.save))
             }
         }
     }

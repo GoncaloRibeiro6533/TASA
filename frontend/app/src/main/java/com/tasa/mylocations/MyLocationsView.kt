@@ -19,10 +19,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.tasa.domain.location.Location
+import com.tasa.domain.Location
+import com.tasa.mylocations.components.LocationCard
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.osmdroid.util.GeoPoint
 
 @Composable
 fun MyLocationsView(
@@ -56,7 +56,7 @@ fun MyLocationsView(
                     Spacer(Modifier.height(250.dp))
 
                     Text(
-                        text = "You don't have any location saved :(",
+                        text = "You don't have any location saved",
                         modifier =
                             Modifier
                                 .fillMaxWidth()
@@ -82,10 +82,30 @@ fun MyLocationsView(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun MyLocationsPreview() {
-    val loc1 = Location(1, "Cinema Centro Comercial Colombo", GeoPoint(1, 1), 5, "Av. Lusíada, 1500-392 Lisboa")
-    val loc2 = Location(1, "Teatro Tivoli", GeoPoint(1, 1), 5, "Av. da Liberdade 182 188, 1250-146 Lisboa")
-    val loc3 = Location(3, "ISEL", GeoPoint(1, 1), 5, "R. Conselheiro Emídio Navarro 1, 1959-007 Lisboa")
-
+    val loc1 =
+        Location(
+            id = 1,
+            name = "Cinema Centro Comercial Colombo",
+            latitude = 38.736946,
+            longitude = -9.142685,
+            radius = 50.0,
+        )
+    val loc2 =
+        Location(
+            1,
+            "Teatro Tivoli",
+            38.7169,
+            -9.1399,
+            100.0,
+        )
+    val loc3 =
+        Location(
+            3,
+            "ISEL",
+            38.7169,
+            -9.1399,
+            100.0,
+        )
     val locList = listOf(loc1, loc2, loc3)
 
     MyLocationsView(MutableStateFlow(locList), {}, {})

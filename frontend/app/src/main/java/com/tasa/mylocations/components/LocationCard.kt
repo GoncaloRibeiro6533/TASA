@@ -1,4 +1,4 @@
-package com.tasa.mylocations
+package com.tasa.mylocations.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,18 +22,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.tasa.domain.location.Location
+import com.tasa.domain.Location
 import com.tasa.ui.theme.TasaTheme
-import org.osmdroid.util.GeoPoint
 
 @Composable
 fun LocationCard(
     location: Location,
-    onEdit: (Int) -> Unit,
-    onDelete: (Int) -> Unit,
+    onEdit: (Location) -> Unit,
+    onDelete: (Location) -> Unit,
 ) {
     val name = location.name
-    val adress = location.adress
+    val adress = "${location.latitude}, ${location.longitude}"
 
     val greenColor = Color(0xFF5CB338)
     val redColor = Color.Red
@@ -67,7 +66,7 @@ fun LocationCard(
             ) {
                 Spacer(Modifier.width(16.dp))
                 IconButton(
-                    onClick = { onDelete(location.id) },
+                    onClick = { onDelete(location) },
                     modifier = Modifier.size(24.dp),
                 ) {
                     Icon(
@@ -80,7 +79,7 @@ fun LocationCard(
                 Spacer(Modifier.width(8.dp))
 
                 IconButton(
-                    onClick = { onEdit(location.id) },
+                    onClick = { onEdit(location) },
                     modifier = Modifier.size(24.dp),
                 ) {
                     Icon(
@@ -101,9 +100,9 @@ fun LocationCardPreview() {
         Location(
             id = 1,
             name = "Cinema",
-            center = GeoPoint(1, 3),
-            radius = 50,
-            adress = "Centro Comercial Colombo",
+            latitude = 38.736946,
+            longitude = -9.142685,
+            radius = 50.0,
         )
 
     TasaTheme {

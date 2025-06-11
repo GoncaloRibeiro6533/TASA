@@ -22,6 +22,7 @@ import com.tasa.ui.theme.TasaTheme
 @Composable
 fun HomePageScreen(
     viewModel: HomePageScreenViewModel,
+    onNavigateToMyLocations: () -> Unit,
     onNavigationToMap: () -> Unit,
     onNavigateToCreateRuleEvent: () -> Unit = {},
     onNavigateToMyExceptions: () -> Unit = {},
@@ -61,6 +62,7 @@ fun HomePageScreen(
                     is HomeScreenState.Success ->
                         HomePageView(
                             rules = state.rules,
+                            onNavigateToMyLocations = onNavigateToMyLocations,
                             onNavigationToMap = onNavigationToMap,
                             onNavigateToCreateRuleEvent = onNavigateToCreateRuleEvent,
                             onNavigationToMyExceptions = onNavigateToMyExceptions,

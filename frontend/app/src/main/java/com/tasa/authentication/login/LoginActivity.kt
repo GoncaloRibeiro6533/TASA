@@ -12,7 +12,7 @@ import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
 
 class LoginActivity : ComponentActivity() {
-    private val userService by lazy { (application as DependenciesContainer).userService }
+    private val userService by lazy { (application as DependenciesContainer).service.userService }
 
     private val viewModel by viewModels<LoginScreenViewModel>(
         factoryProducer = {

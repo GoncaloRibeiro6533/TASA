@@ -26,12 +26,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.tasa.R
 import com.tasa.ui.components.ErrorAlert
 import com.tasa.ui.components.NavigationHandlers
 import com.tasa.ui.components.TopBar
@@ -88,13 +90,12 @@ fun MenuScreen(
                             ) {
                                 // Texto de logout
                                 Text(
-                                    text = "Exiting...",
+                                    text = stringResource(R.string.logging_out),
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Bold,
                                     textAlign = TextAlign.Center,
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
-                                // Indicador de progresso
                                 CircularProgressIndicator(
                                     modifier = Modifier.size(48.dp),
                                     color = MaterialTheme.colorScheme.primary,
@@ -107,9 +108,9 @@ fun MenuScreen(
                     }
                     is MenuScreenState.Error -> {
                         ErrorAlert(
-                            title = "Error",
+                            title = stringResource(R.string.error),
                             message = state.error.message,
-                            buttonText = "Ok",
+                            buttonText = stringResource(R.string.ok),
                             onDismiss = { onLogout() },
                         )
                     }

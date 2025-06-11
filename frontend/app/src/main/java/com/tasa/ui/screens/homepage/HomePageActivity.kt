@@ -13,9 +13,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.tasa.DependenciesContainer
 import com.tasa.domain.Rule
-import com.tasa.newlocation.MapActivity
+import com.tasa.mylocations.MyLocationsActivity
 import com.tasa.ui.screens.calendar.CalendarActivity
 import com.tasa.ui.screens.menu.MenuActivity
+import com.tasa.newlocation.MapActivity
 import com.tasa.ui.screens.rule.EditRuleActivity
 import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
@@ -57,13 +58,16 @@ class HomePageActivity : ComponentActivity() {
             TasaTheme {
                 HomePageScreen(
                     viewModel = viewModel,
-                    onNavigateToCreateRuleEvent = {
+                    onNavigateToMyLocations = {
+                        navigateTo(this, MyLocationsActivity::class.java)
                         finish()
+                    },
+                    onNavigateToCreateRuleEvent = {
                         navigateTo(this, CalendarActivity::class.java)
                     },
                     onNavigationToMap = {
                         startActivity(Intent(this, MapActivity::class.java))
-                        // finish()  TODO
+                        finish()
                     },
                     onNavigateToMyExceptions = {
                         val intent =
@@ -78,7 +82,8 @@ class HomePageActivity : ComponentActivity() {
                         navigateTo(this, MenuActivity::class.java)
                         finish()
                     },
-                    onFatalError = { finish() }, // TODO close app
+                    onFatalError = { finish() },
+                    // TODO close app
                     onEditRule = { rule: EditRuleActivity.RuleParcelableEvent ->
                         val intent = Intent(this, EditRuleActivity::class.java).putExtra("rule_event", rule)
                         startActivity(intent)

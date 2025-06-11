@@ -12,7 +12,7 @@ import com.tasa.utils.navigateTo
 import kotlin.getValue
 
 class RegisterActivity : ComponentActivity() {
-    private val userService by lazy { (application as DependenciesContainer).userService }
+    private val userService by lazy { (application as DependenciesContainer).service.userService }
 
     private val viewModel by viewModels<RegisterScreenViewModel>(
         factoryProducer = {
@@ -29,6 +29,9 @@ class RegisterActivity : ComponentActivity() {
             TasaTheme {
                 RegisterScreen(
                     viewModel = viewModel,
+                    onSubmit = { email, username, password ->
+                        viewModel.registerUser(email, username, password)
+                    },
                     onRegisterSuccessful = { navigateTo(this, LoginActivity::class.java) },
                     onNavigationBack = { navigateTo(this, StartActivity::class.java) },
                 )

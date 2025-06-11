@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tasa</string>
+    <string name="back">Voltar</string>
+    <string name="top_bar_navigate_to_about">Acerca</string>
+    <string name="top_bar_open_menu">Menu</string>
+    <string name="loading_label">A carregar...</string>
+    <string name="error_icon_description">Erro</string>
+    <string name="email_label">Email</string>
+    <string name="edit_icon_description">editar</string>
+    <string name="username_label">Nome de utilizador</string>
+    <string name="edit_rule_event_title">Editar regra</string>
+    <string name="current_start_time">Início</string>
+    <string name="current_end_time">Fim</string>
+    <string name="new_current_start_time">Novo início</string>
+    <string name="new_current_end_time">Novo fim</string>
+    <string name="cancel">Cancelar</string>
+    <string name="save">Guardar</string>
+    <string name="logging_out">A sair...</string>
+    <string name="error">Erro</string>
+    <string name="ok">ok</string>
+    <string name="profile">Perfil</string>
+    <string name="logout">Terminar sessão</string>
+    <string name="my_rules">As minhas regras</string>
+    <string name="no_rule_found">Não tens regras</string>
+    <string name="my_locations">AS MINHAS LOCALIZAÇÕES</string>
+    <string name="my_events">OS MEUS EVENTOS</string>
+    <string name="add_new_location">ADICIONAR UMA LOCALIZAÇÃO</string>
+    <string name="my_exceptions">AS MINHAS EXCEÇÕES</string>
+    <string name="rule_scheduled_success">Regra criada com sucesso</string>
+    <string name="events_in">Eventos a</string>
+    <string name="no_event_found">Não existem eventos no dia selecionado.</string>
+    <string name="no_title">Sem título</string>
+    <string name="start">Início</string>
+    <string name="end">Fim</string>
+    <string name="rule">Regra</string>
+    <string name="open_calendar">Abrir o calendário</string>
+</resources>

@@ -8,11 +8,25 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.tasa.R
 import com.tasa.domain.CalendarEvent
 import com.tasa.ui.screens.calendar.components.CalendarEventCard
 import com.tasa.ui.screens.calendar.components.DateSelectorBar
@@ -32,16 +46,16 @@ fun CalendarView(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val events by eventsFlow.collectAsState()
-    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
+    var selectedDate by rememberSaveable { mutableStateOf(LocalDate.now()) }
 
     val filteredEvents =
-        remember(events, selectedDate) {
+        rememberSaveable(events, selectedDate) {
             events.filter { it.startTime.toLocalDate() == selectedDate }
         }
-
+    val message = stringResource(R.string.rule_scheduled_success)
     LaunchedEffect(successOnSchedule) {
         if (successOnSchedule) {
-            snackbarHostState.showSnackbar("Regra agendada com sucesso.")
+            snackbarHostState.showSnackbar(message)
             delay(5000)
             snackbarHostState.currentSnackbarData?.dismiss()
         }
@@ -61,14 +75,14 @@ fun CalendarView(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                "Eventos em ${selectedDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))}",
+                stringResource(R.string.events_in) + " ${selectedDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))}",
                 style = MaterialTheme.typography.titleMedium,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             if (filteredEvents.isEmpty()) {
-                Text("Nenhum evento neste dia.")
+                Text(stringResource(R.string.no_event_found))
             } else {
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     items(filteredEvents) { event ->

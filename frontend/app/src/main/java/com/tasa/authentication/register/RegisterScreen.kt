@@ -16,6 +16,7 @@ import com.tasa.ui.theme.TasaTheme
 @Composable
 fun RegisterScreen(
     viewModel: RegisterScreenViewModel,
+    onSubmit: (String, String, String) -> Unit,
     onRegisterSuccessful: () -> Unit,
     onNavigationBack: () -> Unit = { },
 ) {
@@ -37,7 +38,7 @@ fun RegisterScreen(
                     is RegisterScreenState.Idle -> {
                         RegisterView(
                             onSubmit = { email, username, password ->
-                                viewModel.registerUser(email, username, password)
+                                onSubmit(email, username, password)
                             },
                         )
                     }

@@ -8,8 +8,10 @@ import androidx.activity.viewModels
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.ui.res.stringResource
 import androidx.work.WorkManager
 import com.tasa.DependenciesContainer
+import com.tasa.R
 import com.tasa.start.StartActivity
 import com.tasa.ui.screens.homepage.HomePageActivity
 import com.tasa.ui.screens.profile.ProfileActivity
@@ -29,30 +31,29 @@ class MenuActivity : ComponentActivity() {
         },
     )
 
-    private val menuItems =
-        listOf(
-       /* MenuItem("About", "about screen", Icons.Default.Info) {
-            navigateTo(
-                this,
-                AboutActivity::class.java
-            )
-        },*/
-            MenuItem("Profile", "profile screen", Icons.Default.Person) {
-                navigateTo(
-                    this,
-                    ProfileActivity::class.java,
-                )
-            },
-            MenuItem("Logout", "logout screen", Icons.AutoMirrored.Filled.ExitToApp) {
-                WorkManager.getInstance(applicationContext).cancelAllWork()
-                viewModel.logout()
-            },
-        )
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val menuItems =
+                listOf(
+                /* MenuItem("About", "about screen", Icons.Default.Info) {
+                     navigateTo(
+                         this,
+                         AboutActivity::class.java
+                     )
+                 },*/
+                    MenuItem(stringResource(R.string.profile), "profile screen", Icons.Default.Person) {
+                        navigateTo(
+                            this,
+                            ProfileActivity::class.java,
+                        )
+                    },
+                    MenuItem(stringResource(R.string.logout), "logout screen", Icons.AutoMirrored.Filled.ExitToApp) {
+                        WorkManager.getInstance(applicationContext).cancelAllWork()
+                        viewModel.logout()
+                    },
+                )
             MenuScreen(
                 viewModel = viewModel,
                 menuItems = menuItems,

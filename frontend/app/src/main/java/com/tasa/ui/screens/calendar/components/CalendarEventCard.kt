@@ -23,8 +23,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.tasa.R
 import com.tasa.domain.CalendarEvent
 
 @Composable
@@ -64,7 +66,7 @@ fun CalendarEventCard(
                 modifier = Modifier.Companion.fillMaxWidth(),
             ) {
                 Text(
-                    text = event.title.ifBlank { "Sem título" },
+                    text = event.title.ifBlank { stringResource(R.string.no_title) },
                     style = typography.titleMedium.copy(fontWeight = FontWeight.Companion.Bold),
                     color = MaterialTheme.colorScheme.onSurface,
                 )
@@ -77,12 +79,12 @@ fun CalendarEventCard(
             ) {
                 Column {
                     Text(
-                        text = "Início: ${event.getFormattedStartTime("HH:mm")}",
+                        text = stringResource(R.string.start) + ": ${event.getFormattedStartTime("HH:mm")}",
                         style = typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
-                        text = "Fim: ${event.getFormattedEndTime("HH:mm")}",
+                        text = stringResource(R.string.end) + ": ${event.getFormattedEndTime("HH:mm")}",
                         style = typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -94,7 +96,7 @@ fun CalendarEventCard(
                     ) {
                         Icon(imageVector = Icons.Default.Add, contentDescription = null)
                         Spacer(modifier = Modifier.Companion.width(4.dp))
-                        Text("Regra")
+                        Text(stringResource(R.string.rule))
                     }
                 }
             }

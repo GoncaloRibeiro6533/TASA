@@ -9,3 +9,12 @@ class Location(
     val radius: Int,
     val adress: String,
 )
+
+data class LocationTasa(
+    val id: Int? = null,
+    val name: String,
+    val latitude: Double,
+    val longitude: Double,
+    val center: GeoPoint,
+    val radius: Float,
+)

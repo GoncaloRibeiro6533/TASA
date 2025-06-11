@@ -1,16 +1,22 @@
 package com.tasa.ui.screens.homepage
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,10 +24,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.tasa.R
 import com.tasa.domain.Event
 import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
@@ -35,87 +44,129 @@ import java.time.LocalDateTime
 @Composable
 fun HomePageView(
     rules: StateFlow<List<Rule>>,
+    onNavigateToMyLocations: () -> Unit,
     onNavigationToMap: () -> Unit,
     onNavigateToCreateRuleEvent: () -> Unit,
     onNavigationToMyExceptions: () -> Unit,
     onEdit: (EditRuleActivity.RuleParcelableEvent) -> Unit = {},
     onDelete: (Rule) -> Unit = {},
 ) {
-    val ruleList = rules.collectAsState().value
-    val gray = ButtonDefaults.buttonColors(Color.Gray)
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-    ) {
-        Text(
-            text = "My Rules",
-            fontSize = 20.sp,
-            color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.headlineLarge,
-        )
-        Box(
+    // phone orientation
+    val orientation = LocalConfiguration.current.orientation
+    if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+        val ruleList = rules.collectAsState().value
+        val gray =
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            )
+
+        Column(
             modifier =
                 Modifier
-                    .fillMaxWidth()
-                    .height(300.dp),
-            contentAlignment = Alignment.Center,
+                    .fillMaxSize().fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
-            if (ruleList.isEmpty()) {
-                Text("Nenhuma regra encontrada.", style = MaterialTheme.typography.bodyLarge)
-            } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    items(ruleList) { rule ->
-                        SwipeableRuleCard(
-                            rule = rule as RuleEvent,
-                            onEdit = { editedRule ->
+            // Header
+            Text(
+                text = stringResource(R.string.my_rules),
+                style =
+                    MaterialTheme.typography.headlineLarge.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 24.sp,
+                    ),
+                color = MaterialTheme.colorScheme.primary,
+            )
 
-                                onEdit(editedRule.toRuleEventParcelable())
-                            },
-                            onDelete = { deletedRule ->
-                                onDelete(deletedRule)
-                            },
-                        )
+            // Rules List taking available space
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                // Makes the Box take all available space, pushing buttons down
+                contentAlignment = Alignment.Center,
+            ) {
+                if (ruleList.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.no_rule_found),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                } else {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        items(ruleList) { rule ->
+                            SwipeableRuleCard(
+                                rule = rule as RuleEvent,
+                                onEdit = { editedRule ->
+                                    onEdit(editedRule.toRuleEventParcelable())
+                                },
+                                onDelete = { deletedRule ->
+                                    onDelete(deletedRule)
+                                },
+                            )
+                        }
                     }
                 }
             }
+
+            // Button Rows pinned to the bottom
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    SquareButton(
+                        label = stringResource(R.string.my_locations),
+                        onClick = onNavigateToMyLocations,
+                        modifier = Modifier.weight(1f),
+                        colors = gray,
+                    )
+
+                    SquareButton(
+                        label = stringResource(R.string.my_events),
+                        onClick = onNavigateToCreateRuleEvent,
+                        modifier = Modifier.weight(1f),
+                        colors = gray,
+                    )
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    SquareButton(
+                        label = stringResource(R.string.add_new_location),
+                        onClick = onNavigationToMap,
+                        modifier = Modifier.weight(1f),
+                        colors = gray,
+                    )
+
+                    SquareButton(
+                        label = stringResource(R.string.my_exceptions),
+                        onClick = onNavigationToMyExceptions,
+                        modifier = Modifier.weight(1f),
+                        colors = gray,
+                    )
+                }
+            }
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(modifier = Modifier.fillMaxWidth()) {
-            SquareButton(
-                label = "MY LOCATIONS",
-                onClick = {},
-                modifier = Modifier.weight(1f),
-                colors = gray,
-            )
-
-            SquareButton(
-                label = "MY EVENTS",
-                onClick = onNavigateToCreateRuleEvent,
-                modifier = Modifier.weight(1f),
-                colors = gray,
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(modifier = Modifier.fillMaxWidth()) {
-            SquareButton(
-                label = "ADD NEW LOCATION",
-                onClick = onNavigationToMap,
-                modifier = Modifier.weight(1f),
-                colors = gray,
-            )
-
-            SquareButton(
-                label = "MY EXCEPTIONS",
-                onClick = onNavigationToMyExceptions,
-                modifier = Modifier.weight(1f),
-                colors = gray,
-            )
-        }
+    } else {
+        HomePageViewHorizontal(
+            rules = rules,
+            onNavigationToMap = onNavigationToMap,
+            onNavigateToCreateRuleEvent = onNavigateToCreateRuleEvent,
+            onNavigationToMyExceptions = onNavigationToMyExceptions,
+            onEdit = onEdit,
+            onDelete = onDelete,
+        )
     }
 }
 
@@ -146,9 +197,299 @@ fun HomePageViewPreview() {
                         calendarId = 1,
                     ),
             ),
+            RuleEvent(
+                id = 3,
+                startTime = LocalDateTime.now().plusDays(2),
+                endTime = LocalDateTime.now().plusDays(2).plusHours(3),
+                event =
+                    Event(
+                        title = "Reunião com cliente",
+                        id = 3,
+                        calendarId = 1,
+                    ),
+            ),
+            RuleEvent(
+                id = 4,
+                startTime = LocalDateTime.now().plusDays(3),
+                endTime = LocalDateTime.now().plusDays(3).plusHours(4),
+                event =
+                    Event(
+                        title = "Reunião de projeto",
+                        id = 4,
+                        calendarId = 1,
+                    ),
+            ),
+            RuleEvent(
+                id = 5,
+                startTime = LocalDateTime.now().plusDays(4),
+                endTime = LocalDateTime.now().plusDays(4).plusHours(5),
+                event =
+                    Event(
+                        title = "Reunião de revisão",
+                        id = 5,
+                        calendarId = 1,
+                    ),
+            ),
+            RuleEvent(
+                id = 6,
+                startTime = LocalDateTime.now().plusDays(5),
+                endTime = LocalDateTime.now().plusDays(5).plusHours(6),
+                event =
+                    Event(
+                        title = "Reunião de feedback",
+                        id = 6,
+                        calendarId = 1,
+                    ),
+            ),
         )
     HomePageView(
         rules = MutableStateFlow(dummyRules),
+        onNavigationToMap = {},
+        onNavigateToCreateRuleEvent = {},
+        onNavigationToMyExceptions = {},
+        onNavigateToMyLocations = {},
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomePageViewEmptyPreview() {
+    HomePageView(
+        rules = MutableStateFlow(emptyList()),
+        onNavigationToMap = {},
+        onNavigateToCreateRuleEvent = {},
+        onNavigationToMyExceptions = {},
+        onNavigateToMyLocations = {},
+    )
+}
+
+@Composable
+fun HomePageViewHorizontal(
+    rules: StateFlow<List<Rule>>,
+    onNavigationToMap: () -> Unit,
+    onNavigateToCreateRuleEvent: () -> Unit,
+    onNavigationToMyExceptions: () -> Unit,
+    onEdit: (EditRuleActivity.RuleParcelableEvent) -> Unit = {},
+    onDelete: (Rule) -> Unit = {},
+) {
+    val ruleList = rules.collectAsState().value
+    val gray =
+        ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        )
+
+    Row(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(horizontal = 12.dp, vertical = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        // Left Column for Header and Buttons
+        Column(
+            modifier =
+                Modifier
+                    .width(180.dp)
+                    .fillMaxHeight(),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            // Compact Header
+            Text(
+                text = stringResource(R.string.my_rules),
+                style =
+                    MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 20.sp,
+                    ),
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+
+            // Smaller Buttons
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                CompactButton(
+                    label = stringResource(R.string.my_locations),
+                    onClick = { /* TODO: Add navigation logic for locations */ },
+                    colors = gray,
+                )
+
+                CompactButton(
+                    label = stringResource(R.string.my_events),
+                    onClick = onNavigateToCreateRuleEvent,
+                    colors = gray,
+                )
+
+                CompactButton(
+                    label = stringResource(R.string.add_new_location),
+                    onClick = onNavigationToMap,
+                    colors = gray,
+                )
+
+                CompactButton(
+                    label = stringResource(R.string.my_exceptions),
+                    onClick = onNavigationToMyExceptions,
+                    colors = gray,
+                )
+            }
+        }
+
+        // Rules List
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxHeight()
+                    .weight(1f),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (ruleList.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.no_rule_found),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(16.dp),
+                )
+            } else {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp),
+                ) {
+                    items(ruleList) { rule ->
+                        SwipeableRuleCard(
+                            rule = rule as RuleEvent,
+                            onEdit = { editedRule ->
+                                onEdit(editedRule.toRuleEventParcelable())
+                            },
+                            onDelete = { deletedRule ->
+                                onDelete(deletedRule)
+                            },
+                            modifier =
+                                Modifier
+                                    .width(280.dp)
+                                    .fillMaxHeight(0.9f),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CompactButton(
+    label: String,
+    onClick: () -> Unit,
+    colors: ButtonColors,
+) {
+    Button(
+        onClick = onClick,
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(40.dp),
+        // Smaller button height
+        shape = RoundedCornerShape(12.dp),
+        colors = colors,
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomePageViewHorizontalPreview() {
+    val dummyRules: List<Rule> =
+        listOf(
+            RuleEvent(
+                id = 1,
+                startTime = LocalDateTime.now(),
+                endTime = LocalDateTime.now().plusHours(1),
+                event =
+                    Event(
+                        title = "Reunião de equipa",
+                        id = 1,
+                        calendarId = 1,
+                    ),
+            ),
+            RuleEvent(
+                id = 2,
+                startTime = LocalDateTime.now().plusDays(1),
+                endTime = LocalDateTime.now().plusDays(1).plusHours(2),
+                event =
+                    Event(
+                        title = "Almoço de negócios",
+                        id = 2,
+                        calendarId = 1,
+                    ),
+            ),
+            RuleEvent(
+                id = 3,
+                startTime = LocalDateTime.now().plusDays(2),
+                endTime = LocalDateTime.now().plusDays(2).plusHours(3),
+                event =
+                    Event(
+                        title = "Reunião com cliente",
+                        id = 3,
+                        calendarId = 1,
+                    ),
+            ),
+            RuleEvent(
+                id = 4,
+                startTime = LocalDateTime.now().plusDays(3),
+                endTime = LocalDateTime.now().plusDays(3).plusHours(4),
+                event =
+                    Event(
+                        title = "Reunião de projeto",
+                        id = 4,
+                        calendarId = 1,
+                    ),
+            ),
+            RuleEvent(
+                id = 5,
+                startTime = LocalDateTime.now().plusDays(4),
+                endTime = LocalDateTime.now().plusDays(4).plusHours(5),
+                event =
+                    Event(
+                        title = "Reunião de revisão",
+                        id = 5,
+                        calendarId = 1,
+                    ),
+            ),
+            RuleEvent(
+                id = 6,
+                startTime = LocalDateTime.now().plusDays(5),
+                endTime = LocalDateTime.now().plusDays(5).plusHours(6),
+                event =
+                    Event(
+                        title = "Reunião de feedback",
+                        id = 6,
+                        calendarId = 1,
+                    ),
+            ),
+        )
+    HomePageViewHorizontal(
+        rules = MutableStateFlow(dummyRules),
+        onNavigationToMap = {},
+        onNavigateToCreateRuleEvent = {},
+        onNavigationToMyExceptions = {},
+    )
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO or Configuration.ORIENTATION_LANDSCAPE)
+@Composable
+fun HomePageViewHorizontalEmptyPreview() {
+    HomePageViewHorizontal(
+        rules = MutableStateFlow(emptyList()),
         onNavigationToMap = {},
         onNavigateToCreateRuleEvent = {},
         onNavigationToMyExceptions = {},

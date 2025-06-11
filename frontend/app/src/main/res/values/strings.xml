@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">tasa</string>
-    <string name="top_bar_go_back">Back</string>
+    <string name="app_name">Tasa</string>
+    <string name="back">Back</string>
     <string name="top_bar_navigate_to_about">About\n</string>
     <string name="top_bar_open_menu">Menu</string>
     <string name="loading_label">Loading…</string>
@@ -8,5 +8,32 @@
     <string name="email_label">Email</string>
     <string name="edit_icon_description">edit\n</string>
     <string name="username_label">Username</string>
-    <string name="profile_icon_description">profile_icon</string>
+    <string name="profile_icon_description" translatable="false">profile_icon</string>
+    <string name="edit_rule_event_title">Edit rule</string>
+    <string name="current_start_time">Start time</string>
+    <string name="current_end_time">End time</string>
+    <string name="new_current_start_time">New start time</string>
+    <string name="new_current_end_time">New end time</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="logging_out">Exiting...</string>
+    <string name="error">Error</string>
+    <string name="ok">ok</string>
+    <string name="profile">Profile</string>
+    <string name="logout">Logout</string>
+    <string name="my_rules">My rules</string>
+    <string name="no_rule_found">You have no rule</string>
+    <string name="my_locations">MY LOCATIONS</string>
+    <string name="my_events">MY EVENTS</string>
+    <string name="add_new_location">ADD NEW LOCATION</string>
+    <string name="my_exceptions">MY EXCEPTIONS</string>
+    <string name="rule_scheduled_success">Rule created with success</string>
+    <string name="events_in">Events in</string>
+    <string name="no_event_found">No event for selected day.</string>
+    <string name="no_title">No title</string>
+    <string name="start">Start</string>
+    <string name="end">End</string>
+    <string name="rule">Rule</string>
+    <string name="open_calendar">Open calendar</string>
+    <string name="arrow_back_description">arrow_back</string>
 </resources>

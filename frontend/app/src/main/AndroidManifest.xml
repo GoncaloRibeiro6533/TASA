@@ -51,14 +51,6 @@
                 <!--<action android:name="com.google.android.gms.location.ACTIVITY_RECOGNITION_RESULT" />-->
             </intent-filter>
         </receiver>
-        <activity
-            android:name="com.tasa.newlocation.MapActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Tasa"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:launchMode="singleTask">
-        </activity>
-
         <activity android:name=".start.StartActivity"
             android:exported="true">
           <!--  <intent-filter>
@@ -110,6 +102,22 @@
             android:theme="@style/Theme.Tasa"
             android:layoutDirection="ltr"
             />
+
+        <activity
+            android:name=".mylocations.MyLocationsActivity"
+            android:exported="true"
+            android:label="MyLocationsActivity"
+            android:theme="@style/Theme.Tasa"
+            android:layoutDirection="ltr"
+            />
+
+        <activity
+            android:name="com.tasa.newlocation.MapActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Tasa"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:launchMode="singleTask">
+        </activity>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

@@ -59,7 +59,7 @@ fun TopBar(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(id = R.string.top_bar_go_back),
+                        contentDescription = stringResource(id = R.string.arrow_back_description),
                     )
                 }
             } else if (navigation.onMenuRequested != null) {

@@ -42,6 +42,7 @@ fun SwipeableRuleCard(
     rule: RuleEvent,
     onEdit: (RuleEvent) -> Unit,
     onDelete: (RuleEvent) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val dismissState =
         rememberDismissState(
@@ -88,26 +89,26 @@ fun SwipeableRuleCard(
 
             Box(
                 modifier =
-                    Modifier
+                    modifier
                         .fillMaxSize()
                         .background(meta.backgroundColor)
                         .padding(horizontal = 20.dp),
                 contentAlignment = meta.alignment,
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (meta.alignment == Alignment.CenterEnd) Spacer(modifier = Modifier.weight(1f))
+                    if (meta.alignment == Alignment.CenterEnd) Spacer(modifier = modifier.weight(1f))
                     Icon(
                         imageVector = meta.icon,
                         contentDescription = meta.label,
                         tint = MaterialTheme.colorScheme.onPrimary,
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = modifier.width(8.dp))
                     Text(
                         text = meta.label,
                         color = MaterialTheme.colorScheme.onPrimary,
                         style = MaterialTheme.typography.bodyLarge,
                     )
-                    if (meta.alignment == Alignment.CenterStart) Spacer(modifier = Modifier.weight(1f))
+                    if (meta.alignment == Alignment.CenterStart) Spacer(modifier = modifier.weight(1f))
                 }
             }
         },

@@ -1,7 +1,6 @@
 package com.tasa.ui.screens.calendar
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -12,6 +11,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.tasa.DependenciesContainer
 import com.tasa.ui.screens.homepage.HomePageActivity
+import com.tasa.utils.navigateTo
 
 class CalendarActivity : ComponentActivity() {
     private val ruleScheduler by lazy {
@@ -43,7 +43,7 @@ class CalendarActivity : ComponentActivity() {
                         viewModel.onEventSelected(calendarEvent)
                     },
                     onNavigationBack = {
-                        startActivity(Intent(this, HomePageActivity::class.java))
+                        navigateTo(this, HomePageActivity::class.java)
                         finish()
                     },
                     onCancel = { viewModel.onCancel() },
@@ -54,6 +54,8 @@ class CalendarActivity : ComponentActivity() {
                             endTime,
                             this,
                         )
+                        navigateTo(this, HomePageActivity::class.java)
+                        finish()
                     },
                     viewModel = viewModel,
                 )
