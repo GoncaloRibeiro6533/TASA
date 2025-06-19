@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import org.osmdroid.util.GeoPoint
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  *  1º Fill array with the last 10 locations.
@@ -33,12 +34,13 @@ import org.osmdroid.util.GeoPoint
  *  4º Remo
  *
  */
+
+//
 private const val MAX_LOCATION_HISTORY = 10
 
 private const val MAX_DRIFTED_METERS = 3f
 
 class LocationManager(
-    private val context: Context,
     private val activityRecognitionManager: UserActivityTransitionManager,
     private val locationClient: FusedLocationProviderClient,
     private val userInfo: UserInfoRepository,
@@ -46,9 +48,6 @@ class LocationManager(
     private val lastLocations = ArrayList<Location>(MAX_LOCATION_HISTORY)
     private val discardedLocations = ArrayList<Location>(3)
 
-    init {
-
-    }
     private var updates = 0
     private val averageAccuracy: Float
         get() {
@@ -56,7 +55,28 @@ class LocationManager(
             return lastLocations.map { it.accuracy }.average().toFloat()
         }
 
+    private val precision: Float
+        get() = lastLocations.calculatePrecision()
+
     private var userActivity: String? = null
+
+    private var locationCallback: LocationCallback =
+        object : LocationCallback() {
+            override fun onLocationResult(result: LocationResult) {
+                for (location in result.locations) {
+                    Log.d("LocationManagerMine", "Received: ${location.latitude}, ${location.longitude} with accuracy ${location.accuracy}")
+                    if(!location.hasSpeed() && !location.hasAltitude()) continue
+                    val (isValid, onDiscarded) = validateLocation(location)
+                    Log.d("LocationManagerMine", "Location valid: $isValid, onDiscarded: $onDiscarded")
+                    if (isValid){
+                        saveLocation(location,onDiscarded)
+                    } else {
+                        discardedLocations.add(location)
+                    }
+                }
+            }
+        }
+
 
     private fun lowestAccuracyIndex(): Int {
         return lastLocations.indexOf(lastLocations.maxBy { it.accuracy })
@@ -67,38 +87,27 @@ class LocationManager(
         return dist.indexOf(dist.max())
     }
 
+    private fun ArrayList<Location>.centralPoint(): Location {
+        if (this.isEmpty()) return Location("central")
+        val avgLat = this.map { it.latitude }.average()
+        val avgLon = this.map { it.longitude }.average()
+        return Location("central").apply {
+            latitude = avgLat
+            longitude = avgLon
+        }
+    }
 
+    //Check if the locations are all a radius of n
+    private fun ArrayList<Location>.isAllInRadius(radius: Float): Boolean {
+        if (this.isEmpty()) return false
+        val centralPoint = this.centralPoint()
+        return this.all { it.distanceTo(centralPoint) <= radius }
+    }
 
-    private var locationCallback: LocationCallback? = null
-
-
-    private var locationRequest =
-        LocationRequest.Builder(
-            Priority.PRIORITY_HIGH_ACCURACY,
-            3.seconds.inWholeMilliseconds,
-        ).build()
-
-    /*private val calculatedCentralPoint: Location
-        get() {
-            val filteredList = lastLocations
-            val avgLat = filteredList.map { it.latitude }.average()
-            val avgLon = filteredList.map { it.longitude }.average()
-            return Location("calculated").apply {
-                latitude = avgLat
-                longitude = avgLon
-            }
-        }*/
     private val calculatedCentralPoint: Location
         get() {
-            val sumWeight = lastLocations.sumOf { 1.0 / it.accuracy.coerceAtLeast(1f) }
-            val weightedLat = lastLocations.sumOf { (it.latitude / it.accuracy.coerceAtLeast(1f)) } / sumWeight
-            val weightedLon = lastLocations.sumOf { (it.longitude / it.accuracy.coerceAtLeast(1f)) } / sumWeight
-            return Location("weighted").apply {
-                latitude = weightedLat
-                longitude = weightedLon
-            }
+            return lastLocations.centralPoint()
         }
-
 
     private val discardedLocationsCentralPoint: Location
         get() {
@@ -109,17 +118,6 @@ class LocationManager(
                 longitude = avgLon
             }
         }
-    /*private val calculatedCentralPoint: Location
-        get() {
-            val sumWeight = lastLocations.sumOf { 1.0 / it.accuracy }
-            val weightedLat = lastLocations.sumOf { (it.latitude / it.accuracy) } / sumWeight
-            val weightedLon = lastLocations.sumOf { (it.longitude / it.accuracy) } / sumWeight
-            return Location("weighted").apply {
-                latitude = weightedLat
-                longitude = weightedLon
-            }
-        }
-*/
 
     private val _centralLocationFlow = MutableStateFlow<TasaLocation>(TasaLocation(
         point = GeoPoint(0.0, 0.0),
@@ -131,15 +129,22 @@ class LocationManager(
     val centralLocationFlow: StateFlow<TasaLocation> = _centralLocationFlow.asStateFlow()
 
 
-    private fun saveLocation(location: Location) {
-       if (lastLocations.size == MAX_LOCATION_HISTORY) {
-            val index = lowestAccuracyIndex()
-            lastLocations[index] = location
+    private fun saveLocation(location: Location, onDiscarded: Boolean = false) {
+        if (lastLocations.size >= MAX_LOCATION_HISTORY) {
+            if (userActivity == "STILL" && !onDiscarded) {
+                val index = mostFurtherLocationIndex()
+                lastLocations[index] = location
+            } else {
+                val index = lowestAccuracyIndex()
+                lastLocations[index] = location
+            }
         } else {
             lastLocations.add(location)
         }
+        Log.d("LocationManagerMine", "Locations size: ${lastLocations.size}, Discarded size: ${discardedLocations.size}")
+        //}
         updates++
-        Log.d("LocationManagerMine", "Location saved: ${location.latitude}, ${location.longitude} with accuracy ${location.accuracy}")
+        //Log.d("LocationManagerMine", "Location saved: ${location.latitude}, ${location.longitude} with accuracy ${location.accuracy}")
         _centralLocationFlow.value = TasaLocation(
             point = GeoPoint(calculatedCentralPoint.latitude,
                 calculatedCentralPoint.longitude),
@@ -151,26 +156,26 @@ class LocationManager(
     }
 
 
-    private fun validateLocation(location: Location): Boolean {
-        if (lastLocations.size < MAX_LOCATION_HISTORY) return true
-        //discard locations that are too far from the calculated central point
+    private fun validateLocation(location: Location): Pair<Boolean, Boolean > {
+        if (lastLocations.size < MAX_LOCATION_HISTORY) return true to false
         val locCalc = location.distanceTo(calculatedCentralPoint)
-        Log.d("LocationManagerMine", "Location distance to central point: $locCalc meters")
-            if (locCalc >= MAX_DRIFTED_METERS) {
+        if (locCalc >= MAX_DRIFTED_METERS) {
             return when (userActivity) {
                 "IN_VEHICLE", "ON_BICYCLE", "ON_FOOT", "WALKING", "RUNNING", "UNKNOWN" -> true
                 "STILL", "TILTING" -> {
-                    if (location.accuracy > averageAccuracy) return false
-                    if (location.distanceTo(discardedLocationsCentralPoint) >= MAX_DRIFTED_METERS) {
+                    //if (location.accuracy > averageAccuracy) false to false
+                    // if precision is too high, discard the location
+                    if(precision < MAX_DRIFTED_METERS) false to false
+                    if (location.distanceTo(calculatedCentralPoint) <= MAX_DRIFTED_METERS) {
                         discardedLocations.clear()
-                        true
-                    } else false
+                        true to true
+                    } else false to false
                 }
-                else -> false
-            }
+                else -> false to false
+            } as Pair<Boolean, Boolean>
         }
         discardedLocations.clear()
-        return true
+        return true to false
     }
 
     @RequiresPermission(allOf =
@@ -180,6 +185,10 @@ class LocationManager(
     fun startUp(){
         CoroutineScope(Dispatchers.IO).launch{
             startListeningForActivityTransitions()
+            val locationRequest = createLocationRequest(
+                interval = 10.milliseconds.inWholeMilliseconds,
+                priority = Priority.PRIORITY_HIGH_ACCURACY
+            )
             startLocationUpdates(locationRequest)
             startListeningForActivity()
         }
@@ -190,19 +199,7 @@ class LocationManager(
         [Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun startLocationUpdates(locationRequest: LocationRequest) {
-        locationCallback =
-            object : LocationCallback() {
-                override fun onLocationResult(result: LocationResult) {
-                    for (location in result.locations) {
-                       if (validateLocation(location = location)){
-                           saveLocation(location)
-                       } else {
-                           discardedLocations.add(location)
-                       }
-                    }
-                }
-            }
-        locationCallback?.let {
+        locationCallback.let {
             locationClient.requestLocationUpdates(
                 locationRequest,
                 it,
@@ -221,10 +218,51 @@ class LocationManager(
         }
     }
 
+    @RequiresPermission(allOf =
+        [Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION])
     private suspend fun startListeningForActivity() {
         userInfo.lastActivity.collect { activity ->
             userActivity =
                 UserActivityTransitionManager.Companion.getActivityType(activity)
+            if (updates >= 30){
+                when (userActivity) {
+                    "STILL", "TILTING" -> {
+                        if (lastLocations.isNotEmpty() && lastLocations.isAllInRadius(MAX_DRIFTED_METERS)) {
+                            stopLocationUpdates()
+                        }
+                    }
+                    else -> {
+                        startLocationUpdates(createLocationRequest(3.seconds.inWholeMilliseconds, Priority.PRIORITY_HIGH_ACCURACY))
+                    }
+                }
+            }
         }
     }
+
+    private fun createLocationRequest(interval: Long, priority: Int): LocationRequest {
+        return LocationRequest.Builder(priority, interval)
+            .setMinUpdateIntervalMillis(interval)
+            .setWaitForAccurateLocation(false)
+            .build()
+    }
+
+    private fun stopLocationUpdates() {
+        locationCallback.let {
+            locationClient.removeLocationUpdates(it)
+            Log.d("LocationManagerMine", "Stopped location updates")
+        }
+    }
+
+    private fun List<Location>.calculatePrecision(): Float {
+        if (this.size < 2) return 0f
+        return this.map { it.distanceTo(calculatedCentralPoint) }.average().toFloat()
+    }
+
+    private fun isPrecisionAcceptable(threshold: Float = 2.5f): Boolean {
+        return lastLocations.calculatePrecision() <= threshold
+    }
+
 }
+
+
