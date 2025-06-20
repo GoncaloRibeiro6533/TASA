@@ -1,11 +1,13 @@
-package com.tasa.mylocations
+package com.tasa.ui.screens.mylocations
 
+import android.Manifest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresPermission
 import com.tasa.DependenciesContainer
-import com.tasa.mylocations.components.MyLocationsScreen
 import com.tasa.ui.screens.homepage.HomePageActivity
+import com.tasa.ui.screens.mylocations.components.MyLocationsScreen
 import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
 import kotlin.jvm.java
@@ -15,13 +17,19 @@ class MyLocationsActivity : ComponentActivity() {
         (applicationContext as DependenciesContainer).repo
     }
 
+    private val geofenceManager by lazy {
+        (applicationContext as DependenciesContainer).geofenceManager
+    }
+
     private val viewModel by lazy {
         MyLocationsScreenViewModel(
             repo = repo,
+            geofenceManager = geofenceManager,
             initialState = MyLocationsScreenState.Uninitialized,
         )
     }
 
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.loadLocations()
@@ -36,6 +44,16 @@ class MyLocationsActivity : ComponentActivity() {
                     onNavigateBack = {
                         navigateTo(this, HomePageActivity::class.java)
                         finish()
+                    },
+                    onCreateRuleLocation = { location, startTime, endTime ->
+                        viewModel.createRulesForLocation(location, startTime, endTime)
+                    },
+                    onSetCreateRuleState = {
+                            location ->
+                        viewModel.setCreatingRuleLocationState(location)
+                    },
+                    onSetSuccessState = {
+                        viewModel.setSuccessState()
                     },
                 )
             }

@@ -15,6 +15,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import com.tasa.LocationManager
 import com.tasa.domain.Location
 import com.tasa.domain.UserInfoRepository
 import com.tasa.domain.toLocalDateTime
@@ -40,12 +41,21 @@ data class TasaLocation(
     val updates: Int? = null,
 )
 
+fun android.location.Location.toTasaLocation(): TasaLocation {
+    return TasaLocation(
+        point = GeoPoint(latitude, longitude),
+        accuracy = accuracy,
+        altitude = altitude,
+        time = null,
+        updates = 0,
+    )
+}
+
 sealed interface MapsScreenState {
     data object Uninitialized : MapsScreenState
 
     data object Loading : MapsScreenState
 
-    // TODO remove common properties
     data class Success(
         val selectedPoint: StateFlow<GeoPoint?>,
         val currentLocation: StateFlow<TasaLocation>,
@@ -81,6 +91,7 @@ class MapScreenViewModel(
     private val userInfo: UserInfoRepository,
     private val locationClient: FusedLocationProviderClient,
     private val activityRecognitionManager: UserActivityTransitionManager,
+    private val locationManager: LocationManager,
     initialState: MapsScreenState = MapsScreenState.Uninitialized,
 ) : ViewModel() {
     private val _activityState = MutableStateFlow<String?>(null)
@@ -163,15 +174,15 @@ class MapScreenViewModel(
 
     private fun tryToSetReadyState() {
         if (_mapIsReady.value && _locationReady.value) {
-           /* _state.value =
-                MapsScreenState.Success(
-                    selectedPoint = _selectedPoint,
-                    currentLocation = _currentLocation,
-                    userActivity = currentUserActivity,
-                    searchQuery = _query,
-                    radius = _radius,
-                    locationName = _locationName,
-                )*/
+            /* _state.value =
+                 MapsScreenState.Success(
+                     selectedPoint = _selectedPoint,
+                     currentLocation = _currentLocation,
+                     userActivity = currentUserActivity,
+                     searchQuery = _query,
+                     radius = _radius,
+                     locationName = _locationName,
+                 )*/
         }
     }
 
@@ -243,16 +254,16 @@ class MapScreenViewModel(
     fun updateSelectedPoint(point: GeoPoint) {
         if (_state.value is MapsScreenState.Success) {
             _selectedPoint.value = point
-                /*_state.value =
-                    (_state.value as MapsScreenState.Success).copy(
-                        selectedPoint = _selectedPoint,
-                    )
-            } else {
-                _selectedPoint.value = point
-                _state.value = MapsScreenState.Success(
+            /*_state.value =
+                (_state.value as MapsScreenState.Success).copy(
                     selectedPoint = _selectedPoint,
-                    currentLocation = _currentLocation,
-                )*/
+                )
+        } else {
+            _selectedPoint.value = point
+            _state.value = MapsScreenState.Success(
+                selectedPoint = _selectedPoint,
+                currentLocation = _currentLocation,
+            )*/
         }
     }
 
@@ -344,7 +355,7 @@ class MapScreenViewModel(
                     userInfo.lastActivity
                         .collectLatest {
                             if (it == null) {
-                                _activityState.value = "Unknown"
+                                _activityState.value = null
                             } else {
                                 _activityState.value = UserActivityTransitionManager.Companion.getActivityType(it)
                             }
@@ -360,6 +371,7 @@ class MapScreenViewModel(
         allOf = [
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACTIVITY_RECOGNITION,
         ],
     )
     fun keepGivenCurrentLocation(): Job? {
@@ -367,19 +379,62 @@ class MapScreenViewModel(
         _state.value = MapsScreenState.Loading
         return viewModelScope.launch {
             try {
-                // first get the current location
-                _currentLocation.value = getCurrentLocation()
-                _state.value =
-                    MapsScreenState.Success(
-                        selectedPoint = _selectedPoint,
-                        currentLocation = _currentLocation,
-                        searchQuery = _query,
-                        userActivity = activityState,
-                        radius = _radius,
-                        locationName = _locationName,
-                    )
-                _locationReady.value = true
-                tryToSetReadyState()
+                /* // first get the current location
+                 _currentLocation.value = getCurrentLocation()
+                 _state.value =
+                     MapsScreenState.Success(
+                         selectedPoint = _selectedPoint,
+                         currentLocation = _currentLocation,
+                         searchQuery = _query,
+                         userActivity = activityState,
+                         radius = _radius,
+                         locationName = _locationName,
+                     )
+                 _locationReady.value = true
+                 tryToSetReadyState()
+                 var locationRequest =
+                     LocationRequest.Builder(
+                         Priority.PRIORITY_HIGH_ACCURACY,
+                         3.seconds.inWholeMilliseconds,
+                     )
+                         .setWaitForAccurateLocation(true)
+                         .build()
+                 // watch for user movements
+                 _activityState.collect {
+                     // if user moves then watch for updates
+                     when (it) {
+                         "ON_FOOT", "WALKING" -> {
+                             if (locationCallback == null && _gettingUpdates.value == false) {
+                                 startLocationUpdates(
+                                     locationRequest = locationRequest,
+                                 )
+                             }
+                         }
+                         "RUNNING" -> {
+                             locationRequest =
+                                 LocationRequest.Builder(
+                                     Priority.PRIORITY_HIGH_ACCURACY, 2.seconds.inWholeMilliseconds,
+                                 )
+                                     .setWaitForAccurateLocation(true)
+                                     .build()
+                             if (locationCallback != null && _gettingUpdates.value == false) {
+                                 // if user is running then update more frequently
+                                 stopLocationUpdates()
+                             }
+                             if (locationCallback == null && _gettingUpdates.value == false) {
+                                 startLocationUpdates(
+                                     locationRequest = locationRequest,
+                                 )
+                             }
+                         }
+                         "STILL" -> {
+                             if (locationCallback != null && _gettingUpdates.value == false) {
+                                 // if user is still then stop updates
+                                 stopLocationUpdates()
+                             }
+                         }
+                     }
+                 }*/
                 var locationRequest =
                     LocationRequest.Builder(
                         Priority.PRIORITY_HIGH_ACCURACY,
@@ -387,41 +442,34 @@ class MapScreenViewModel(
                     )
                         .setWaitForAccurateLocation(true)
                         .build()
-                // watch for user movements
-                _activityState.collect {
-                    // if user moves then watch for updates
-                    when (it) {
-                        "ON_FOOT", "WALKING" -> {
-                            if (locationCallback == null && _gettingUpdates.value == false) {
-                                startLocationUpdates(
-                                    locationRequest = locationRequest,
+                getCurrentLocation().let { location ->
+                    _currentLocation.value = location
+                    _state.value =
+                        MapsScreenState.Success(
+                            selectedPoint = _selectedPoint,
+                            currentLocation = _currentLocation,
+                            searchQuery = _query,
+                            userActivity = activityState,
+                            radius = _radius,
+                            locationName = _locationName,
+                        )
+                }
+                locationManager.startUp()
+                locationManager.centralLocationFlow.collect { location ->
+                    _currentLocation.value = location
+                    // WRONG
+                    if ((_state.value is MapsScreenState.Loading || _state.value is MapsScreenState.Success))
+                        {
+                            _state.value =
+                                MapsScreenState.Success(
+                                    selectedPoint = _selectedPoint,
+                                    currentLocation = _currentLocation,
+                                    searchQuery = _query,
+                                    userActivity = activityState,
+                                    radius = _radius,
+                                    locationName = _locationName,
                                 )
-                            }
                         }
-                        "RUNNING" -> {
-                            locationRequest =
-                                LocationRequest.Builder(
-                                    Priority.PRIORITY_HIGH_ACCURACY, 2.seconds.inWholeMilliseconds,
-                                )
-                                    .setWaitForAccurateLocation(true)
-                                    .build()
-                            if (locationCallback != null && _gettingUpdates.value == false) {
-                                // if user is running then update more frequently
-                                stopLocationUpdates()
-                            }
-                            if (locationCallback == null && _gettingUpdates.value == false) {
-                                startLocationUpdates(
-                                    locationRequest = locationRequest,
-                                )
-                            }
-                        }
-                        "STILL" -> {
-                            if (locationCallback != null && _gettingUpdates.value == false) {
-                                // if user is still then stop updates
-                                stopLocationUpdates()
-                            }
-                        }
-                    }
                 }
             } catch (ex: Throwable) {
                 _state.value = MapsScreenState.Error(ex.message ?: "Unknown error")
@@ -535,6 +583,7 @@ class MapScreenViewModelFactory(
     private val userInfo: UserInfoRepository,
     private val locationClient: FusedLocationProviderClient,
     private val activityRecognitionManager: UserActivityTransitionManager,
+    private val locationManager: LocationManager,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return MapScreenViewModel(
@@ -542,6 +591,7 @@ class MapScreenViewModelFactory(
             userInfo = userInfo,
             locationClient = locationClient,
             activityRecognitionManager = activityRecognitionManager,
+            locationManager = locationManager,
             initialState = MapsScreenState.Uninitialized,
         ) as T
     }

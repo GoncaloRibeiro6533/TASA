@@ -1,4 +1,4 @@
-package com.tasa.mylocations
+package com.tasa.ui.screens.mylocations
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,7 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tasa.domain.Location
-import com.tasa.mylocations.components.LocationCard
+import com.tasa.ui.screens.mylocations.components.LocationCard
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -29,6 +29,7 @@ fun MyLocationsView(
     locations: StateFlow<List<Location>>,
     onEdit: (Location) -> Unit,
     onDelete: (Location) -> Unit,
+    onSetCreateRuleState: (Location) -> Unit,
 ) {
     val locationsList = locations.collectAsState().value
     Column(
@@ -72,6 +73,7 @@ fun MyLocationsView(
                         location = location,
                         onEdit = { onEdit(location) },
                         onDelete = { onDelete(location) },
+                        onSetCreateRuleState = { location -> onSetCreateRuleState(location) },
                     )
                 }
             }
@@ -108,5 +110,5 @@ fun MyLocationsPreview() {
         )
     val locList = listOf(loc1, loc2, loc3)
 
-    MyLocationsView(MutableStateFlow(locList), {}, {})
+    MyLocationsView(MutableStateFlow(locList), {}, {}, {})
 }

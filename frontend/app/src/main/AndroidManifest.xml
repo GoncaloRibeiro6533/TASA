@@ -24,10 +24,6 @@
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
 
-
-
-
-
     <application
         android:name=".TasaApplication"
         android:allowBackup="true"
@@ -46,10 +42,8 @@
             </intent-filter>
         </receiver>
         <receiver android:name=".newlocation.UserActivityReceiver" android:exported="true">
-            <intent-filter>
-                <action android:name="com.google.android.gms.location.ACTIVITY_TRANSITION_RESULT" />
-                <!--<action android:name="com.google.android.gms.location.ACTIVITY_RECOGNITION_RESULT" />-->
-            </intent-filter>
+        </receiver>
+        <receiver android:name=".geofence.GeofenceBroadcastReceiver" android:exported="true">
         </receiver>
         <activity android:name=".start.StartActivity"
             android:exported="true">
@@ -104,7 +98,7 @@
             />
 
         <activity
-            android:name=".mylocations.MyLocationsActivity"
+            android:name=".ui.screens.mylocations.MyLocationsActivity"
             android:exported="true"
             android:label="MyLocationsActivity"
             android:theme="@style/Theme.Tasa"

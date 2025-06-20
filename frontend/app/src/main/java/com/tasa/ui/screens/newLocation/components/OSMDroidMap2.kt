@@ -99,7 +99,7 @@ fun OSMDroidMap2(
             userSelectedMarkerRef.value?.let { marker ->
                 map.overlays.remove(marker)
                 map.overlays.add(marker)
-            } 
+            }
         }
 
         map.invalidate()

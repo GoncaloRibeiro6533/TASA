@@ -19,7 +19,7 @@ interface RuleRepositoryInterface {
 
     suspend fun fetchRuleLocationsById(id: Int): RuleLocation?
 
-    suspend fun fetchRuleLocationsByName(name: String): RuleLocation?
+    suspend fun fetchRuleLocationsByName(name: String): List<RuleLocation>
 
     suspend fun fetchRuleEventsCalendarIdAndEventId(
         calendarId: LocalDateTime,
@@ -82,4 +82,6 @@ interface RuleRepositoryInterface {
         startTime: LocalDateTime,
         endTime: LocalDateTime,
     )
+
+    suspend fun getRuleLocationByGeofenceId(geofenceId: Int): List<RuleLocation>
 }

@@ -1,5 +1,6 @@
 package com.tasa.domain
 
+import android.location.Location
 import com.tasa.storage.entities.LocationEntity
 
 /**
@@ -50,4 +51,12 @@ data class Location(
             longitude = longitude,
             radius = radius,
         )
+
+    fun toLocation(): Location {
+        return Location("").apply {
+            latitude = this@Location.latitude
+            longitude = this@Location.longitude
+            accuracy = this@Location.radius.toFloat()
+        }
+    }
 }

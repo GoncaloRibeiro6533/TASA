@@ -1,4 +1,4 @@
-package com.tasa.mylocations.components
+package com.tasa.ui.screens.mylocations.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,13 +10,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.tasa.R
 import com.tasa.domain.Location
-import com.tasa.mylocations.MyLocationsScreenState
-import com.tasa.mylocations.MyLocationsScreenViewModel
-import com.tasa.mylocations.MyLocationsView
 import com.tasa.ui.components.ErrorAlert
 import com.tasa.ui.components.LoadingView
 import com.tasa.ui.components.NavigationHandlers
 import com.tasa.ui.components.TopBar
+import com.tasa.ui.screens.mylocations.CreateRuleLocationView
+import com.tasa.ui.screens.mylocations.MyLocationsScreenState
+import com.tasa.ui.screens.mylocations.MyLocationsScreenViewModel
+import com.tasa.ui.screens.mylocations.MyLocationsView
+import java.time.LocalDateTime
 
 @Composable
 fun MyLocationsScreen(
@@ -26,6 +28,9 @@ fun MyLocationsScreen(
     onDeleteLocation: (Location) -> Unit,
     onEditLocation: (Location) -> Unit,
     onNavigateBack: () -> Unit,
+    onCreateRuleLocation: (Location, LocalDateTime, LocalDateTime) -> Unit,
+    onSetCreateRuleState: (Location) -> Unit,
+    onSetSuccessState: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -61,6 +66,23 @@ fun MyLocationsScreen(
                                 location ->
                             onDeleteLocation(location)
                         },
+                        onSetCreateRuleState = { location ->
+                            onSetCreateRuleState(location)
+                        },
+                    )
+                }
+
+                is MyLocationsScreenState.CreatingRuleLocation -> {
+                    CreateRuleLocationView(
+                        location = state.location,
+                        onCreate = { location, start, end ->
+                            onCreateRuleLocation(
+                                location,
+                                start,
+                                end,
+                            )
+                        },
+                        onCancel = onSetSuccessState,
                     )
                 }
             }

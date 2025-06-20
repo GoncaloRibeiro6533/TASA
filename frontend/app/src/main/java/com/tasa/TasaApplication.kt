@@ -8,8 +8,10 @@ import androidx.room.Room
 import androidx.work.Constraints
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.google.android.gms.location.LocationServices
 import com.tasa.alarm.AlarmScheduler
 import com.tasa.domain.UserInfoRepository
+import com.tasa.geofence.GeofenceManager
 import com.tasa.infrastructure.UserInfoRepo
 import com.tasa.newlocation.UserActivityTransitionManager
 import com.tasa.repository.TasaRepo
@@ -50,6 +52,18 @@ class TasaApplication : Application(), DependenciesContainer {
 
     override val activityTransitionManager: UserActivityTransitionManager by lazy {
         UserActivityTransitionManager(this)
+    }
+
+    override val geofenceManager: GeofenceManager by lazy {
+        GeofenceManager(this, repo)
+    }
+
+    private val fusedLocationClient by lazy {
+        LocationServices.getFusedLocationProviderClient(this)
+    }
+
+    override val locationManager: LocationManager by lazy {
+        LocationManager(activityTransitionManager, fusedLocationClient, userInfoRepository)
     }
 
     override fun onCreate() {

@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.tasa.alarm.AlarmScheduler
 import com.tasa.domain.Rule
-import com.tasa.domain.RuleEvent
 import com.tasa.domain.toTriggerTime
 import com.tasa.repository.TasaRepo
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,9 +47,10 @@ class EditRuleViewModel(
         if (_state.value !is EditRuleState.Editing) return
         _state.value = EditRuleState.Loading
         viewModelScope.launch {
+            // TODO check if is not this rule time in the collision
             val isCollision = repo.ruleRepo.isCollision(newStartTime, newEndTime)
             if (!isCollision) {
-                if (rule is RuleEvent &&
+                /*if (rule is RuleEvent &&
                     !activityContext
                         .timeIsInEventTime(
                             rule.event.id,
@@ -61,7 +61,7 @@ class EditRuleViewModel(
                 ) {
                     _state.value = EditRuleState.Error("Time is not event time")
                     return@launch
-                }
+                }*/
                 repo.ruleRepo.updateRuleEvent(
                     rule.id,
                     newStartTime,

@@ -8,7 +8,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -31,18 +30,19 @@ fun PermissionScreen(
         }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp)
-            .animateContentSize(),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(32.dp)
+                .animateContentSize(),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Icon(
             imageVector = Icons.Default.Warning,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(48.dp)
+            modifier = Modifier.size(48.dp),
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -50,14 +50,14 @@ fun PermissionScreen(
         Text(
             text = "Permissões Necessárias",
             style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
             text = "Esta funcionalidade precisa das seguintes permissões:",
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -65,7 +65,7 @@ fun PermissionScreen(
         Text(
             text = permissions,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
         )
 
         description?.let {
@@ -73,7 +73,7 @@ fun PermissionScreen(
             Text(
                 text = it,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
 
@@ -87,7 +87,7 @@ fun PermissionScreen(
                     state.launchMultiplePermissionRequest()
                 }
             },
-            modifier = Modifier.fillMaxWidth(0.8f)
+            modifier = Modifier.fillMaxWidth(0.8f),
         ) {
             Text("Conceder Permissões")
         }
@@ -97,7 +97,7 @@ fun PermissionScreen(
             Text(
                 text = errorText,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.error
+                color = MaterialTheme.colorScheme.error,
             )
         }
     }
@@ -109,7 +109,7 @@ fun PermissionScreen(
             onConfirm = {
                 showRationale = false
                 state.launchMultiplePermissionRequest()
-            }
+            },
         )
     }
 }
@@ -126,7 +126,7 @@ fun PermissionRationaleDialog(
             Icon(
                 imageVector = Icons.Default.Warning,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.primary,
             )
         },
         title = {
@@ -134,7 +134,7 @@ fun PermissionRationaleDialog(
         },
         text = {
             Text(
-                "Para continuar, é necessário conceder as seguintes permissões:\n\n$permissions"
+                "Para continuar, é necessário conceder as seguintes permissões:\n\n$permissions",
             )
         },
         confirmButton = {
@@ -146,6 +146,6 @@ fun PermissionRationaleDialog(
             TextButton(onClick = onDismiss) {
                 Text("Cancelar")
             }
-        }
+        },
     )
 }

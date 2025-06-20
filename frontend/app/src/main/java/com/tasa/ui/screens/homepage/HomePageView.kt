@@ -34,8 +34,10 @@ import com.tasa.R
 import com.tasa.domain.Event
 import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
+import com.tasa.domain.RuleLocation
 import com.tasa.ui.screens.homepage.components.SquareButton
-import com.tasa.ui.screens.homepage.components.SwipeableRuleCard
+import com.tasa.ui.screens.homepage.components.SwipeableRuleCardEvent
+import com.tasa.ui.screens.homepage.components.SwipeableRuleCardLocation
 import com.tasa.ui.screens.rule.EditRuleActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -100,15 +102,30 @@ fun HomePageView(
                         modifier = Modifier.fillMaxSize(),
                     ) {
                         items(ruleList) { rule ->
-                            SwipeableRuleCard(
-                                rule = rule as RuleEvent,
-                                onEdit = { editedRule ->
-                                    onEdit(editedRule.toRuleEventParcelable())
-                                },
-                                onDelete = { deletedRule ->
-                                    onDelete(deletedRule)
-                                },
-                            )
+                            if (rule is RuleEvent)
+                                {
+                                    SwipeableRuleCardEvent(
+                                        rule = rule,
+                                        onEdit = { editedRule ->
+                                            onEdit(editedRule.toRuleEventParcelable())
+                                        },
+                                        onDelete = { deletedRule ->
+                                            onDelete(deletedRule)
+                                        },
+                                    )
+                                }
+                            if (rule is RuleLocation)
+                                {
+                                    SwipeableRuleCardLocation(
+                                        rule = rule,
+                                        onEdit = { editedRule ->
+                                            // onEdit(editedRule.toRuleEventParcelable())
+                                        },
+                                        onDelete = { deletedRule ->
+                                            onDelete(deletedRule)
+                                        },
+                                    )
+                                }
                         }
                     }
                 }
@@ -359,19 +376,38 @@ fun HomePageViewHorizontal(
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp),
                 ) {
                     items(ruleList) { rule ->
-                        SwipeableRuleCard(
-                            rule = rule as RuleEvent,
-                            onEdit = { editedRule ->
-                                onEdit(editedRule.toRuleEventParcelable())
-                            },
-                            onDelete = { deletedRule ->
-                                onDelete(deletedRule)
-                            },
-                            modifier =
-                                Modifier
-                                    .width(280.dp)
-                                    .fillMaxHeight(0.9f),
-                        )
+                        if (rule is RuleEvent)
+                            {
+                                SwipeableRuleCardEvent(
+                                    rule = rule,
+                                    onEdit = { editedRule ->
+                                        onEdit(editedRule.toRuleEventParcelable())
+                                    },
+                                    onDelete = { deletedRule ->
+                                        onDelete(deletedRule)
+                                    },
+                                    modifier =
+                                        Modifier
+                                            .width(280.dp)
+                                            .fillMaxHeight(0.9f),
+                                )
+                            }
+                        if (rule is RuleLocation)
+                            {
+                                SwipeableRuleCardLocation(
+                                    rule = rule,
+                                    onEdit = { editedRule ->
+                                        // onEdit(editedRule.toRuleEventParcelable())
+                                    },
+                                    onDelete = { deletedRule ->
+                                        onDelete(deletedRule)
+                                    },
+                                    modifier =
+                                        Modifier
+                                            .width(280.dp)
+                                            .fillMaxHeight(0.9f),
+                                )
+                            }
                     }
                 }
             }

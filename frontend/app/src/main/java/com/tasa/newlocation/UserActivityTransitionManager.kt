@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import com.google.android.gms.location.ActivityRecognition
@@ -12,9 +13,9 @@ import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.DetectedActivity
 import kotlinx.coroutines.tasks.await
 
-class UserActivityTransitionManager(context: Context) {
+class UserActivityTransitionManager(private val context: Context) {
     companion object {
-        fun getActivityType(int: Int): String {
+        fun getActivityType(int: Int?): String {
             return when (int) {
                 0 -> "IN_VEHICLE"
                 1 -> "ON_BICYCLE"
@@ -85,11 +86,15 @@ class UserActivityTransitionManager(context: Context) {
 
     private val activityClient = ActivityRecognition.getClient(context)
 
+    val intent =
+        Intent(context, UserActivityReceiver::class.java).apply {
+            action = "com.tasa.ACTIVITY_RECOGNITION"
+        }
     private val pendingIntent by lazy {
         PendingIntent.getBroadcast(
             context,
-            1991,
-            Intent(context, UserActivityReceiver::class.java),
+            2007,
+            intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE,
         )
     }
@@ -110,10 +115,11 @@ class UserActivityTransitionManager(context: Context) {
     )
     suspend fun registerActivityTransitions() =
         runCatching {
-            activityClient.requestActivityUpdates(
-                500L,
-                pendingIntent,
-            ).await()
+            if (context.checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
+                activityClient.requestActivityUpdates(5000L, pendingIntent).await()
+            } else {
+                throw SecurityException("ACTIVITY_RECOGNITION permission not granted")
+            }
         }.onFailure {
             Log.e("UserActivityTransitionManager", "Failed to register activity transitions", it)
         }

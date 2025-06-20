@@ -35,4 +35,6 @@
     <string name="end">Fim</string>
     <string name="rule">Regra</string>
     <string name="open_calendar">Abrir o calendário</string>
+    <string name="arrow_back_description">retroceder</string>
+    <string name="create_rule_location">Cria uma regra de localização</string>
 </resources>

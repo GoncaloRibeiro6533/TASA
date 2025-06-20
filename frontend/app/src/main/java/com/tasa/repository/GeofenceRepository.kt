@@ -17,6 +17,10 @@ class GeofenceRepository(
     }
 
     override suspend fun createGeofence(location: Location): Long {
+        val existingGeofence = local.geofenceDao().getGeofenceByName(location.name)
+        if (existingGeofence != null) {
+            return existingGeofence.id.toLong()
+        }
         return local.geofenceDao().insertGeofence(
             GeofenceEntity(
                 id = 0,

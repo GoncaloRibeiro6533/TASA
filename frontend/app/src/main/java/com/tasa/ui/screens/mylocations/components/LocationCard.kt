@@ -1,4 +1,4 @@
-package com.tasa.mylocations.components
+package com.tasa.ui.screens.mylocations.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,6 +30,7 @@ fun LocationCard(
     location: Location,
     onEdit: (Location) -> Unit,
     onDelete: (Location) -> Unit,
+    onSetCreateRuleState: (Location) -> Unit,
 ) {
     val name = location.name
     val adress = "${location.latitude}, ${location.longitude}"
@@ -88,6 +89,19 @@ fun LocationCard(
                         tint = greenColor,
                     )
                 }
+
+                Spacer(Modifier.width(8.dp))
+
+                IconButton(
+                    onClick = { onSetCreateRuleState(location) },
+                    modifier = Modifier.size(24.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Create Rule",
+                        tint = greenColor,
+                    )
+                }
             }
         }
     }
@@ -107,11 +121,11 @@ fun LocationCardPreview() {
 
     TasaTheme {
         Column {
-            LocationCard(loc1, {}, {})
+            LocationCard(loc1, {}, {}, {})
             Spacer(Modifier.padding(5.dp))
-            LocationCard(loc1, {}, {})
+            LocationCard(loc1, {}, {}, {})
             Spacer(Modifier.padding(5.dp))
-            LocationCard(loc1, {}, {})
+            LocationCard(loc1, {}, {}, {})
         }
     }
 }

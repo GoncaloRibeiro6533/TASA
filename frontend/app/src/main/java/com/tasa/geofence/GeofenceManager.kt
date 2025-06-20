@@ -11,15 +11,16 @@ import androidx.annotation.RequiresPermission
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
+import com.tasa.repository.TasaRepo
 import kotlinx.coroutines.tasks.await
 
 const val TAG = "GeofenceManager"
 const val CUSTOM_INTENT_GEOFENCE = "GEOFENCE-TRANSITION-INTENT-ACTION"
 const val CUSTOM_REQUEST_CODE_GEOFENCE = 1001
 
-class GeofenceManager(context: Context) {
+class GeofenceManager(context: Context, repo: TasaRepo) {
     private val client = LocationServices.getGeofencingClient(context)
-    val geofenceList = mutableMapOf<String, Geofence>()
+    private val geofenceList = mutableMapOf<String, Geofence>()
     // TODO implement repository
 
     private val geofencingPendingIntent by lazy {
@@ -35,7 +36,7 @@ class GeofenceManager(context: Context) {
         )
     }
 
-    fun addGeofence(
+    private fun addGeofence(
         key: String,
         location: Location,
         radiusInMeters: Float = 100.0f,
@@ -49,9 +50,19 @@ class GeofenceManager(context: Context) {
     }
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    fun registerGeofence() {
-        client.addGeofences(createGeofencingRequest(), geofencingPendingIntent)
-            .addOnSuccessListener {
+    fun registerGeofence(
+        key: String,
+        location: Location,
+        radiusInMeters: Float = 100.0f,
+        expirationTimeInMillis: Long = Geofence.NEVER_EXPIRE,
+    ) {
+        client.addGeofences(
+            createGeofencingRequest(
+                createGeofence(key, location, radiusInMeters, expirationTimeInMillis),
+            ),
+            geofencingPendingIntent,
+        )
+            .addOnSuccessListener { result ->
                 Log.d(TAG, "registerGeofence: SUCCESS")
             }.addOnFailureListener { exception ->
                 Log.d(TAG, "registerGeofence: Failure\n$exception")
@@ -64,10 +75,10 @@ class GeofenceManager(context: Context) {
             geofenceList.clear()
         }
 
-    private fun createGeofencingRequest(): GeofencingRequest {
+    private fun createGeofencingRequest(geofence: Geofence): GeofencingRequest {
         return GeofencingRequest.Builder().apply {
             setInitialTrigger(Geofence.GEOFENCE_TRANSITION_ENTER)
-            addGeofences(geofenceList.values.toList())
+            addGeofence(geofence)
         }.build()
     }
 

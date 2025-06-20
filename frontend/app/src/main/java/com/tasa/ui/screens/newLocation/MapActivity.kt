@@ -1,6 +1,9 @@
 package com.tasa.ui.screens.newLocation
 
 import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,13 +11,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.location.LocationServices
 import com.tasa.DependenciesContainer
-import com.tasa.mylocations.MyLocationsActivity
 import com.tasa.newlocation.UserActivityTransitionManager
 import com.tasa.ui.components.PermissionBox
 import com.tasa.ui.screens.homepage.HomePageActivity
+import com.tasa.ui.screens.mylocations.MyLocationsActivity
 import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
 import kotlinx.coroutines.launch
@@ -30,7 +34,11 @@ class MapActivity : ComponentActivity() {
     private val userInfoRepository by lazy { (application as DependenciesContainer).userInfoRepository }
 
     private val activityRecognitionManager by lazy {
-        UserActivityTransitionManager(this)
+        UserActivityTransitionManager(application)
+    }
+
+    private val locationManager by lazy {
+        (application as DependenciesContainer).locationManager
     }
 
     private val viewModel by viewModels<MapScreenViewModel>(
@@ -40,6 +48,7 @@ class MapActivity : ComponentActivity() {
                 userInfo = userInfoRepository,
                 locationClient = fusedLocationClient,
                 activityRecognitionManager = activityRecognitionManager,
+                locationManager = locationManager,
             )
         },
     )
@@ -147,6 +156,18 @@ class MapActivity : ComponentActivity() {
                             },
                         )
                     },
+                )
+            }
+        }
+    }
+
+    private fun requestActivityRecognitionPermission(context: Context) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            if (context.checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                    context as Activity,
+                    arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
+                    1001, // Código de solicitação
                 )
             }
         }

@@ -44,6 +44,15 @@ interface RuleLocationDao {
     @Query("SELECT * FROM rule_location WHERE locationName = :locationName")
     fun getRuleLocationsByLocationName(locationName: String): Flow<List<RuleLocationEntity>>
 
+    @Query(
+        """
+        SELECT rule_location.*, location.* FROM rule_location
+                INNER JOIN location ON rule_location.locationName = location.name 
+                WHERE rule_location.locationName = :locationName
+    """,
+    )
+    fun getRuleLocationsByLocationNameResult(locationName: String): List<RuleLocationWithLocation>
+
     @Query("DELETE FROM rule_location WHERE id = :id")
     suspend fun deleteRuleLocationById(id: Int)
 
@@ -59,6 +68,10 @@ interface RuleLocationDao {
         endTime: LocalDateTime,
     ): Boolean
 
-    @Query("SELECT * FROM rule_location WHERE geofenceId = :id")
-    suspend fun getRuleLocationByGeofenceId(id: Int): List<RuleLocationEntity>
+    @Query(
+        "SELECT rule_location.*, location.* FROM rule_location " +
+            "INNER JOIN location ON rule_location.locationName = location.name " +
+            "WHERE rule_location.geofenceId = :id",
+    )
+    suspend fun getRuleLocationByGeofenceId(id: Int): List<RuleLocationWithLocation>
 }

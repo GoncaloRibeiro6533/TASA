@@ -348,11 +348,11 @@ fun MapViewSearching(
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 8.dp),
             )
-            Text(
+            /*Text(
                 text = "Atividade: $activity",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 8.dp),
-            )
+            )*/
         }
     }
     Column(
@@ -455,11 +455,11 @@ fun CreatingLocationView(
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 8.dp),
             )
-            Text(
+            /*Text(
                 text = "Atividade: $activity",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 8.dp),
-            )
+            )*/
         }
     }
     // 📝 Dialog with form

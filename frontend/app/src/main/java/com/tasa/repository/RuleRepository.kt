@@ -23,7 +23,8 @@ class RuleRepository(
             local.ruleLocationDao().getAllRuleLocations().map { it.map { it.toRuleLocation() } }
         return ruleEvent.combine(ruleLocation) { events, locations ->
             events + locations
-        }.map { it.filter { !it.endTime.isBefore(LocalDateTime.now()) } }.map { it.sortedBy { it.startTime } }
+        }.map { it.filter { !it.endTime.isBefore(LocalDateTime.now()) } }
+            .map { it.sortedBy { it.startTime } }
     }
 
     override suspend fun fetchRuleEvents(): Flow<List<RuleEvent>> {
@@ -42,8 +43,10 @@ class RuleRepository(
         TODO("Not yet implemented")
     }
 
-    override suspend fun fetchRuleLocationsByName(name: String): RuleLocation? {
-        TODO("Not yet implemented")
+    override suspend fun fetchRuleLocationsByName(name: String): List<RuleLocation> {
+        return local.ruleLocationDao().getRuleLocationsByLocationNameResult(name).map {
+            it.toRuleLocation()
+        }
     }
 
     override suspend fun fetchRuleEventsCalendarIdAndEventId(
@@ -141,16 +144,20 @@ class RuleRepository(
     }
 
     override suspend fun cleanOldRules(now: LocalDateTime) {
-        local.ruleEventDao().getAllRuleEvents().map { it.map { it.toRuleEvent() } }.collect { rules ->
-            val rulesToDelete = rules.filter { it.endTime.isBefore(now) }
-            val events = rulesToDelete.map { it.event }
-            val eventsNotToDelete = rules.filter { it !in rulesToDelete && it.event in events }.map { it.event }
-            events.filter { it !in eventsNotToDelete }.forEach {
-                local.eventDao().deleteEvent(it.id, it.calendarId)
+        local.ruleEventDao().getAllRuleEvents().map { it.map { it.toRuleEvent() } }
+            .collect { rules ->
+                val rulesToDelete = rules.filter { it.endTime.isBefore(now) }
+                val events = rulesToDelete.map { it.event }
+                val eventsNotToDelete =
+                    rules.filter { it !in rulesToDelete && it.event in events }.map { it.event }
+                events.filter { it !in eventsNotToDelete }.forEach {
+                    local.eventDao().deleteEvent(it.id, it.calendarId)
+                }
+                rulesToDelete.forEach {
+                    local.ruleEventDao().deleteRuleEventByStartAndEndTime(it.startTime, it.endTime)
+                }
+                return@collect
             }
-            rulesToDelete.forEach { local.ruleEventDao().deleteRuleEventByStartAndEndTime(it.startTime, it.endTime) }
-            return@collect
-        }
     }
 
     override suspend fun clean() {
@@ -189,5 +196,11 @@ class RuleRepository(
             startTime,
             endTime,
         )
+    }
+
+    override suspend fun getRuleLocationByGeofenceId(geofenceId: Int): List<RuleLocation> {
+        return local.ruleLocationDao().getRuleLocationByGeofenceId(geofenceId).map {
+            it.toRuleLocation()
+        }
     }
 }
