@@ -20,9 +20,4 @@ class TasaServiceHttp(private val client: HttpClient) : TasaService {
     override val ruleService: RuleService by lazy {
         TODO()
     }
-
-  /*  val locationService = LocationServiceHttp(client)
-    val eventService = EventServiceHttp(client)
-    val alarmService = AlarmServiceHttp(client)
-    val ruleService = RuleServiceHttp(client)*/
 }

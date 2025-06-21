@@ -6,7 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.tasa.R
-import com.tasa.authentication.components.IconButton
+import com.tasa.ui.screens.authentication.components.IconButton
 
 private const val BUTTON_PADDING = 8
 

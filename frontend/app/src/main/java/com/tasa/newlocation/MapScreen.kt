@@ -48,12 +48,12 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import com.tasa.authentication.register.SuccessView
 import com.tasa.domain.Location
 import com.tasa.ui.components.ErrorAlert
 import com.tasa.ui.components.LoadingView
 import com.tasa.ui.components.NavigationHandlers
 import com.tasa.ui.components.TopBar
+import com.tasa.ui.screens.authentication.register.SuccessView
 import com.tasa.ui.theme.TasaTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

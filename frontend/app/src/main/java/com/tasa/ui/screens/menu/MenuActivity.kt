@@ -12,9 +12,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.work.WorkManager
 import com.tasa.DependenciesContainer
 import com.tasa.R
-import com.tasa.start.StartActivity
 import com.tasa.ui.screens.homepage.HomePageActivity
 import com.tasa.ui.screens.profile.ProfileActivity
+import com.tasa.ui.screens.start.StartActivity
 import com.tasa.utils.navigateTo
 
 class MenuActivity : ComponentActivity() {

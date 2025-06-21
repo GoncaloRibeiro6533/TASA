@@ -12,26 +12,28 @@ import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import com.tasa.repository.TasaRepo
+import com.tasa.storage.entities.GeofenceEntity
 import kotlinx.coroutines.tasks.await
 
 const val TAG = "GeofenceManager"
-const val CUSTOM_INTENT_GEOFENCE = "GEOFENCE-TRANSITION-INTENT-ACTION"
 const val CUSTOM_REQUEST_CODE_GEOFENCE = 1001
 
-class GeofenceManager(context: Context, repo: TasaRepo) {
+class GeofenceManager(context: Context, private val repo: TasaRepo) {
     private val client = LocationServices.getGeofencingClient(context)
     private val geofenceList = mutableMapOf<String, Geofence>()
     // TODO implement repository
 
     private val geofencingPendingIntent by lazy {
+        val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
+
         PendingIntent.getBroadcast(
             context,
             CUSTOM_REQUEST_CODE_GEOFENCE,
-            Intent(CUSTOM_INTENT_GEOFENCE),
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-                PendingIntent.FLAG_CANCEL_CURRENT
+            intent,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
             } else {
-                PendingIntent.FLAG_MUTABLE
+                PendingIntent.FLAG_UPDATE_CURRENT
             },
         )
     }
@@ -77,7 +79,7 @@ class GeofenceManager(context: Context, repo: TasaRepo) {
 
     private fun createGeofencingRequest(geofence: Geofence): GeofencingRequest {
         return GeofencingRequest.Builder().apply {
-            setInitialTrigger(Geofence.GEOFENCE_TRANSITION_ENTER)
+            setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
             addGeofence(geofence)
         }.build()
     }
@@ -93,6 +95,35 @@ class GeofenceManager(context: Context, repo: TasaRepo) {
             .setCircularRegion(location.latitude, location.longitude, radiusInMeters)
             .setExpirationDuration(expirationTimeInMillis)
             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
+            .setLoiteringDelay(10_000)
             .build()
+    }
+
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    suspend fun onBootRegisterGeofences() {
+        repo.geofenceRepo.getAllGeofences().forEach {
+                geofenceEntity ->
+            registerGeofence(
+                key = geofenceEntity.name,
+                location =
+                    Location("").apply {
+                        latitude = geofenceEntity.latitude
+                        longitude = geofenceEntity.longitude
+                    },
+                radiusInMeters = geofenceEntity.radius.toFloat(),
+            )
+        }
+    }
+
+    private fun GeofenceEntity.toGeofence(): Geofence {
+        return createGeofence(
+            key = this.name,
+            location =
+                Location("").apply {
+                    latitude = this.latitude
+                    longitude = this.longitude
+                },
+            radiusInMeters = this.radius.toFloat(),
+        )
     }
 }

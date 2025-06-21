@@ -1,10 +1,12 @@
 package com.tasa.ui.screens.mylocations
 
 import android.Manifest
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.tasa.R
 import com.tasa.domain.Location
 import com.tasa.geofence.GeofenceManager
 import com.tasa.repository.TasaRepo
@@ -20,7 +22,7 @@ sealed interface MyLocationsScreenState {
 
     data object Loading : MyLocationsScreenState
 
-    data class Error(val message: String) : MyLocationsScreenState
+    data class Error(val resourceID: Int) : MyLocationsScreenState
 
     data class Success(val locations: StateFlow<List<Location>>) : MyLocationsScreenState
 
@@ -53,7 +55,7 @@ class MyLocationsScreenViewModel(
                     _state.value = MyLocationsScreenState.Success(_locations)
                 }
             } catch (e: Exception) {
-                _state.value = MyLocationsScreenState.Error(e.message ?: "Unknown error")
+                _state.value = MyLocationsScreenState.Error(R.string.unexpected_error)
             }
         }
     }
@@ -77,7 +79,14 @@ class MyLocationsScreenViewModel(
         viewModelScope.launch {
             try {
                 val collides = repo.ruleRepo.isCollision(startTime, endTime)
+                val otherRulesForLocation = repo.ruleRepo.getRulesForLocation(location)
+                if (otherRulesForLocation.isNotEmpty()) {
+                    _state.value =
+                        MyLocationsScreenState.Error(R.string.rule_already_exists_for_this_location)
+                    return@launch
+                }
                 if (!collides) {
+                    geofenceManager.deregisterGeofence()
                     geofenceManager.registerGeofence(
                         location.name,
                         location.toLocation(),
@@ -96,10 +105,11 @@ class MyLocationsScreenViewModel(
                     _state.value = MyLocationsScreenState.Success(_locations)
                 } else {
                     _state.value =
-                        MyLocationsScreenState.Error("Regra já existe para esse tempo")
+                        MyLocationsScreenState.Error(R.string.rule_already_exists_for_this_time)
                 }
             } catch (e: Exception) {
-                _state.value = MyLocationsScreenState.Error(e.message ?: "Unknown error")
+                Log.d("MyLocationsScreenViewModel", "createRulesForLocation: ", e)
+                _state.value = MyLocationsScreenState.Error(R.string.unexpected_error)
             }
         }
     }

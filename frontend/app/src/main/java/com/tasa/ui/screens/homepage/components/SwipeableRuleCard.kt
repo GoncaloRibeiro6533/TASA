@@ -132,7 +132,7 @@ fun SwipeableRuleCardLocation(
             confirmStateChange = { dismissValue ->
                 when (dismissValue) {
                     DismissValue.DismissedToStart -> {
-                        // onDelete(rule)
+                        onDelete(rule)
                         true
                     }
 

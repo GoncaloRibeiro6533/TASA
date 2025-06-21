@@ -15,7 +15,7 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.location.LocationServices
 import com.tasa.DependenciesContainer
-import com.tasa.newlocation.UserActivityTransitionManager
+import com.tasa.activity.UserActivityTransitionManager
 import com.tasa.ui.components.PermissionBox
 import com.tasa.ui.screens.homepage.HomePageActivity
 import com.tasa.ui.screens.mylocations.MyLocationsActivity
@@ -38,7 +38,7 @@ class MapActivity : ComponentActivity() {
     }
 
     private val locationManager by lazy {
-        (application as DependenciesContainer).locationManager
+        (application as DependenciesContainer).locationUpdatesRepository
     }
 
     private val viewModel by viewModels<MapScreenViewModel>(
@@ -48,7 +48,7 @@ class MapActivity : ComponentActivity() {
                 userInfo = userInfoRepository,
                 locationClient = fusedLocationClient,
                 activityRecognitionManager = activityRecognitionManager,
-                locationManager = locationManager,
+                locationUpdatesRepository = locationManager,
             )
         },
     )
@@ -162,12 +162,12 @@ class MapActivity : ComponentActivity() {
     }
 
     private fun requestActivityRecognitionPermission(context: Context) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (context.checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(
                     context as Activity,
                     arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
-                    1001, // Código de solicitação
+                    1001,
                 )
             }
         }

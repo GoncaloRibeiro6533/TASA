@@ -3,7 +3,7 @@ package com.tasa.newevent.components
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.tasa.authentication.components.MAX_EVENT_NAME_LENGTH
+import com.tasa.ui.screens.authentication.components.MAX_EVENT_NAME_LENGTH
 
 @Composable
 fun EventNameTextField(

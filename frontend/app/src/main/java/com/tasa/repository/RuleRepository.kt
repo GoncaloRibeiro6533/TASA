@@ -203,4 +203,9 @@ class RuleRepository(
             it.toRuleLocation()
         }
     }
+
+    override suspend fun getRulesForLocation(location: Location): List<RuleLocation> {
+        val ruleLocations = local.ruleLocationDao().getRuleLocationsByLocationNameResult(location.name)
+        return ruleLocations.map { it.toRuleLocation() }
+    }
 }

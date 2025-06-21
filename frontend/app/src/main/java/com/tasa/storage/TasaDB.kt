@@ -29,7 +29,7 @@ import com.tasa.storage.entities.UserEntity
         AlarmEntity::class,
         GeofenceEntity::class,
     ],
-    version = 6,
+    version = 7,
 )
 @TypeConverters(Converters::class)
 abstract class TasaDB : RoomDatabase() {

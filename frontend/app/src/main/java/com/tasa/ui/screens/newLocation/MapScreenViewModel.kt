@@ -1,3 +1,5 @@
+@file:Suppress("ktlint")
+
 package com.tasa.ui.screens.newLocation
 
 import android.Manifest
@@ -15,11 +17,11 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
-import com.tasa.LocationManager
+import com.tasa.activity.UserActivityTransitionManager
 import com.tasa.domain.Location
 import com.tasa.domain.UserInfoRepository
 import com.tasa.domain.toLocalDateTime
-import com.tasa.newlocation.UserActivityTransitionManager
+import com.tasa.location.LocationUpdatesRepository
 import com.tasa.repository.TasaRepo
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -91,7 +93,7 @@ class MapScreenViewModel(
     private val userInfo: UserInfoRepository,
     private val locationClient: FusedLocationProviderClient,
     private val activityRecognitionManager: UserActivityTransitionManager,
-    private val locationManager: LocationManager,
+    private val locationUpdatesRepository: LocationUpdatesRepository,
     initialState: MapsScreenState = MapsScreenState.Uninitialized,
 ) : ViewModel() {
     private val _activityState = MutableStateFlow<String?>(null)
@@ -106,8 +108,9 @@ class MapScreenViewModel(
     private val _gettingUpdates = MutableStateFlow<Boolean>(false)
     val gettingUpdates: StateFlow<Boolean> = _gettingUpdates.asStateFlow()
 
-    private val _mapIsReady = MutableStateFlow(false)
-    private val _locationReady = MutableStateFlow(false)
+    private val _mapIsReady = MutableStateFlow<Boolean>(false)
+
+    private val _locationReady = MutableStateFlow<Boolean>(false)
 
     private val _currentLocation =
         MutableStateFlow<TasaLocation>(
@@ -318,16 +321,6 @@ class MapScreenViewModel(
                         ),
                     )
                     onSuccess()
-                    // Reset state to success
-                    /*_state.value =
-                        MapsScreenState.Success(
-                            selectedPoint = _selectedPoint,
-                            currentLocation = _currentLocation,
-                            searchQuery = _query,
-                            userActivity = currentUserActivity,
-                            radius = _radius,
-                            locationName = _locationName,
-                        )*/
                 } catch (ex: Throwable) {
                     _state.value = MapsScreenState.Error(ex.message ?: "Unknown error")
                 }
@@ -454,22 +447,21 @@ class MapScreenViewModel(
                             locationName = _locationName,
                         )
                 }
-                locationManager.startUp()
-                locationManager.centralLocationFlow.collect { location ->
+                locationUpdatesRepository.startUp()
+                locationUpdatesRepository.centralLocationFlow.collect { location ->
                     _currentLocation.value = location
                     // WRONG
-                    if ((_state.value is MapsScreenState.Loading || _state.value is MapsScreenState.Success))
-                        {
-                            _state.value =
-                                MapsScreenState.Success(
-                                    selectedPoint = _selectedPoint,
-                                    currentLocation = _currentLocation,
-                                    searchQuery = _query,
-                                    userActivity = activityState,
-                                    radius = _radius,
-                                    locationName = _locationName,
-                                )
-                        }
+                    if ((_state.value is MapsScreenState.Loading || _state.value is MapsScreenState.Success)) {
+                        _state.value =
+                            MapsScreenState.Success(
+                                selectedPoint = _selectedPoint,
+                                currentLocation = _currentLocation,
+                                searchQuery = _query,
+                                userActivity = activityState,
+                                radius = _radius,
+                                locationName = _locationName,
+                            )
+                    }
                 }
             } catch (ex: Throwable) {
                 _state.value = MapsScreenState.Error(ex.message ?: "Unknown error")
@@ -583,7 +575,7 @@ class MapScreenViewModelFactory(
     private val userInfo: UserInfoRepository,
     private val locationClient: FusedLocationProviderClient,
     private val activityRecognitionManager: UserActivityTransitionManager,
-    private val locationManager: LocationManager,
+    private val locationUpdatesRepository: LocationUpdatesRepository,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return MapScreenViewModel(
@@ -591,7 +583,7 @@ class MapScreenViewModelFactory(
             userInfo = userInfo,
             locationClient = locationClient,
             activityRecognitionManager = activityRecognitionManager,
-            locationManager = locationManager,
+            locationUpdatesRepository = locationUpdatesRepository,
             initialState = MapsScreenState.Uninitialized,
         ) as T
     }

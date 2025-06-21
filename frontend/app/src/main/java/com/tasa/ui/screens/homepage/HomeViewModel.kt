@@ -102,7 +102,7 @@ class HomePageScreenViewModel(
                             alarmScheduler.cancelAlarm(alarmEnd.id, context)
                         }
                     }
-                    is RuleLocation -> TODO()
+                    is RuleLocation -> repo.ruleRepo.deleteRuleLocationByName(rule.location.name)
                 }
             } catch (e: Exception) {
                 _state.value = HomeScreenState.Error(ApiError("Error cancelling rule"))

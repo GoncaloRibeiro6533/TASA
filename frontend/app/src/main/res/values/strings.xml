@@ -16,9 +16,9 @@
     <string name="new_current_end_time">New end time</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
-    <string name="logging_out">Exiting...</string>
+    <string name="logging_out">Exiting…</string>
     <string name="error">Error</string>
-    <string name="ok">ok</string>
+    <string name="ok">OK</string>
     <string name="profile">Profile</string>
     <string name="logout">Logout</string>
     <string name="my_rules">My rules</string>
@@ -37,4 +37,7 @@
     <string name="open_calendar">Open calendar</string>
     <string name="arrow_back_description">arrow_back</string>
     <string name="create_rule_location">Create a rule for location</string>
+    <string name="rule_already_exists_for_this_location">Rule already exists for this location.</string>
+    <string name="rule_already_exists_for_this_time">Rule already exists for the given time.</string>
+    <string name="unexpected_error">An unexpected error occurred</string>
 </resources>

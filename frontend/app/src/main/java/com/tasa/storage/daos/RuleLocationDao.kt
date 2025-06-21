@@ -51,7 +51,7 @@ interface RuleLocationDao {
                 WHERE rule_location.locationName = :locationName
     """,
     )
-    fun getRuleLocationsByLocationNameResult(locationName: String): List<RuleLocationWithLocation>
+    suspend fun getRuleLocationsByLocationNameResult(locationName: String): List<RuleLocationWithLocation>
 
     @Query("DELETE FROM rule_location WHERE id = :id")
     suspend fun deleteRuleLocationById(id: Int)

@@ -4,7 +4,7 @@
     <string name="back">Voltar</string>
     <string name="top_bar_navigate_to_about">Acerca</string>
     <string name="top_bar_open_menu">Menu</string>
-    <string name="loading_label">A carregar...</string>
+    <string name="loading_label">A carregar…</string>
     <string name="error_icon_description">Erro</string>
     <string name="email_label">Email</string>
     <string name="edit_icon_description">editar</string>
@@ -16,7 +16,7 @@
     <string name="new_current_end_time">Novo fim</string>
     <string name="cancel">Cancelar</string>
     <string name="save">Guardar</string>
-    <string name="logging_out">A sair...</string>
+    <string name="logging_out">A sair…</string>
     <string name="error">Erro</string>
     <string name="ok">ok</string>
     <string name="profile">Perfil</string>
@@ -37,4 +37,7 @@
     <string name="open_calendar">Abrir o calendário</string>
     <string name="arrow_back_description">retroceder</string>
     <string name="create_rule_location">Cria uma regra de localização</string>
+    <string name="rule_already_exists_for_this_location">Regra já existe para a localização selecionada.</string>
+    <string name="rule_already_exists_for_this_time">Regra já existe para o tempo selecionado.</string>
+    <string name="unexpected_error">Ocorreu um erro inesperado.</string>
 </resources>

@@ -4,10 +4,10 @@ import android.Manifest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.annotation.RequiresPermission
 import com.tasa.DependenciesContainer
 import com.tasa.ui.screens.homepage.HomePageActivity
-import com.tasa.ui.screens.mylocations.components.MyLocationsScreen
 import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
 import kotlin.jvm.java
@@ -21,13 +21,14 @@ class MyLocationsActivity : ComponentActivity() {
         (applicationContext as DependenciesContainer).geofenceManager
     }
 
-    private val viewModel by lazy {
-        MyLocationsScreenViewModel(
-            repo = repo,
-            geofenceManager = geofenceManager,
-            initialState = MyLocationsScreenState.Uninitialized,
-        )
-    }
+    private val viewModel by viewModels<MyLocationsScreenViewModel>(
+        factoryProducer = {
+            MyLocationsScreenViewModelFactory(
+                repo = repo,
+                geofenceManager = geofenceManager,
+            )
+        },
+    )
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -102,30 +102,28 @@ fun HomePageView(
                         modifier = Modifier.fillMaxSize(),
                     ) {
                         items(ruleList) { rule ->
-                            if (rule is RuleEvent)
-                                {
-                                    SwipeableRuleCardEvent(
-                                        rule = rule,
-                                        onEdit = { editedRule ->
-                                            onEdit(editedRule.toRuleEventParcelable())
-                                        },
-                                        onDelete = { deletedRule ->
-                                            onDelete(deletedRule)
-                                        },
-                                    )
-                                }
-                            if (rule is RuleLocation)
-                                {
-                                    SwipeableRuleCardLocation(
-                                        rule = rule,
-                                        onEdit = { editedRule ->
-                                            // onEdit(editedRule.toRuleEventParcelable())
-                                        },
-                                        onDelete = { deletedRule ->
-                                            onDelete(deletedRule)
-                                        },
-                                    )
-                                }
+                            if (rule is RuleEvent) {
+                                SwipeableRuleCardEvent(
+                                    rule = rule,
+                                    onEdit = { editedRule ->
+                                        onEdit(editedRule.toRuleEventParcelable())
+                                    },
+                                    onDelete = { deletedRule ->
+                                        onDelete(deletedRule)
+                                    },
+                                )
+                            }
+                            if (rule is RuleLocation) {
+                                SwipeableRuleCardLocation(
+                                    rule = rule,
+                                    onEdit = { editedRule ->
+                                        // onEdit(editedRule.toRuleEventParcelable())
+                                    },
+                                    onDelete = { deletedRule ->
+                                        onDelete(deletedRule)
+                                    },
+                                )
+                            }
                         }
                     }
                 }
@@ -376,38 +374,36 @@ fun HomePageViewHorizontal(
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp),
                 ) {
                     items(ruleList) { rule ->
-                        if (rule is RuleEvent)
-                            {
-                                SwipeableRuleCardEvent(
-                                    rule = rule,
-                                    onEdit = { editedRule ->
-                                        onEdit(editedRule.toRuleEventParcelable())
-                                    },
-                                    onDelete = { deletedRule ->
-                                        onDelete(deletedRule)
-                                    },
-                                    modifier =
-                                        Modifier
-                                            .width(280.dp)
-                                            .fillMaxHeight(0.9f),
-                                )
-                            }
-                        if (rule is RuleLocation)
-                            {
-                                SwipeableRuleCardLocation(
-                                    rule = rule,
-                                    onEdit = { editedRule ->
-                                        // onEdit(editedRule.toRuleEventParcelable())
-                                    },
-                                    onDelete = { deletedRule ->
-                                        onDelete(deletedRule)
-                                    },
-                                    modifier =
-                                        Modifier
-                                            .width(280.dp)
-                                            .fillMaxHeight(0.9f),
-                                )
-                            }
+                        if (rule is RuleEvent) {
+                            SwipeableRuleCardEvent(
+                                rule = rule,
+                                onEdit = { editedRule ->
+                                    onEdit(editedRule.toRuleEventParcelable())
+                                },
+                                onDelete = { deletedRule ->
+                                    onDelete(deletedRule)
+                                },
+                                modifier =
+                                    Modifier
+                                        .width(280.dp)
+                                        .fillMaxHeight(0.9f),
+                            )
+                        }
+                        if (rule is RuleLocation) {
+                            SwipeableRuleCardLocation(
+                                rule = rule,
+                                onEdit = { editedRule ->
+                                    // onEdit(editedRule.toRuleEventParcelable())
+                                },
+                                onDelete = { deletedRule ->
+                                    onDelete(deletedRule)
+                                },
+                                modifier =
+                                    Modifier
+                                        .width(280.dp)
+                                        .fillMaxHeight(0.9f),
+                            )
+                        }
                     }
                 }
             }

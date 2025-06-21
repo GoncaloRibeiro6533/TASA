@@ -84,4 +84,6 @@ interface RuleRepositoryInterface {
     )
 
     suspend fun getRuleLocationByGeofenceId(geofenceId: Int): List<RuleLocation>
+
+    suspend fun getRulesForLocation(location: Location): List<RuleLocation>
 }
