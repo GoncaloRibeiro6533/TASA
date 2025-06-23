@@ -18,6 +18,8 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -29,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -41,8 +44,6 @@ fun MapViewRoot(
     state: StateFlow<MapsScreenState>,
     // Actions
     onLocationSelected: (GeoPoint) -> Unit,
-    onRequestLocationUpdates: () -> Unit,
-    onMapReady: () -> Unit,
     onEditSearchBox: (TextFieldValue) -> Unit,
     onCreateLocation: () -> Unit,
     onSearch: () -> Unit,
@@ -63,7 +64,7 @@ fun MapViewRoot(
             else ->
                 TasaLocation(
                     point = GeoPoint(38.7169, -9.1399),
-                    accuracy = null,
+                    accuracy = 10f,
                     updates = 0,
                 )
         }
@@ -93,7 +94,6 @@ fun MapViewRoot(
                 onLocationSelected(point)
             },
             accuracy = locationV.accuracy,
-            onMapReady = onMapReady,
             radius = radius,
             selectedPoint = selectedPoint,
         )
@@ -104,8 +104,6 @@ fun MapViewRoot(
                     onLocationSelected = onLocationSelected,
                     selectedPoint = currentState.selectedPoint,
                     activity = currentState.userActivity,
-                    onRequestLocationUpdates = onRequestLocationUpdates,
-                    onMapReady = onMapReady,
                     onEditSearchBox = onEditSearchBox,
                     onCreateLocation = onCreateLocation,
                     onSearchQuery = onSearch,
@@ -119,8 +117,6 @@ fun MapViewRoot(
                     onLocationSelected = onLocationSelected,
                     selectedPoint = currentState.selectedPoint,
                     activity = currentState.userActivity,
-                    onRequestLocationUpdates = onRequestLocationUpdates,
-                    onMapReady = onMapReady,
                     query = currentState.searchQuery,
                     onSearch = onSearch,
                     onWriteSearchBox = onWriteSearchBox,
@@ -160,8 +156,6 @@ fun MapView(
     onLocationSelected: (GeoPoint) -> Unit,
     selectedPoint: StateFlow<GeoPoint?>,
     activity: StateFlow<String?>,
-    onRequestLocationUpdates: () -> Unit,
-    onMapReady: () -> Unit,
     onEditSearchBox: (TextFieldValue) -> Unit,
     onCreateLocation: () -> Unit,
     onSearchQuery: () -> Unit,
@@ -249,7 +243,7 @@ fun MapView(
         horizontalAlignment = Alignment.End,
     ) {
         FloatingActionButton(
-            onClick = { onRequestLocationUpdates() },
+            onClick = { },
             modifier =
                 Modifier
                     .padding(16.dp),
@@ -281,8 +275,6 @@ fun MapViewSearching(
     onLocationSelected: (GeoPoint) -> Unit,
     selectedPoint: StateFlow<GeoPoint?>,
     activity: StateFlow<String?>,
-    onRequestLocationUpdates: () -> Unit,
-    onMapReady: () -> Unit,
     query: StateFlow<TextFieldValue>,
     onSearch: () -> Unit,
     onWriteSearchBox: (TextFieldValue) -> Unit,
@@ -364,7 +356,7 @@ fun MapViewSearching(
         horizontalAlignment = Alignment.End,
     ) {
         FloatingActionButton(
-            onClick = { onRequestLocationUpdates() },
+            onClick = { },
             modifier =
                 Modifier
                     .padding(16.dp),
@@ -410,7 +402,6 @@ fun CreatingLocationView(
     val location = location.collectAsState().value
     val locationName = locationName.collectAsState().value
     val radius = radius.collectAsState().value
-    val activity = activity.collectAsState().value
     Surface(
         modifier =
             Modifier
@@ -487,17 +478,27 @@ fun CreatingLocationView(
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                OutlinedTextField(
-                    value = radius.toString(),
+                Slider(
+                    value = radius.toFloat(),
                     onValueChange = {
                         onChangeRadius(it.toDouble())
                     },
-                    label = { Text("Radius (meters)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
+                    valueRange = 10f..50f,
+                    // Number of discrete steps
+                    colors =
+                        SliderDefaults.colors(
+                            thumbColor = Color(0xFFFF9800),
+                            activeTrackColor = MaterialTheme.colorScheme.primary,
+                            inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                            activeTickColor = MaterialTheme.colorScheme.onPrimary,
+                            inactiveTickColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                        ),
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-
+                Text(
+                    text = "Radius: ${radius.toInt()} meters",
+                    style = MaterialTheme.typography.bodySmall,
+                )
                 Row(
                     horizontalArrangement = Arrangement.End,
                     modifier = Modifier.fillMaxWidth(),

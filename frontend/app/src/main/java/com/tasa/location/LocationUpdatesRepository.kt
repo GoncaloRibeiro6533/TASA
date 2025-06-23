@@ -114,16 +114,10 @@ class LocationUpdatesRepository(
         }
 
     private val _centralLocationFlow =
-        MutableStateFlow<TasaLocation>(
-            TasaLocation(
-                point = GeoPoint(0.0, 0.0),
-                accuracy = 0f,
-                altitude = null,
-                time = null,
-                updates = 0,
-            ),
+        MutableStateFlow<TasaLocation?>(
+            null,
         )
-    val centralLocationFlow: StateFlow<TasaLocation> = _centralLocationFlow.asStateFlow()
+    val centralLocationFlow: StateFlow<TasaLocation?> = _centralLocationFlow.asStateFlow()
 
     private fun saveLocation(location: Location) {
         if (lastLocations.size == MAX_LOCATION_HISTORY) {
@@ -242,6 +236,19 @@ class LocationUpdatesRepository(
         }
     }
 
+    fun stop() {
+        if (active) {
+            active = false
+            locationJob?.cancel()
+            stopLocationUpdates()
+            lastLocations.clear()
+            discardedLocations.clear()
+            possibleArea = null
+            userActivity = null
+            isStable = false
+        }
+    }
+
     @RequiresPermission(
         allOf =
             [
@@ -328,8 +335,6 @@ class LocationUpdatesRepository(
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private suspend fun something() {
-        // Log.d("LocationManagerMine", "Collecting location")
-        var i = 0
         locationFlow.collect { location ->
             if (location != null) {
                 if (validateLocation(location)) {
@@ -343,7 +348,6 @@ class LocationUpdatesRepository(
                         }
                     }
                 }
-                i++
             }
         }
     }

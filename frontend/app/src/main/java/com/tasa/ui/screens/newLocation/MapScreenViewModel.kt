@@ -5,16 +5,12 @@ package com.tasa.ui.screens.newLocation
 import android.Manifest
 import android.content.Context
 import android.location.Geocoder
-import android.os.Looper
 import androidx.annotation.RequiresPermission
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.tasa.activity.UserActivityTransitionManager
@@ -33,25 +29,15 @@ import kotlinx.coroutines.tasks.await
 import org.osmdroid.util.GeoPoint
 import java.time.LocalDateTime
 import java.util.Locale
-import kotlin.time.Duration.Companion.seconds
 
 data class TasaLocation(
     val point: GeoPoint,
-    val accuracy: Float? = null,
+    val accuracy: Float,
     val altitude: Double? = null,
     val time: LocalDateTime? = null,
     val updates: Int? = null,
 )
 
-fun android.location.Location.toTasaLocation(): TasaLocation {
-    return TasaLocation(
-        point = GeoPoint(latitude, longitude),
-        accuracy = accuracy,
-        altitude = altitude,
-        time = null,
-        updates = 0,
-    )
-}
 
 sealed interface MapsScreenState {
     data object Uninitialized : MapsScreenState
@@ -105,18 +91,12 @@ class MapScreenViewModel(
     private val _selectedPoint = MutableStateFlow<GeoPoint?>(null)
     val selectedPoint: StateFlow<GeoPoint?> = _selectedPoint.asStateFlow()
 
-    private val _gettingUpdates = MutableStateFlow<Boolean>(false)
-    val gettingUpdates: StateFlow<Boolean> = _gettingUpdates.asStateFlow()
-
-    private val _mapIsReady = MutableStateFlow<Boolean>(false)
-
-    private val _locationReady = MutableStateFlow<Boolean>(false)
 
     private val _currentLocation =
         MutableStateFlow<TasaLocation>(
             TasaLocation(
                 point = GeoPoint(0.0, 0.0),
-                accuracy = null,
+                accuracy = 10f,
                 altitude = null,
                 time = null,
                 updates = 0,
@@ -135,9 +115,8 @@ class MapScreenViewModel(
         )
     val query: StateFlow<TextFieldValue> = _query.asStateFlow()
 
-    val currentLocation: StateFlow<TasaLocation?> = _currentLocation.asStateFlow()
+    val currentLocation: StateFlow<TasaLocation> = _currentLocation.asStateFlow()
 
-    var locationCallback: LocationCallback? = null
 
     fun getLocationFromSearchQuery(context: Context) {
         if ((_state.value is MapsScreenState.SuccessSearching || _state.value is MapsScreenState.Success) &&
@@ -170,29 +149,9 @@ class MapScreenViewModel(
         }
     }
 
-    fun notifyMapReady() {
-        _mapIsReady.value = true
-        tryToSetReadyState()
-    }
 
-    private fun tryToSetReadyState() {
-        if (_mapIsReady.value && _locationReady.value) {
-            /* _state.value =
-                 MapsScreenState.Success(
-                     selectedPoint = _selectedPoint,
-                     currentLocation = _currentLocation,
-                     userActivity = currentUserActivity,
-                     searchQuery = _query,
-                     radius = _radius,
-                     locationName = _locationName,
-                 )*/
-        }
-    }
 
-    fun setEditingLocationState(
-        radius: Double = 30.0,
-        locationName: String = "",
-    ) {
+    fun setEditingLocationState() {
         if (state.value is MapsScreenState.Success || state.value is MapsScreenState.SuccessSearching) {
             _state.value =
                 MapsScreenState.EditingLocation(
@@ -257,23 +216,11 @@ class MapScreenViewModel(
     fun updateSelectedPoint(point: GeoPoint) {
         if (_state.value is MapsScreenState.Success) {
             _selectedPoint.value = point
-            /*_state.value =
-                (_state.value as MapsScreenState.Success).copy(
-                    selectedPoint = _selectedPoint,
-                )
-        } else {
-            _selectedPoint.value = point
-            _state.value = MapsScreenState.Success(
-                selectedPoint = _selectedPoint,
-                currentLocation = _currentLocation,
-            )*/
         }
     }
 
     fun updateSearchQuery(query: TextFieldValue) {
-        val b = _state.value
         // if (_state.value is MapsScreenState.SuccessSearching) {
-        val a = query
         _query.value = query
         _state.value =
             MapsScreenState.SuccessSearching(
@@ -328,6 +275,7 @@ class MapScreenViewModel(
         }
     }
 
+    // TODO remove
     @RequiresPermission(
         allOf = [
             Manifest.permission.ACTIVITY_RECOGNITION,
@@ -372,71 +320,9 @@ class MapScreenViewModel(
         _state.value = MapsScreenState.Loading
         return viewModelScope.launch {
             try {
-                /* // first get the current location
-                 _currentLocation.value = getCurrentLocation()
-                 _state.value =
-                     MapsScreenState.Success(
-                         selectedPoint = _selectedPoint,
-                         currentLocation = _currentLocation,
-                         searchQuery = _query,
-                         userActivity = activityState,
-                         radius = _radius,
-                         locationName = _locationName,
-                     )
-                 _locationReady.value = true
-                 tryToSetReadyState()
-                 var locationRequest =
-                     LocationRequest.Builder(
-                         Priority.PRIORITY_HIGH_ACCURACY,
-                         3.seconds.inWholeMilliseconds,
-                     )
-                         .setWaitForAccurateLocation(true)
-                         .build()
-                 // watch for user movements
-                 _activityState.collect {
-                     // if user moves then watch for updates
-                     when (it) {
-                         "ON_FOOT", "WALKING" -> {
-                             if (locationCallback == null && _gettingUpdates.value == false) {
-                                 startLocationUpdates(
-                                     locationRequest = locationRequest,
-                                 )
-                             }
-                         }
-                         "RUNNING" -> {
-                             locationRequest =
-                                 LocationRequest.Builder(
-                                     Priority.PRIORITY_HIGH_ACCURACY, 2.seconds.inWholeMilliseconds,
-                                 )
-                                     .setWaitForAccurateLocation(true)
-                                     .build()
-                             if (locationCallback != null && _gettingUpdates.value == false) {
-                                 // if user is running then update more frequently
-                                 stopLocationUpdates()
-                             }
-                             if (locationCallback == null && _gettingUpdates.value == false) {
-                                 startLocationUpdates(
-                                     locationRequest = locationRequest,
-                                 )
-                             }
-                         }
-                         "STILL" -> {
-                             if (locationCallback != null && _gettingUpdates.value == false) {
-                                 // if user is still then stop updates
-                                 stopLocationUpdates()
-                             }
-                         }
-                     }
-                 }*/
-                var locationRequest =
-                    LocationRequest.Builder(
-                        Priority.PRIORITY_HIGH_ACCURACY,
-                        3.seconds.inWholeMilliseconds,
-                    )
-                        .setWaitForAccurateLocation(true)
-                        .build()
                 getCurrentLocation().let { location ->
                     _currentLocation.value = location
+                    _selectedPoint.value = location.point
                     _state.value =
                         MapsScreenState.Success(
                             selectedPoint = _selectedPoint,
@@ -449,104 +335,19 @@ class MapScreenViewModel(
                 }
                 locationUpdatesRepository.startUp()
                 locationUpdatesRepository.centralLocationFlow.collect { location ->
-                    _currentLocation.value = location
-                    // WRONG
-                    if ((_state.value is MapsScreenState.Loading || _state.value is MapsScreenState.Success)) {
-                        _state.value =
-                            MapsScreenState.Success(
-                                selectedPoint = _selectedPoint,
-                                currentLocation = _currentLocation,
-                                searchQuery = _query,
-                                userActivity = activityState,
-                                radius = _radius,
-                                locationName = _locationName,
-                            )
+                    if (location != null){
+                        _currentLocation.value = location
+                        }
                     }
-                }
             } catch (ex: Throwable) {
                 _state.value = MapsScreenState.Error(ex.message ?: "Unknown error")
             }
         }
     }
 
-    @RequiresPermission(
-        anyOf = [
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-        ],
-    )
-    fun restartLocationUpdates() {
-        if (_state.value == MapsScreenState.Loading) return
-        _gettingUpdates.value = true
-        viewModelScope.launch {
-            try {
-                var locationRequest =
-                    LocationRequest.Builder(
-                        Priority.PRIORITY_HIGH_ACCURACY,
-                        3.seconds.inWholeMilliseconds,
-                    )
-                        .setWaitForAccurateLocation(true)
-                        .build()
-                startLocationUpdates(locationRequest)
-            } catch (ex: Throwable) {
-                _state.value = MapsScreenState.Error(ex.message ?: "Unknown error")
-            }
-        }
-    }
 
-    @RequiresPermission(
-        allOf = [
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-        ],
-    )
     fun stopLocationUpdates() {
-        _gettingUpdates.value = false
-        locationCallback?.let {
-            locationClient.removeLocationUpdates(it)
-            locationCallback = null
-        }
-        _state.value =
-            MapsScreenState.Success(
-                selectedPoint = _selectedPoint,
-                currentLocation = _currentLocation,
-                locationName = _locationName,
-                searchQuery = _query,
-                userActivity = activityState,
-                radius = _radius,
-            )
-    }
-
-    @RequiresPermission(
-        anyOf = [
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-        ],
-    )
-    private fun startLocationUpdates(locationRequest: LocationRequest) {
-        locationCallback =
-            object : LocationCallback() {
-                override fun onLocationResult(result: LocationResult) {
-                    for (location in result.locations) {
-                        // check for accuracy TODO
-                        _currentLocation.value =
-                            TasaLocation(
-                                point = GeoPoint(location.latitude, location.longitude),
-                                accuracy = location.accuracy,
-                                altitude = location.altitude,
-                                time = location.time.toLocalDateTime(),
-                                updates = _currentLocation.value.updates?.plus(1) ?: 1,
-                            )
-                    }
-                }
-            }
-        locationCallback?.let {
-            locationClient.requestLocationUpdates(
-                locationRequest,
-                it,
-                Looper.getMainLooper(),
-            )
-        }
+        locationUpdatesRepository.stop()
     }
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])

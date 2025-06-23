@@ -101,6 +101,7 @@ class MapActivity : ComponentActivity() {
                         MapScreen(
                             viewModel = viewModel,
                             onNavigationBack = {
+                                viewModel.stopLocationUpdates()
                                 navigateTo(this@MapActivity, HomePageActivity::class.java)
                                 finish()
                             },
@@ -111,12 +112,6 @@ class MapActivity : ComponentActivity() {
                                 viewModel.getLocationFromSearchQuery(
                                     this@MapActivity,
                                 )
-                            },
-                            onRequestLocationUpdates = {
-                                viewModel.restartLocationUpdates()
-                            },
-                            onMapReady = {
-                                viewModel.notifyMapReady()
                             },
                             onUpdateRadius = { it ->
                                 viewModel.updateRadius(it)
@@ -133,8 +128,7 @@ class MapActivity : ComponentActivity() {
                             onDismissEditingLocation = {
                                 viewModel.onDismissEditingLocation()
                             },
-                            onConfirmEditingLocation = {
-                                    name, radius, latitude, longitude ->
+                            onConfirmEditingLocation = { name, radius, latitude, longitude ->
                                 viewModel.onCreateLocation(
                                     locationName = name,
                                     radius = radius,
@@ -173,11 +167,8 @@ class MapActivity : ComponentActivity() {
         }
     }
 
-    @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
-    override fun onDestroy() {
-        super.onDestroy()
-        viewModel.locationCallback?.let {
-            fusedLocationClient.removeLocationUpdates(it)
-        }
+    override fun onResume() {
+        super.onResume()
+        viewModel.stopLocationUpdates()
     }
 }

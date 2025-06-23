@@ -68,7 +68,7 @@ class TasaApplication : Application(), DependenciesContainer {
     }
 
     override val service: TasaService by lazy {
-        if (DEVELOPER_MODE) {
+        if (devMode) {
             fakeService
         } else {
             httpService
@@ -105,8 +105,10 @@ class TasaApplication : Application(), DependenciesContainer {
     override fun onCreate() {
         super.onCreate()
         val props = PropertiesConfigLoader.load(this@TasaApplication)
-        API_URL = props.getProperty("api_url")
-        DEVELOPER_MODE = props.getProperty("developer_mode", "false").toBoolean()
+        apiUrl = props.getProperty("api_url")
+        devMode = props.getProperty("developer_mode", "false").toBoolean()
+        val port = props.getProperty("port").toIntOrNull()
+        if (port != null) apiUrl = "$apiUrl:$port"
         val constraints =
             Constraints.Builder()
                 .setRequiredNetworkType(androidx.work.NetworkType.UNMETERED)
@@ -124,10 +126,7 @@ class TasaApplication : Application(), DependenciesContainer {
     }
 
     companion object {
-        @SuppressLint("PropertyName")
-        lateinit var API_URL: String
-
-        @SuppressLint("PropertyName")
-        var DEVELOPER_MODE: Boolean = false
+        lateinit var apiUrl: String
+        var devMode: Boolean = false
     }
 }

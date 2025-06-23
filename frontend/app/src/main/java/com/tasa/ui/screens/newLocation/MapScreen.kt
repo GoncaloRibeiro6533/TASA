@@ -22,8 +22,6 @@ fun MapScreen(
     onNavigationBack: () -> Unit,
     onLocationSelected: (GeoPoint) -> Unit,
     onSearchQuery: () -> Unit,
-    onRequestLocationUpdates: () -> Unit,
-    onMapReady: () -> Unit,
     onUpdateRadius: (Double) -> Unit,
     onUpdateLocationName: (String) -> Unit,
     onEditSearchBox: (TextFieldValue) -> Unit,
@@ -57,8 +55,6 @@ fun MapScreen(
                     MapViewRoot(
                         state = viewModel.state,
                         onLocationSelected = onLocationSelected,
-                        onRequestLocationUpdates = onRequestLocationUpdates,
-                        onMapReady = onMapReady,
                         onEditSearchBox = { it -> onEditSearchBox(it) },
                         onCreateLocation = onCreateLocationButton,
                         onSearch = onSearchQuery,

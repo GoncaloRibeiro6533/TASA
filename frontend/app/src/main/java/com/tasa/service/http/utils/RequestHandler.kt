@@ -19,7 +19,7 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpHeaders
 
 const val MEDIA_TYPE = "application/json"
-val BASE_URL = "${TasaApplication.Companion.API_URL}/api"
+val BASE_URL = "${TasaApplication.Companion.apiUrl}/api"
 const val ERROR_MEDIA_TYPE = "application/problem+json"
 const val SCHEME = "bearer"
 const val NAME_WWW_AUTHENTICATE_HEADER = "WWW-Authenticate"

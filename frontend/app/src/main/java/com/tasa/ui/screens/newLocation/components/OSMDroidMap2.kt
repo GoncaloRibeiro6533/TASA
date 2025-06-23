@@ -1,8 +1,6 @@
 package com.tasa.ui.screens.newLocation.components
 
 import android.content.Context
-import android.util.Log
-import android.view.ViewTreeObserver
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -31,14 +29,12 @@ fun OSMDroidMap2(
     currentLocation: GeoPoint? = null,
     onCoordinateSelected: ((GeoPoint) -> Unit)? = null,
     accuracy: Float? = null,
-    onMapReady: (() -> Unit),
     selectedPoint: GeoPoint? = null,
     radius: Double? = 100.0,
 ) {
     val mapViewRef = remember { mutableStateOf<MapView?>(null) }
     val userSelectedMarkerRef = remember { mutableStateOf<Marker?>(null) }
     val currentLocationMarkerRef = remember { mutableStateOf<Marker?>(null) }
-    val centeredOnce = remember { mutableStateOf(false) }
     val accuracyCircleRef = remember { mutableStateOf<Polygon?>(null) }
     val circleOverlayRef = remember { mutableStateOf<Polygon?>(null) }
 
@@ -87,7 +83,7 @@ fun OSMDroidMap2(
         map.invalidate()
     }
 
-    // 🔁 Atualiza círculo laranja (selected radius)
+    // Atualiza círculo laranja (selected radius)
     LaunchedEffect(selectedPointRef.value, radius) {
         val map = mapViewRef.value ?: return@LaunchedEffect
         circleOverlayRef.value?.let { map.overlays.remove(it) }
@@ -116,15 +112,6 @@ fun OSMDroidMap2(
                 zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
                 controller.setZoom(15.0)
                 controller.setCenter(center)
-
-                val userSelectedMarker =
-                    Marker(this).apply {
-                        position = center
-                        title = "Selected Point"
-                        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                    }
-                overlays.add(userSelectedMarker)
-                userSelectedMarkerRef.value = userSelectedMarker
                 val accuracyCircle =
                     Polygon().apply {
                         fillPaint.color = 0x22007AFF // azul claro transparente
@@ -145,6 +132,14 @@ fun OSMDroidMap2(
                     }
                 overlays.add(currentLocationMarker)
                 currentLocationMarkerRef.value = currentLocationMarker
+                val userSelectedMarker =
+                    Marker(this).apply {
+                        position = center
+                        title = "Selected Point"
+                        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                    }
+                overlays.add(userSelectedMarker)
+                userSelectedMarkerRef.value = userSelectedMarker
 
                 val mapEventsReceiver =
                     object : MapEventsReceiver {
@@ -163,22 +158,6 @@ fun OSMDroidMap2(
 
                 overlays.add(MapEventsOverlay(mapEventsReceiver))
                 mapViewRef.value = this
-
-                this.addOnFirstLayoutListener { _, _, _, _, _ ->
-                    Log.d("MapView", "Map ready (onFirstLayout)")
-                    onMapReady()
-                }
-
-                post { onMapReady() }
-
-                viewTreeObserver.addOnGlobalLayoutListener(
-                    object : ViewTreeObserver.OnGlobalLayoutListener {
-                        override fun onGlobalLayout() {
-                            viewTreeObserver.removeOnGlobalLayoutListener(this)
-                            onMapReady()
-                        }
-                    },
-                )
             }
         },
     )

@@ -1,7 +1,5 @@
 package com.tasa.ui.screens.authentication.components
-import android.annotation.SuppressLint
 
-@SuppressLint("file:FileName")
 const val MIN_USERNAME_LENGTH = 3
 const val MAX_USERNAME_LENGTH = 40
 
