@@ -1,9 +1,6 @@
 package com.tasa.ui.screens.newLocation
 
 import android.Manifest
-import android.app.Activity
-import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,7 +8,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.location.LocationServices
 import com.tasa.DependenciesContainer
@@ -72,96 +68,56 @@ class MapActivity : ComponentActivity() {
         }
         setContent {
             TasaTheme {
-                val activityPermission =
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        Manifest.permission.ACTIVITY_RECOGNITION
-                    } else {
-                        "com.google.android.gms.permission.ACTIVITY_RECOGNITION"
-                    }
-
-                val permissions =
-                    listOf(
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        activityPermission,
-                    )
-
-                PermissionBox(
-                    permissions = permissions,
-                    requiredPermissions = permissions,
-                    onGranted = @RequiresPermission(
-                        allOf =
-                            [
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION,
-                                Manifest.permission.ACTIVITY_RECOGNITION,
-                                "com.google.android.gms.permission.ACTIVITY_RECOGNITION",
-                            ],
-                    ) {
-                        MapScreen(
-                            viewModel = viewModel,
-                            onNavigationBack = {
-                                viewModel.stopLocationUpdates()
-                                navigateTo(this@MapActivity, HomePageActivity::class.java)
-                                finish()
-                            },
-                            onLocationSelected = { geoPoint ->
-                                viewModel.updateSelectedPoint(geoPoint)
-                            },
-                            onSearchQuery = {
-                                viewModel.getLocationFromSearchQuery(
-                                    this@MapActivity,
-                                )
-                            },
-                            onUpdateRadius = { it ->
-                                viewModel.updateRadius(it)
-                            },
-                            onUpdateLocationName = { name ->
-                                viewModel.editLocationName(name)
-                            },
-                            onEditSearchBox = { query ->
-                                viewModel.updateSearchQuery(query)
-                            },
-                            onCreateLocationButton = {
-                                viewModel.setEditingLocationState()
-                            },
-                            onDismissEditingLocation = {
-                                viewModel.onDismissEditingLocation()
-                            },
-                            onConfirmEditingLocation = { name, radius, latitude, longitude ->
-                                viewModel.onCreateLocation(
-                                    locationName = name,
-                                    radius = radius,
-                                    latitude = latitude,
-                                    longitude = longitude,
-                                ) {
-                                    navigateTo(
-                                        this@MapActivity,
-                                        MyLocationsActivity::class.java,
-                                    )
-                                    finish()
-                                }
-                            },
-                            onTouchSearchBox = {
-                                viewModel.setSearchingState()
-                            },
-                            onUnTouchSearchBox = {
-                                viewModel.setUnSearchingState()
-                            },
+                MapScreen(
+                    viewModel = viewModel,
+                    onNavigationBack = {
+                        viewModel.stopLocationUpdates()
+                        navigateTo(this@MapActivity, HomePageActivity::class.java)
+                        finish()
+                    },
+                    onLocationSelected = { geoPoint ->
+                        viewModel.updateSelectedPoint(geoPoint)
+                    },
+                    onSearchQuery = {
+                        viewModel.getLocationFromSearchQuery(
+                            this@MapActivity,
                         )
                     },
-                )
-            }
-        }
-    }
-
-    private fun requestActivityRecognitionPermission(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (context.checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(
-                    context as Activity,
-                    arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
-                    1001,
+                    onUpdateRadius = { it ->
+                        viewModel.updateRadius(it)
+                    },
+                    onUpdateLocationName = { name ->
+                        viewModel.editLocationName(name)
+                    },
+                    onEditSearchBox = { query ->
+                        viewModel.updateSearchQuery(query)
+                    },
+                    onCreateLocationButton = {
+                        viewModel.setEditingLocationState()
+                    },
+                    onDismissEditingLocation = {
+                        viewModel.onDismissEditingLocation()
+                    },
+                    onConfirmEditingLocation = { name, radius, latitude, longitude ->
+                        viewModel.onCreateLocation(
+                            locationName = name,
+                            radius = radius,
+                            latitude = latitude,
+                            longitude = longitude,
+                        ) {
+                            navigateTo(
+                                this@MapActivity,
+                                MyLocationsActivity::class.java,
+                            )
+                            finish()
+                        }
+                    },
+                    onTouchSearchBox = {
+                        viewModel.setSearchingState()
+                    },
+                    onUnTouchSearchBox = {
+                        viewModel.setUnSearchingState()
+                    },
                 )
             }
         }

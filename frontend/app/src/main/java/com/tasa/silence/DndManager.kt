@@ -24,7 +24,7 @@ object DndManager {
                 NotificationManager.INTERRUPTION_FILTER_NONE,
                 NotificationManager.INTERRUPTION_FILTER_PRIORITY,
                 NotificationManager.INTERRUPTION_FILTER_ALARMS,
-                    -> true
+                -> true
 
                 else -> false
             }

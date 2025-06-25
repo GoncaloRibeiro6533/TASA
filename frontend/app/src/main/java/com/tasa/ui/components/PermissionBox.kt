@@ -1,15 +1,22 @@
 package com.tasa.ui.components
 
+import android.Manifest
+import android.app.NotificationManager
+import android.content.Context
+import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.provider.Settings
+import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,9 +25,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
+import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -44,6 +54,9 @@ fun PermissionBox(
     val context = LocalContext.current
     var errorText by remember {
         mutableStateOf("")
+    }
+    var showBackgroundLocationDialog by remember {
+        mutableStateOf(true)
     }
 
     val permissionState =
@@ -83,25 +96,94 @@ fun PermissionBox(
                 description,
                 errorText,
             )
+        }
+        // FOR DND
+        val notificationManager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        if (!notificationManager.isNotificationPolicyAccessGranted) {
+            val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            context.startActivity(intent)
+        }
+        // FOR BACKGROUND LOCATION
 
-            FloatingActionButton(
-                modifier =
-                    Modifier.Companion
-                        .align(Alignment.Companion.BottomEnd)
-                        .padding(16.dp),
-                onClick = {
-                    val intent =
-                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                            data = "package:${context.packageName}".toUri()
-                        }
-                    context.startActivity(intent)
-                },
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                )
+                != PackageManager.PERMISSION_GRANTED
             ) {
-                Icon(imageVector = Icons.Rounded.Settings, contentDescription = "App settings")
+                BackgroundLocationPermissionDialog(
+                    show = showBackgroundLocationDialog,
+                    onDismiss = {
+                        showBackgroundLocationDialog = false
+                        if (ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                            ) != PackageManager.PERMISSION_GRANTED
+                        ) {
+                            ActivityCompat.requestPermissions(
+                                context as androidx.activity.ComponentActivity,
+                                arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                                0,
+                            )
+                        }
+                    },
+                    context = context,
+                )
             }
         }
     }
+}
+
+@Composable
+fun BackgroundLocationPermissionDialog(
+    show: Boolean,
+    onDismiss: () -> Unit,
+    context: Context,
+) {
+    if (!show) return
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = {
+                val intent =
+                    Intent(ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.parse("package:${context.packageName}")
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                context.startActivity(intent)
+                onDismiss()
+            }) {
+                Text("Permitir Sempre")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        },
+        title = {
+            Text(
+                text = "Permissão em Segundo Plano",
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
+            )
+        },
+        text = {
+            Text(
+                text =
+                    "Para que a TASA funcione corretamente enquanto está em segundo plano, " +
+                        "é necessário conceder permissão de localização \"Sempre permitir\" nas definições.",
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
+            )
+        },
+        tonalElevation = 6.dp,
+        shape = MaterialTheme.shapes.large,
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
 }
 
 /**
