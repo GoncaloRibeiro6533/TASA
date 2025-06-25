@@ -11,10 +11,6 @@ import com.google.android.gms.location.GeofenceStatusCodes
 import com.google.android.gms.location.GeofencingEvent
 import com.tasa.DependenciesContainer
 import com.tasa.silence.DndManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(
@@ -47,8 +43,8 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                 val requestId =
                     geofencingEvent.triggeringGeofences?.firstOrNull()?.requestId
                         ?: return
-                    DndManager.mute(notificationManager)
-                }
+                DndManager.mute(notificationManager)
+            }
             Geofence.GEOFENCE_TRANSITION_EXIT -> {
                 DndManager.unmute(notificationManager)
             }

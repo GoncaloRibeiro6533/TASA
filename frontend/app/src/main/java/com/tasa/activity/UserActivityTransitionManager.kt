@@ -21,7 +21,7 @@ enum class Activity(val type: Int) {
     UNKNOWN(4),
     TILTING(5),
     WALKING(7),
-    RUNNING(8);
+    RUNNING(8),
 }
 
 class UserActivityTransitionManager(private val context: Context) {

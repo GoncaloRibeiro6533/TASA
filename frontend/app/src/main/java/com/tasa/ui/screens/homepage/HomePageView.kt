@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,7 +30,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -70,18 +68,20 @@ fun HomePageView(
         )
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 20.dp),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         // Header
         Text(
             text = stringResource(R.string.my_rules),
-            style = MaterialTheme.typography.headlineLarge.copy(
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 24.sp,
-            ),
+            style =
+                MaterialTheme.typography.headlineLarge.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 24.sp,
+                ),
             color = MaterialTheme.colorScheme.primary,
         )
 
@@ -94,14 +94,16 @@ fun HomePageView(
 
         // Rules List
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
             contentAlignment = Alignment.Center,
         ) {
-            val filteredRules = ruleList.filter {
-                (it is RuleEvent && list) || (it is RuleLocation && !list)
-            }
+            val filteredRules =
+                ruleList.filter {
+                    (it is RuleEvent && list) || (it is RuleLocation && !list)
+                }
 
             if (filteredRules.isEmpty()) {
                 Text(
@@ -116,17 +118,18 @@ fun HomePageView(
                 ) {
                     items(filteredRules) { rule ->
                         when (rule) {
-                            is RuleEvent -> SwipeableRuleCardEvent(
-                                rule = rule,
-                                onEdit = { onEdit(it.toRuleEventParcelable()) },
-                                onDelete = onDelete,
-                            )
-
-                            is RuleLocation -> SwipeableRuleCardLocation(
-                                rule = rule,
-                                onEdit = {}, // Optional
-                                onDelete = onDelete,
-                            )
+                            is RuleEvent ->
+                                SwipeableRuleCardEvent(
+                                    rule = rule,
+                                    onEdit = { onEdit(it.toRuleEventParcelable()) },
+                                    onDelete = onDelete,
+                                )
+                            is RuleLocation ->
+                                SwipeableRuleCardLocation(
+                                    rule = rule,
+                                    onEdit = {},
+                                    onDelete = onDelete,
+                                )
                         }
                     }
                 }
@@ -176,7 +179,6 @@ fun HomePageView(
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable
@@ -261,7 +263,7 @@ fun HomePageViewPreview() {
                         longitude = -9.1399,
                         radius = 100.0,
                     ),
-            )
+            ),
         )
     HomePageView(
         rules = MutableStateFlow(dummyRules),
@@ -421,40 +423,46 @@ fun HomePageViewHorizontal(
 fun RulesToggleBar(
     isTimedSelected: Boolean,
     onSelectTimed: () -> Unit,
-    onSelectLocation: () -> Unit
+    onSelectLocation: () -> Unit,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.Center,
     ) {
         Text(
             text = "Rules Timed",
-            modifier = Modifier
-                .clickable { onSelectTimed() }
-                .padding(8.dp),
-            color = if (isTimedSelected)
-                MaterialTheme.colorScheme.primary
-            else
-                MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier =
+                Modifier
+                    .clickable { onSelectTimed() }
+                    .padding(8.dp),
+            color =
+                if (isTimedSelected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
             style = MaterialTheme.typography.labelLarge,
         )
         Spacer(modifier = Modifier.width(24.dp))
         Text(
             text = "Rules Location",
-            modifier = Modifier
-                .clickable { onSelectLocation() }
-                .padding(8.dp),
-            color = if (!isTimedSelected)
-                MaterialTheme.colorScheme.primary
-            else
-                MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier =
+                Modifier
+                    .clickable { onSelectLocation() }
+                    .padding(8.dp),
+            color =
+                if (!isTimedSelected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
             style = MaterialTheme.typography.labelLarge,
         )
     }
 }
-
 
 @Composable
 fun CompactButton(
@@ -565,7 +573,7 @@ fun HomePageViewHorizontalPreview() {
                         longitude = -9.1399,
                         radius = 100.0,
                     ),
-            )
+            ),
         )
     HomePageViewHorizontal(
         rules = MutableStateFlow(dummyRules),

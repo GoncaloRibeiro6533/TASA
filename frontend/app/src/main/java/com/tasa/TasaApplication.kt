@@ -1,6 +1,5 @@
 package com.tasa
 
-import android.annotation.SuppressLint
 import android.app.Application
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences

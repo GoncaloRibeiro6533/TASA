@@ -67,8 +67,11 @@ class LocationUpdatesRepository(
         object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
                 for (location in result.locations) {
-                    Log.d("LocationManagerMine", "Location received: ${location.latitude}, ${location.longitude}, accuracy: ${location.accuracy}")
-                    //if (!location.hasSpeed() && !location.hasAltitude()) continue
+                    Log.d(
+                        "LocationManagerMine",
+                        "Location received: ${location.latitude}, ${location.longitude}, accuracy: ${location.accuracy}",
+                    )
+                    // if (!location.hasSpeed() && !location.hasAltitude()) continue
                     locationFlow.value = location
                 }
             }
@@ -162,7 +165,7 @@ class LocationUpdatesRepository(
                 "STILL", "TILTING" -> {
                     // if the discardedLocations are empty, not enough data to evaluate
                     if (discardedLocations.size < MAX_LOCATION_HISTORY_DISCARDED) {
-                        //increase the update interval to increase the accuracy
+                        // increase the update interval to increase the accuracy
                         stopLocationUpdates()
                         startLocationUpdates(
                             createLocationRequest(100.milliseconds.inWholeMilliseconds, Priority.PRIORITY_HIGH_ACCURACY),
@@ -313,7 +316,7 @@ class LocationUpdatesRepository(
     private fun stopLocationUpdates() {
         locationCallback.let {
             locationClient.removeLocationUpdates(it)
-             Log.d("LocationManagerMine", "Stopped location updates")
+            Log.d("LocationManagerMine", "Stopped location updates")
         }
     }
 
