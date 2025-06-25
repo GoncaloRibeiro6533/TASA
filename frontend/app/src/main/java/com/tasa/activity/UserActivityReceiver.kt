@@ -23,7 +23,6 @@ class UserActivityReceiver : BroadcastReceiver() {
             try {
                 val lastEvent = result.mostProbableActivity
                 repo.writeLastActivity(lastEvent.type)
-                // repo.writeLastActivityTransition(lastEvent.transitionType)
             } catch (e: Throwable) {
                 Log.e("UserActivityReceiver", "Erro a gravar transição", e)
             }

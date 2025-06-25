@@ -18,7 +18,6 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polygon
-import kotlin.collections.remove
 import kotlin.math.cos
 import kotlin.math.sin
 
