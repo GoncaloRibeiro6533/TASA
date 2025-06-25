@@ -86,7 +86,8 @@ class MyLocationsScreenViewModel(
                     return@launch
                 }
                 if (!collides) {
-                    geofenceManager.deregisterGeofence()
+                    // TODO remove
+                    geofenceManager.deregisterAllGeofences()
                     geofenceManager.registerGeofence(
                         location.name,
                         location.toLocation(),
@@ -109,6 +110,28 @@ class MyLocationsScreenViewModel(
                 }
             } catch (e: Exception) {
                 Log.d("MyLocationsScreenViewModel", "createRulesForLocation: ", e)
+                _state.value = MyLocationsScreenState.Error(R.string.unexpected_error)
+            }
+        }
+    }
+
+    fun deleteLocation(location: Location) {
+        if (_state.value is MyLocationsScreenState.Loading) return
+        _state.value = MyLocationsScreenState.Loading
+        viewModelScope.launch {
+            try {
+                val geofences = repo.geofenceRepo.getAllGeofences().filter { it.name == location.name }
+                if (geofences.isNotEmpty()) {
+                    geofences.forEach { geofence ->
+                        geofenceManager.deregisterGeofence(geofence.name)
+                    }
+                    repo.ruleRepo.deleteRuleLocationByName(location.name)
+                    repo.geofenceRepo.deleteGeofence(geofences.first())
+                }
+                repo.locationRepo.deleteLocationByName(location.name)
+                _state.value = MyLocationsScreenState.Success(_locations)
+            } catch (e: Exception) {
+                Log.d("MyLocationsScreenViewModel", "deleteLocation: ", e)
                 _state.value = MyLocationsScreenState.Error(R.string.unexpected_error)
             }
         }

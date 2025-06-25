@@ -32,7 +32,7 @@ import kotlin.time.Duration.Companion.milliseconds
  *
  */
 private const val MAX_LOCATION_HISTORY = 10
-private const val MAX_LOCATION_HISTORY_DISCARDED = 3
+private const val MAX_LOCATION_HISTORY_DISCARDED = 5
 
 private const val MAX_DRIFTED_METERS = 3f
 
@@ -45,6 +45,7 @@ class LocationUpdatesRepository(
 
     private val lastLocations = ArrayList<Location>(MAX_LOCATION_HISTORY)
     private val discardedLocations = ArrayList<Location>(MAX_LOCATION_HISTORY_DISCARDED)
+    private val lastZone = ArrayList<Location>(MAX_LOCATION_HISTORY)
 
     private var possibleArea: Area? = null
 
@@ -66,7 +67,8 @@ class LocationUpdatesRepository(
         object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
                 for (location in result.locations) {
-                    if (!location.hasSpeed() && !location.hasAltitude()) continue
+                    Log.d("LocationManagerMine", "Location received: ${location.latitude}, ${location.longitude}, accuracy: ${location.accuracy}")
+                    //if (!location.hasSpeed() && !location.hasAltitude()) continue
                     locationFlow.value = location
                 }
             }
@@ -121,14 +123,6 @@ class LocationUpdatesRepository(
 
     private fun saveLocation(location: Location) {
         if (lastLocations.size == MAX_LOCATION_HISTORY) {
-            /* if (userActivity == "STILL" || userActivity == "TILTING") {
-                 val index = mostFurtherLocationIndex()
-                 lastLocations[index] = location
-             } else {
-                 val index = lowestAccuracyIndex()
-                 lastLocations[index] = location
-             }*/
-
             // remove the oldest location
             lastLocations.removeAt(0)
             // add the new location
@@ -156,7 +150,6 @@ class LocationUpdatesRepository(
     private fun validateLocation(location: Location): Boolean {
         // check if lastLocations buffer is not full
         if (lastLocations.size < MAX_LOCATION_HISTORY) return true
-        if (possibleArea != null && location.isInArea()) return true
         // calculate the distance of the location to the central point.
         val locCalc = location.distanceTo(calculatedCentralPoint)
         // if the distance is bigger or the equal to MAX_DRIFTED_METERS, evaluate the user activity
@@ -168,8 +161,16 @@ class LocationUpdatesRepository(
                 // check if are all in a radius
                 "STILL", "TILTING" -> {
                     // if the discardedLocations are empty, not enough data to evaluate
-                    if (discardedLocations.size < MAX_LOCATION_HISTORY_DISCARDED) return false
-                    // check for the precision of the discarded locations
+                    if (discardedLocations.size < MAX_LOCATION_HISTORY_DISCARDED) {
+                        //increase the update interval to increase the accuracy
+                        stopLocationUpdates()
+                        startLocationUpdates(
+                            createLocationRequest(100.milliseconds.inWholeMilliseconds, Priority.PRIORITY_HIGH_ACCURACY),
+                        )
+                        return false
+                    }
+                    // check for the precision of the discarded locations and if the location
+                    // is in the cluster
                     if (discardedLocations.isClusteredWithin(MAX_DRIFTED_METERS) &&
                         location.isInCluster()
                     ) {
@@ -227,11 +228,11 @@ class LocationUpdatesRepository(
                 scope.launch {
                     val locationRequest =
                         createLocationRequest(
-                            interval = 100.milliseconds.inWholeMilliseconds,
+                            interval = 500.milliseconds.inWholeMilliseconds,
                             priority = Priority.PRIORITY_HIGH_ACCURACY,
                         )
                     startLocationUpdates(locationRequest)
-                    something()
+                    listenForLocationUpdates()
                 }
         }
     }
@@ -301,20 +302,22 @@ class LocationUpdatesRepository(
         priority: Int,
     ): LocationRequest {
         return LocationRequest.Builder(priority, interval)
+            .setIntervalMillis(interval)
             .setMinUpdateIntervalMillis(interval)
-            .setWaitForAccurateLocation(false)
+            .setWaitForAccurateLocation(true)
+            .setPriority(priority)
+            .setMaxUpdateDelayMillis(0)
             .build()
     }
 
     private fun stopLocationUpdates() {
         locationCallback.let {
             locationClient.removeLocationUpdates(it)
-            //  Log.d("LocationManagerMine", "Stopped location updates")
+             Log.d("LocationManagerMine", "Stopped location updates")
         }
     }
 
     private fun List<Location>.calculatePrecision(): Float {
-        // return precision of the locations in percentage
         return this.map { it.distanceTo(calculatedCentralPoint) }.average().toFloat()
     }
 
@@ -334,7 +337,7 @@ class LocationUpdatesRepository(
     }
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-    private suspend fun something() {
+    private suspend fun listenForLocationUpdates() {
         locationFlow.collect { location ->
             if (location != null) {
                 if (validateLocation(location)) {
@@ -345,6 +348,7 @@ class LocationUpdatesRepository(
                     } else {
                         if (discardedLocations.size == MAX_LOCATION_HISTORY_DISCARDED) {
                             discardedLocations.removeAt(0)
+                            discardedLocations.add(location)
                         }
                     }
                 }

@@ -71,10 +71,16 @@ class GeofenceManager(context: Context, private val repo: TasaRepo) {
             }
     }
 
-    suspend fun deregisterGeofence() =
+    suspend fun deregisterGeofence(requestId: String) =
+        runCatching {
+            client.removeGeofences(listOf(requestId)).await()
+            geofenceList.clear()
+        }
+
+    suspend fun deregisterAllGeofences() =
         runCatching {
             client.removeGeofences(geofencingPendingIntent).await()
-            geofenceList.clear()
+            repo.geofenceRepo.clear()
         }
 
     private fun createGeofencingRequest(geofence: Geofence): GeofencingRequest {

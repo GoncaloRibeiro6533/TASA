@@ -38,7 +38,6 @@ fun OSMDroidMap2(
     val accuracyCircleRef = remember { mutableStateOf<Polygon?>(null) }
     val circleOverlayRef = remember { mutableStateOf<Polygon?>(null) }
 
-    // 🔁 Mantenha selectedPoint sincronizado para efeitos side-effect
     val selectedPointRef = remember { mutableStateOf(center) }
 
     // Atualiza marker e círculo sempre que selectedPoint muda
@@ -51,7 +50,7 @@ fun OSMDroidMap2(
         }
     }
 
-    // 🔵 Localização atual
+    // Localização atual
     LaunchedEffect(currentLocation, accuracy) {
         val map = mapViewRef.value ?: return@LaunchedEffect
         val location = currentLocation ?: return@LaunchedEffect

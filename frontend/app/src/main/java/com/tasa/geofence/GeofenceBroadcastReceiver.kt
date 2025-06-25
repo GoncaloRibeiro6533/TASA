@@ -47,39 +47,10 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                 val requestId =
                     geofencingEvent.triggeringGeofences?.firstOrNull()?.requestId
                         ?: return
-                CoroutineScope(Dispatchers.IO).launch {
-                  /*  val rule = repo.ruleRepo.fetchRuleLocationsByName(requestId)
-                    if (rule.isNotEmpty()) {
-                        val now = LocalDateTime.now()
-                        val filteredRules = rule.filter {
-                            it.startTime.isBefore(now) && it.endTime.isAfter(now)
-                        }
-                        if (filteredRules.isNotEmpty()) {
-                            // se entra no geofence*/
                     DndManager.mute(notificationManager)
-                    // }
-                    // }
                 }
-            }
-
             Geofence.GEOFENCE_TRANSITION_EXIT -> {
-                val requestId =
-                    geofencingEvent.triggeringGeofences?.firstOrNull()?.requestId
-                        ?: return
-                CoroutineScope(Dispatchers.IO).launch {
-                    val rule = repo.ruleRepo.fetchRuleLocationsByName(requestId)
-                    if (rule.isNotEmpty()) {
-                        val now = LocalDateTime.now()
-                        val filteredRules =
-                            rule.filter {
-                                it.startTime.isBefore(now) && it.endTime.isAfter(now)
-                            }
-                        if (filteredRules.isNotEmpty()) {
-                            // se entra no geofence
-                            DndManager.unmute(notificationManager)
-                        }
-                    }
-                }
+                DndManager.unmute(notificationManager)
             }
 
             Geofence.GEOFENCE_TRANSITION_DWELL -> {
@@ -90,19 +61,5 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
             else -> {
             }
         }
-
-       /* val location = geofencingEvent.triggeringLocation
-        val triggeringGeofences = geofencingEvent.triggeringGeofences ?: return
-
-         check if any rule are set for this time
-        val repo = (context.applicationContext as DependenciesContainer).repo
-
-
-        for (geofence in triggeringGeofences) {
-            val requestId = geofence.requestId  // ← Este é o identificador que você criou
-        */
-
-        // Agora você pode consultar no repositório usando o requestId
-        // Aja com base na regra
     }
 }

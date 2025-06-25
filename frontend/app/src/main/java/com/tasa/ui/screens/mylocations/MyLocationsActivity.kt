@@ -40,7 +40,9 @@ class MyLocationsActivity : ComponentActivity() {
                     viewModel = viewModel,
                     onLocationSelected = {},
                     onAddLocation = {},
-                    onDeleteLocation = {},
+                    onDeleteLocation = { location ->
+                        viewModel.deleteLocation(location)
+                    },
                     onEditLocation = {},
                     onNavigateBack = {
                         navigateTo(this, HomePageActivity::class.java)

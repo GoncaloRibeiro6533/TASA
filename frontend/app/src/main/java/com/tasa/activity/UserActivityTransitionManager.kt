@@ -13,6 +13,17 @@ import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.DetectedActivity
 import kotlinx.coroutines.tasks.await
 
+enum class Activity(val type: Int) {
+    IN_VEHICLE(0),
+    ON_BICYCLE(1),
+    ON_FOOT(2),
+    STILL(3),
+    UNKNOWN(4),
+    TILTING(5),
+    WALKING(7),
+    RUNNING(8);
+}
+
 class UserActivityTransitionManager(private val context: Context) {
     companion object {
         fun getActivityType(int: Int?): String {

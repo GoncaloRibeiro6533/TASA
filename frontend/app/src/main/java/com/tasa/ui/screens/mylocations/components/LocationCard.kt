@@ -9,11 +9,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,79 +36,79 @@ fun LocationCard(
     onSetCreateRuleState: (Location) -> Unit,
 ) {
     val name = location.name
-    val adress = "${location.latitude}, ${location.longitude}"
+    val address = "${location.latitude}, ${location.longitude}"
 
-    val greenColor = Color(0xFF5CB338)
-    val redColor = Color.Red
+    val greenColor = MaterialTheme.colorScheme.primary
+    val redColor = MaterialTheme.colorScheme.error
 
     Card(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = MaterialTheme.shapes.medium,
+        elevation = CardDefaults.cardElevation(6.dp)
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
+            Column(
+                modifier = Modifier.weight(1f)
             ) {
-                Spacer(Modifier.padding(10.dp))
-                Column {
-                    Text(text = name)
-                    Text(text = adress, fontSize = 10.sp)
-                }
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = address,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
+
             Row(
-                modifier = Modifier,
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Spacer(Modifier.width(16.dp))
                 IconButton(
                     onClick = { onDelete(location) },
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(32.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "Decline Invitation",
-                        tint = redColor,
+                        contentDescription = "Eliminar localização",
+                        tint = redColor
                     )
                 }
-
-                Spacer(Modifier.width(8.dp))
 
                 IconButton(
                     onClick = { onEdit(location) },
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(32.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Edit,
-                        contentDescription = "Accept Invitation",
-                        tint = greenColor,
+                        contentDescription = "Editar localização",
+                        tint = greenColor
                     )
                 }
 
-                Spacer(Modifier.width(8.dp))
-
                 IconButton(
                     onClick = { onSetCreateRuleState(location) },
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(32.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Create Rule",
-                        tint = greenColor,
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Criar regra (Geofence)",
+                        tint = greenColor
                     )
                 }
             }
         }
     }
 }
+
 
 @Preview(showBackground = false)
 @Composable

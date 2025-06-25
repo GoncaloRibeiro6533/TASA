@@ -1,10 +1,12 @@
 package com.tasa.ui.screens.homepage
 
 import android.content.res.Configuration
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,10 +20,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -32,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tasa.R
 import com.tasa.domain.Event
+import com.tasa.domain.Location
 import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
@@ -53,137 +61,122 @@ fun HomePageView(
     onEdit: (EditRuleActivity.RuleParcelableEvent) -> Unit = {},
     onDelete: (Rule) -> Unit = {},
 ) {
-    // phone orientation
-    val orientation = LocalConfiguration.current.orientation
-    if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-        val ruleList = rules.collectAsState().value
-        val gray =
-            ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            )
+    var list by rememberSaveable { mutableStateOf(true) } // true = Timed, false = Location
+    val ruleList = rules.collectAsState().value
+    val gray =
+        ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        )
 
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize().fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        // Header
+        Text(
+            text = stringResource(R.string.my_rules),
+            style = MaterialTheme.typography.headlineLarge.copy(
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 24.sp,
+            ),
+            color = MaterialTheme.colorScheme.primary,
+        )
+
+        // TOGGLE BAR
+        RulesToggleBar(
+            isTimedSelected = list,
+            onSelectTimed = { list = true },
+            onSelectLocation = { list = false },
+        )
+
+        // Rules List
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            contentAlignment = Alignment.Center,
         ) {
-            // Header
-            Text(
-                text = stringResource(R.string.my_rules),
-                style =
-                    MaterialTheme.typography.headlineLarge.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 24.sp,
-                    ),
-                color = MaterialTheme.colorScheme.primary,
-            )
+            val filteredRules = ruleList.filter {
+                (it is RuleEvent && list) || (it is RuleLocation && !list)
+            }
 
-            // Rules List taking available space
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                // Makes the Box take all available space, pushing buttons down
-                contentAlignment = Alignment.Center,
-            ) {
-                if (ruleList.isEmpty()) {
-                    Text(
-                        text = stringResource(R.string.no_rule_found),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                } else {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        items(ruleList) { rule ->
-                            if (rule is RuleEvent) {
-                                SwipeableRuleCardEvent(
-                                    rule = rule,
-                                    onEdit = { editedRule ->
-                                        onEdit(editedRule.toRuleEventParcelable())
-                                    },
-                                    onDelete = { deletedRule ->
-                                        onDelete(deletedRule)
-                                    },
-                                )
-                            }
-                            if (rule is RuleLocation) {
-                                SwipeableRuleCardLocation(
-                                    rule = rule,
-                                    onEdit = { editedRule ->
-                                        // onEdit(editedRule.toRuleEventParcelable())
-                                    },
-                                    onDelete = { deletedRule ->
-                                        onDelete(deletedRule)
-                                    },
-                                )
-                            }
+            if (filteredRules.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.no_rule_found),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    items(filteredRules) { rule ->
+                        when (rule) {
+                            is RuleEvent -> SwipeableRuleCardEvent(
+                                rule = rule,
+                                onEdit = { onEdit(it.toRuleEventParcelable()) },
+                                onDelete = onDelete,
+                            )
+
+                            is RuleLocation -> SwipeableRuleCardLocation(
+                                rule = rule,
+                                onEdit = {}, // Optional
+                                onDelete = onDelete,
+                            )
                         }
                     }
                 }
             }
+        }
 
-            // Button Rows pinned to the bottom
-            Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+        // ACTION BUTTONS
+        Column(
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Row(
                 modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    SquareButton(
-                        label = stringResource(R.string.my_locations),
-                        onClick = onNavigateToMyLocations,
-                        modifier = Modifier.weight(1f),
-                        colors = gray,
-                    )
+                SquareButton(
+                    label = stringResource(R.string.my_locations),
+                    onClick = onNavigateToMyLocations,
+                    modifier = Modifier.weight(1f),
+                    colors = gray,
+                )
+                SquareButton(
+                    label = stringResource(R.string.my_events),
+                    onClick = onNavigateToCreateRuleEvent,
+                    modifier = Modifier.weight(1f),
+                    colors = gray,
+                )
+            }
 
-                    SquareButton(
-                        label = stringResource(R.string.my_events),
-                        onClick = onNavigateToCreateRuleEvent,
-                        modifier = Modifier.weight(1f),
-                        colors = gray,
-                    )
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    SquareButton(
-                        label = stringResource(R.string.add_new_location),
-                        onClick = onNavigationToMap,
-                        modifier = Modifier.weight(1f),
-                        colors = gray,
-                    )
-
-                    SquareButton(
-                        label = stringResource(R.string.my_exceptions),
-                        onClick = onNavigationToMyExceptions,
-                        modifier = Modifier.weight(1f),
-                        colors = gray,
-                    )
-                }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                SquareButton(
+                    label = stringResource(R.string.add_new_location),
+                    onClick = onNavigationToMap,
+                    modifier = Modifier.weight(1f),
+                    colors = gray,
+                )
+                SquareButton(
+                    label = stringResource(R.string.my_exceptions),
+                    onClick = onNavigationToMyExceptions,
+                    modifier = Modifier.weight(1f),
+                    colors = gray,
+                )
             }
         }
-    } else {
-        HomePageViewHorizontal(
-            rules = rules,
-            onNavigationToMap = onNavigationToMap,
-            onNavigateToCreateRuleEvent = onNavigateToCreateRuleEvent,
-            onNavigationToMyExceptions = onNavigationToMyExceptions,
-            onEdit = onEdit,
-            onDelete = onDelete,
-        )
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
@@ -256,6 +249,19 @@ fun HomePageViewPreview() {
                         calendarId = 1,
                     ),
             ),
+            RuleLocation(
+                id = 7,
+                startTime = LocalDateTime.now().plusDays(6),
+                endTime = LocalDateTime.now().plusDays(6).plusHours(2),
+                location =
+                    Location(
+                        id = 1,
+                        name = "Escritório",
+                        latitude = 38.7169,
+                        longitude = -9.1399,
+                        radius = 100.0,
+                    ),
+            )
         )
     HomePageView(
         rules = MutableStateFlow(dummyRules),
@@ -412,6 +418,45 @@ fun HomePageViewHorizontal(
 }
 
 @Composable
+fun RulesToggleBar(
+    isTimedSelected: Boolean,
+    onSelectTimed: () -> Unit,
+    onSelectLocation: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            text = "Rules Timed",
+            modifier = Modifier
+                .clickable { onSelectTimed() }
+                .padding(8.dp),
+            color = if (isTimedSelected)
+                MaterialTheme.colorScheme.primary
+            else
+                MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelLarge,
+        )
+        Spacer(modifier = Modifier.width(24.dp))
+        Text(
+            text = "Rules Location",
+            modifier = Modifier
+                .clickable { onSelectLocation() }
+                .padding(8.dp),
+            color = if (!isTimedSelected)
+                MaterialTheme.colorScheme.primary
+            else
+                MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.labelLarge,
+        )
+    }
+}
+
+
+@Composable
 fun CompactButton(
     label: String,
     onClick: () -> Unit,
@@ -508,6 +553,19 @@ fun HomePageViewHorizontalPreview() {
                         calendarId = 1,
                     ),
             ),
+            RuleLocation(
+                id = 7,
+                startTime = LocalDateTime.now().plusDays(6),
+                endTime = LocalDateTime.now().plusDays(6).plusHours(2),
+                location =
+                    Location(
+                        id = 1,
+                        name = "Escritório",
+                        latitude = 38.7169,
+                        longitude = -9.1399,
+                        radius = 100.0,
+                    ),
+            )
         )
     HomePageViewHorizontal(
         rules = MutableStateFlow(dummyRules),
@@ -517,7 +575,7 @@ fun HomePageViewHorizontalPreview() {
     )
 }
 
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO or Configuration.ORIENTATION_LANDSCAPE)
+@Preview(showBackground = true, uiMode = Configuration.ORIENTATION_LANDSCAPE)
 @Composable
 fun HomePageViewHorizontalEmptyPreview() {
     HomePageViewHorizontal(
