@@ -29,6 +29,7 @@ import kotlinx.coroutines.tasks.await
 import org.osmdroid.util.GeoPoint
 import java.time.LocalDateTime
 import java.util.Locale
+import android.location.Location as AndroidLocation
 
 data class TasaLocation(
     val point: GeoPoint,
@@ -36,7 +37,15 @@ data class TasaLocation(
     val altitude: Double? = null,
     val time: LocalDateTime? = null,
     val updates: Int? = null,
-)
+) {
+    fun toLocation(): AndroidLocation {
+        return AndroidLocation("TasaLocation").apply {
+            latitude = point.latitude
+            longitude = point.longitude
+            accuracy = accuracy
+        }
+    }
+}
 
 
 sealed interface MapsScreenState {

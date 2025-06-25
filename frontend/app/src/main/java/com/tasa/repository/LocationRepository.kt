@@ -44,6 +44,10 @@ class LocationRepository(
         return local.locationDao().getLocationByName(name).map { it?.toLocation() }
     }
 
+    override suspend fun getLocationByName(name: String): Location? {
+        return local.locationDao().getLocationByNameSync(name)?.toLocation()
+    }
+
     override suspend fun insertLocation(location: Location) {
         return local.locationDao().insertLocation(location.toEntity())
     }

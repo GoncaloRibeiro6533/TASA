@@ -16,7 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.location.LocationServices
 import com.tasa.DependenciesContainer
 import com.tasa.activity.UserActivityTransitionManager
-import com.tasa.ui.components.PermissionBox
+import com.tasa.location.LocationService
 import com.tasa.ui.screens.homepage.HomePageActivity
 import com.tasa.ui.screens.mylocations.MyLocationsActivity
 import com.tasa.ui.theme.TasaTheme
@@ -167,8 +167,9 @@ class MapActivity : ComponentActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.stopLocationUpdates()
+    override fun onDestroy() {
+        super.onDestroy()
+        // check if the service is running before stopping location updates
+        if (!LocationService.isRunning) viewModel.stopLocationUpdates()
     }
 }

@@ -10,6 +10,8 @@ interface LocationRepositoryInterface {
 
     suspend fun fetchLocationByName(name: String): Flow<Location?>
 
+    suspend fun getLocationByName(name: String): Location?
+
     suspend fun insertLocation(location: Location)
 
     suspend fun insertLocations(locations: List<Location>)

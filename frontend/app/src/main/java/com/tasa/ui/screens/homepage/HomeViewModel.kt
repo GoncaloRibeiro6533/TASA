@@ -102,6 +102,7 @@ class HomePageScreenViewModel(
                             alarmScheduler.cancelAlarm(alarmEnd.id, context)
                         }
                     }
+                    // TODO check if is to cancel geofence
                     is RuleLocation -> repo.ruleRepo.deleteRuleLocationByName(rule.location.name)
                 }
             } catch (e: Exception) {

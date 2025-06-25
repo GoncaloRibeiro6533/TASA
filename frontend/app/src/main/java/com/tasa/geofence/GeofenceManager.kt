@@ -12,7 +12,6 @@ import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import com.tasa.repository.TasaRepo
-import com.tasa.storage.entities.GeofenceEntity
 import kotlinx.coroutines.tasks.await
 
 const val TAG = "GeofenceManager"
@@ -36,19 +35,6 @@ class GeofenceManager(context: Context, private val repo: TasaRepo) {
                 PendingIntent.FLAG_UPDATE_CURRENT
             },
         )
-    }
-
-    private fun addGeofence(
-        key: String,
-        location: Location,
-        radiusInMeters: Float = 100.0f,
-        expirationTimeInMillis: Long = Geofence.NEVER_EXPIRE,
-    ) {
-        geofenceList[key] = createGeofence(key, location, radiusInMeters, expirationTimeInMillis)
-    }
-
-    fun removeGeofence(key: String) {
-        geofenceList.remove(key)
     }
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -101,7 +87,6 @@ class GeofenceManager(context: Context, private val repo: TasaRepo) {
             .setCircularRegion(location.latitude, location.longitude, radiusInMeters)
             .setExpirationDuration(expirationTimeInMillis)
             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
-            .setLoiteringDelay(10_000)
             .build()
     }
 
@@ -119,17 +104,5 @@ class GeofenceManager(context: Context, private val repo: TasaRepo) {
                 radiusInMeters = geofenceEntity.radius.toFloat(),
             )
         }
-    }
-
-    private fun GeofenceEntity.toGeofence(): Geofence {
-        return createGeofence(
-            key = this.name,
-            location =
-                Location("").apply {
-                    latitude = this.latitude
-                    longitude = this.longitude
-                },
-            radiusInMeters = this.radius.toFloat(),
-        )
     }
 }

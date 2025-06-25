@@ -91,7 +91,7 @@ class MyLocationsScreenViewModel(
                     geofenceManager.registerGeofence(
                         location.name,
                         location.toLocation(),
-                        location.radius.toFloat(),
+                        location.radius.toFloat() + 50f,
                     )
                     val id =
                         repo.geofenceRepo.createGeofence(
