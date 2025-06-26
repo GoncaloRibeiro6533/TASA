@@ -35,6 +35,7 @@
     <string name="end">End</string>
     <string name="rule">Rule</string>
     <string name="open_calendar">Open calendar</string>
+    <string name="activity_info_no_suitable_app">Could not find a suitable application</string>
     <string name="arrow_back_description">arrow_back</string>
     <string name="create_rule_location">Create a rule for location</string>
     <string name="rule_already_exists_for_this_location">Rule already exists for this location.</string>

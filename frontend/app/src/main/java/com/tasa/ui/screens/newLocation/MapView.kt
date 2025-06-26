@@ -33,11 +33,18 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.tasa.ui.screens.newLocation.components.OSMDroidMap2
 import kotlinx.coroutines.flow.StateFlow
 import org.osmdroid.util.GeoPoint
+
+const val OSMDROID_MAP = "osmdroid_map"
+const val LOGIN_TEXT_FIELDS = "login_text_fields"
+const val LOGIN_BUTTON = "login_button"
+const val REGISTER_ANCHOR = "register_anchor"
+
 
 @Composable
 fun MapViewRoot(
@@ -87,7 +94,7 @@ fun MapViewRoot(
     ) {
         // Map in the background
         OSMDroidMap2(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().testTag(OSMDROID_MAP),
             center = locationV.point,
             currentLocation = locationV.point,
             onCoordinateSelected = { point ->

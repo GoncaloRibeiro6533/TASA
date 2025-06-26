@@ -30,6 +30,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,6 +42,8 @@ import com.tasa.domain.Location
 import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
+import com.tasa.ui.screens.homepage.components.CompactButton
+import com.tasa.ui.screens.homepage.components.RulesToggleBar
 import com.tasa.ui.screens.homepage.components.SquareButton
 import com.tasa.ui.screens.homepage.components.SwipeableRuleCardEvent
 import com.tasa.ui.screens.homepage.components.SwipeableRuleCardLocation
@@ -48,6 +51,17 @@ import com.tasa.ui.screens.rule.EditRuleActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.time.LocalDateTime
+
+
+const val EVENTS_BUTTON = "events_button"
+const val EXCEPTIONS_BUTTON = "exceptions_button"
+const val HOME_VIEW = "home_view"
+const val LOCATIONS_BUTTON = "location_button"
+const val MAP_BUTTON = "map_button"
+
+
+
+
 
 @Composable
 fun HomePageView(
@@ -71,7 +85,8 @@ fun HomePageView(
         modifier =
             Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 20.dp),
+                .padding(horizontal = 16.dp, vertical = 20.dp)
+                .testTag(HOME_VIEW),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         // Header
@@ -148,13 +163,17 @@ fun HomePageView(
                 SquareButton(
                     label = stringResource(R.string.my_locations),
                     onClick = onNavigateToMyLocations,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .testTag(LOCATIONS_BUTTON),
                     colors = gray,
                 )
                 SquareButton(
                     label = stringResource(R.string.my_events),
                     onClick = onNavigateToCreateRuleEvent,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .testTag(EVENTS_BUTTON),
                     colors = gray,
                 )
             }
@@ -166,13 +185,17 @@ fun HomePageView(
                 SquareButton(
                     label = stringResource(R.string.add_new_location),
                     onClick = onNavigationToMap,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .testTag(MAP_BUTTON),
                     colors = gray,
                 )
                 SquareButton(
                     label = stringResource(R.string.my_exceptions),
                     onClick = onNavigationToMyExceptions,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .testTag(EXCEPTIONS_BUTTON),
                     colors = gray,
                 )
             }
@@ -419,76 +442,7 @@ fun HomePageViewHorizontal(
     }
 }
 
-@Composable
-fun RulesToggleBar(
-    isTimedSelected: Boolean,
-    onSelectTimed: () -> Unit,
-    onSelectLocation: () -> Unit,
-) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.Center,
-    ) {
-        Text(
-            text = "Rules Timed",
-            modifier =
-                Modifier
-                    .clickable { onSelectTimed() }
-                    .padding(8.dp),
-            color =
-                if (isTimedSelected) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
-            style = MaterialTheme.typography.labelLarge,
-        )
-        Spacer(modifier = Modifier.width(24.dp))
-        Text(
-            text = "Rules Location",
-            modifier =
-                Modifier
-                    .clickable { onSelectLocation() }
-                    .padding(8.dp),
-            color =
-                if (!isTimedSelected) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
-            style = MaterialTheme.typography.labelLarge,
-        )
-    }
-}
 
-@Composable
-fun CompactButton(
-    label: String,
-    onClick: () -> Unit,
-    colors: ButtonColors,
-) {
-    Button(
-        onClick = onClick,
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(40.dp),
-        // Smaller button height
-        shape = RoundedCornerShape(12.dp),
-        colors = colors,
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-        )
-    }
-}
 
 @Preview(showBackground = true)
 @Composable

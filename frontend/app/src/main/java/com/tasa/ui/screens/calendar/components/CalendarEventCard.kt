@@ -23,11 +23,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tasa.R
 import com.tasa.domain.CalendarEvent
+
+const val EVENT_CARD = "event_card"
+
 
 @Composable
 fun CalendarEventCard(
@@ -42,7 +46,8 @@ fun CalendarEventCard(
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp, vertical = 6.dp)
                 .clip(RoundedCornerShape(20.dp))
-                .shadow(8.dp, androidx.compose.foundation.shape.RoundedCornerShape(20.dp)),
+                .shadow(8.dp, androidx.compose.foundation.shape.RoundedCornerShape(20.dp))
+                .testTag(EVENT_CARD),
         colors =
             CardDefaults.cardColors(
                 containerColor =

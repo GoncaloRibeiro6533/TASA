@@ -83,6 +83,7 @@ dependencies {
 
     testImplementation(libs.junit)
 
+    androidTestImplementation("androidx.test:rules:1.5.0")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

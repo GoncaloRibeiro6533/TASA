@@ -12,6 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tasa.ui.screens.authentication.components.validateEmail
@@ -19,6 +20,11 @@ import com.tasa.ui.screens.authentication.components.validatePassword
 import com.tasa.ui.screens.authentication.components.validateUsername
 import com.tasa.ui.screens.authentication.register.components.RegisterButton
 import com.tasa.ui.screens.authentication.register.components.RegisterTextFields
+import com.tasa.ui.screens.newLocation.REGISTER_ANCHOR
+
+const val REGISTER_VIEW = "register_views"
+const val REGISTER_TEXT_FIELDS = "register_text_fields"
+const val REGISTER_BUTTON = "register_button"
 
 @Composable
 fun RegisterView(onSubmit: (String, String, String) -> Unit) {
@@ -62,7 +68,8 @@ fun PortraitRegisterLayout(
         modifier =
             Modifier
                 .padding(16.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .testTag(REGISTER_VIEW),
     ) {
         Text(
             text = "Register",
@@ -76,12 +83,12 @@ fun PortraitRegisterLayout(
             onEmailChangeCallback = onEmailChange,
             onUsernameChangeCallback = onUsernameChange,
             onPasswordChangeCallback = onPasswordChange,
-            modifier = Modifier,
+            modifier = Modifier.testTag(REGISTER_TEXT_FIELDS),
         )
 
         RegisterButton(
             enabled = !invalidFields,
-            modifier = Modifier,
+            modifier = Modifier.testTag(REGISTER_BUTTON),
         ) {
             onSubmit(username, password, email)
         }

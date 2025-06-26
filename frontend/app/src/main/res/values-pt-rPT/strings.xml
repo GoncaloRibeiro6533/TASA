@@ -35,6 +35,8 @@
     <string name="end">Fim</string>
     <string name="rule">Regra</string>
     <string name="open_calendar">Abrir o calendário</string>
+    <string name="activity_info_no_suitable_app">Não foi possível encontrar uma aplicação adequada</string>
+
     <string name="arrow_back_description">retroceder</string>
     <string name="create_rule_location">Cria uma regra de localização</string>
     <string name="rule_already_exists_for_this_location">Regra já existe para a localização selecionada.</string>

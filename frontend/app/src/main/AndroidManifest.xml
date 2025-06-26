@@ -117,6 +117,13 @@
             android:theme="@style/Theme.Tasa"
             android:layoutDirection="ltr"
             />
+        <activity
+            android:name="com.tasa.ui.screens.about.AboutActivity"
+            android:exported="true"
+            android:label="AboutActivity"
+            android:theme="@style/Theme.Tasa"
+            android:layoutDirection="ltr"
+            />
 
         <activity
             android:name=".ui.screens.mylocations.MyLocationsActivity"

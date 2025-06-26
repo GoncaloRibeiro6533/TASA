@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,6 +37,11 @@ import kotlinx.coroutines.flow.StateFlow
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+
+const val CALENDAR_VIEW = "calendar_view"
+const val LOGIN_TEXT_FIELDS = "login_text_fields"
+const val LOGIN_BUTTON = "login_button"
+const val REGISTER_ANCHOR = "register_anchor"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,7 +71,8 @@ fun CalendarView(
         Column(
             Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .testTag(CALENDAR_VIEW),
         ) {
             DateSelectorBar(
                 selectedDate = selectedDate,

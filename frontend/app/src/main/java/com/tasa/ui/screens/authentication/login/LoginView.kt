@@ -15,6 +15,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -26,6 +27,12 @@ import com.tasa.ui.screens.authentication.components.validatePassword
 import com.tasa.ui.screens.authentication.components.validateUsername
 import com.tasa.ui.screens.authentication.login.components.LoginButton
 import com.tasa.ui.screens.authentication.login.components.LoginTextFields
+
+const val LOGIN_VIEW = "login_view"
+const val LOGIN_TEXT_FIELDS = "login_text_fields"
+const val LOGIN_BUTTON = "login_button"
+const val REGISTER_ANCHOR = "register_anchor"
+
 
 @Composable
 fun LoginView(
@@ -41,7 +48,10 @@ fun LoginView(
             password.isNotEmpty() && !validatePassword(password)
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(16.dp).fillMaxWidth(),
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+            .testTag(LOGIN_VIEW),
     ) {
         Row(
             modifier = Modifier.padding(16.dp).fillMaxWidth(),
@@ -58,11 +68,11 @@ fun LoginView(
             password = password,
             onUsernameChangeCallback = { username = it },
             onPasswordChangeCallback = { password = it },
-            modifier = Modifier,
+            modifier = Modifier.testTag(LOGIN_TEXT_FIELDS),
         )
         LoginButton(
             enabled = !invalidFields,
-            modifier = Modifier,
+            modifier = Modifier.testTag(LOGIN_BUTTON),
             onLoginClickCallback = {
                 onSubmit(username, password)
             },
@@ -81,7 +91,9 @@ fun LoginView(
             Text(
                 text = annotatedString,
                 style = TextStyle(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
-                modifier = Modifier.clickable { onRegisterRequested() },
+                modifier = Modifier
+                    .clickable { onRegisterRequested() }
+                    .testTag(REGISTER_ANCHOR),
             )
         }
     }

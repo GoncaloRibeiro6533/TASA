@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tasa.R
@@ -30,6 +31,9 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+
+const val DATE_BAR = "date_bar"
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,7 +94,8 @@ fun DateSelectorBar(
             Modifier.Companion
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 8.dp),
+                .padding(horizontal = 8.dp)
+                .testTag(DATE_BAR),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         IconButton(onClick = { openDatePicker.value = true }) {
