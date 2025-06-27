@@ -8,22 +8,19 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
-
-import com.tasa.ui.screens.authentication.register.components.REGISTER_EMAIL_TEXT_FIELD
-import com.tasa.ui.screens.authentication.register.components.REGISTER_PASSWORD_TEXT_FIELD
-import com.tasa.ui.screens.authentication.register.components.REGISTER_USERNAME_TEXT_FIELD
 import com.tasa.ui.screens.authentication.register.REGISTER_BUTTON
 import com.tasa.ui.screens.authentication.register.REGISTER_TEXT_FIELDS
 import com.tasa.ui.screens.authentication.register.REGISTER_VIEW
 import com.tasa.ui.screens.authentication.register.RegisterView
-
+import com.tasa.ui.screens.authentication.register.components.REGISTER_EMAIL_TEXT_FIELD
+import com.tasa.ui.screens.authentication.register.components.REGISTER_PASSWORD_TEXT_FIELD
+import com.tasa.ui.screens.authentication.register.components.REGISTER_USERNAME_TEXT_FIELD
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class RegisterViewTests {
-
     @get:Rule
     val composeTree = createComposeRule()
 
@@ -31,8 +28,8 @@ class RegisterViewTests {
     fun testRegisterView() {
         composeTree.setContent {
             RegisterView(
-                    onSubmit = { _, _, _ -> },
-                    )
+                onSubmit = { _, _, _ -> },
+            )
         }
         composeTree.onNodeWithTag(REGISTER_VIEW).assertIsDisplayed()
         composeTree.onNodeWithTag(REGISTER_TEXT_FIELDS).assertIsDisplayed()
@@ -43,8 +40,8 @@ class RegisterViewTests {
     fun testRegisterView_button_is_disabled_until_fields_are_valid() {
         composeTree.setContent {
             RegisterView(
-                    onSubmit = { _, _, _ -> },
-                    )
+                onSubmit = { _, _, _ -> },
+            )
         }
         composeTree.onNodeWithTag(REGISTER_BUTTON).assertIsDisplayed()
         composeTree.onNodeWithTag(REGISTER_BUTTON).assertIsNotEnabled()
@@ -60,8 +57,8 @@ class RegisterViewTests {
     fun testRegisterView_button_is_disabled_until_username_has_minimum_length() {
         composeTree.setContent {
             RegisterView(
-                    onSubmit = { _, _, _ -> },
-                    )
+                onSubmit = { _, _, _ -> },
+            )
         }
         composeTree.onNodeWithTag(REGISTER_BUTTON).assertIsDisplayed()
         composeTree.onNodeWithTag(REGISTER_BUTTON).assertIsNotEnabled()
@@ -76,12 +73,11 @@ class RegisterViewTests {
     }
 
     @Test
-    fun
-    testRegisterView_button_is_disabled_until_password_has_minimum_length() {
+    fun testRegisterView_button_is_disabled_until_password_has_minimum_length() {
         composeTree.setContent {
             RegisterView(
-                    onSubmit = { _, _, _ -> },
-                    )
+                onSubmit = { _, _, _ -> },
+            )
         }
         composeTree.onNodeWithTag(REGISTER_BUTTON).assertIsDisplayed()
         composeTree.onNodeWithTag(REGISTER_BUTTON).assertIsNotEnabled()
@@ -100,8 +96,8 @@ class RegisterViewTests {
         var submitted = false
         composeTree.setContent {
             RegisterView(
-                    onSubmit = { _, _, _ -> submitted = true },
-                    )
+                onSubmit = { _, _, _ -> submitted = true },
+            )
         }
 
         composeTree.onNodeWithTag(REGISTER_EMAIL_TEXT_FIELD).performTextInput("alice@mail.com")
@@ -110,6 +106,4 @@ class RegisterViewTests {
         composeTree.onNodeWithTag(REGISTER_BUTTON).performClick()
         assert(submitted)
     }
-
-
 }

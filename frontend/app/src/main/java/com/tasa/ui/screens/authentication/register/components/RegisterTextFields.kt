@@ -33,19 +33,21 @@ fun RegisterTextFields(
         EmailTextField(
             email = email,
             onEmailChangeCallback = onEmailChangeCallback,
-            modifier = Modifier
-                .padding(bottom = EMAIL_TO_USERNAME_PADDING.dp)
-                .fillMaxWidth()
-                .testTag(REGISTER_EMAIL_TEXT_FIELD),
+            modifier =
+                Modifier
+                    .padding(bottom = EMAIL_TO_USERNAME_PADDING.dp)
+                    .fillMaxWidth()
+                    .testTag(REGISTER_EMAIL_TEXT_FIELD),
         )
 
         UsernameTextField(
             username = username,
             onUsernameChangeCallback = onUsernameChangeCallback,
-            modifier = Modifier
-                .padding(bottom = USERNAME_TO_PASSWORD_PADDING.dp)
-                .fillMaxWidth()
-                .testTag(REGISTER_USERNAME_TEXT_FIELD),
+            modifier =
+                Modifier
+                    .padding(bottom = USERNAME_TO_PASSWORD_PADDING.dp)
+                    .fillMaxWidth()
+                    .testTag(REGISTER_USERNAME_TEXT_FIELD),
         )
 
         PasswordTextField(

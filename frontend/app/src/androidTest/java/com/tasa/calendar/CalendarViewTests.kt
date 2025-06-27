@@ -1,16 +1,10 @@
 package com.tasa.calendar
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
-
 import com.tasa.domain.CalendarEvent
 import com.tasa.ui.screens.calendar.CALENDAR_VIEW
 import com.tasa.ui.screens.calendar.CalendarView
@@ -24,7 +18,6 @@ import java.time.LocalDateTime
 
 @RunWith(AndroidJUnit4::class)
 class CalendarViewTests {
-
     @get:Rule
     val composeTree = createComposeRule()
 
@@ -45,11 +38,9 @@ class CalendarViewTests {
                 endTime = LocalDateTime.now().plusDays(1).plusHours(2),
             ),
         )
+
     @Test
     fun test_CalendarView_displays_all_items() {
-
-
-
         composeTree.setContent {
             CalendarView(
                 onEventSelected = {},
@@ -59,14 +50,10 @@ class CalendarViewTests {
         composeTree.onNodeWithTag(CALENDAR_VIEW).assertIsDisplayed()
         composeTree.onNodeWithTag(EVENT_CARD).assertIsNotDisplayed()
         composeTree.onNodeWithTag(DATE_BAR).assertIsDisplayed()
-
-
     }
+
     @Test
     fun test_CalendarView_with_events_displays_all_items() {
-
-
-
         composeTree.setContent {
             CalendarView(
                 onEventSelected = {},
@@ -76,8 +63,5 @@ class CalendarViewTests {
         composeTree.onNodeWithTag(CALENDAR_VIEW).assertIsDisplayed()
         composeTree.onNodeWithTag(EVENT_CARD).assertIsDisplayed()
         composeTree.onNodeWithTag(DATE_BAR).assertIsDisplayed()
-
-
     }
-
 }

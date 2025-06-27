@@ -42,4 +42,11 @@
     <string name="rule_already_exists_for_this_location">Regra já existe para a localização selecionada.</string>
     <string name="rule_already_exists_for_this_time">Regra já existe para o tempo selecionado.</string>
     <string name="unexpected_error">Ocorreu um erro inesperado.</string>
+    <string name="location_deleted">Localização eliminada.</string>
+    <string name="rule_created_successfully">Regra criada com sucesso.</string>
+    <string name="select">Selecionar</string>
+    <string name="create_rule_for_event">Criar uma regra para o evento</string>
+    <string name="rule_start_time">Início da regra</string>
+    <string name="rule_end_time">Fim da regra</string>
+    <string name="create">Criar</string>
 </resources>

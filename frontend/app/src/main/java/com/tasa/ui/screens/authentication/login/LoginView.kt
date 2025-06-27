@@ -33,7 +33,6 @@ const val LOGIN_TEXT_FIELDS = "login_text_fields"
 const val LOGIN_BUTTON = "login_button"
 const val REGISTER_ANCHOR = "register_anchor"
 
-
 @Composable
 fun LoginView(
     onSubmit: (String, String) -> Unit,
@@ -48,10 +47,11 @@ fun LoginView(
             password.isNotEmpty() && !validatePassword(password)
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth()
-            .testTag(LOGIN_VIEW),
+        modifier =
+            Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+                .testTag(LOGIN_VIEW),
     ) {
         Row(
             modifier = Modifier.padding(16.dp).fillMaxWidth(),
@@ -91,9 +91,10 @@ fun LoginView(
             Text(
                 text = annotatedString,
                 style = TextStyle(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
-                modifier = Modifier
-                    .clickable { onRegisterRequested() }
-                    .testTag(REGISTER_ANCHOR),
+                modifier =
+                    Modifier
+                        .clickable { onRegisterRequested() }
+                        .testTag(REGISTER_ANCHOR),
             )
         }
     }

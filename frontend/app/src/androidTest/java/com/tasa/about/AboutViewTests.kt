@@ -1,4 +1,4 @@
-package com.tasa.About
+package com.tasa.about
 
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.test.assertIsDisplayed
@@ -12,25 +12,14 @@ import com.tasa.ui.screens.about.AUTHOR_INFO
 import com.tasa.ui.screens.about.AboutView
 import com.tasa.ui.screens.about.EMAIL_BUTTON
 import com.tasa.ui.screens.about.GITHUB_BUTTON
-import com.tasa.ui.screens.homepage.EVENTS_BUTTON
-import com.tasa.ui.screens.homepage.EXCEPTIONS_BUTTON
-import com.tasa.ui.screens.homepage.HOME_VIEW
-import com.tasa.ui.screens.homepage.HomePageView
-import com.tasa.ui.screens.homepage.LOCATIONS_BUTTON
-import com.tasa.ui.screens.homepage.MAP_BUTTON
-import com.tasa.ui.screens.homepage.components.RULES_BAR
-import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-
 @RunWith(AndroidJUnit4::class)
 class AboutViewTests {
-
     @get:Rule
     val composeTree = createComposeRule()
-
 
     @Test
     fun tesT_HomeView_displays_all_items() {
@@ -40,10 +29,8 @@ class AboutViewTests {
                 AboutView(
                     innerPadding = innerPadding,
                     onOpenUrlRequested = {},
-                    onSendEmailRequested = {}
-
+                    onSendEmailRequested = {},
                 )
-
             }
         }
         composeTree.onNodeWithTag(ABOUT_VIEW).assertIsDisplayed()
@@ -53,12 +40,10 @@ class AboutViewTests {
         composeTree.onAllNodesWithTag(EMAIL_BUTTON)[1].assertIsDisplayed()
         composeTree.onAllNodesWithTag(GITHUB_BUTTON)[0].assertIsDisplayed()
         composeTree.onAllNodesWithTag(GITHUB_BUTTON)[1].assertIsDisplayed()
-
     }
 
     @Test
     fun when_email_button_clicked_then_action_is_called() {
-
         var action = false
         composeTree.setContent {
             Scaffold { innerPadding ->
@@ -66,35 +51,28 @@ class AboutViewTests {
                 AboutView(
                     innerPadding = innerPadding,
                     onOpenUrlRequested = {},
-                    onSendEmailRequested = { _ -> action = true}
-
+                    onSendEmailRequested = { _ -> action = true },
                 )
-
             }
         }
         composeTree.onAllNodesWithTag(EMAIL_BUTTON)[0].performClick()
         assert(action)
-
     }
 
     @Test
     fun when_github_button_clicked_then_action_is_called() {
-
         var action = false
         composeTree.setContent {
             Scaffold { innerPadding ->
 
                 AboutView(
                     innerPadding = innerPadding,
-                    onOpenUrlRequested = { _ -> action = true},
-                    onSendEmailRequested = {}
-
+                    onOpenUrlRequested = { _ -> action = true },
+                    onSendEmailRequested = {},
                 )
-
             }
         }
         composeTree.onAllNodesWithTag(GITHUB_BUTTON)[0].performClick()
         assert(action)
-
     }
 }

@@ -1,28 +1,23 @@
 package com.tasa.ui.screens.homepage
 
 import android.content.res.Configuration
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,16 +47,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.time.LocalDateTime
 
-
 const val EVENTS_BUTTON = "events_button"
 const val EXCEPTIONS_BUTTON = "exceptions_button"
 const val HOME_VIEW = "home_view"
 const val LOCATIONS_BUTTON = "location_button"
 const val MAP_BUTTON = "map_button"
-
-
-
-
 
 @Composable
 fun HomePageView(
@@ -74,7 +64,10 @@ fun HomePageView(
     onDelete: (Rule) -> Unit = {},
 ) {
     var list by rememberSaveable { mutableStateOf(true) } // true = Timed, false = Location
-    val ruleList = rules.collectAsState().value
+    var ruleList = rules.collectAsState().value
+    LaunchedEffect(10000, ruleList) {
+        ruleList = ruleList.filter { it.endTime.isBefore(LocalDateTime.now()) }
+    }
     val gray =
         ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -131,7 +124,7 @@ fun HomePageView(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxSize(),
                 ) {
-                    items(filteredRules) { rule ->
+                    items(filteredRules, key = { it.startTime }) { rule ->
                         when (rule) {
                             is RuleEvent ->
                                 SwipeableRuleCardEvent(
@@ -163,17 +156,19 @@ fun HomePageView(
                 SquareButton(
                     label = stringResource(R.string.my_locations),
                     onClick = onNavigateToMyLocations,
-                    modifier = Modifier
-                        .weight(1f)
-                        .testTag(LOCATIONS_BUTTON),
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .testTag(LOCATIONS_BUTTON),
                     colors = gray,
                 )
                 SquareButton(
                     label = stringResource(R.string.my_events),
                     onClick = onNavigateToCreateRuleEvent,
-                    modifier = Modifier
-                        .weight(1f)
-                        .testTag(EVENTS_BUTTON),
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .testTag(EVENTS_BUTTON),
                     colors = gray,
                 )
             }
@@ -185,17 +180,19 @@ fun HomePageView(
                 SquareButton(
                     label = stringResource(R.string.add_new_location),
                     onClick = onNavigationToMap,
-                    modifier = Modifier
-                        .weight(1f)
-                        .testTag(MAP_BUTTON),
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .testTag(MAP_BUTTON),
                     colors = gray,
                 )
                 SquareButton(
                     label = stringResource(R.string.my_exceptions),
                     onClick = onNavigationToMyExceptions,
-                    modifier = Modifier
-                        .weight(1f)
-                        .testTag(EXCEPTIONS_BUTTON),
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .testTag(EXCEPTIONS_BUTTON),
                     colors = gray,
                 )
             }
@@ -441,8 +438,6 @@ fun HomePageViewHorizontal(
         }
     }
 }
-
-
 
 @Preview(showBackground = true)
 @Composable

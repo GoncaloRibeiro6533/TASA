@@ -13,11 +13,9 @@ import com.tasa.R
 private const val EMAIL_SUBJECT = "About the Channel and Messages App"
 
 class AboutActivity : ComponentActivity() {
-
     private fun onNavigationBack() {
         finish()
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,20 +24,19 @@ class AboutActivity : ComponentActivity() {
             AboutScreen(
                 onNavigateBack = { onNavigationBack() },
                 onSendEmailRequested = { openSendEmail(it) },
-                onOpenUrlRequested = { openURL(it) }
+                onOpenUrlRequested = { openURL(it) },
             )
         }
     }
 
-
-
     private fun openSendEmail(email: String) {
         try {
-            val intent = Intent(Intent.ACTION_SENDTO).apply {
-                data = Uri.parse("mailto:")
-                putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
-                putExtra(Intent.EXTRA_SUBJECT, EMAIL_SUBJECT)
-            }
+            val intent =
+                Intent(Intent.ACTION_SENDTO).apply {
+                    data = Uri.parse("mailto:")
+                    putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
+                    putExtra(Intent.EXTRA_SUBJECT, EMAIL_SUBJECT)
+                }
 
             startActivity(intent)
         } catch (e: ActivityNotFoundException) {
@@ -47,7 +44,7 @@ class AboutActivity : ComponentActivity() {
                 .makeText(
                     this,
                     R.string.activity_info_no_suitable_app,
-                    Toast.LENGTH_LONG
+                    Toast.LENGTH_LONG,
                 )
                 .show()
         }
@@ -62,7 +59,7 @@ class AboutActivity : ComponentActivity() {
                 .makeText(
                     this,
                     R.string.activity_info_no_suitable_app,
-                    Toast.LENGTH_LONG
+                    Toast.LENGTH_LONG,
                 )
                 .show()
         }

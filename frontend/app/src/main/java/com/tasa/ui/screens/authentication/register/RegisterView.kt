@@ -20,7 +20,6 @@ import com.tasa.ui.screens.authentication.components.validatePassword
 import com.tasa.ui.screens.authentication.components.validateUsername
 import com.tasa.ui.screens.authentication.register.components.RegisterButton
 import com.tasa.ui.screens.authentication.register.components.RegisterTextFields
-import com.tasa.ui.screens.newLocation.REGISTER_ANCHOR
 
 const val REGISTER_VIEW = "register_views"
 const val REGISTER_TEXT_FIELDS = "register_text_fields"

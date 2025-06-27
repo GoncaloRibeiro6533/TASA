@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 
 const val RULES_BAR = "rules_bar"
 
-
 @Composable
 fun RulesToggleBar(
     isTimedSelected: Boolean,

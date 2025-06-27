@@ -13,7 +13,6 @@ import com.google.android.gms.location.LocationServices
 import com.tasa.DependenciesContainer
 import com.tasa.activity.UserActivityTransitionManager
 import com.tasa.location.LocationService
-import com.tasa.ui.screens.homepage.HomePageActivity
 import com.tasa.ui.screens.mylocations.MyLocationsActivity
 import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
@@ -45,6 +44,7 @@ class MapActivity : ComponentActivity() {
                 locationClient = fusedLocationClient,
                 activityRecognitionManager = activityRecognitionManager,
                 locationUpdatesRepository = locationManager,
+                context = this,
             )
         },
     )
@@ -71,8 +71,6 @@ class MapActivity : ComponentActivity() {
                 MapScreen(
                     viewModel = viewModel,
                     onNavigationBack = {
-                        viewModel.stopLocationUpdates()
-                        navigateTo(this@MapActivity, HomePageActivity::class.java)
                         finish()
                     },
                     onLocationSelected = { geoPoint ->

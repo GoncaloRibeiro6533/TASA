@@ -1,6 +1,8 @@
 package com.tasa.ui.screens.mylocations
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
@@ -9,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.tasa.R
 import com.tasa.domain.Location
 import com.tasa.geofence.GeofenceManager
+import com.tasa.location.LocationService
 import com.tasa.repository.TasaRepo
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +27,10 @@ sealed interface MyLocationsScreenState {
 
     data class Error(val resourceID: Int) : MyLocationsScreenState
 
-    data class Success(val locations: StateFlow<List<Location>>) : MyLocationsScreenState
+    data class Success(
+        val locations: StateFlow<List<Location>>,
+        val messageOfSuccess: Int? = null,
+    ) : MyLocationsScreenState
 
     data class CreatingRuleLocation(
         val location: Location,
@@ -36,6 +42,7 @@ sealed interface MyLocationsScreenState {
 class MyLocationsScreenViewModel(
     private val repo: TasaRepo,
     private val geofenceManager: GeofenceManager,
+    private val context: Context,
     initialState: MyLocationsScreenState = MyLocationsScreenState.Uninitialized,
 ) : ViewModel() {
     private val _state: MutableStateFlow<MyLocationsScreenState> = MutableStateFlow(initialState)
@@ -43,6 +50,9 @@ class MyLocationsScreenViewModel(
 
     private val _locations: MutableStateFlow<List<Location>> = MutableStateFlow(emptyList())
     val locations: StateFlow<List<Location>> = _locations.asStateFlow()
+
+    private val _successMessage: MutableStateFlow<Int?> = MutableStateFlow(null)
+    val successMessage: StateFlow<Int?> = _successMessage.asStateFlow()
 
     fun loadLocations(): Job? {
         if (_state.value is MyLocationsScreenState.Loading) return null
@@ -86,8 +96,6 @@ class MyLocationsScreenViewModel(
                     return@launch
                 }
                 if (!collides) {
-                    // TODO remove
-                    geofenceManager.deregisterAllGeofences()
                     geofenceManager.registerGeofence(
                         location.name,
                         location.toLocation(),
@@ -104,6 +112,7 @@ class MyLocationsScreenViewModel(
                         id.toInt(),
                     )
                     _state.value = MyLocationsScreenState.Success(_locations)
+                    _successMessage.value = R.string.rule_created_successfully
                 } else {
                     _state.value =
                         MyLocationsScreenState.Error(R.string.rule_already_exists_for_this_time)
@@ -127,14 +136,26 @@ class MyLocationsScreenViewModel(
                     }
                     repo.ruleRepo.deleteRuleLocationByName(location.name)
                     repo.geofenceRepo.deleteGeofence(geofences.first())
+                    if (LocationService.isRunning && LocationService.locationName == location.name) {
+                        val serviceIntent =
+                            Intent(context, LocationService::class.java).apply {
+                                putExtra("requestId", LocationService.reqId)
+                            }
+                        context.stopService(serviceIntent)
+                    }
                 }
                 repo.locationRepo.deleteLocationByName(location.name)
                 _state.value = MyLocationsScreenState.Success(_locations)
+                _successMessage.value = R.string.location_deleted
             } catch (e: Exception) {
                 Log.d("MyLocationsScreenViewModel", "deleteLocation: ", e)
                 _state.value = MyLocationsScreenState.Error(R.string.unexpected_error)
             }
         }
+    }
+
+    fun clearMessageOfSuccess() {
+        _successMessage.value = null
     }
 }
 
@@ -142,11 +163,13 @@ class MyLocationsScreenViewModel(
 class MyLocationsScreenViewModelFactory(
     private val repo: TasaRepo,
     private val geofenceManager: GeofenceManager,
+    private val context: Context,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return MyLocationsScreenViewModel(
             repo = repo,
             geofenceManager = geofenceManager,
+            context = context,
             initialState = MyLocationsScreenState.Uninitialized,
         ) as T
     }

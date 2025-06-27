@@ -4,8 +4,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -31,7 +34,9 @@ fun MapScreen(
     onTouchSearchBox: () -> Unit,
     onUnTouchSearchBox: () -> Unit,
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopBar(NavigationHandlers(onBackRequested = onNavigationBack))
         },
@@ -42,7 +47,8 @@ fun MapScreen(
                     .fillMaxSize()
                     .padding(innerPadding),
         ) {
-            when (val state = viewModel.state.collectAsState().value) {
+            val state = viewModel.state.collectAsState().value
+            when (state) {
                 is MapsScreenState.Uninitialized,
                 is MapsScreenState.Loading,
                 -> {
@@ -77,7 +83,7 @@ fun MapScreen(
                     ErrorAlert(
                         title = stringResource(R.string.error),
                         message = state.message,
-                        buttonText = stringResource(R.string.ok),
+                        buttonText = stringResource(R.string.Ok),
                     ) {
                         onNavigationBack()
                     }

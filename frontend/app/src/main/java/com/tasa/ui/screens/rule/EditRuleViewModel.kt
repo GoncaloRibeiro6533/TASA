@@ -6,7 +6,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.tasa.alarm.AlarmScheduler
+import com.tasa.domain.Action
 import com.tasa.domain.Rule
+import com.tasa.domain.RuleEvent
+import com.tasa.domain.RuleLocation
 import com.tasa.domain.toTriggerTime
 import com.tasa.repository.TasaRepo
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,6 +43,7 @@ class EditRuleViewModel(
     val state: StateFlow<EditRuleState> = _state.asStateFlow()
 
     fun updateRule(
+        rule: Rule = this.rule,
         newStartTime: LocalDateTime,
         newEndTime: LocalDateTime,
         activityContext: Context,
@@ -47,62 +51,72 @@ class EditRuleViewModel(
         if (_state.value !is EditRuleState.Editing) return
         _state.value = EditRuleState.Loading
         viewModelScope.launch {
-            // TODO check if is not this rule time in the collision
-            val isCollision = repo.ruleRepo.isCollision(newStartTime, newEndTime)
+            val isCollision = repo.ruleRepo.isCollisionWithAnother(rule, newStartTime, newEndTime)
             if (!isCollision) {
-                /*if (rule is RuleEvent &&
-                    !activityContext
-                        .timeIsInEventTime(
-                            rule.event.id,
-                            rule.event.calendarId,
+                when (rule) {
+                    is RuleLocation -> {
+                        // TODO
+                    }
+                    is RuleEvent -> {
+                        if (!newStartTime.isAfter(newEndTime) &&
+                            !toInterval(newStartTime, newEndTime)
+                                .isWithin(toInterval(rule.startTime, rule.endTime))
+                        ) {
+                            _state.value = EditRuleState.Error("Time overlaps with calendar event")
+                            return@launch
+                        }
+                        repo.ruleRepo.updateRuleEvent(
+                            rule.id,
                             newStartTime,
                             newEndTime,
+                            rule.startTime,
+                            rule.endTime,
                         )
-                ) {
-                    _state.value = EditRuleState.Error("Time is not event time")
-                    return@launch
-                }*/
-                repo.ruleRepo.updateRuleEvent(
-                    rule.id,
-                    newStartTime,
-                    newEndTime,
-                    rule.startTime,
-                    rule.endTime,
-                )
-                val alarmStart =
-                    repo.alarmRepo.getAlarmByTriggerTime(
-                        rule.startTime.toTriggerTime().value,
-                    )
-                val alarmEnd =
-                    repo.alarmRepo.getAlarmByTriggerTime(
-                        rule.endTime.toTriggerTime().value,
-                    )
-                // TODO exists -> Not -> Create then
-                if (alarmStart == null || alarmEnd == null) {
-                    _state.value = EditRuleState.Error("Error updating rule")
-                    return@launch
+                        val alarmStart =
+                            repo.alarmRepo.getAlarmByTriggerTime(
+                                rule.startTime.toTriggerTime().value,
+                            )
+                        val alarmEnd =
+                            repo.alarmRepo.getAlarmByTriggerTime(
+                                rule.endTime.toTriggerTime().value,
+                            )
+                        if (alarmStart == null || alarmEnd == null) {
+                            alarmScheduler.scheduleAlarm(
+                                newStartTime.toTriggerTime(),
+                                Action.MUTE,
+                                activityContext,
+                            )
+                            alarmScheduler.scheduleAlarm(
+                                newEndTime.toTriggerTime(),
+                                Action.UNMUTE,
+                                activityContext,
+                            )
+                        } else {
+                            alarmScheduler.updateAlarm(
+                                alarmStart.id,
+                                newStartTime.toTriggerTime(),
+                                alarmStart.action,
+                                activityContext,
+                            )
+                            alarmScheduler.updateAlarm(
+                                alarmEnd.id,
+                                newEndTime.toTriggerTime(),
+                                alarmEnd.action,
+                                activityContext,
+                            )
+                        }
+                        _state.value =
+                            EditRuleState.Success(
+                                rule.copy(
+                                    startTime = newStartTime,
+                                    endTime = newEndTime,
+                                ),
+                            )
+                    }
                 }
-                alarmScheduler.updateAlarm(
-                    alarmStart.id,
-                    newStartTime.toTriggerTime(),
-                    alarmStart.action,
-                    activityContext,
-                )
-                alarmScheduler.updateAlarm(
-                    alarmEnd.id,
-                    newEndTime.toTriggerTime(),
-                    alarmEnd.action,
-                    activityContext,
-                )
-                _state.value =
-                    EditRuleState.Success(
-                        rule.copy(
-                            startTime = newStartTime,
-                            endTime = newEndTime,
-                        ),
-                    )
+            } else {
+                _state.value = EditRuleState.Error("Rule already exists for this time period")
             }
-            _state.value = EditRuleState.Error("Rule already exists for this time period")
         }
     }
 

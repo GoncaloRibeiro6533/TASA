@@ -19,8 +19,6 @@ const val CUSTOM_REQUEST_CODE_GEOFENCE = 1001
 
 class GeofenceManager(context: Context, private val repo: TasaRepo) {
     private val client = LocationServices.getGeofencingClient(context)
-    private val geofenceList = mutableMapOf<String, Geofence>()
-    // TODO implement repository
 
     private val geofencingPendingIntent by lazy {
         val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
@@ -60,7 +58,6 @@ class GeofenceManager(context: Context, private val repo: TasaRepo) {
     suspend fun deregisterGeofence(requestId: String) =
         runCatching {
             client.removeGeofences(listOf(requestId)).await()
-            geofenceList.clear()
         }
 
     suspend fun deregisterAllGeofences() =
@@ -71,7 +68,7 @@ class GeofenceManager(context: Context, private val repo: TasaRepo) {
 
     private fun createGeofencingRequest(geofence: Geofence): GeofencingRequest {
         return GeofencingRequest.Builder().apply {
-            setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+            setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER or GeofencingRequest.INITIAL_TRIGGER_EXIT)
             addGeofence(geofence)
         }.build()
     }

@@ -54,7 +54,7 @@ fun CalendarScreen(
                             title = "Error",
                             message = state.message,
                             buttonText = "Dismiss",
-                            onDismiss = { onNavigationBack() },
+                            onDismiss = { onNavigationBack },
                         )
                     }
 
@@ -66,12 +66,10 @@ fun CalendarScreen(
                         )
                     }
                     is CalendarScreenState.CreatingRuleEvent -> {
-                        CreateRulEventView(
+                        CreateRuleEventView(
                             event = state.event,
-                            onCreate = { calendarEvent, startTime, endTime ->
-                                onCreateRuleEvent(calendarEvent, startTime, endTime)
-                            },
-                            onCancel = { onCancel() },
+                            onCreate = onCreateRuleEvent,
+                            onCancel = onCancel,
                         )
                     }
                     is CalendarScreenState.Success -> {

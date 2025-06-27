@@ -9,21 +9,19 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
-
-import com.tasa.ui.screens.authentication.login.components.LOGIN_PASSWORD_TEXT_FIELD
-import com.tasa.ui.screens.authentication.login.components.LOGIN_USERNAME_TEXT_FIELD
 import com.tasa.ui.screens.authentication.login.LOGIN_BUTTON
 import com.tasa.ui.screens.authentication.login.LOGIN_TEXT_FIELDS
 import com.tasa.ui.screens.authentication.login.LOGIN_VIEW
 import com.tasa.ui.screens.authentication.login.LoginView
 import com.tasa.ui.screens.authentication.login.REGISTER_ANCHOR
+import com.tasa.ui.screens.authentication.login.components.LOGIN_PASSWORD_TEXT_FIELD
+import com.tasa.ui.screens.authentication.login.components.LOGIN_USERNAME_TEXT_FIELD
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class LoginViewTests {
-
     @get:Rule
     val composeTree = createComposeRule()
 
@@ -32,7 +30,7 @@ class LoginViewTests {
         composeTree.setContent {
             LoginView(
                 onSubmit = { _, _ -> },
-                onRegisterRequested = {}
+                onRegisterRequested = {},
             )
         }
         composeTree.onNodeWithTag(LOGIN_VIEW).assertIsDisplayed()
@@ -46,7 +44,7 @@ class LoginViewTests {
         composeTree.setContent {
             LoginView(
                 onSubmit = { _, _ -> },
-                onRegisterRequested = {}
+                onRegisterRequested = {},
             )
         }
         composeTree.onNodeWithTag(LOGIN_BUTTON).assertIsDisplayed()
@@ -62,7 +60,7 @@ class LoginViewTests {
         composeTree.setContent {
             LoginView(
                 onSubmit = { _, _ -> },
-                onRegisterRequested = {}
+                onRegisterRequested = {},
             )
         }
         composeTree.onNodeWithTag(LOGIN_BUTTON).assertIsDisplayed()
@@ -80,7 +78,7 @@ class LoginViewTests {
         composeTree.setContent {
             LoginView(
                 onSubmit = { _, _ -> },
-                onRegisterRequested = {}
+                onRegisterRequested = {},
             )
         }
         composeTree.onNodeWithTag(LOGIN_BUTTON).assertIsDisplayed()
@@ -99,7 +97,7 @@ class LoginViewTests {
         composeTree.setContent {
             LoginView(
                 onSubmit = { _, _ -> submitted = true },
-                onRegisterRequested = {}
+                onRegisterRequested = {},
             )
         }
         composeTree.onNodeWithTag(LOGIN_USERNAME_TEXT_FIELD).performTextInput("Bob")
@@ -114,7 +112,7 @@ class LoginViewTests {
         composeTree.setContent {
             LoginView(
                 onSubmit = { _, _ -> },
-                onRegisterRequested = { registered = true }
+                onRegisterRequested = { registered = true },
             )
         }
         composeTree.onNodeWithTag(REGISTER_ANCHOR).performClick()
@@ -122,7 +120,7 @@ class LoginViewTests {
     }
 
     @Test
-    fun does_not_save_or_accept_spaces(){
+    fun does_not_save_or_accept_spaces() {
         var username = ""
         var password = ""
         composeTree.setContent {
@@ -131,13 +129,13 @@ class LoginViewTests {
                     username = u
                     password = p
                 },
-                onRegisterRequested = {}
+                onRegisterRequested = {},
             )
         }
         composeTree.onNodeWithTag(LOGIN_USERNAME_TEXT_FIELD).performTextInput("  Bob  ")
         composeTree.onNodeWithTag(LOGIN_PASSWORD_TEXT_FIELD).performTextInput("  password_of_bob  ")
         composeTree.onNodeWithTag(LOGIN_BUTTON).performClick()
-        assert( username == "Bob")
-        assert( password == "password_of_bob")
+        assert(username == "Bob")
+        assert(password == "password_of_bob")
     }
 }

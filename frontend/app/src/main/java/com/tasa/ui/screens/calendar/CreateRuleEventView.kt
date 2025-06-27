@@ -23,15 +23,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.tasa.R
 import com.tasa.domain.CalendarEvent
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateRulEventView(
+fun CreateRuleEventView(
     event: CalendarEvent,
     onCreate: (CalendarEvent, LocalDateTime, LocalDateTime) -> Unit = { _, _, _ -> },
     onCancel: () -> Unit = {},
@@ -66,18 +68,18 @@ fun CreateRulEventView(
                 .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("Criar Regra para Evento", style = MaterialTheme.typography.headlineSmall)
+        Text(stringResource(R.string.create_rule_for_event), style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(event.title, style = MaterialTheme.typography.bodyLarge)
 
         Spacer(modifier = Modifier.height(8.dp))
-        Text("Início do evento: ${event.startTime.format(fullFormatter)}")
-        Text("Fim do evento: ${event.endTime.format(fullFormatter)}")
+        Text(stringResource(R.string.current_start_time) + ": ${event.startTime.format(fullFormatter)}")
+        Text(stringResource(R.string.current_end_time) + ": ${event.endTime.format(fullFormatter)}")
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Text("Hora de início da regra", style = MaterialTheme.typography.bodyLarge)
+        Text(stringResource(R.string.rule_start_time), style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.height(8.dp))
 
         ExposedDropdownMenuBox(
@@ -88,7 +90,7 @@ fun CreateRulEventView(
                 value = startTime.format(timeFormatter),
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Início") },
+                label = { Text(stringResource(R.string.current_start_time)) },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedStart)
                 },
@@ -116,7 +118,7 @@ fun CreateRulEventView(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Hora de fim da regra", style = MaterialTheme.typography.bodyLarge)
+        Text(stringResource(R.string.rule_end_time), style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.height(8.dp))
 
         ExposedDropdownMenuBox(
@@ -127,7 +129,7 @@ fun CreateRulEventView(
                 value = endTime.format(timeFormatter),
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Fim") },
+                label = { Text(stringResource(R.string.current_end_time)) },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedEnd)
                 },
@@ -158,8 +160,8 @@ fun CreateRulEventView(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            OutlinedButton(onClick = onCancel) {
-                Text("Cancelar")
+            OutlinedButton(onClick = { onCancel() }) {
+                Text(stringResource(R.string.cancel))
             }
             Button(
                 onClick = {
@@ -167,7 +169,7 @@ fun CreateRulEventView(
                 },
                 enabled = valid,
             ) {
-                Text("Criar")
+                Text(stringResource(R.string.create))
             }
         }
     }
@@ -185,5 +187,5 @@ fun PreviewCreateRulEventView() {
             startTime = now.plusMinutes(30),
             endTime = now.plusHours(2),
         )
-    CreateRulEventView(event = event)
+    CreateRuleEventView(event = event)
 }

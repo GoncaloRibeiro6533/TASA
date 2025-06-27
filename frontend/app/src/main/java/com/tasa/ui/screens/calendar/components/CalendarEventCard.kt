@@ -32,7 +32,6 @@ import com.tasa.domain.CalendarEvent
 
 const val EVENT_CARD = "event_card"
 
-
 @Composable
 fun CalendarEventCard(
     event: CalendarEvent,

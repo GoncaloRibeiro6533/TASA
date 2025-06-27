@@ -10,6 +10,7 @@ import com.tasa.storage.daos.GeofenceDao
 import com.tasa.storage.daos.LocationDao
 import com.tasa.storage.daos.RuleEventDao
 import com.tasa.storage.daos.RuleLocationDao
+import com.tasa.storage.daos.RuleLocationTimelessDao
 import com.tasa.storage.daos.UserDao
 import com.tasa.storage.entities.AlarmEntity
 import com.tasa.storage.entities.EventEntity
@@ -17,6 +18,7 @@ import com.tasa.storage.entities.GeofenceEntity
 import com.tasa.storage.entities.LocationEntity
 import com.tasa.storage.entities.RuleEventEntity
 import com.tasa.storage.entities.RuleLocationEntity
+import com.tasa.storage.entities.RuleLocationTimelessEntity
 import com.tasa.storage.entities.UserEntity
 
 @Database(
@@ -28,8 +30,9 @@ import com.tasa.storage.entities.UserEntity
         RuleLocationEntity::class,
         AlarmEntity::class,
         GeofenceEntity::class,
+        RuleLocationTimelessEntity::class,
     ],
-    version = 8,
+    version = 9,
 )
 @TypeConverters(Converters::class)
 abstract class TasaDB : RoomDatabase() {
@@ -46,4 +49,6 @@ abstract class TasaDB : RoomDatabase() {
     abstract fun alarmDao(): AlarmDao
 
     abstract fun geofenceDao(): GeofenceDao
+
+    abstract fun ruleLocationTimelessDao(): RuleLocationTimelessDao
 }

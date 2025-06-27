@@ -80,6 +80,26 @@ class RuleRepository(
         return ruleEvent != null || ruleLocation != null
     }
 
+    override suspend fun isCollisionWithAnother(
+        rule: Rule,
+        newStartTime: LocalDateTime,
+        newEndTime: LocalDateTime,
+    ): Boolean {
+        if (rule is RuleEvent) {
+            val result =
+                local.ruleEventDao().getRuleEventByStartAndEndTime(
+                    newStartTime,
+                    newEndTime,
+                ) ?: return false
+            return result != rule
+        } else {
+            val result =
+                local.ruleLocationDao().getRuleLocationByTime(newStartTime, newEndTime)
+                    ?: return false
+            return result != rule
+        }
+    }
+
     override suspend fun insertRuleEvent(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
@@ -156,7 +176,13 @@ class RuleRepository(
                 rulesToDelete.forEach {
                     local.ruleEventDao().deleteRuleEventByStartAndEndTime(it.startTime, it.endTime)
                 }
-                return@collect
+            }
+        local.ruleLocationDao().getAllRuleLocations().map { it.map { it.toRuleLocation() } }
+            .collect { rules ->
+                val rulesToDelete = rules.filter { it.endTime.isBefore(now) }
+                rulesToDelete.forEach {
+                    local.ruleLocationDao().deleteRuleLocationByName(it.location.name)
+                }
             }
     }
 

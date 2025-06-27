@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.tasa.domain.Rule
+import com.tasa.domain.RuleEvent
 import com.tasa.ui.components.ErrorAlert
 import com.tasa.ui.components.LoadingView
 import com.tasa.ui.components.NavigationHandlers
@@ -60,7 +61,7 @@ fun EditRuleScreen(
                     }
                     is EditRuleState.Editing -> {
                         EditRuleEventView(
-                            rule = rule,
+                            rule = rule as RuleEvent,
                             onUpdate = { newStartTime, newEndTime ->
                                 onRuleUpdate(newStartTime, newEndTime)
                             },

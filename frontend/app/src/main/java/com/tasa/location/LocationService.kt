@@ -26,6 +26,10 @@ class LocationService : Service() {
         const val CHANNEL_ID = "location_channel"
         const val NOTIFICATION_ID = 1
         var isRunning = false
+        var locationName: String? = null
+        var locationOfSilence: Location? = null
+        var radius: Float = 0f
+        var reqId: String? = null
     }
 
     private val locationUpdates by lazy {
@@ -41,8 +45,7 @@ class LocationService : Service() {
     }
 
     private val scope = CoroutineScope(Dispatchers.IO)
-    private var locationOfSilence: Location? = null
-    private var radius: Float = 0f
+
     private val notificationManager by lazy {
         this.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
     }
@@ -65,6 +68,8 @@ class LocationService : Service() {
         startForeground(NOTIFICATION_ID, notification)
         Log.d("LocationService", "Service started in foreground")
         val requestId = intent?.getStringExtra("requestId").toString()
+        reqId = requestId
+        locationName = requestId
         // get the location by requestId
         scope.launch {
             val result = repo.locationRepo.getLocationByName(requestId)

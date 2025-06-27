@@ -34,7 +34,6 @@ import java.time.format.DateTimeFormatter
 
 const val DATE_BAR = "date_bar"
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateSelectorBar(
@@ -74,7 +73,7 @@ fun DateSelectorBar(
 
                     openDatePicker.value = false
                 }) {
-                    Text(stringResource(R.string.ok))
+                    Text(stringResource(R.string.select))
                 }
             },
             dismissButton = {

@@ -52,7 +52,9 @@ class CalendarScreenViewModel(
             try {
                 activityContext.calendarEventsFlow().collect {
                     _events.value = it
-                    _state.value = CalendarScreenState.Success(events)
+                    if (_state.value is CalendarScreenState.Loading) {
+                        _state.value = CalendarScreenState.Success(events)
+                    }
                 }
             } catch (e: Exception) {
                 _state.value = CalendarScreenState.Error(e.message ?: "Unknown error")
@@ -72,13 +74,14 @@ class CalendarScreenViewModel(
         viewModelScope.launch {
             val collides = repo.ruleRepo.isCollision(event.startTime, event.endTime)
             if (!collides) {
-                repo.ruleRepo.insertRuleEvent(
-                    startTime = startTime ?: event.startTime,
-                    endTime = endTime ?: event.endTime,
-                    event = event.event,
-                )
-                ruleScheduler.scheduleAlarm(event.startTime.toTriggerTime(), Action.MUTE, activityContext)
-                ruleScheduler.scheduleAlarm(event.endTime.toTriggerTime(), Action.UNMUTE, activityContext)
+                val rule =
+                    repo.ruleRepo.insertRuleEvent(
+                        startTime = startTime ?: event.startTime,
+                        endTime = endTime ?: event.endTime,
+                        event = event.event,
+                    )
+                ruleScheduler.scheduleAlarm(rule.startTime.toTriggerTime(), Action.MUTE, activityContext)
+                ruleScheduler.scheduleAlarm(rule.endTime.toTriggerTime(), Action.UNMUTE, activityContext)
                 _state.value = CalendarScreenState.SuccessOnSchedule(events)
             } else {
                 _state.value =

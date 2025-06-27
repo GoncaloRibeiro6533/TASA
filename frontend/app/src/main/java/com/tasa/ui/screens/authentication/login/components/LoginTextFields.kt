@@ -29,9 +29,10 @@ fun LoginTextFields(
         UsernameTextField(
             username = username,
             onUsernameChangeCallback = onUsernameChangeCallback,
-            modifier = Modifier
-                .padding(bottom = USERNAME_TO_PASSWORD_PADDING.dp)
-                .testTag(LOGIN_USERNAME_TEXT_FIELD),
+            modifier =
+                Modifier
+                    .padding(bottom = USERNAME_TO_PASSWORD_PADDING.dp)
+                    .testTag(LOGIN_USERNAME_TEXT_FIELD),
         )
         PasswordTextField(
             password = password,

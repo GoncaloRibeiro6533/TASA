@@ -62,6 +62,12 @@ interface RuleRepositoryInterface {
         endTime: LocalDateTime,
     ): Boolean
 
+    suspend fun isCollisionWithAnother(
+        rule: Rule,
+        newStartTime: LocalDateTime,
+        newEndTime: LocalDateTime,
+    ): Boolean
+
     suspend fun deleteRuleLocationByName(name: String)
 
     suspend fun cleanOldRules(now: LocalDateTime)

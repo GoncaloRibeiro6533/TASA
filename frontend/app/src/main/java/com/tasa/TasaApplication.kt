@@ -22,6 +22,7 @@ import com.tasa.service.http.TasaServiceHttp
 import com.tasa.storage.TasaDB
 import com.tasa.utils.PropertiesConfigLoader
 import com.tasa.workers.CoroutineDBCleaner
+import com.tasa.workers.LocationStatusWorker
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -122,6 +123,17 @@ class TasaApplication : Application(), DependenciesContainer {
             ).setConstraints(constraints).build()
         WorkManager.getInstance(this)
             .enqueue(workItem)
+        val constraints2 =
+            Constraints.Builder()
+                .build()
+        // Check for location on/off
+        val gpsStatusItem =
+            PeriodicWorkRequestBuilder<LocationStatusWorker>(
+                repeatInterval = 2,
+                TimeUnit.MINUTES,
+            ).setConstraints(constraints2).build()
+        WorkManager.getInstance(this)
+            .enqueue(gpsStatusItem)
     }
 
     companion object {

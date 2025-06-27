@@ -47,9 +47,9 @@ class HomePageActivity : ComponentActivity() {
         }
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // registerReceiver(LocationStateReceiver(), IntentFilter(android.location.LocationManager.PROVIDERS_CHANGED_ACTION))
         viewModel.loadLocalData()
         val activityPermission =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -58,12 +58,15 @@ class HomePageActivity : ComponentActivity() {
                 "com.google.android.gms.permission.ACTIVITY_RECOGNITION"
             }
         val permissions =
-            listOf(
+            mutableListOf(
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 activityPermission,
                 Manifest.permission.READ_CALENDAR,
             )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions += Manifest.permission.POST_NOTIFICATIONS
+        }
         setContent {
             TasaTheme {
                 PermissionBox(
@@ -76,20 +79,20 @@ class HomePageActivity : ComponentActivity() {
                                 Manifest.permission.ACCESS_COARSE_LOCATION,
                                 Manifest.permission.ACTIVITY_RECOGNITION,
                                 "com.google.android.gms.permission.ACTIVITY_RECOGNITION",
+                                Manifest.permission.READ_CALENDAR,
+                                Manifest.permission.POST_NOTIFICATIONS,
                             ],
                     ) {
                         HomePageScreen(
                             viewModel = viewModel,
                             onNavigateToMyLocations = {
                                 navigateTo(this@HomePageActivity, MyLocationsActivity::class.java)
-                                finish()
                             },
                             onNavigateToCreateRuleEvent = {
                                 navigateTo(this@HomePageActivity, CalendarActivity::class.java)
                             },
                             onNavigationToMap = {
                                 startActivity(Intent(this@HomePageActivity, MapActivity::class.java))
-                                finish()
                             },
                             onNavigateToMyExceptions = {
                                 val intent =

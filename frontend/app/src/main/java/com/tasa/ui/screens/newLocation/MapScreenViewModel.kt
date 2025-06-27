@@ -89,6 +89,7 @@ class MapScreenViewModel(
     private val locationClient: FusedLocationProviderClient,
     private val activityRecognitionManager: UserActivityTransitionManager,
     private val locationUpdatesRepository: LocationUpdatesRepository,
+    private val context : Context,
     initialState: MapsScreenState = MapsScreenState.Uninitialized,
 ) : ViewModel() {
     private val _activityState = MutableStateFlow<String?>(null)
@@ -267,6 +268,10 @@ class MapScreenViewModel(
         if (_state.value is MapsScreenState.EditingLocation) {
             viewModelScope.launch {
                 try {
+                    if (repo.locationRepo.getLocationByName(locationName) != null) {
+                        _state.value = MapsScreenState.Error("Location with this name already exists")
+                        return@launch
+                    }
                     repo.locationRepo.insertLocation(
                         Location(
                             id = null,
@@ -329,6 +334,13 @@ class MapScreenViewModel(
         _state.value = MapsScreenState.Loading
         return viewModelScope.launch {
             try {
+                val locationManager =
+                    context.getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
+                val isGpsEnabled = locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)
+                if (!isGpsEnabled) {
+                    _state.value = MapsScreenState.Error("Location is disabled. Please enable it to use this feature.")
+                    return@launch
+                }
                 getCurrentLocation().let { location ->
                     _currentLocation.value = location
                     _selectedPoint.value = location.point
@@ -386,6 +398,7 @@ class MapScreenViewModelFactory(
     private val locationClient: FusedLocationProviderClient,
     private val activityRecognitionManager: UserActivityTransitionManager,
     private val locationUpdatesRepository: LocationUpdatesRepository,
+    private val context: Context,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return MapScreenViewModel(
@@ -394,6 +407,7 @@ class MapScreenViewModelFactory(
             locationClient = locationClient,
             activityRecognitionManager = activityRecognitionManager,
             locationUpdatesRepository = locationUpdatesRepository,
+            context = context,
             initialState = MapsScreenState.Uninitialized,
         ) as T
     }

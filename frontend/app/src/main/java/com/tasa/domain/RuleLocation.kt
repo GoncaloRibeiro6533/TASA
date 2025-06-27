@@ -50,7 +50,7 @@ class RuleLocation(
         id: Int?,
         startTime: LocalDateTime,
         endTime: LocalDateTime,
-    ): Rule {
+    ): RuleLocation {
         return RuleLocation(
             id = id,
             startTime = startTime,

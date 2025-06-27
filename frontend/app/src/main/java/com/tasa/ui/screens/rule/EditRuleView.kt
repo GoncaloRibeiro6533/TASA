@@ -29,16 +29,31 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tasa.R
 import com.tasa.domain.Event
-import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.toFormattedDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+typealias interval = Pair<LocalDateTime, LocalDateTime>
+
+fun interval.isWithin(other: interval): Boolean {
+    return (this.first.isAfter(other.first) || this.first.isEqual(other.first)) &&
+        (this.second.isBefore(other.second) || this.second.isEqual(other.second)) &&
+        this.first.isBefore(this.second) &&
+        other.first.isBefore(other.second)
+}
+
+fun toInterval(
+    start: LocalDateTime,
+    end: LocalDateTime,
+): interval {
+    return Pair(start, end)
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditRuleEventView(
-    rule: Rule,
+    rule: RuleEvent,
     onUpdate: (LocalDateTime, LocalDateTime) -> Unit = { _, _ -> },
     onCancel: () -> Unit = {},
 ) {
@@ -47,13 +62,13 @@ fun EditRuleEventView(
     var startTime by remember { mutableStateOf(rule.startTime) }
     var endTime by remember { mutableStateOf(rule.endTime) }
 
-    // 👇 controla se picker aparece
     var showTimePicker by remember { mutableStateOf(false) }
 
-    // 👇 "start" ou "end"
     var selectedTimeType by remember { mutableStateOf("start") }
 
-    val valid = !startTime.isAfter(endTime)
+    val valid =
+        !startTime.isAfter(endTime) && toInterval(startTime, endTime).isWithin(toInterval(rule.startTime, rule.endTime)) &&
+            startTime.isAfter(LocalDateTime.now().plusMinutes(5)) && endTime.isAfter(LocalDateTime.now().plusMinutes(5))
 
     Column(
         modifier =

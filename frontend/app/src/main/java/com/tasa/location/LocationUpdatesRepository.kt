@@ -24,13 +24,6 @@ import kotlinx.coroutines.launch
 import org.osmdroid.util.GeoPoint
 import kotlin.time.Duration.Companion.milliseconds
 
-/**
- *  1º Fill array with the last 10 locations.
- *  2º Calculate the average location.
- *  3º Calculate the average accuracy.
- *  4º Remo
- *
- */
 private const val MAX_LOCATION_HISTORY = 10
 private const val MAX_LOCATION_HISTORY_DISCARDED = 5
 
@@ -173,7 +166,7 @@ class LocationUpdatesRepository(
                         return false
                     }
                     // check for the precision of the discarded locations and if the location
-                    // is in the cluster
+                    // is in the cluster TODO
                     if (discardedLocations.isClusteredWithin(MAX_DRIFTED_METERS) &&
                         location.isInCluster()
                     ) {

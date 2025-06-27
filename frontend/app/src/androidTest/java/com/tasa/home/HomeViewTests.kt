@@ -1,20 +1,10 @@
 package com.tasa.home
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
-
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
-
-
 import com.tasa.ui.screens.homepage.EVENTS_BUTTON
 import com.tasa.ui.screens.homepage.EXCEPTIONS_BUTTON
 import com.tasa.ui.screens.homepage.HOME_VIEW
@@ -22,15 +12,15 @@ import com.tasa.ui.screens.homepage.HomePageView
 import com.tasa.ui.screens.homepage.LOCATIONS_BUTTON
 import com.tasa.ui.screens.homepage.MAP_BUTTON
 import com.tasa.ui.screens.homepage.components.RULES_BAR
-import com.tasa.ui.screens.newLocation.MapView
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class HomeViewTests {
-
     @get:Rule
     val composeTree = createComposeRule()
-
 
     @Test
     fun testHomeView_displays_all_items() {
@@ -42,7 +32,7 @@ class HomeViewTests {
                 onNavigationToMap = {},
                 onNavigateToMyLocations = {},
                 onNavigationToMyExceptions = {},
-                onNavigateToCreateRuleEvent = {}
+                onNavigateToCreateRuleEvent = {},
             )
         }
         composeTree.onNodeWithTag(HOME_VIEW).assertIsDisplayed()
@@ -62,9 +52,9 @@ class HomeViewTests {
                 onEdit = {},
                 onDelete = {},
                 onNavigationToMap = {},
-                onNavigateToMyLocations = { -> navigated = true},
+                onNavigateToMyLocations = { -> navigated = true },
                 onNavigationToMyExceptions = {},
-                onNavigateToCreateRuleEvent = {}
+                onNavigateToCreateRuleEvent = {},
             )
         }
 
@@ -83,7 +73,7 @@ class HomeViewTests {
                 onNavigationToMap = {},
                 onNavigateToMyLocations = {},
                 onNavigationToMyExceptions = {},
-                onNavigateToCreateRuleEvent = { -> navigated = true}
+                onNavigateToCreateRuleEvent = { -> navigated = true },
             )
         }
 
@@ -101,8 +91,8 @@ class HomeViewTests {
                 onDelete = {},
                 onNavigationToMap = {},
                 onNavigateToMyLocations = {},
-                onNavigationToMyExceptions = { -> navigated = true},
-                onNavigateToCreateRuleEvent = {}
+                onNavigationToMyExceptions = { -> navigated = true },
+                onNavigateToCreateRuleEvent = {},
             )
         }
 
@@ -118,10 +108,10 @@ class HomeViewTests {
                 rules = MutableStateFlow(emptyList()),
                 onEdit = {},
                 onDelete = {},
-                onNavigationToMap = { -> navigated = true},
+                onNavigationToMap = { -> navigated = true },
                 onNavigateToMyLocations = {},
                 onNavigationToMyExceptions = {},
-                onNavigateToCreateRuleEvent = {}
+                onNavigateToCreateRuleEvent = {},
             )
         }
 

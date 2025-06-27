@@ -45,7 +45,6 @@ const val LOGIN_TEXT_FIELDS = "login_text_fields"
 const val LOGIN_BUTTON = "login_button"
 const val REGISTER_ANCHOR = "register_anchor"
 
-
 @Composable
 fun MapViewRoot(
     state: StateFlow<MapsScreenState>,

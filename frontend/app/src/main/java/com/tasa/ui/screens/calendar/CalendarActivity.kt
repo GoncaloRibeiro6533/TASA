@@ -6,12 +6,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.material3.MaterialTheme
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.tasa.DependenciesContainer
-import com.tasa.ui.screens.homepage.HomePageActivity
-import com.tasa.utils.navigateTo
+import com.tasa.ui.components.PermissionBox
+import com.tasa.ui.theme.TasaTheme
 
 class CalendarActivity : ComponentActivity() {
     private val ruleScheduler by lazy {
@@ -37,29 +36,35 @@ class CalendarActivity : ComponentActivity() {
         checkAndRequestCalendarPermission(this)
         viewModel.loadEvents(this)
         setContent {
-            MaterialTheme {
-                CalendarScreen(
-                    onEventSelected = { calendarEvent ->
-                        viewModel.onEventSelected(calendarEvent)
-                    },
-                    onNavigationBack = {
-                        navigateTo(this, HomePageActivity::class.java)
-                        finish()
-                    },
-                    onCancel = { viewModel.onCancel() },
-                    onCreateRuleEvent = { event, startTime, endTime ->
-                        viewModel.onCreateRuleEvent(
-                            event,
-                            startTime,
-                            endTime,
-                            this,
-                        )
-                        navigateTo(this, HomePageActivity::class.java)
-                        finish()
-                    },
-                    viewModel = viewModel,
-                )
+            TasaTheme {
+                PermissionBox(
+                    permission = Manifest.permission.READ_CALENDAR,
+                ) {
+                    CalendarScreen(
+                        onEventSelected = { calendarEvent ->
+                            viewModel.onEventSelected(calendarEvent)
+                        },
+                        onNavigationBack = {
+                            finish()
+                        },
+                        onCancel = { viewModel.onCancel() },
+                        onCreateRuleEvent = { event, startTime, endTime ->
+                            viewModel.onCreateRuleEvent(
+                                event,
+                                startTime,
+                                endTime,
+                                this@CalendarActivity,
+                            )
+                        },
+                        viewModel = viewModel,
+                    )
+                }
             }
         }
+    }
+
+    override fun onBackPressed() {
+        finish()
+        super.onBackPressedDispatcher
     }
 }

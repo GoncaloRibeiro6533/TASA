@@ -110,7 +110,7 @@ fun MenuScreen(
                         ErrorAlert(
                             title = stringResource(R.string.error),
                             message = state.error.message,
-                            buttonText = stringResource(R.string.ok),
+                            buttonText = stringResource(R.string.Ok),
                             onDismiss = { onLogout() },
                         )
                     }

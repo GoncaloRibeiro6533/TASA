@@ -62,10 +62,9 @@ class AlarmScheduler(
         context: Context,
     ) {
         repo.alarmRepo.updateAlarm(time.value, action, alarmId)
-
         val intent =
             Intent(context, MuteReceiver::class.java).apply {
-                putExtra("action", action.value)
+                putExtra("action", action as Parcelable)
                 data = "custom://alarm/$alarmId".toUri()
             }
 

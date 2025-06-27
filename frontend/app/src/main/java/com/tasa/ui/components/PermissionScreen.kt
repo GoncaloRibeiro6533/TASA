@@ -107,9 +107,10 @@ fun PermissionScreenPreview() {
         object : MultiplePermissionsState {
             override val permissions: List<PermissionState> = emptyList<PermissionState>()
             override val revokedPermissions: List<PermissionState>
-                get() = {
-                    emptyList<PermissionState>()
-                }()
+                get() =
+                    {
+                        emptyList<PermissionState>()
+                    }()
             override val shouldShowRationale = false
             override val allPermissionsGranted = false
 

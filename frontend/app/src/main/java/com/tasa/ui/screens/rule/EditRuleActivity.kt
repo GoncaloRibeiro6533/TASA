@@ -122,9 +122,9 @@ class EditRuleActivity : ComponentActivity() {
                 onRuleUpdate = {
                         startTime, endTime ->
                     viewModel.updateRule(
-                        startTime,
-                        endTime,
-                        this,
+                        newStartTime = startTime,
+                        newEndTime = endTime,
+                        activityContext = this,
                     )
                 },
                 onRuleUpdated = {

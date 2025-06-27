@@ -6,7 +6,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import com.tasa.ui.components.NavigationHandlers
 import com.tasa.ui.components.TopBar
 import com.tasa.ui.theme.TasaTheme
@@ -23,13 +22,13 @@ import com.tasa.ui.theme.TasaTheme
 fun AboutScreen(
     onNavigateBack: () -> Unit = { },
     onSendEmailRequested: (String) -> Unit = { },
-    onOpenUrlRequested: (Uri) -> Unit = { }
+    onOpenUrlRequested: (Uri) -> Unit = { },
 ) {
-
     TasaTheme {
         Scaffold(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier =
+                Modifier
+                    .fillMaxSize(),
             topBar = {
                 TopBar(NavigationHandlers(onBackRequested = onNavigateBack))
             },
@@ -37,7 +36,7 @@ fun AboutScreen(
             AboutView(
                 innerPadding = innerPadding,
                 onSendEmailRequested = onSendEmailRequested,
-                onOpenUrlRequested = onOpenUrlRequested
+                onOpenUrlRequested = onOpenUrlRequested,
             )
         }
     }

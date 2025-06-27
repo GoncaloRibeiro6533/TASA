@@ -18,7 +18,7 @@
     <string name="save">Save</string>
     <string name="logging_out">Exiting…</string>
     <string name="error">Error</string>
-    <string name="ok">OK</string>
+    <string name="Ok" translatable="false">Ok</string>
     <string name="profile">Profile</string>
     <string name="logout">Logout</string>
     <string name="my_rules">My rules</string>
@@ -41,4 +41,12 @@
     <string name="rule_already_exists_for_this_location">Rule already exists for this location.</string>
     <string name="rule_already_exists_for_this_time">Rule already exists for the given time.</string>
     <string name="unexpected_error">An unexpected error occurred</string>
+    <string name="location_deleted">Location deleted.</string>
+    <string name="rule_created_successfully">Rule created.</string>
+    <string name="select">Select</string>
+    <string name="create_rule_for_event">Create a rule for event</string>
+    <string name="rule_start_time">Start time of rule</string>
+    <string name="rule_end_time">End time of rule</string>
+    <string name="create">Create</string>
+    <string name="ok">ok</string>
 </resources>

@@ -7,10 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresPermission
 import com.tasa.DependenciesContainer
-import com.tasa.ui.screens.homepage.HomePageActivity
 import com.tasa.ui.theme.TasaTheme
-import com.tasa.utils.navigateTo
-import kotlin.jvm.java
 
 class MyLocationsActivity : ComponentActivity() {
     private val repo by lazy {
@@ -26,6 +23,7 @@ class MyLocationsActivity : ComponentActivity() {
             MyLocationsScreenViewModelFactory(
                 repo = repo,
                 geofenceManager = geofenceManager,
+                context = this,
             )
         },
     )
@@ -45,7 +43,6 @@ class MyLocationsActivity : ComponentActivity() {
                     },
                     onEditLocation = {},
                     onNavigateBack = {
-                        navigateTo(this, HomePageActivity::class.java)
                         finish()
                     },
                     onCreateRuleLocation = { location, startTime, endTime ->
