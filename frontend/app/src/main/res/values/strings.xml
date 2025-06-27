@@ -59,4 +59,5 @@
     <string name="welcome_to_tasa">Welcome to TASA</string>
     <string name="log_in">Log In</string>
     <string name="register">Register</string>
+    <string name="about_us">About us</string>
 </resources>

@@ -2,6 +2,7 @@ package com.tasa.ui.screens.start
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,6 +35,7 @@ import com.tasa.R
 fun StartView(
     onLoginRequested: () -> Unit,
     onRegisterRequested: () -> Unit,
+    onAboutRequested: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val orientation = LocalConfiguration.current.orientation
@@ -84,6 +88,22 @@ fun StartView(
                     ),
             ) {
                 Text(text = stringResource(R.string.register))
+            }
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.padding(top = 60.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.about_us),
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontSize = 17.sp,
+                    modifier = Modifier
+                        .clickable(
+                            onClick = {onAboutRequested()},
+                        )
+                        .semantics { role = androidx.compose.ui.semantics.Role.Button },
+                )
             }
         }
     } else {
@@ -143,6 +163,20 @@ fun StartView(
                     }
                 }
             }
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.padding(top = 20.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.about_us),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontSize = 12.sp,
+                    modifier = Modifier.clickable {
+                        onAboutRequested()
+                    },
+                )
+            }
         }
     }
 }
@@ -150,5 +184,5 @@ fun StartView(
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
-    StartView({}, {})
+    StartView({}, {}, {})
 }

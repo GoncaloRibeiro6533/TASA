@@ -42,6 +42,9 @@ The application triggers silencing based on predefined rules, either when the us
 - [AlarmManager](https://developer.android.com/reference/android/app/AlarmManager)
 - [Notification Manager](https://developer.android.com/reference/android/app/NotificationManager)
 - [BroadcastReceiver](https://developer.android.com/reference/android/content/BroadcastReceiver)
+- [FusedLocationProviderClient](https://developers.google.com/android/reference/com/google/android/gms/location/FusedLocationProviderClient.html)
+- [Geofence](https://developer.android.com/develop/sensors-and-location/location/geofencing)
+- [Foreground Services](https://developer.android.com/develop/background-work/services/fgs)
 
 ---
 

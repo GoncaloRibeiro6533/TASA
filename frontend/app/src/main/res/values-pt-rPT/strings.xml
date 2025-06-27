@@ -59,4 +59,5 @@
     <string name="welcome_to_tasa">Bem-vindo à TASA</string>
     <string name="log_in">Iniciar sessão</string>
     <string name="register">Criar conta</string>
+    <string name="about_us">Acerca</string>
 </resources>
