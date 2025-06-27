@@ -7,6 +7,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.tasa.R
 import com.tasa.domain.CalendarEvent
 import com.tasa.ui.components.ErrorAlert
 import com.tasa.ui.components.LoadingView
@@ -30,7 +32,12 @@ fun CalendarScreen(
             topBar = {
                 TopBar(
                     NavigationHandlers(
-                        onBackRequested = if (state !is CalendarScreenState.CreatingRuleEvent) onNavigationBack else onCancel,
+                        onBackRequested =
+                            if (state !is CalendarScreenState.CreatingRuleEvent) {
+                                onNavigationBack
+                            } else {
+                                onCancel
+                            },
                     ),
                 )
             },
@@ -51,9 +58,9 @@ fun CalendarScreen(
 
                     is CalendarScreenState.Error -> {
                         ErrorAlert(
-                            title = "Error",
-                            message = state.message,
-                            buttonText = "Dismiss",
+                            title = stringResource(R.string.error),
+                            message = stringResource(state.message),
+                            buttonText = stringResource(R.string.Ok),
                             onDismiss = { onNavigationBack },
                         )
                     }

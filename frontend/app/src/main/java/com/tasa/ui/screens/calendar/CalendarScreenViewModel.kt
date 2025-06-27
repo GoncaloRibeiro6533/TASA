@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.tasa.R
 import com.tasa.alarm.AlarmScheduler
 import com.tasa.domain.Action
 import com.tasa.domain.CalendarEvent
@@ -29,7 +30,7 @@ sealed interface CalendarScreenState {
 
     data class Success(val events: StateFlow<List<CalendarEvent>>) : CalendarScreenState
 
-    data class Error(val message: String) : CalendarScreenState
+    data class Error(val message: Int) : CalendarScreenState
 
     data class CreatingRuleEvent(val event: CalendarEvent) : CalendarScreenState
 }
@@ -57,7 +58,7 @@ class CalendarScreenViewModel(
                     }
                 }
             } catch (e: Exception) {
-                _state.value = CalendarScreenState.Error(e.message ?: "Unknown error")
+                _state.value = CalendarScreenState.Error(R.string.unexpected_error)
                 Log.e("CalendarViewModel", "Error loading events: ${e.message}")
             }
         }
@@ -85,7 +86,7 @@ class CalendarScreenViewModel(
                 _state.value = CalendarScreenState.SuccessOnSchedule(events)
             } else {
                 _state.value =
-                    CalendarScreenState.Error("Regra já existe para esse tempo")
+                    CalendarScreenState.Error(R.string.rule_already_exists_for_this_time)
             }
         }
     }

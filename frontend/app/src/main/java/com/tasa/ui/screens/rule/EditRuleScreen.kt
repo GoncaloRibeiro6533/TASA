@@ -11,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.tasa.R
 import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
 import com.tasa.ui.components.ErrorAlert
@@ -50,9 +52,9 @@ fun EditRuleScreen(
                 when (val state = viewModel.state.collectAsState().value) {
                     is EditRuleState.Error -> {
                         ErrorAlert(
-                            title = "Error",
-                            message = state.message,
-                            buttonText = "Close",
+                            title = stringResource(R.string.error),
+                            message = stringResource(state.error),
+                            buttonText = stringResource(R.string.Ok),
                             onDismiss = { onError() },
                         )
                     }

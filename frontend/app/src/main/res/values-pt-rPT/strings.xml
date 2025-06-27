@@ -49,4 +49,14 @@
     <string name="rule_start_time">Início da regra</string>
     <string name="rule_end_time">Fim da regra</string>
     <string name="create">Criar</string>
+    <string name="error_on_cancel_rule">Ocorreu um erro a eliminar a regra.</string>
+    <string name="my_locations_title">As minhas localizações</string>
+    <string name="no_location_found">Não tens localizações guardadas.</string>
+    <string name="no_results_found">Não foram encontrados resultados.</string>
+    <string name="error_location_name_already_exists">Já existe uma localização com esse nome.</string>
+    <string name="location_disabled_warning">É necessário que a localização esteja ativa para aceder a esta funcionalidade.</string>
+    <string name="new_time_is_not_on_event_time">O tempo selecionado não é durante o tempo do evento.</string>
+    <string name="welcome_to_tasa">Bem-vindo à TASA</string>
+    <string name="log_in">Iniciar sessão</string>
+    <string name="register">Criar conta</string>
 </resources>

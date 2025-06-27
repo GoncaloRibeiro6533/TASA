@@ -85,6 +85,19 @@ class UserInfoRepo(private val store: DataStore<Preferences>) : UserInfoReposito
         return preferences[TRANSITION_KEY]?.toIntOrNull()
     }
 
+    override val notifiedOfNoLocation: Flow<Boolean>
+        get() {
+            return store.data.map { preferences ->
+                preferences.toNotifiedOfNoLocation() ?: false
+            }
+        }
+
+    override suspend fun setNotifiedOfNoLocation(notified: Boolean) {
+        store.edit { preferences ->
+            preferences[NOTIFIES_OF_NO_LOCATION_KEY] = notified.toString()
+        }
+    }
+
     override val lastActivityTransition: Flow<Int?> =
         store.data.map { preferences ->
             preferences[TRANSITION_KEY]?.toIntOrNull()
@@ -98,12 +111,17 @@ private val MODE_KEY = stringPreferencesKey("mode")
 private val LANGUAGE_KEY = stringPreferencesKey("language")
 private val ACTIVITY_KEY = stringPreferencesKey("activity")
 private val TRANSITION_KEY = stringPreferencesKey("transition")
+private val NOTIFIES_OF_NO_LOCATION_KEY = stringPreferencesKey("notifies_of_no_location")
 
 private fun Preferences.toUser(): User? {
     val username = this[USERNAME_KEY] ?: return null
     val userId = this[USER_ID_KEY] ?: return null
     val email = this[USER_EMAIL_KEY] ?: return null
     return User(userId.toInt(), username, email)
+}
+
+private fun Preferences.toNotifiedOfNoLocation(): Boolean? {
+    return this[NOTIFIES_OF_NO_LOCATION_KEY]?.toBoolean()
 }
 
 private fun User.writeToPreferences(preferences: MutablePreferences): MutablePreferences {
@@ -125,5 +143,10 @@ private fun Language.writeToPreferences(preferences: MutablePreferences): Mutabl
 
 private fun String.writeToPreferences(preferences: MutablePreferences): MutablePreferences {
     preferences[ACTIVITY_KEY] = this
+    return preferences
+}
+
+private fun Boolean.writeToPreferences(preferences: MutablePreferences): MutablePreferences {
+    preferences[NOTIFIES_OF_NO_LOCATION_KEY] = this.toString()
     return preferences
 }

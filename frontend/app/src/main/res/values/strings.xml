@@ -49,4 +49,14 @@
     <string name="rule_end_time">End time of rule</string>
     <string name="create">Create</string>
     <string name="ok">ok</string>
+    <string name="error_on_cancel_rule">An errror occurred while deleting the rule.</string>
+    <string name="my_locations_title">My Locations</string>
+    <string name="no_location_found">You don\'t have any location saved</string>
+    <string name="no_results_found">No results found</string>
+    <string name="error_location_name_already_exists">Location with the given name already exists</string>
+    <string name="location_disabled_warning">Location is disabled. Please enable it to use this feature.</string>
+    <string name="new_time_is_not_on_event_time">New time is not in event time interval</string>
+    <string name="welcome_to_tasa">Welcome to TASA</string>
+    <string name="log_in">Log In</string>
+    <string name="register">Register</string>
 </resources>

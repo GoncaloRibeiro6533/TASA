@@ -44,7 +44,6 @@ class MapActivity : ComponentActivity() {
                 locationClient = fusedLocationClient,
                 activityRecognitionManager = activityRecognitionManager,
                 locationUpdatesRepository = locationManager,
-                context = this,
             )
         },
     )
@@ -61,7 +60,7 @@ class MapActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lifecycleScope.launch {
-            viewModel.keepGivenCurrentLocation()
+            viewModel.keepGivenCurrentLocation(this@MapActivity)
         }
         lifecycleScope.launch {
             viewModel.getActivityState()

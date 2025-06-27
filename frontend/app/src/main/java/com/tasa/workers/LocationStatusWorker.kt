@@ -11,6 +11,7 @@ import com.tasa.DependenciesContainer
 import com.tasa.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
 
 class LocationStatusWorker(
     private val context: Context,
@@ -19,11 +20,13 @@ class LocationStatusWorker(
     override suspend fun doWork(): Result {
         val locationManager =
             context.getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
-
         val isGpsEnabled = locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)
 
         return withContext(Dispatchers.IO) {
             try {
+                if (LocalDateTime.now().hour in 23..7) {
+                    return@withContext Result.success()
+                }
                 if (isGpsEnabled) {
                     Log.d("LocationStateReceiver", "Location is back ON")
                     val geofenceManager = (context.applicationContext as DependenciesContainer).geofenceManager

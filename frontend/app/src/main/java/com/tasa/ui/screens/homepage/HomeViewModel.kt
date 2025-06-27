@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.tasa.R
 import com.tasa.alarm.AlarmScheduler
-import com.tasa.domain.ApiError
 import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
@@ -25,7 +25,7 @@ sealed interface HomeScreenState {
 
     data class Success(val rules: StateFlow<List<Rule>>) : HomeScreenState
 
-    data class Error(val error: ApiError) : HomeScreenState
+    data class Error(val error: Int) : HomeScreenState
 }
 
 class HomePageScreenViewModel(
@@ -72,7 +72,7 @@ class HomePageScreenViewModel(
                 }
             } catch (e: Throwable) {
                 _state.value =
-                    HomeScreenState.Error(ApiError("Error getting rules"))
+                    HomeScreenState.Error(R.string.unexpected_error)
             }
         }
     }
@@ -106,7 +106,7 @@ class HomePageScreenViewModel(
                     is RuleLocation -> repo.ruleRepo.deleteRuleLocationByName(rule.location.name)
                 }
             } catch (e: Exception) {
-                _state.value = HomeScreenState.Error(ApiError("Error cancelling rule"))
+                _state.value = HomeScreenState.Error(R.string.error_on_cancel_rule)
             }
         }
     }

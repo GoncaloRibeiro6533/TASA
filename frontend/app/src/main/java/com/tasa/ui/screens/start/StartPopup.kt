@@ -25,7 +25,7 @@ fun HomePopPup(modifier: Modifier = Modifier) {
     ) {
         Image(
             painter = painterResource(id = R.drawable.tasa_logo),
-            contentDescription = "ChIMP logo",
+            contentDescription = "TASA logo",
             modifier = Modifier.padding(10.dp).size(250.dp),
             alignment = Alignment.Center,
         )

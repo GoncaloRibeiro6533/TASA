@@ -31,4 +31,8 @@ interface UserInfoRepository {
     suspend fun writeLastActivityTransition(transitionType: Int)
 
     suspend fun getLastActivityTransition(): Int?
+
+    val notifiedOfNoLocation: Flow<Boolean>
+
+    suspend fun setNotifiedOfNoLocation(notified: Boolean)
 }

@@ -11,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.tasa.R
 import com.tasa.domain.Rule
 import com.tasa.ui.components.ErrorAlert
 import com.tasa.ui.components.LoadingView
@@ -52,9 +54,9 @@ fun HomePageScreen(
                 when (val state = viewModel.state.collectAsState().value) {
                     is HomeScreenState.Error -> {
                         ErrorAlert(
-                            title = "Error",
-                            message = state.error.message,
-                            buttonText = "Close app",
+                            title = stringResource(R.string.error),
+                            message = stringResource(state.error),
+                            buttonText = stringResource(R.string.Ok),
                             onDismiss = { onFatalError() },
                         )
                     }

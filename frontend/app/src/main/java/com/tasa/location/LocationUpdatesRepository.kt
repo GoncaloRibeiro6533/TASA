@@ -182,7 +182,7 @@ class LocationUpdatesRepository(
                         // decrease the update interval
                         stopLocationUpdates()
                         startLocationUpdates(
-                            createLocationRequest(5000.milliseconds.inWholeMilliseconds, Priority.PRIORITY_HIGH_ACCURACY),
+                            createLocationRequest(5000.milliseconds.inWholeMilliseconds, Priority.PRIORITY_BALANCED_POWER_ACCURACY),
                         )
                         Log.d("LocationManagerMine", "Locations stabilized")
                         true

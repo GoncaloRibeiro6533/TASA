@@ -15,10 +15,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.tasa.R
 import com.tasa.domain.Location
 import com.tasa.ui.screens.mylocations.components.LocationCard
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,7 +42,7 @@ fun MyLocationsView(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "My Locations",
+            text = stringResource(R.string.my_locations_title),
             modifier = Modifier.padding(10.dp),
             fontSize = 30.sp,
         )
@@ -57,7 +59,7 @@ fun MyLocationsView(
                     Spacer(Modifier.height(250.dp))
 
                     Text(
-                        text = "You don't have any location saved",
+                        text = stringResource(R.string.no_location_found),
                         modifier =
                             Modifier
                                 .fillMaxWidth()

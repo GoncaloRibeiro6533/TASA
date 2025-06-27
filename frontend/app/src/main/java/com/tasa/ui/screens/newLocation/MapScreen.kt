@@ -82,7 +82,7 @@ fun MapScreen(
                 is MapsScreenState.Error -> {
                     ErrorAlert(
                         title = stringResource(R.string.error),
-                        message = state.message,
+                        message = stringResource(state.error),
                         buttonText = stringResource(R.string.Ok),
                     ) {
                         onNavigationBack()

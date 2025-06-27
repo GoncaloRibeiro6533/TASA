@@ -13,6 +13,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import com.tasa.R
 import com.tasa.activity.UserActivityTransitionManager
 import com.tasa.domain.Location
 import com.tasa.domain.UserInfoRepository
@@ -80,7 +81,7 @@ sealed interface MapsScreenState {
         val locationName: StateFlow<String>,
     ) : MapsScreenState
 
-    data class Error(val message: String) : MapsScreenState
+    data class Error(val error: Int) : MapsScreenState
 }
 
 class MapScreenViewModel(
@@ -89,7 +90,6 @@ class MapScreenViewModel(
     private val locationClient: FusedLocationProviderClient,
     private val activityRecognitionManager: UserActivityTransitionManager,
     private val locationUpdatesRepository: LocationUpdatesRepository,
-    private val context : Context,
     initialState: MapsScreenState = MapsScreenState.Uninitialized,
 ) : ViewModel() {
     private val _activityState = MutableStateFlow<String?>(null)
@@ -150,10 +150,10 @@ class MapScreenViewModel(
                                 locationName = _locationName,
                             )
                     } else {
-                        _state.value = MapsScreenState.Error("No results found for '$query'")
+                        _state.value = MapsScreenState.Error(R.string.no_results_found)
                     }
                 } catch (e: Exception) {
-                    _state.value = MapsScreenState.Error(e.message ?: "Unknown error")
+                    _state.value = MapsScreenState.Error(R.string.unexpected_error)
                 }
             }
         }
@@ -269,7 +269,7 @@ class MapScreenViewModel(
             viewModelScope.launch {
                 try {
                     if (repo.locationRepo.getLocationByName(locationName) != null) {
-                        _state.value = MapsScreenState.Error("Location with this name already exists")
+                        _state.value = MapsScreenState.Error(R.string.error_location_name_already_exists)
                         return@launch
                     }
                     repo.locationRepo.insertLocation(
@@ -283,7 +283,7 @@ class MapScreenViewModel(
                     )
                     onSuccess()
                 } catch (ex: Throwable) {
-                    _state.value = MapsScreenState.Error(ex.message ?: "Unknown error")
+                    _state.value = MapsScreenState.Error(R.string.unexpected_error)
                 }
             }
         }
@@ -301,10 +301,10 @@ class MapScreenViewModel(
             try {
                 val result = activityRecognitionManager.registerActivityTransitions()
                 if (result.isFailure) {
-                    _state.value =
+                    /*_state.value =
                         MapsScreenState.Error(
                             result.exceptionOrNull()?.message ?: "Failed to register activity transitions",
-                        )
+                        )*/
                     return@launch
                 } else {
                     userInfo.lastActivity
@@ -317,7 +317,7 @@ class MapScreenViewModel(
                         }
                 }
             } catch (ex: Throwable) {
-                _state.value = MapsScreenState.Error(ex.message ?: "Unknown error")
+                _state.value = MapsScreenState.Error(R.string.unexpected_error)
             }
         }
     }
@@ -329,7 +329,7 @@ class MapScreenViewModel(
             Manifest.permission.ACTIVITY_RECOGNITION,
         ],
     )
-    fun keepGivenCurrentLocation(): Job? {
+    fun keepGivenCurrentLocation(context: Context): Job? {
         if (_state.value == MapsScreenState.Loading) return null
         _state.value = MapsScreenState.Loading
         return viewModelScope.launch {
@@ -338,7 +338,7 @@ class MapScreenViewModel(
                     context.getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
                 val isGpsEnabled = locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)
                 if (!isGpsEnabled) {
-                    _state.value = MapsScreenState.Error("Location is disabled. Please enable it to use this feature.")
+                    _state.value = MapsScreenState.Error(R.string.location_disabled_warning)
                     return@launch
                 }
                 getCurrentLocation().let { location ->
@@ -361,7 +361,7 @@ class MapScreenViewModel(
                         }
                     }
             } catch (ex: Throwable) {
-                _state.value = MapsScreenState.Error(ex.message ?: "Unknown error")
+                _state.value = MapsScreenState.Error(R.string.unexpected_error)
             }
         }
     }
@@ -398,7 +398,6 @@ class MapScreenViewModelFactory(
     private val locationClient: FusedLocationProviderClient,
     private val activityRecognitionManager: UserActivityTransitionManager,
     private val locationUpdatesRepository: LocationUpdatesRepository,
-    private val context: Context,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return MapScreenViewModel(
@@ -407,7 +406,6 @@ class MapScreenViewModelFactory(
             locationClient = locationClient,
             activityRecognitionManager = activityRecognitionManager,
             locationUpdatesRepository = locationUpdatesRepository,
-            context = context,
             initialState = MapsScreenState.Uninitialized,
         ) as T
     }

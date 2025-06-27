@@ -5,6 +5,7 @@ import android.provider.CalendarContract
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.tasa.R
 import com.tasa.alarm.AlarmScheduler
 import com.tasa.domain.Action
 import com.tasa.domain.Rule
@@ -30,7 +31,7 @@ sealed class EditRuleState {
 
     data class Success(val rule: Rule) : EditRuleState()
 
-    data class Error(val message: String) : EditRuleState()
+    data class Error(val error: Int) : EditRuleState()
 }
 
 class EditRuleViewModel(
@@ -62,7 +63,17 @@ class EditRuleViewModel(
                             !toInterval(newStartTime, newEndTime)
                                 .isWithin(toInterval(rule.startTime, rule.endTime))
                         ) {
-                            _state.value = EditRuleState.Error("Time overlaps with calendar event")
+                            _state.value = EditRuleState.Error(R.string.new_time_is_not_on_event_time)
+                            return@launch
+                        }
+                        if (activityContext.timeIsInEventTime(
+                                rule.event.id,
+                                rule.event.calendarId,
+                                newStartTime,
+                                newEndTime,
+                            )
+                        ) {
+                            TODO()
                             return@launch
                         }
                         repo.ruleRepo.updateRuleEvent(
@@ -115,7 +126,7 @@ class EditRuleViewModel(
                     }
                 }
             } else {
-                _state.value = EditRuleState.Error("Rule already exists for this time period")
+                _state.value = EditRuleState.Error(R.string.rule_already_exists_for_this_time)
             }
         }
     }
