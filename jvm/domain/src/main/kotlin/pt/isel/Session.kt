@@ -7,9 +7,6 @@ import kotlinx.datetime.Instant
  * @property token the session's token
  * @property refreshToken the session's refreshToken
  * @property userId the id of the user that owns the session
- * @property createdAt the date and time when the session was created
- * @property lastUsedAt the date and time when the session was last used
- * @property expirationDate the date and time when the session expires
  * @throws IllegalArgumentException if any of the parameters is invalid
  */
 data class Session(
@@ -26,6 +23,7 @@ data class Session(
 }
 
 data class Token(
+    val id: Int,
     val tokenValidationInfo: TokenValidationInfo,
     val createdAt: Instant,
     val lastUsedAt: Instant,
@@ -33,6 +31,7 @@ data class Token(
 )
 
 data class RefreshToken(
+    val id: Int,
     val tokenValidationInfo: TokenValidationInfo,
     val createdAt: Instant,
     val expiresAt: Instant,

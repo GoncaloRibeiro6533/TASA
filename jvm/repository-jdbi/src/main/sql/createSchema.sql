@@ -30,7 +30,8 @@ CREATE TABLE IF NOT EXISTS ps.SESSION(
 
 
 CREATE TABLE IF NOT EXISTS  ps.ACCESS_TOKEN(
-    token VARCHAR(256) PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
+    token VARCHAR(256) NOT NULL,
     session_id INTEGER NOT NULL REFERENCES ps.SESSION(id) ON DELETE CASCADE,
     created_at bigint not null,
     last_used_at bigint not NULL,
@@ -38,7 +39,8 @@ CREATE TABLE IF NOT EXISTS  ps.ACCESS_TOKEN(
     );
 
 CREATE TABLE IF NOT EXISTS  ps.REFRESH_TOKEN(
-    token VARCHAR(256) PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
+    token VARCHAR(256) NOT NULL,
     session_id INTEGER NOT NULL  REFERENCES ps.SESSION(id) ON DELETE CASCADE,
     created_at bigint NOT NULL,
     expire_at bigint NOT NULL

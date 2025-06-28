@@ -14,6 +14,7 @@ class TokenMapper : ColumnMapper<Token> {
         ctx: StatementContext,
     ): Token {
         return Token(
+            id = rs.getInt("access_token_id"),
             tokenValidationInfo = TokenValidationInfo(rs.getString("access_token")),
             createdAt = Instant.fromEpochSeconds(rs.getLong("access_created_at")),
             lastUsedAt = Instant.fromEpochSeconds(rs.getLong("access_last_used_at")),

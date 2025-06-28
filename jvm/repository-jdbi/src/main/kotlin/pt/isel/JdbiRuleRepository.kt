@@ -277,7 +277,7 @@ class JdbiRuleRepository(
     }
 
     override fun clear() {
-        handle.createQuery("DELETE FROM ps.RULE_EVENT")
-        handle.createQuery("DELETE FROM ps.RULE_LOCATION")
+        handle.execute("DELETE FROM ps.RULE_EVENT")
+        handle.execute("DELETE FROM ps.RULE_LOCATION")
     }
 }

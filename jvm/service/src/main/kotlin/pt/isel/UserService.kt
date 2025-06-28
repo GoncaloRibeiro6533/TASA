@@ -114,32 +114,24 @@ class UserService(
             val now = clock.now()
             val tokenValue = usersDomain.generateTokenValue()
             val refreshTokenValue = usersDomain.generateTokenValue()
-            val token =
-                Token(
-                    tokenValidationInfo = usersDomain.createTokenValidationInformation(tokenValue),
-                    createdAt = now,
-                    lastUsedAt = now,
-                    expiresAt = usersDomain.getSessionExpiration(now, now),
-                )
-            val refreshToken =
-                RefreshToken(
-                    tokenValidationInfo = usersDomain.createTokenValidationInformation(refreshTokenValue),
-                    createdAt = now,
-                    expiresAt = usersDomain.getRefreshTokenExpiration(now),
-                )
             val newSession =
                 sessionRepo.createSession(
                     user,
-                    token,
-                    refreshToken,
-                    usersDomain.maxNumberOfTokensPerUser,
+                    accessTokenValidationInfo = usersDomain.createTokenValidationInformation(tokenValue),
+                    accessCreatedAt = now,
+                    accessLastUsedAt = now,
+                    accessExpiresAt = usersDomain.getSessionExpiration(now, now),
+                    maxTokens = usersDomain.maxNumberOfTokensPerUser,
+                    refreshTokenValidationInfo = usersDomain.createTokenValidationInformation(refreshTokenValue),
+                    refreshCreatedAt = now,
+                    refreshExpiresAt = usersDomain.getRefreshTokenExpiration(now),
                 )
             return@run success(
                 user to
                     TokenExternalInfo(
                         token = tokenValue,
                         refreshToken = refreshTokenValue,
-                        token.expiresAt,
+                        newSession.token.expiresAt,
                     ),
             )
         }

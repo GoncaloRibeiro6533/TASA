@@ -19,6 +19,7 @@ class SessionMapper : RowMapper<Session> {
             userId = rs.getInt("user_id"),
             token =
                 Token(
+                    id = rs.getInt("access_id"),
                     tokenValidationInfo =
                         TokenValidationInfo(
                             validationInfo = rs.getString("access_token"),
@@ -29,6 +30,7 @@ class SessionMapper : RowMapper<Session> {
                 ),
             refreshToken =
                 RefreshToken(
+                    id = rs.getInt("refresh_id"),
                     tokenValidationInfo =
                         TokenValidationInfo(
                             validationInfo = rs.getString("refresh_token"),

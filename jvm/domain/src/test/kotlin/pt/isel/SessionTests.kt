@@ -10,6 +10,7 @@ class SessionTests {
         val encoder = Sha256TokenEncoder()
         val token =
             Token(
+                0,
                 tokenValidationInfo = encoder.createValidationInformation("token"),
                 createdAt = "2025-06-01T00:00:00Z".toInstant(),
                 lastUsedAt = "2025-06-01T01:00:00Z".toInstant(),
@@ -17,6 +18,7 @@ class SessionTests {
             )
         val refreshToken =
             RefreshToken(
+                0,
                 tokenValidationInfo = encoder.createValidationInformation("refreshToken"),
                 createdAt = "2025-06-01T00:00:00Z".toInstant(),
                 expiresAt = "2025-06-06T01:00:00Z".toInstant(),
@@ -34,6 +36,7 @@ class SessionTests {
         val encoder = Sha256TokenEncoder()
         val token =
             Token(
+                0,
                 tokenValidationInfo = encoder.createValidationInformation("token"),
                 createdAt = "2025-06-01T00:00:00Z".toInstant(),
                 lastUsedAt = "2025-06-01T01:00:00Z".toInstant(),
@@ -41,6 +44,7 @@ class SessionTests {
             )
         val refreshToken =
             RefreshToken(
+                0,
                 tokenValidationInfo = encoder.createValidationInformation("refreshToken"),
                 createdAt = "2025-06-01T00:00:00Z".toInstant(),
                 expiresAt = "2025-06-06T01:00:00Z".toInstant(),

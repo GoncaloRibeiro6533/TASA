@@ -120,7 +120,7 @@ class JdbiLocationRepository(
     }
 
     override fun clear() {
-        handle.createUpdate(
+        handle.execute(
             """
             DELETE FROM ps.LOCATION
             """.trimIndent(),

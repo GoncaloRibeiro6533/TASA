@@ -103,6 +103,7 @@ class UsersDomainTests {
     fun `token expiration should be calculated`() {
         val token =
             Token(
+                0,
                 tokenValidationInfo = tokenEncoder.createValidationInformation("token"),
                 createdAt = "2025-06-01T00:00:00Z".toInstant(),
                 lastUsedAt = "2025-06-01T01:00:00Z".toInstant(),
@@ -110,6 +111,7 @@ class UsersDomainTests {
             )
         val refreshToken =
             RefreshToken(
+                0,
                 tokenValidationInfo = tokenEncoder.createValidationInformation("refreshToken"),
                 createdAt = "2025-06-01T00:00:00Z".toInstant(),
                 expiresAt = "2025-06-06T01:00:00Z".toInstant(),
@@ -129,6 +131,7 @@ class UsersDomainTests {
     fun `token should be time valid`() {
         val token =
             Token(
+                0,
                 tokenValidationInfo = tokenEncoder.createValidationInformation("token"),
                 createdAt = "2025-06-01T00:00:00Z".toInstant(),
                 lastUsedAt = "2025-06-01T01:00:00Z".toInstant(),
@@ -136,6 +139,7 @@ class UsersDomainTests {
             )
         val refreshToken =
             RefreshToken(
+                0,
                 tokenValidationInfo = tokenEncoder.createValidationInformation("refreshToken"),
                 createdAt = "2025-06-01T00:00:00Z".toInstant(),
                 expiresAt = "2025-06-06T01:00:00Z".toInstant(),

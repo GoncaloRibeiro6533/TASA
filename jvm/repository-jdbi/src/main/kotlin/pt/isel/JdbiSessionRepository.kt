@@ -16,10 +16,12 @@ class JdbiSessionRepository(
             SELECT
                    s.id AS session_id,
                    s.user_id,
+                   a.id AS access_id,
                    a.token AS access_token,
                    a.created_at AS access_created_at,
                    a.last_used_at AS access_last_used_at,
                    a.expire_at AS access_expire_at,
+                   r.id AS refresh_id,
                    r.token AS refresh_token,
                    r.created_at AS refresh_created_at,
                    r.expire_at AS refresh_expire_at
@@ -42,10 +44,12 @@ class JdbiSessionRepository(
             SELECT
                 s.id AS session_id,
                 s.user_id,
+                a.id AS access_id,
                 a.token AS access_token,
                 a.created_at AS access_created_at,
                 a.last_used_at AS access_last_used_at,
                 a.expire_at AS access_expire_at,
+                r.id AS refresh_id,
                 r.token AS refresh_token,
                 r.created_at AS refresh_created_at,
                 r.expire_at AS refresh_expire_at
@@ -62,9 +66,14 @@ class JdbiSessionRepository(
 
     override fun createSession(
         user: User,
-        token: Token,
-        refreshToken: RefreshToken,
+        accessTokenValidationInfo: TokenValidationInfo,
+        accessCreatedAt: Instant,
+        accessLastUsedAt: Instant,
+        accessExpiresAt: Instant,
         maxTokens: Int,
+        refreshTokenValidationInfo: TokenValidationInfo,
+        refreshCreatedAt: Instant,
+        refreshExpiresAt: Instant,
     ): Session {
         val deletions =
             handle.createUpdate(
@@ -88,34 +97,50 @@ class JdbiSessionRepository(
             )
                 .bind("user_id", user.id)
                 .executeAndReturnGeneratedKeys().mapTo(Int::class.java).one()
-        handle.createUpdate(
-            """
-            INSERT INTO ps.ACCESS_TOKEN (token, session_id, created_at, last_used_at, expire_at)
-            VALUES (:token, :session_id, :created_at, :last_used_at, :expire_at)
-            """.trimIndent(),
-        )
-            .bind("token", token.tokenValidationInfo.validationInfo)
-            .bind("session_id", session)
-            .bind("created_at", token.createdAt.toEpochMilliseconds())
-            .bind("last_used_at", token.lastUsedAt.toEpochMilliseconds())
-            .bind("expire_at", token.expiresAt.toEpochMilliseconds())
-            .execute()
-        handle.createUpdate(
-            """
-            INSERT INTO ps.REFRESH_TOKEN (token, session_id, created_at, expire_at)
-            VALUES (:token, :session_id, :created_at, :expire_at)
-            """.trimIndent(),
-        )
-            .bind("token", refreshToken.tokenValidationInfo.validationInfo)
-            .bind("session_id", session)
-            .bind("created_at", refreshToken.createdAt.toEpochMilliseconds())
-            .bind("expire_at", refreshToken.expiresAt.toEpochMilliseconds())
-            .execute()
+        val accessId =
+            handle.createUpdate(
+                """
+                INSERT INTO ps.ACCESS_TOKEN (token, session_id, created_at, last_used_at, expire_at)
+                VALUES (:token, :session_id, :created_at, :last_used_at, :expire_at) RETURNING id
+                """.trimIndent(),
+            )
+                .bind("token", accessTokenValidationInfo.validationInfo)
+                .bind("session_id", session)
+                .bind("created_at", accessCreatedAt.toEpochMilliseconds())
+                .bind("last_used_at", accessLastUsedAt.toEpochMilliseconds())
+                .bind("expire_at", accessExpiresAt.toEpochMilliseconds())
+                .executeAndReturnGeneratedKeys().mapTo(Int::class.java).one()
+        val refreshId =
+            handle.createUpdate(
+                """
+                INSERT INTO ps.REFRESH_TOKEN (token, session_id, created_at, expire_at)
+                VALUES (:token, :session_id, :created_at, :expire_at) RETURNING id
+
+                """.trimIndent(),
+            )
+                .bind("token", refreshTokenValidationInfo.validationInfo)
+                .bind("session_id", session)
+                .bind("created_at", refreshCreatedAt.toEpochMilliseconds())
+                .bind("expire_at", refreshExpiresAt.toEpochMilliseconds())
+                .executeAndReturnGeneratedKeys().mapTo(Int::class.java).one()
         return Session(
             id = session,
             userId = user.id,
-            token = token,
-            refreshToken = refreshToken,
+            token =
+                Token(
+                    id = accessId,
+                    tokenValidationInfo = accessTokenValidationInfo,
+                    createdAt = accessCreatedAt,
+                    lastUsedAt = accessLastUsedAt,
+                    expiresAt = accessExpiresAt,
+                ),
+            refreshToken =
+                RefreshToken(
+                    id = refreshId,
+                    tokenValidationInfo = refreshTokenValidationInfo,
+                    createdAt = refreshCreatedAt,
+                    expiresAt = refreshExpiresAt,
+                ),
         )
     }
 
@@ -168,6 +193,7 @@ class JdbiSessionRepository(
                 userId = rs.getInt("user_id"),
                 token =
                     Token(
+                        id = rs.getInt("access_id"),
                         tokenValidationInfo =
                             TokenValidationInfo(
                                 validationInfo = rs.getString("access_token"),
@@ -178,6 +204,7 @@ class JdbiSessionRepository(
                     ),
                 refreshToken =
                     RefreshToken(
+                        id = rs.getInt("refresh_id"),
                         tokenValidationInfo =
                             TokenValidationInfo(
                                 validationInfo = rs.getString("refresh_token"),

@@ -10,12 +10,14 @@ import pt.isel.User
 class MockSessionRepository : SessionRepository {
     private val sessions = mutableMapOf<Int, MutableList<Session>>()
     private var sessionId = 0
+    private var tokenId = 0
+    private var refreshTokenId = 0
     private val tokens = mutableMapOf<Int, Token>()
     private val refreshTokens = mutableMapOf<Int, RefreshToken>()
 
-    override fun findByToken(token: TokenValidationInfo): Session? {
-        return sessions.values.flatten().find {
-            it.token.tokenValidationInfo == token
+    override fun findByToken(tokenValidationInfo: TokenValidationInfo): Session? {
+        return sessions.values.flatten().find { session ->
+            session.token.tokenValidationInfo.validationInfo == tokenValidationInfo.validationInfo
         }
     }
 
@@ -25,13 +27,38 @@ class MockSessionRepository : SessionRepository {
 
     override fun createSession(
         user: User,
-        token: Token,
-        refreshToken: RefreshToken,
+        accessTokenValidationInfo: TokenValidationInfo,
+        accessCreatedAt: Instant,
+        accessLastUsedAt: Instant,
+        accessExpiresAt: Instant,
         maxTokens: Int,
+        refreshTokenValidationInfo: TokenValidationInfo,
+        refreshCreatedAt: Instant,
+        refreshExpiresAt: Instant,
     ): Session {
+        val sessionId = sessionId++
+        val tokenId = tokenId++
+        val refreshTokenId = refreshTokenId++
+        val token =
+            Token(
+                id = tokenId,
+                tokenValidationInfo = accessTokenValidationInfo,
+                createdAt = accessCreatedAt,
+                lastUsedAt = accessLastUsedAt,
+                expiresAt = accessExpiresAt,
+            )
+        tokens[sessionId] = token
+        val refreshToken =
+            RefreshToken(
+                id = refreshTokenId,
+                tokenValidationInfo = refreshTokenValidationInfo,
+                createdAt = refreshCreatedAt,
+                expiresAt = refreshExpiresAt,
+            )
+        refreshTokens[sessionId] = refreshToken
         val session =
             Session(
-                id = sessionId++,
+                id = sessionId,
                 token = token,
                 refreshToken = refreshToken,
                 userId = user.id,

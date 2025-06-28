@@ -14,6 +14,7 @@ class RefreshTokenMapper : ColumnMapper<RefreshToken> {
         ctx: StatementContext,
     ): RefreshToken? {
         return RefreshToken(
+            id = rs.getInt("refresh_token_id"),
             tokenValidationInfo =
                 TokenValidationInfo(
                     validationInfo = rs.getString("refresh_token"),
