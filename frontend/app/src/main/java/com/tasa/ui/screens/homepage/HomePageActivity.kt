@@ -1,6 +1,7 @@
 package com.tasa.ui.screens.homepage
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
@@ -16,6 +17,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.tasa.DependenciesContainer
 import com.tasa.domain.Rule
+import com.tasa.location.LocationService
 import com.tasa.silence.LocationStateReceiver
 import com.tasa.ui.components.PermissionBox
 import com.tasa.ui.screens.calendar.CalendarActivity
@@ -33,12 +35,17 @@ class HomePageActivity : ComponentActivity() {
 
     private val alarmScheduler by lazy { (application as DependenciesContainer).ruleScheduler }
 
+    private val geofenceManager by lazy {
+        (application as DependenciesContainer).geofenceManager
+    }
+
     private val viewModel by viewModels<HomePageScreenViewModel>(
         factoryProducer = {
             HomeViewModelFactory(
                 userInfoRepository,
                 repo,
                 alarmScheduler,
+                geofenceManager,
             )
         },
     )
@@ -52,8 +59,23 @@ class HomePageActivity : ComponentActivity() {
         }
     }
 
+    @RequiresPermission(
+        allOf = [
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+        ],
+    )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (!isLocationEnabled(this)) {
+            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                Intent.FLAG_ACTIVITY_NO_HISTORY
+            startActivity(intent)
+        } else {
+            if (!LocationService.isRunning) viewModel.registerGeofences()
+        }
         registerReceiver(locationStatusReceiver, IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION))
         viewModel.loadLocalData()
         val activityPermission =
@@ -139,6 +161,20 @@ class HomePageActivity : ComponentActivity() {
         }
     }
 
+    private fun isLocationEnabled(context: Context): Boolean {
+        return try {
+            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                locationManager.isLocationEnabled
+            } else {
+                @Suppress("DEPRECATION")
+                Settings.Secure.getInt(context.contentResolver, Settings.Secure.LOCATION_MODE) !=
+                    Settings.Secure.LOCATION_MODE_OFF
+            }
+        } catch (e: Settings.SettingNotFoundException) {
+            false
+        }
+    }
     /*fun hasLocationPermissions(): Boolean {
         val fine = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         val background =

@@ -8,16 +8,23 @@ import android.location.Location
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresPermission
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.tasa.repository.TasaRepo
 import kotlinx.coroutines.tasks.await
 
 const val TAG = "GeofenceManager"
 const val CUSTOM_REQUEST_CODE_GEOFENCE = 1001
 
-class GeofenceManager(context: Context, private val repo: TasaRepo) {
+class GeofenceManager(
+    context: Context,
+    private val repo: TasaRepo,
+    private val locationProviderClient: FusedLocationProviderClient,
+) {
     private val client = LocationServices.getGeofencingClient(context)
 
     private val geofencingPendingIntent by lazy {
@@ -87,19 +94,31 @@ class GeofenceManager(context: Context, private val repo: TasaRepo) {
             .build()
     }
 
-    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     suspend fun onBootRegisterGeofences() {
         repo.geofenceRepo.getAllGeofences().forEach {
                 geofenceEntity ->
-            registerGeofence(
-                key = geofenceEntity.name,
-                location =
-                    Location("").apply {
-                        latitude = geofenceEntity.latitude
-                        longitude = geofenceEntity.longitude
-                    },
-                radiusInMeters = geofenceEntity.radius.toFloat(),
-            )
+            if (deregisterGeofence(geofenceEntity.name).isSuccess) {
+                registerGeofence(
+                    key = geofenceEntity.name,
+                    location =
+                        Location("").apply {
+                            latitude = geofenceEntity.latitude
+                            longitude = geofenceEntity.longitude
+                        },
+                    radiusInMeters = geofenceEntity.radius.toFloat(),
+                )
+            }
         }
+        getCurrentLocation()
+    }
+
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+    private suspend fun getCurrentLocation() {
+        val priority = Priority.PRIORITY_HIGH_ACCURACY
+        locationProviderClient.getCurrentLocation(
+            priority,
+            CancellationTokenSource().token,
+        ).await()
     }
 }

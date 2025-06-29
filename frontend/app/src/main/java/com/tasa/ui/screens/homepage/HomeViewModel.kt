@@ -1,6 +1,8 @@
 package com.tasa.ui.screens.homepage
 
+import android.Manifest
 import android.content.Context
+import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -11,6 +13,7 @@ import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
 import com.tasa.domain.UserInfoRepository
 import com.tasa.domain.toTriggerTime
+import com.tasa.geofence.GeofenceManager
 import com.tasa.repository.TasaRepo
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,6 +35,7 @@ class HomePageScreenViewModel(
     private val repo: TasaRepo,
     private val userInfo: UserInfoRepository,
     private val alarmScheduler: AlarmScheduler,
+    private val geofenceManager: GeofenceManager,
     initialState: HomeScreenState = HomeScreenState.Uninitialized,
 ) : ViewModel() {
     private val _state = MutableStateFlow<HomeScreenState>(initialState)
@@ -60,6 +64,23 @@ class HomePageScreenViewModel(
             }
         }
     }*/
+
+    @RequiresPermission(
+        allOf = [
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+        ],
+    )
+    fun registerGeofences() {
+        viewModelScope.launch {
+            try {
+                if (repo.geofenceRepo.getAllGeofences().isNotEmpty()) {
+                    geofenceManager.onBootRegisterGeofences()
+                }
+            } catch (e: Exception) {
+            }
+        }
+    }
 
     fun loadLocalData(): Job? {
         if (_state.value is HomeScreenState.Loading) return null
@@ -117,12 +138,14 @@ class HomeViewModelFactory(
     private val userInfo: UserInfoRepository,
     private val repo: TasaRepo,
     private val alarmScheduler: AlarmScheduler,
+    private val geofenceManager: GeofenceManager,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return HomePageScreenViewModel(
             repo = repo,
             userInfo = userInfo,
             alarmScheduler = alarmScheduler,
+            geofenceManager = geofenceManager,
         ) as T
     }
 }

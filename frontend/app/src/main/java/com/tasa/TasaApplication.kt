@@ -91,7 +91,7 @@ class TasaApplication : Application(), DependenciesContainer {
     }
 
     override val geofenceManager: GeofenceManager by lazy {
-        GeofenceManager(this, repo)
+        GeofenceManager(this, repo, fusedLocationClient)
     }
 
     private val fusedLocationClient by lazy {
