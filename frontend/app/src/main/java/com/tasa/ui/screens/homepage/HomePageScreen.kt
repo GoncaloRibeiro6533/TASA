@@ -13,7 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.tasa.R
-import com.tasa.domain.Rule
+import com.tasa.domain.RuleBase
 import com.tasa.ui.components.ErrorAlert
 import com.tasa.ui.components.LoadingView
 import com.tasa.ui.components.NavigationHandlers
@@ -31,7 +31,7 @@ fun HomePageScreen(
     onMenuRequested: () -> Unit = { },
     onFatalError: () -> Unit = { },
     onEditRule: (EditRuleActivity.RuleParcelableEvent) -> Unit = {},
-    onCancelRule: (Rule) -> Unit = { },
+    onCancelRule: (RuleBase) -> Unit = { },
 ) {
     TasaTheme {
         Scaffold(
@@ -69,7 +69,7 @@ fun HomePageScreen(
                             onNavigateToCreateRuleEvent = onNavigateToCreateRuleEvent,
                             onNavigationToMyExceptions = onNavigateToMyExceptions,
                             onEdit = onEditRule,
-                            onDelete = { rule -> onCancelRule(rule) },
+                            onDelete = onCancelRule,
                         )
                     HomeScreenState.Uninitialized -> { // Do nothing}
                     }

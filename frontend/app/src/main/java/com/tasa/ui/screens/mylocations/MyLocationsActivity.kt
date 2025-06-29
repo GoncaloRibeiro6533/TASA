@@ -23,7 +23,6 @@ class MyLocationsActivity : ComponentActivity() {
             MyLocationsScreenViewModelFactory(
                 repo = repo,
                 geofenceManager = geofenceManager,
-                context = this,
             )
         },
     )
@@ -39,7 +38,7 @@ class MyLocationsActivity : ComponentActivity() {
                     onLocationSelected = {},
                     onAddLocation = {},
                     onDeleteLocation = { location ->
-                        viewModel.deleteLocation(location)
+                        viewModel.deleteLocation(location, this)
                     },
                     onEditLocation = {},
                     onNavigateBack = {
@@ -47,6 +46,9 @@ class MyLocationsActivity : ComponentActivity() {
                     },
                     onCreateRuleLocation = { location, startTime, endTime ->
                         viewModel.createRulesForLocation(location, startTime, endTime)
+                    },
+                    onCreateRuleLocationTimeless = { location ->
+                        viewModel.createTimelessRuleLocation(location)
                     },
                     onSetCreateRuleState = {
                             location ->

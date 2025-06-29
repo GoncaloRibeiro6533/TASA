@@ -3,8 +3,10 @@ package com.tasa.repository
 import com.tasa.domain.Event
 import com.tasa.domain.Location
 import com.tasa.domain.Rule
+import com.tasa.domain.RuleBase
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
+import com.tasa.domain.RuleLocationTimeless
 import com.tasa.repository.interfaces.RuleRepositoryInterface
 import com.tasa.service.TasaService
 import com.tasa.storage.TasaDB
@@ -17,14 +19,36 @@ class RuleRepository(
     private val local: TasaDB,
     private val remote: TasaService,
 ) : RuleRepositoryInterface {
-    override suspend fun fetchAllRules(): Flow<List<Rule>> {
-        val ruleEvent = local.ruleEventDao().getAllRuleEvents().map { it.map { it.toRuleEvent() } }
-        val ruleLocation =
-            local.ruleLocationDao().getAllRuleLocations().map { it.map { it.toRuleLocation() } }
-        return ruleEvent.combine(ruleLocation) { events, locations ->
-            events + locations
-        }.map { it.filter { !it.endTime.isBefore(LocalDateTime.now()) } }
-            .map { it.sortedBy { it.startTime } }
+    override suspend fun fetchAllRules(): Flow<List<RuleBase>> {
+        val now = LocalDateTime.now()
+
+        val ruleEventFlow =
+            local.ruleEventDao().getAllRuleEvents()
+                .map { list ->
+                    list.map { it.toRuleEvent() }
+                        .filter { it.endTime.isAfter(now) }.sortedBy { it.startTime }
+                }
+
+        val ruleLocationFlow =
+            local.ruleLocationDao().getAllRuleLocations()
+                .map { list ->
+                    list.map { it.toRuleLocation() }
+                        .filter { it.endTime.isAfter(now) }.sortedBy { it.startTime }
+                }
+
+        val timelessRuleLocationFlow =
+            local.ruleLocationTimelessDao().getAllRuleLocations()
+                .map { list ->
+                    list.map { it.toRuleLocationTimeless() }
+                }
+
+        return combine(
+            ruleEventFlow,
+            ruleLocationFlow,
+            timelessRuleLocationFlow,
+        ) { events, locations, timeless ->
+            (events + locations + timeless)
+        }
     }
 
     override suspend fun fetchRuleEvents(): Flow<List<RuleEvent>> {
@@ -233,5 +257,37 @@ class RuleRepository(
     override suspend fun getRulesForLocation(location: Location): List<RuleLocation> {
         val ruleLocations = local.ruleLocationDao().getRuleLocationsByLocationNameResult(location.name)
         return ruleLocations.map { it.toRuleLocation() }
+    }
+
+    override suspend fun getTimelessRulesForLocation(location: Location): List<RuleLocationTimeless> {
+        return local.ruleLocationTimelessDao().getRuleLocationsByLocationNameResult(location.name)
+            .map { it.toRuleLocationTimeless() }
+    }
+
+    override suspend fun insertRuleLocationTimeless(
+        location: Location,
+        geofenceId: Int,
+    ): RuleLocationTimeless {
+        val ruleLocationTimeless = RuleLocationTimeless(location = location)
+        local.ruleLocationTimelessDao()
+            .insertRuleLocationTimeless(ruleLocationTimeless.toEntity(geofenceId))
+        return ruleLocationTimeless
+    }
+
+    override suspend fun getRuleLocationTimelessById(id: Int): RuleLocationTimeless? {
+        TODO()
+    }
+
+    override suspend fun deleteRuleLocationTimelessByLocation(location: Location) {
+        local.ruleLocationTimelessDao().deleteRuleLocationByName(location.name)
+    }
+
+    override suspend fun deleteRuleLocationTimelessById(id: Int) {
+        local.ruleLocationTimelessDao().deleteRuleLocationById(id)
+    }
+
+    override suspend fun getAllRuleLocationTimeless(): Flow<List<RuleLocationTimeless>> {
+        return local.ruleLocationTimelessDao().getAllRuleLocations()
+            .map { it.map { it.toRuleLocationTimeless() } }
     }
 }

@@ -3,13 +3,15 @@ package com.tasa.repository.interfaces
 import com.tasa.domain.Event
 import com.tasa.domain.Location
 import com.tasa.domain.Rule
+import com.tasa.domain.RuleBase
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
+import com.tasa.domain.RuleLocationTimeless
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 
 interface RuleRepositoryInterface {
-    suspend fun fetchAllRules(): Flow<List<Rule>>
+    suspend fun fetchAllRules(): Flow<List<RuleBase>>
 
     suspend fun fetchRuleEvents(): Flow<List<RuleEvent>>
 
@@ -92,4 +94,19 @@ interface RuleRepositoryInterface {
     suspend fun getRuleLocationByGeofenceId(geofenceId: Int): List<RuleLocation>
 
     suspend fun getRulesForLocation(location: Location): List<RuleLocation>
+
+    suspend fun getTimelessRulesForLocation(location: Location): List<RuleLocationTimeless>
+
+    suspend fun insertRuleLocationTimeless(
+        location: Location,
+        geofenceId: Int,
+    ): RuleLocationTimeless
+
+    suspend fun getRuleLocationTimelessById(id: Int): RuleLocationTimeless?
+
+    suspend fun deleteRuleLocationTimelessByLocation(location: Location)
+
+    suspend fun deleteRuleLocationTimelessById(id: Int)
+
+    suspend fun getAllRuleLocationTimeless(): Flow<List<RuleLocationTimeless>>
 }

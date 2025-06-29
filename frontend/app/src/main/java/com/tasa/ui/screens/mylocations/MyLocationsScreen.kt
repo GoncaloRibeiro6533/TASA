@@ -29,6 +29,7 @@ fun MyLocationsScreen(
     onEditLocation: (Location) -> Unit,
     onNavigateBack: () -> Unit,
     onCreateRuleLocation: (Location, LocalDateTime, LocalDateTime) -> Unit,
+    onCreateRuleLocationTimeless: (Location) -> Unit,
     onSetCreateRuleState: (Location) -> Unit,
     onSetSuccessState: () -> Unit,
 ) {
@@ -71,6 +72,9 @@ fun MyLocationsScreen(
                         },
                         onSetCreateRuleState = { location ->
                             onSetCreateRuleState(location)
+                        },
+                        onSetCreateTimelessRuleState = { location ->
+                            onCreateRuleLocationTimeless(location)
                         },
                     )
                 }

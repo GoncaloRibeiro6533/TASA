@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,17 +36,21 @@ import com.tasa.R
 import com.tasa.domain.Event
 import com.tasa.domain.Location
 import com.tasa.domain.Rule
+import com.tasa.domain.RuleBase
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
+import com.tasa.domain.RuleLocationTimeless
 import com.tasa.ui.screens.homepage.components.CompactButton
 import com.tasa.ui.screens.homepage.components.RulesToggleBar
 import com.tasa.ui.screens.homepage.components.SquareButton
 import com.tasa.ui.screens.homepage.components.SwipeableRuleCardEvent
 import com.tasa.ui.screens.homepage.components.SwipeableRuleCardLocation
+import com.tasa.ui.screens.homepage.components.SwipeableRuleCardLocationTimeless
 import com.tasa.ui.screens.rule.EditRuleActivity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.time.LocalDateTime
+import kotlin.collections.filter
 
 const val EVENTS_BUTTON = "events_button"
 const val EXCEPTIONS_BUTTON = "exceptions_button"
@@ -55,18 +60,22 @@ const val MAP_BUTTON = "map_button"
 
 @Composable
 fun HomePageView(
-    rules: StateFlow<List<Rule>>,
+    rules: StateFlow<List<RuleBase>>,
     onNavigateToMyLocations: () -> Unit,
     onNavigationToMap: () -> Unit,
     onNavigateToCreateRuleEvent: () -> Unit,
     onNavigationToMyExceptions: () -> Unit,
     onEdit: (EditRuleActivity.RuleParcelableEvent) -> Unit = {},
-    onDelete: (Rule) -> Unit = {},
+    onDelete: (RuleBase) -> Unit = {},
 ) {
     var list by rememberSaveable { mutableStateOf(true) } // true = Timed, false = Location
     var ruleList = rules.collectAsState().value
     LaunchedEffect(10000, ruleList) {
-        ruleList = ruleList.filter { it.endTime.isBefore(LocalDateTime.now()) }
+        ruleList =
+            ruleList.filter {
+                (it is RuleEvent && it.endTime.isBefore(LocalDateTime.now())) ||
+                    (it is RuleLocation && it.endTime.isBefore(LocalDateTime.now()))
+            }
     }
     val gray =
         ButtonDefaults.buttonColors(
@@ -110,7 +119,8 @@ fun HomePageView(
         ) {
             val filteredRules =
                 ruleList.filter {
-                    (it is RuleEvent && list) || (it is RuleLocation && !list)
+                    (it is RuleLocationTimeless && !list) ||
+                        (it is RuleEvent && list) || (it is RuleLocation && list)
                 }
 
             if (filteredRules.isEmpty()) {
@@ -124,7 +134,7 @@ fun HomePageView(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxSize(),
                 ) {
-                    items(filteredRules, key = { it.startTime }) { rule ->
+                    items(filteredRules, key = { it.toString() }) { rule ->
                         when (rule) {
                             is RuleEvent ->
                                 SwipeableRuleCardEvent(
@@ -136,6 +146,11 @@ fun HomePageView(
                                 SwipeableRuleCardLocation(
                                     rule = rule,
                                     onEdit = {},
+                                    onDelete = onDelete,
+                                )
+                            is RuleLocationTimeless ->
+                                SwipeableRuleCardLocationTimeless(
+                                    rule,
                                     onDelete = onDelete,
                                 )
                         }
@@ -399,7 +414,7 @@ fun HomePageViewHorizontal(
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp),
+                    contentPadding = PaddingValues(horizontal = 8.dp),
                 ) {
                     items(ruleList) { rule ->
                         if (rule is RuleEvent) {

@@ -16,7 +16,6 @@ import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.tasa.DependenciesContainer
-import com.tasa.domain.Rule
 import com.tasa.location.LocationService
 import com.tasa.silence.LocationStateReceiver
 import com.tasa.ui.components.PermissionBox
@@ -142,7 +141,7 @@ class HomePageActivity : ComponentActivity() {
                                 finish()
                             },
                             onCancelRule = {
-                                    rule: Rule ->
+                                    rule ->
                                 viewModel.cancelRule(rule, this@HomePageActivity)
                             },
                         )

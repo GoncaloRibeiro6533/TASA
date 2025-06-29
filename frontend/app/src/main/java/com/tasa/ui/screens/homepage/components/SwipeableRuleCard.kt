@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.tasa.domain.Event
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
+import com.tasa.domain.RuleLocationTimeless
 import java.time.LocalDateTime
 
 data class SwipeMeta(
@@ -201,6 +202,86 @@ fun SwipeableRuleCardLocation(
         },
         dismissContent = {
             RuleCardLocation(rule = rule)
+        },
+    )
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun SwipeableRuleCardLocationTimeless(
+    rule: RuleLocationTimeless,
+    onDelete: (RuleLocationTimeless) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val dismissState =
+        rememberDismissState(
+            confirmStateChange = { dismissValue ->
+                when (dismissValue) {
+                    DismissValue.DismissedToStart -> {
+                        onDelete(rule)
+                        true
+                    }
+
+                    DismissValue.DismissedToEnd -> {
+                        true
+                    }
+                    else -> false
+                }
+            },
+        )
+
+    SwipeToDismiss(
+        state = dismissState,
+        directions = setOf(DismissDirection.EndToStart),
+        background = {
+            val direction = dismissState.dismissDirection ?: return@SwipeToDismiss
+            val meta =
+                when (direction) {
+                    DismissDirection.StartToEnd ->
+                        SwipeMeta(
+                            backgroundColor = MaterialTheme.colorScheme.primary,
+                            icon = Icons.Default.Edit,
+                            alignment = Alignment.CenterStart,
+                            label = "Editar",
+                        )
+
+                    DismissDirection.EndToStart ->
+                        SwipeMeta(
+                            backgroundColor = MaterialTheme.colorScheme.error,
+                            icon = Icons.Default.Delete,
+                            alignment = Alignment.CenterEnd,
+                            label = "Apagar",
+                        )
+                }
+
+            Box(
+                modifier =
+                    modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(meta.backgroundColor)
+                        .padding(horizontal = 20.dp),
+                contentAlignment = meta.alignment,
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (meta.alignment == Alignment.CenterEnd) Spacer(modifier = modifier.weight(1f))
+                    Icon(
+                        imageVector = meta.icon,
+                        contentDescription = meta.label,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                    )
+                    Spacer(modifier = modifier.width(8.dp))
+                    Text(
+                        text = meta.label,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                    if (meta.alignment == Alignment.CenterStart) Spacer(modifier = modifier.weight(1f))
+                }
+            }
+        },
+        dismissContent = {
+            RuleCardLocationTimeless(rule = rule)
         },
     )
 }

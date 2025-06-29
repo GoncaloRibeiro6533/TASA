@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
+import com.tasa.domain.RuleLocationTimeless
 import com.tasa.domain.toFormattedDate
 import com.tasa.ui.components.RoundedRectangleWithText
 
@@ -85,6 +86,33 @@ fun RuleCardLocation(
                 "Fim: ${rule.endTime.toFormattedDate()}",
                 style = MaterialTheme.typography.bodyMedium,
             )
+            Text("Localização: ${rule.location.name}", style = MaterialTheme.typography.bodyLarge)
+        }
+    }
+}
+
+@Composable
+fun RuleCardLocationTimeless(
+    rule: RuleLocationTimeless,
+    active: Boolean = false,
+) {
+    Card(
+        modifier = Modifier.Companion.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+    ) {
+        Column(modifier = Modifier.Companion.padding(16.dp)) {
+            Row(
+                modifier = Modifier.Companion.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                if (active) {
+                    RoundedRectangleWithText(
+                        text = "Ativo",
+                        backgroundColor = Color.Companion.Green,
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.Companion.height(4.dp))
             Text("Localização: ${rule.location.name}", style = MaterialTheme.typography.bodyLarge)
         }
     }

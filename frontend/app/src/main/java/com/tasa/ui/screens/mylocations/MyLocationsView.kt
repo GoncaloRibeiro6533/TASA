@@ -32,6 +32,7 @@ fun MyLocationsView(
     onEdit: (Location) -> Unit,
     onDelete: (Location) -> Unit,
     onSetCreateRuleState: (Location) -> Unit,
+    onSetCreateTimelessRuleState: (Location) -> Unit,
 ) {
     val locationsList = locations.collectAsState().value
     Column(
@@ -76,6 +77,9 @@ fun MyLocationsView(
                         onEdit = { onEdit(location) },
                         onDelete = { onDelete(location) },
                         onSetCreateRuleState = { location -> onSetCreateRuleState(location) },
+                        onSetCreateTimelessRuleState = { location ->
+                            onSetCreateTimelessRuleState(location)
+                        },
                     )
                 }
             }
@@ -112,5 +116,5 @@ fun MyLocationsPreview() {
         )
     val locList = listOf(loc1, loc2, loc3)
 
-    MyLocationsView(MutableStateFlow(locList), {}, {}, {})
+    MyLocationsView(MutableStateFlow(locList), {}, {}, {}, {})
 }
