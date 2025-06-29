@@ -98,11 +98,12 @@ fun StartView(
                     text = stringResource(R.string.about_us),
                     style = MaterialTheme.typography.headlineMedium,
                     fontSize = 17.sp,
-                    modifier = Modifier
-                        .clickable(
-                            onClick = {onAboutRequested()},
-                        )
-                        .semantics { role = androidx.compose.ui.semantics.Role.Button },
+                    modifier =
+                        Modifier
+                            .clickable(
+                                onClick = { onAboutRequested() },
+                            )
+                            .semantics { role = androidx.compose.ui.semantics.Role.Button },
                 )
             }
         }
@@ -172,9 +173,10 @@ fun StartView(
                     text = stringResource(R.string.about_us),
                     style = MaterialTheme.typography.bodyMedium,
                     fontSize = 12.sp,
-                    modifier = Modifier.clickable {
-                        onAboutRequested()
-                    },
+                    modifier =
+                        Modifier.clickable {
+                            onAboutRequested()
+                        },
                 )
             }
         }

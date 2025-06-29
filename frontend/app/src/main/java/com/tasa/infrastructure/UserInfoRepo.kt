@@ -98,6 +98,24 @@ class UserInfoRepo(private val store: DataStore<Preferences>) : UserInfoReposito
         }
     }
 
+    override val locationStatus: Flow<Boolean>
+        get() {
+            return store.data.map { preferences ->
+                preferences[LOCATION_STATUS_KEY]?.toBoolean() ?: false
+            }
+        }
+
+    override suspend fun setLocationStatus(enabled: Boolean) {
+        store.edit { preferences ->
+            preferences[LOCATION_STATUS_KEY] = enabled.toString()
+        }
+    }
+
+    override suspend fun getLocationStatus(): Boolean? {
+        val preferences = store.data.first()
+        return preferences[LOCATION_STATUS_KEY]?.toBoolean()
+    }
+
     override val lastActivityTransition: Flow<Int?> =
         store.data.map { preferences ->
             preferences[TRANSITION_KEY]?.toIntOrNull()
@@ -112,6 +130,7 @@ private val LANGUAGE_KEY = stringPreferencesKey("language")
 private val ACTIVITY_KEY = stringPreferencesKey("activity")
 private val TRANSITION_KEY = stringPreferencesKey("transition")
 private val NOTIFIES_OF_NO_LOCATION_KEY = stringPreferencesKey("notifies_of_no_location")
+private val LOCATION_STATUS_KEY = stringPreferencesKey("location_status")
 
 private fun Preferences.toUser(): User? {
     val username = this[USERNAME_KEY] ?: return null

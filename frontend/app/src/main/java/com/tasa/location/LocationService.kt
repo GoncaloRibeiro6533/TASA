@@ -113,14 +113,14 @@ class LocationService : Service() {
             Log.d("LocationService", "Location: $location")
             if (location != null) {
                 // check if the location TODO
-                if (location.toLocation().distanceTo(locationOfSilence) <= radius + 30 // &&
-                    // !DndManager.isMuted(notificationManager)
-                ) {
-                    DndManager.mute(notificationManager)
+                if (location.toLocation().distanceTo(locationOfSilence) <= radius) {
+                    if (!DndManager.isMuted(notificationManager)) {
+                        DndManager.mute(notificationManager)
+                    }
                 } else {
-                    // if (DndManager.isMuted(notificationManager)) {
-                    DndManager.unmute(notificationManager)
-                    // }
+                    if (DndManager.isMuted(notificationManager)) {
+                        DndManager.unmute(notificationManager)
+                    }
                 }
             }
         }

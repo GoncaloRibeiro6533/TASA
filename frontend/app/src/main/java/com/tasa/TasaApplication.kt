@@ -124,7 +124,6 @@ class TasaApplication : Application(), DependenciesContainer {
         WorkManager.getInstance(this)
             .enqueue(workItem)
         // Schedule the location status worker to check GPS status every 15 minutes
-        // Not at night time
         val constraints2 =
             Constraints.Builder()
                 .build()

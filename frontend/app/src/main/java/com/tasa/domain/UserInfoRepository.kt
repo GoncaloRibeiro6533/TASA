@@ -35,4 +35,10 @@ interface UserInfoRepository {
     val notifiedOfNoLocation: Flow<Boolean>
 
     suspend fun setNotifiedOfNoLocation(notified: Boolean)
+
+    val locationStatus: Flow<Boolean>
+
+    suspend fun setLocationStatus(enabled: Boolean)
+
+    suspend fun getLocationStatus(): Boolean?
 }

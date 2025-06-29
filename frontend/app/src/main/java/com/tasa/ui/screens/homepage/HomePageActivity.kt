@@ -2,7 +2,9 @@ package com.tasa.ui.screens.homepage
 
 import android.Manifest
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -14,6 +16,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.tasa.DependenciesContainer
 import com.tasa.domain.Rule
+import com.tasa.silence.LocationStateReceiver
 import com.tasa.ui.components.PermissionBox
 import com.tasa.ui.screens.calendar.CalendarActivity
 import com.tasa.ui.screens.menu.MenuActivity
@@ -40,6 +43,8 @@ class HomePageActivity : ComponentActivity() {
         },
     )
 
+    private val locationStatusReceiver by lazy { LocationStateReceiver() }
+
     fun checkAndRequestNotificationPolicyPermission(activity: ComponentActivity) {
         val permission = Manifest.permission.ACCESS_NOTIFICATION_POLICY
         if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
@@ -49,7 +54,7 @@ class HomePageActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // registerReceiver(LocationStateReceiver(), IntentFilter(android.location.LocationManager.PROVIDERS_CHANGED_ACTION))
+        registerReceiver(locationStatusReceiver, IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION))
         viewModel.loadLocalData()
         val activityPermission =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -122,6 +127,15 @@ class HomePageActivity : ComponentActivity() {
                     },
                 )
             }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        try {
+            unregisterReceiver(locationStatusReceiver)
+        } catch (e: IllegalArgumentException) {
+            // Receiver was not registered, ignore
         }
     }
 
