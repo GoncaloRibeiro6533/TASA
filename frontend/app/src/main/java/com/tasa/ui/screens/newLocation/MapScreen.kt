@@ -33,6 +33,7 @@ fun MapScreen(
     onConfirmEditingLocation: (String, Double, Double, Double) -> Unit,
     onTouchSearchBox: () -> Unit,
     onUnTouchSearchBox: () -> Unit,
+    onRecenterMap: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
@@ -77,6 +78,7 @@ fun MapScreen(
                         onConfirm = onConfirmEditingLocation,
                         onTouchSearchBox = onTouchSearchBox,
                         onUnTouchSearchBox = onUnTouchSearchBox,
+                        onRecenterMap = onRecenterMap,
                     )
                 }
                 is MapsScreenState.Error -> {

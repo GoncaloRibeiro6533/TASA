@@ -115,6 +115,9 @@ class MapActivity : ComponentActivity() {
                     onUnTouchSearchBox = {
                         viewModel.setUnSearchingState()
                     },
+                    onRecenterMap = {
+                        viewModel.recenterMap()
+                    },
                 )
             }
         }

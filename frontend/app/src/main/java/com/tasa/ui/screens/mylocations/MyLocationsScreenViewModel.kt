@@ -53,6 +53,7 @@ class MyLocationsScreenViewModel(
     private val _successMessage: MutableStateFlow<Int?> = MutableStateFlow(null)
     val successMessage: StateFlow<Int?> = _successMessage.asStateFlow()
 
+    @Suppress("unused")
     fun loadLocations(): Job? {
         if (_state.value is MyLocationsScreenState.Loading) return null
         _state.value = MyLocationsScreenState.Loading
@@ -127,7 +128,7 @@ class MyLocationsScreenViewModel(
     fun deleteLocation(
         location: Location,
         context: Context,
-    )  {
+    ) {
         if (_state.value is MyLocationsScreenState.Loading) return
         _state.value = MyLocationsScreenState.Loading
         viewModelScope.launch {
@@ -172,10 +173,17 @@ class MyLocationsScreenViewModel(
                         MyLocationsScreenState.Error(R.string.rule_already_exists_for_this_location)
                     return@launch
                 }
+                // ensure radius is at least 100 meters
+                val radius =
+                    if (location.radius < 100) {
+                        100f
+                    } else {
+                        location.radius.toFloat()
+                    }
                 geofenceManager.registerGeofence(
                     location.name,
                     location.toLocation(),
-                    location.radius.toFloat() + 50f,
+                    radius,
                 )
                 val id =
                     repo.geofenceRepo.createGeofence(

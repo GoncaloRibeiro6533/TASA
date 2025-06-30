@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -32,10 +31,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.tasa.R
 import com.tasa.ui.screens.newLocation.components.OSMDroidMap2
 import kotlinx.coroutines.flow.StateFlow
 import org.osmdroid.util.GeoPoint
@@ -60,6 +61,7 @@ fun MapViewRoot(
     onConfirm: (String, Double, Double, Double) -> Unit,
     onTouchSearchBox: () -> Unit,
     onUnTouchSearchBox: () -> Unit,
+    onRecenterMap: () -> Unit,
 ) {
     val currentState = state.collectAsState().value
     var locationV: TasaLocation =
@@ -114,6 +116,7 @@ fun MapViewRoot(
                     onCreateLocation = onCreateLocation,
                     onSearchQuery = onSearch,
                     query = currentState.searchQuery,
+                    onRecenterMap = onRecenterMap,
                 )
             }
 
@@ -130,6 +133,7 @@ fun MapViewRoot(
                     onTouchSearchBox = onTouchSearchBox,
                     onUnTouchSearchBox = onUnTouchSearchBox,
                     state = state,
+                    onRecenterMap = onRecenterMap,
                 )
             }
 
@@ -166,8 +170,8 @@ fun MapView(
     onCreateLocation: () -> Unit,
     onSearchQuery: () -> Unit,
     query: StateFlow<TextFieldValue>,
+    onRecenterMap: () -> Unit,
 ) {
-    val selectedPoint = selectedPoint.collectAsState().value
     val location = location.collectAsState().value
     val activity = activity.collectAsState().value
 
@@ -249,13 +253,15 @@ fun MapView(
         horizontalAlignment = Alignment.End,
     ) {
         FloatingActionButton(
-            onClick = { },
+            onClick = {
+                onRecenterMap()
+            },
             modifier =
                 Modifier
                     .padding(16.dp),
         ) {
             Icon(
-                imageVector = Icons.Default.LocationOn,
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_recenter_icon),
                 contentDescription = "Atualizar localização",
             )
         }
@@ -287,11 +293,10 @@ fun MapViewSearching(
     onCreateLocation: () -> Unit,
     onTouchSearchBox: () -> Unit,
     onUnTouchSearchBox: () -> Unit,
+    onRecenterMap: () -> Unit,
 ) {
-    val selectedPoint = selectedPoint.collectAsState().value
     var searchQuery = query.collectAsState().value
     val location = location.collectAsState().value
-    val focusManager = LocalFocusManager.current
     val activity = activity.collectAsState().value
 
     Surface(
@@ -332,7 +337,7 @@ fun MapViewSearching(
                 Text("Search")
             }
             Text(
-                text = "Current accuracy: ${location.accuracy?.toInt()} meters",
+                text = "Current accuracy: ${location.accuracy.toInt()} meters",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 8.dp),
             )
@@ -346,11 +351,11 @@ fun MapViewSearching(
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 8.dp),
             )
-            /*Text(
+            Text(
                 text = "Atividade: $activity",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 8.dp),
-            )*/
+            )
         }
     }
     Column(
@@ -362,13 +367,15 @@ fun MapViewSearching(
         horizontalAlignment = Alignment.End,
     ) {
         FloatingActionButton(
-            onClick = { },
+            onClick = {
+                onRecenterMap()
+            },
             modifier =
                 Modifier
                     .padding(16.dp),
         ) {
             Icon(
-                imageVector = Icons.Default.LocationOn,
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_recenter_icon),
                 contentDescription = "Atualizar localização",
             )
         }
@@ -438,7 +445,7 @@ fun CreatingLocationView(
                 Text("Search")
             }
             Text(
-                text = "Current accuracy: ${location.accuracy?.toInt()} meters",
+                text = "Current accuracy: ${location.accuracy.toInt()} meters",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 8.dp),
             )
@@ -452,11 +459,11 @@ fun CreatingLocationView(
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 8.dp),
             )
-            /*Text(
+            Text(
                 text = "Atividade: $activity",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 8.dp),
-            )*/
+            )
         }
     }
     // 📝 Dialog with form

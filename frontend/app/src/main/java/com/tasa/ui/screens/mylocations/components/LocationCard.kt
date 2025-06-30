@@ -118,90 +118,89 @@ fun LocationCard(
                                 tint = greenColor,
                             )
                         }
-                        if (showMenu)
-                            {
-                                Popup(
-                                    offset = IntOffset(0, 0),
-                                    properties =
-                                        androidx.compose.ui.window.PopupProperties(
-                                            focusable = true,
-                                            dismissOnBackPress = true,
-                                            dismissOnClickOutside = true,
+                        if (showMenu) {
+                            Popup(
+                                offset = IntOffset(0, 0),
+                                properties =
+                                    androidx.compose.ui.window.PopupProperties(
+                                        focusable = true,
+                                        dismissOnBackPress = true,
+                                        dismissOnClickOutside = true,
+                                    ),
+                                alignment = Alignment.BottomEnd,
+                                onDismissRequest = { showMenu = false },
+                            ) {
+                                Card(
+                                    shape = RoundedCornerShape(16.dp),
+                                    elevation = CardDefaults.cardElevation(8.dp),
+                                    colors =
+                                        CardDefaults.cardColors(
+                                            containerColor = MaterialTheme.colorScheme.surface,
                                         ),
-                                    alignment = Alignment.BottomEnd,
-                                    onDismissRequest = { showMenu = false },
+                                    modifier =
+                                        Modifier
+                                            .padding(end = 8.dp),
                                 ) {
-                                    Card(
-                                        shape = RoundedCornerShape(16.dp),
-                                        elevation = CardDefaults.cardElevation(8.dp),
-                                        colors =
-                                            CardDefaults.cardColors(
-                                                containerColor = MaterialTheme.colorScheme.surface,
-                                            ),
+                                    Column(
                                         modifier =
                                             Modifier
-                                                .padding(end = 8.dp),
+                                                .padding(12.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
                                     ) {
-                                        Column(
-                                            modifier =
-                                                Modifier
-                                                    .padding(12.dp),
-                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                        Text(
+                                            stringResource(R.string.create_rule_location),
+                                            style = MaterialTheme.typography.titleSmall,
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                        )
+
+                                        Spacer(Modifier.padding(4.dp))
+
+                                        Row(
+                                            horizontalArrangement = Arrangement.SpaceEvenly,
+                                            modifier = Modifier.fillMaxWidth(),
                                         ) {
-                                            Text(
-                                                stringResource(R.string.create_rule_location),
-                                                style = MaterialTheme.typography.titleSmall,
-                                                color = MaterialTheme.colorScheme.onSurface,
-                                            )
-
-                                            Spacer(Modifier.padding(4.dp))
-
-                                            Row(
-                                                horizontalArrangement = Arrangement.SpaceEvenly,
-                                                modifier = Modifier.fillMaxWidth(),
+                                            Column(
+                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                modifier =
+                                                    Modifier
+                                                        .clickable {
+                                                            showMenu = false
+                                                            onSetCreateRuleState(location)
+                                                        }
+                                                        .padding(8.dp),
                                             ) {
-                                                Column(
-                                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                                    modifier =
-                                                        Modifier
-                                                            .clickable {
-                                                                showMenu = false
-                                                                onSetCreateRuleState(location)
-                                                            }
-                                                            .padding(8.dp),
-                                                ) {
-                                                    Icon(
-                                                        Icons.Default.DateRange,
-                                                        contentDescription = "Com Schedule",
-                                                        tint = greenColor,
-                                                        modifier = Modifier.size(24.dp),
-                                                    )
-                                                    Text("Horario", style = MaterialTheme.typography.bodySmall)
-                                                }
+                                                Icon(
+                                                    Icons.Default.DateRange,
+                                                    contentDescription = "Com Schedule",
+                                                    tint = greenColor,
+                                                    modifier = Modifier.size(24.dp),
+                                                )
+                                                Text("Horario", style = MaterialTheme.typography.bodySmall)
+                                            }
 
-                                                Column(
-                                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                                    modifier =
-                                                        Modifier
-                                                            .clickable {
-                                                                showMenu = false
-                                                                onSetCreateTimelessRuleState(location)
-                                                            }
-                                                            .padding(8.dp),
-                                                ) {
-                                                    Icon(
-                                                        Icons.Default.Place,
-                                                        contentDescription = "Simples",
-                                                        tint = greenColor,
-                                                        modifier = Modifier.size(24.dp),
-                                                    )
-                                                    Text("Simples", style = MaterialTheme.typography.bodySmall)
-                                                }
+                                            Column(
+                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                modifier =
+                                                    Modifier
+                                                        .clickable {
+                                                            showMenu = false
+                                                            onSetCreateTimelessRuleState(location)
+                                                        }
+                                                        .padding(8.dp),
+                                            ) {
+                                                Icon(
+                                                    Icons.Default.Place,
+                                                    contentDescription = "Simples",
+                                                    tint = greenColor,
+                                                    modifier = Modifier.size(24.dp),
+                                                )
+                                                Text("Simples", style = MaterialTheme.typography.bodySmall)
                                             }
                                         }
                                     }
                                 }
                             }
+                        }
                     }
                 }
             }

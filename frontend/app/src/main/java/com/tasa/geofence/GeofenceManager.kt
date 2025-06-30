@@ -67,6 +67,7 @@ class GeofenceManager(
             client.removeGeofences(listOf(requestId)).await()
         }
 
+    @Suppress("unused")
     suspend fun deregisterAllGeofences() =
         runCatching {
             client.removeGeofences(geofencingPendingIntent).await()
@@ -96,21 +97,25 @@ class GeofenceManager(
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     suspend fun onBootRegisterGeofences() {
-        repo.geofenceRepo.getAllGeofences().forEach {
-                geofenceEntity ->
-            if (deregisterGeofence(geofenceEntity.name).isSuccess) {
-                registerGeofence(
-                    key = geofenceEntity.name,
-                    location =
-                        Location("").apply {
-                            latitude = geofenceEntity.latitude
-                            longitude = geofenceEntity.longitude
-                        },
-                    radiusInMeters = geofenceEntity.radius.toFloat(),
-                )
+        val list =
+            repo.geofenceRepo.getAllGeofences().map {
+                    geofenceEntity ->
+                if (deregisterGeofence(geofenceEntity.name).isSuccess) {
+                    registerGeofence(
+                        key = geofenceEntity.name,
+                        location =
+                            Location("").apply {
+                                latitude = geofenceEntity.latitude
+                                longitude = geofenceEntity.longitude
+                            },
+                        radiusInMeters = geofenceEntity.radius.toFloat(),
+                    )
+                }
+                geofenceEntity
             }
+        if (list.isNotEmpty()) {
+            getCurrentLocation()
         }
-        getCurrentLocation()
     }
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])

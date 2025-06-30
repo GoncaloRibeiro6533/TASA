@@ -55,6 +55,7 @@ fun OSMDroidMap2(
         val location = currentLocation ?: return@LaunchedEffect
         val radius = accuracy ?: return@LaunchedEffect
 
+        @Suppress("DEPRECATED")
         // Atualiza o círculo de precisão
         val circle =
             accuracyCircleRef.value ?: Polygon().apply {
@@ -102,8 +103,14 @@ fun OSMDroidMap2(
     AndroidView(
         modifier = modifier,
         factory = { ctx ->
-            Configuration.getInstance().load(ctx, ctx.getSharedPreferences("osmdroid", Context.MODE_PRIVATE))
-
+            Configuration.getInstance().apply {
+                load(ctx, ctx.getSharedPreferences("osmdroid", Context.MODE_PRIVATE))
+                tileFileSystemCacheMaxBytes = 1024L * 1024 * 100 // 50MB
+                tileFileSystemCacheTrimBytes = 1024L * 1024 * 40
+                cacheMapTileCount = 1000
+                tileDownloadThreads = 4
+                isMapViewHardwareAccelerated = true
+            }
             MapView(ctx).apply {
                 setTileSource(TileSourceFactory.MAPNIK)
                 setMultiTouchControls(true)

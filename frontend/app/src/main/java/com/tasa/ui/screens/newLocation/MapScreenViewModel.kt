@@ -358,8 +358,8 @@ class MapScreenViewModel(
                 locationUpdatesRepository.centralLocationFlow.collect { location ->
                     if (location != null){
                         _currentLocation.value = location
-                        }
                     }
+                }
             } catch (ex: Throwable) {
                 _state.value = MapsScreenState.Error(R.string.unexpected_error)
             }
@@ -369,6 +369,11 @@ class MapScreenViewModel(
 
     fun stopLocationUpdates() {
         locationUpdatesRepository.stop()
+    }
+
+    fun recenterMap() {
+        if (_state.value is MapsScreenState.Loading) return
+        _selectedPoint.value = _currentLocation.value.point
     }
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
