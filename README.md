@@ -97,6 +97,8 @@ Contains project documentation, diagrams, and related materials:
 - **`http-pipeline/`** - HTTP request/response processing pipeline.
 - **`repository-jdbi/`** - JDBI-specific repository implementations.
 
+##### API documentation available [here](https://github.com/GoncaloRibeiro6533/TASA/blob/main/docs/api-docs.yaml)
+
 ### `/frontend` - Client Application
 
 Contains the Android app implementation and UI components.
