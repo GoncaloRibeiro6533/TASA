@@ -49,7 +49,7 @@ class OpenApiConfig {
         return OpenAPI()
             .info(
                 Info()
-                    .title("Minha API Kotlin")
+                    .title("Tasa-API")
                     .version("1.0")
                     .description("Documentação gerada automaticamente :)"),
             )
@@ -60,7 +60,6 @@ class OpenApiConfig {
                         SecurityScheme()
                             .type(SecurityScheme.Type.HTTP)
                             .scheme("bearer")
-                            .bearerFormat("JWT"),
                     ),
             )
             .addSecurityItem(

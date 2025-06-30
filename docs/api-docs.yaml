@@ -1,0 +1,1126 @@
+openapi: 3.0.1
+info:
+  title: Tasa-API
+  description: "API for synchronize TASA app data."
+  version: "1.0"
+
+
+servers:
+  - url: http://localhost:8080/api
+
+
+tags:
+  - name: Users
+  - name: Events
+  - name: Locations
+  - name: Rules
+
+
+
+
+paths:
+  /user/register:
+    post:
+      tags:
+        - Users
+      summary: Register a new user
+      requestBody:
+        description: Register a new user given a username and password
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterInput'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Username too short
+        '409':
+          description: A user with such username already exists
+        '500':
+          description: Internal server error
+
+  /user/login:
+    post:
+      tags:
+        - Users
+      summary: Retrieve a id, a token and a username given a username and a password, a login operation
+      requestBody:
+        description: Username and password of user
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginCredentialsInput'
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginOutput'
+        '400':
+          description: Username missing or invalid
+        '404':
+          description: A user with such username does not exists
+        '500':
+          description: Internal server error
+
+  /user/logout:
+    post:
+      tags:
+        - Users
+      security:
+        - bearerAuth: [ ]
+      summary: Logout a user
+      responses:
+        '200':
+          description: User details
+        '401':
+          description: Unauthorized
+        '404':
+          description: A user with such username does not exists
+        '500':
+          description: Internal server error
+
+  /user/{id}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Users
+      summary: Get details of a user
+      description: Returns a single user
+      parameters:
+        - name: id
+          in: path
+          description: User identifier
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Username missing or invalid
+        '401':
+          description: Unauthorized
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+
+  /event/create:
+    post:
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - Events
+      summary: Creates a event
+      description: Register a event of a user given it's event identifier and calendar identifier.
+      requestBody:
+        description: Event data
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventInput'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventInput'
+        '400':
+          description: Event name is empty.
+        '409':
+          description: A event with given event id and calendar id already exists.
+        '500':
+          description: Internal server error
+
+
+  /event/update/title:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Events
+      summary: Update a event
+      description: Updated the title of a event.
+      requestBody:
+        description: Event data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventInput"
+        required: true
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventInput'
+        '400':
+          description: Event name is empty.
+        '404':
+          description: Event not found.
+        '403':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+  /event/{id}/calendar/{calendarId}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Events
+      summary: Retrieves a event
+      description: Get a event given its id and respetive calendar id.
+      parameters:
+        - name: id
+          in: path
+          description: Event identifier
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 5287
+        - name: calendarId
+          in: path
+          description: Calendar identifier
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 2803
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventInput'
+        '400':
+          description: Event identifier is negative.
+        '404':
+          description: Event not found.
+        '403':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+  /event/all:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Events
+      summary: Retrieves all events of a user
+      description: Get all the registerd events of an user.
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventInput'
+        '500':
+          description: Internal server error
+
+  /event/remove/{id}/calendar/{calendarId}:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Events
+      summary: Remove a event of a user
+      description: Deletes a event given its identifier and calendar identifier.
+      parameters:
+        - name: id
+          in: path
+          description: Event identifier
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 5208
+        - name: calendarId
+          in: path
+          description: Calendar identifier
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 2487
+      responses:
+        '200':
+          description: Ok
+        '400':
+          description: Event identifier is negative.
+        '404':
+          description: Event not found.
+        '403':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+  /location/create:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Locations
+      summary: Register a location of a user
+      description: Creates a location given coordinates, radius and a name.
+      requestBody:
+        description: Location data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LocationInput"
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        '400':
+          description: Location name is empty.
+        '409':
+          description: A location with given name already exists.
+        '500':
+          description: Internal server error
+
+
+  /location/{id}/update/radius/{radius}:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Locations
+      summary: Update a location
+      description: Updates a location given a new radius.
+      parameters:
+        - name: id
+          in: path
+          description: Location identifier
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: radius
+          in: path
+          description: New radius
+          required: true
+          schema:
+            type: number
+            format: double
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        '400':
+          description: Radius is negative.
+        '404':
+          description: Location not found.
+        '403':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+  /location/{id}/update/name/{name}:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Locations
+      summary: Update a location name
+      description: Updates a location given a new name.
+      parameters:
+        - name: id
+          in: path
+          description: location identifier
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: name
+          in: path
+          description: location identifier
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        '400':
+          description: Name is blank
+        '404':
+          description: Location not found.
+        '403':
+          description: Unauthorized
+        '409':
+          description: Location with given name already exists
+        '500':
+          description: Internal server error
+
+  /location/{id}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Locations
+      summary: Gets a location.
+      description: Gets a location by it's identifier.
+      parameters:
+        - name: id
+          in: path
+          description: Location's identifier
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        '400':
+          description: Name is blank
+        '404':
+          description: Location not found.
+        '403':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+  /location/all:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Locations
+      summary: Gets all locations.
+      description: Gets all locations of a user.
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationList'
+        '500':
+          description: Internal server error
+
+
+  /rule/location/{id}/update:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Rules
+      summary: Updates a rule location
+      description: Updates a rule location with a new start time and end time.
+      parameters:
+        - name: id
+          in: path
+          description: Rule identifier
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        description: Rule new end and start time.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RuleLocationUpdateInput"
+        required: true
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleLocationOutput'
+        '400':
+          description: StartTime is blank
+        '404':
+          description: Rule not found.
+        '403':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+  /rule/event/{id}/update/time:
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Rules
+      summary: Updates a rule event
+      description: Updates a rule event new start time and end time.
+      parameters:
+        - name: id
+          in: path
+          description: Rule identifier
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        description: Rule data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RuleEventUpdateInput"
+        required: true
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleEventOutput'
+        '400':
+          description: StartTime is blank
+        '404':
+          description: Rule not found.
+        '403':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+
+  /rule/location:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Rules
+      summary: Creates a rule location
+      description: Creates a rule of silence for a location given a start time and end time.
+      requestBody:
+        description: Rule data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RuleLocationInput"
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleLocationOutput'
+        '400':
+          description: Start time is before end time.
+        '409':
+          description: A rule already exists for given Location and time.
+        '500':
+          description: Internal server error
+
+  /rule/event:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Rules
+      summary: Creates a rule event
+      description: Creates a rule of silence for a event given a start time and end time.
+      requestBody:
+        description: Rule data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RuleEventInput"
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleEventOutput'
+        '400':
+          description: Start time is before end time.
+        '409':
+          description: A rule already exists for given Event and time.
+        '500':
+          description: Internal server error
+
+  /rule/location/{id}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Rules
+      summary: Gets a rule location
+      description: Gets a rule location by it's identifier.
+      parameters:
+        - name: id
+          in: path
+          description: rule identifier
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleLocationOutput'
+        '400':
+          description: Identifier is negative.
+        '404':
+          description: Rule not found.
+        '403':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Rules
+      summary: Deletes a rule location
+      description: Deletes a rule location by it's identifier.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Ok
+        '400':
+          description: Identifier is negative.
+        '404':
+          description: Rule not found.
+        '403':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+
+  /rule/event/{id}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Rules
+      summary: Gets a rule event
+      description: Gets a rule event by it's identifier.
+      parameters:
+        - name: id
+          in: path
+          description: Rule identifier
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleEventOutput'
+        '400':
+          description: Identifier is negative.
+        '404':
+          description: Rule not found.
+        '403':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Rules
+      summary: Deletes a rule event
+      description: Deletes a rule event by it's identifier.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Ok
+        '400':
+          description: Identifier is negative.
+        '404':
+          description: Rule not found.
+        '403':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+  /rule/all:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Rules
+      summary: Get's all rules.
+      description: Get's all rules from a user.
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleListOutput'
+        '500':
+          description: Internal server error
+
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+
+    User:
+      type: object
+      description: User details
+      required:
+        - id
+        - username
+        - email
+      properties:
+        id:
+          type: integer
+          description: user identifier
+        username:
+          type: string
+          description: user username
+          example: Bob
+        email:
+          type: string
+          description: user email
+          example: bob@example.pt
+
+    UserRegisterInput:
+      type: object
+      description: User details for register
+      required:
+        - username
+        - email
+        - password
+      properties:
+        username:
+          type: string
+          description: User username
+          example: Bob
+        email:
+          type: string
+          description: User email
+          example: bob@example.com
+        password:
+          type: string
+          description: User password
+          example: Strong_but_known_password1234
+
+    TokenExternalInfo:
+      type: object
+      required:
+        - expiration
+        - refreshToken
+        - token
+      properties:
+        token:
+          type: string
+          description: session access token
+          example: absbadbdaksjdad_aksdjakld1223
+        refreshToken:
+          type: string
+          description: session refresh token
+        expiration:
+          type: string
+          format: date-time
+          description: Time the session expires
+          example: "2024-10-01T12:00:00Z"
+
+
+    RuleLocationUpdateInput:
+      type: object
+      description: New data for rule.
+      required:
+        - endTime
+        - startTime
+      properties:
+        startTime:
+          type: string
+          format: date-time
+          example: "2024-10-01T12:00:00Z"
+        endTime:
+          type: string
+          format: date-time
+          example: "2024-10-01T12:00:00Z"
+
+    RuleEventUpdateInput:
+      type: object
+      required:
+        - endTime
+        - startTime
+      properties:
+        startTime:
+          type: string
+          format: date-time
+          example: "2024-10-01T12:00:00Z"
+        endTime:
+          type: string
+          format: date-time
+          example: "2024-10-01T12:00:00Z"
+
+    EventInput:
+      type: object
+      required:
+        - calendarId
+        - eventId
+        - title
+      properties:
+        eventId:
+          type: integer
+          format: int64
+          description: event identifier
+          example: 1855
+        calendarId:
+          type: integer
+          format: int64
+          description: calendar identifier
+          example: 1855
+        title:
+          type: string
+          description: Event title
+          example: Meeting.
+
+    LoginOutput:
+      type: object
+      required:
+        - session
+        - user
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        session:
+          $ref: "#/components/schemas/TokenExternalInfo"
+
+
+    UserLoginCredentialsInput:
+      type: object
+      description: User credentials for login
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          description: user username
+          example: Bob
+        password:
+          type: string
+          description: user password
+          example: Strong_but_known_password1234
+
+    RuleLocationInput:
+      required:
+        - endTime
+        - locationId
+        - startTime
+      type: object
+      properties:
+        startTime:
+          type: string
+          format: date-time
+          description: Start time of rule
+          example: "2024-10-01T12:00:00Z"
+        endTime:
+          type: string
+          format: date-time
+          description: End time of rule
+          example: "2024-10-01T12:00:00Z"
+        locationId:
+          type: integer
+          format: int32
+          description: Location identifier.
+          example: 10
+
+    RuleEventInput:
+      type: object
+      required:
+        - calendarId
+        - endTime
+        - eventId
+        - startTime
+      properties:
+        eventId:
+          type: integer
+          format: int64
+          description: Event identifier.
+          example: 1025
+        calendarId:
+          type: integer
+          format: int64
+          description: Calendar identifier.
+          example: 2054
+        startTime:
+          type: string
+          format: date-time
+          description: Start time of rule
+          example: "2024-10-01T12:00:00Z"
+        endTime:
+          type: string
+          format: date-time
+          description: End time of rule
+          example: "2024-10-01T12:00:00Z"
+
+
+    LocationInput:
+      type: object
+      required:
+        - latitude
+        - longitude
+        - name
+        - radius
+      properties:
+        name:
+          type: string
+          description: Location name.
+          example: "Home"
+        latitude:
+          type: number
+          format: double
+          description: Latitude of location.
+          example: 38.75691186259142
+        longitude:
+          type: number
+          format: double
+          description: Langitude of location.
+          example: -9.116494150002076
+        radius:
+          type: number
+          format: double
+          description: Radius of location.
+          example: 30.0
+
+
+    Location:
+      type: object
+      required:
+        - id
+        - latitude
+        - longitude
+        - name
+        - radius
+      properties:
+        id:
+          type: integer
+          description: Location dentifier
+          example: 10
+        name:
+          type: string
+          description: Location name.
+          example: "Home"
+        latitude:
+          type: number
+          format: double
+          description: Latitude of location.
+          example: 38.75691186259142
+        longitude:
+          type: number
+          format: double
+          description: Langitude of location.
+          example: -9.116494150002076
+        radius:
+          type: number
+          format: double
+          description: Radius of location.
+          example: 30.0
+
+    LocationList:
+      type: object
+      properties:
+        nUsers:
+          type: integer
+          description: number of results
+          example: 20
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/Location'
+
+
+    RuleLocationOutput:
+      required:
+        - id
+        - endTime
+        - locationId
+        - startTime
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Rule dentifier
+          example: 10
+        startTime:
+          type: string
+          format: date-time
+          description: Start time of rule
+          example: "2024-10-01T12:00:00Z"
+        endTime:
+          type: string
+          format: date-time
+          description: End time of rule
+          example: "2024-10-01T12:00:00Z"
+        locationId:
+          type: integer
+          format: int32
+          description: Location identifier.
+          example: 10
+
+    RuleEventOutput:
+      type: object
+      required:
+        - calendarId
+        - endTime
+        - eventId
+        - startTime
+      properties:
+        id:
+          type: integer
+          description: Rule dentifier
+          example: 10
+        eventId:
+          type: integer
+          format: int64
+          description: Event identifier.
+          example: 1025
+        calendarId:
+          type: integer
+          format: int64
+          description: Calendar identifier.
+          example: 2054
+        startTime:
+          type: string
+          format: date-time
+          description: Start time of rule
+          example: "2024-10-01T12:00:00Z"
+        endTime:
+          type: string
+          format: date-time
+          description: End time of rule
+          example: "2024-10-01T12:00:00Z"
+
+    RuleEventOutputList:
+      type: object
+      properties:
+        nUsers:
+          type: integer
+          description: number of results
+          example: 20
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleEventOutput'
+
+    RuleLocationOutputList:
+      type: object
+      properties:
+        nUsers:
+          type: integer
+          description: number of results
+          example: 20
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleLocationOutput'
+
+    RuleListOutput:
+      type: object
+      properties:
+        eventRulesN:
+          type: integer
+          description: number of results
+          example: 20
+        eventsRules:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleEventOutputList'
+        locationRulesN:
+          type: integer
+          description: number of results
+          example: 20
+        locationRules:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleLocationOutputList'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
