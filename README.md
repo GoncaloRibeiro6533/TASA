@@ -18,9 +18,38 @@ The application triggers silencing based on predefined rules, either when the us
 
 ## Functionalities
 
-- **User Authentication**:
-  - Login, registration, and secure session management.
-  - Token-based authentication for session persistence.
+### User Authentication
+- User login and registration.
+
+### 📍 Location-Based Automation
+- Create geofenced zones (e.g., home, school, gym).
+- Automatically triggers DND mode when the user enters the location.
+
+### 🛑 Do Not Disturb Management
+- Mutes the device when entering a geofence.
+- Automatically restores sound when exiting.
+
+### 🧠 Activity Recognition
+- Detects if the user is walking, biking, or driving using Google’s Activity API.
+
+### 🌐 Rule Management
+- Add, update, or delete rules for geofences.
+- Manage geofence radius, location name, and time ranges.
+
+
+## ⚙️ Background Execution
+
+Tasa aims for low-power execution:
+
+- The app **does not run continuously in the background**.
+- It is only activated by the **Geofencing API** when a transition is detected.
+- On **entry**, it starts a **foreground service** to monitor real-time location.
+- On **exit**, it **stops the foreground service**, conserving resources.
+- If location is disabled or permissions are missing, Tasa notifies the user appropriately.
+
+---
+
+> ⚠️ The app notifies the user when location is off and rules may not be applied.
 
 ---
 
@@ -68,9 +97,36 @@ Contains project documentation, diagrams, and related materials:
 - **`http-pipeline/`** - HTTP request/response processing pipeline.
 - **`repository-jdbi/`** - JDBI-specific repository implementations.
 
-
 ### `/frontend` - Client Application
-Contains the frontend implementation and user interface components.
+
+Contains the Android app implementation and UI components.
+
+#### 📂 `/app/src`
+
+Main application source code and tests.
+
+- **`/main/java/com/tasa`** — Root package.
+  - **`/ui`** — Jetpack Compose screens and UI logic.
+    - **`/screens`** — Organized per feature (e.g. `homepage`, `map`).
+    - **`/components`** — Reusable composables (e.g. dialogs, buttons, layout containers).
+  - **`/activity`** — Activity Recognition manager & broadcast receivers.
+  - **`/location`** — Location tracking, geofencing, and foreground service.
+  - **`/geofence`** — Geofence manager and broadcast handler.
+  - **`/silence`** — Do Not Disturb (DND) logic and system audio control.
+  - **`/utils`** — Utility classes (e.g. permissions, constants).
+  - **`/domain`** — Business models like `Rule`, `Location`, etc.
+  - **`/repository`** — Repositories.
+  - **`/storage`** - Local Room database data access objects and entities.
+  - **`/service`** - Service to comunicate wiht API.
+  - **`/workers`** - Schedule work via WorkManager.
+  - **`/alarm`** - Alarm scheduler via AlarmManager.
+
+
+- **`/res`** — Resources.
+  - **`/drawable`**, **`/layout`**, **`/xml`**, **`/values`**, etc.
+  - Includes map icons, vector assets, themes, and translations.
+
+- **`AndroidManifest.xml`** — Declares permissions, services, receivers, and activities.
 
 ### Deployment
 
