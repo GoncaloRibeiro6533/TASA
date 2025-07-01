@@ -32,8 +32,9 @@
   - username: bob
   - password: Tasa_2025
 
-- In the [docs folder](https://github.com/GoncaloRibeiro6533/TASA/blob/main/docs/Endpoints.postman_collection.json), you can find the Postman collection with all the endpoints of the API and
-    the example requests to test the API.
+- In the [docs folder](https://github.com/GoncaloRibeiro6533/TASA/blob/main/docs/Endpoints.postman_collection.json), you can find the Postman collection with all the endpoints of the API and the example requests to test the API.
+- The API documentation is available [here](https://github.com/GoncaloRibeiro6533/TASA/blob/main/docs/api-docs.yaml)
+
 
 - To stop the containers, you can run the following command in the jvm folder:
   
