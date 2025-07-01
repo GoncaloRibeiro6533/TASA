@@ -47,10 +47,10 @@ CREATE TABLE IF NOT EXISTS  ps.REFRESH_TOKEN(
     );
 
 CREATE  TABLE IF NOT EXISTS  ps.EVENT(
-    event_id BIGINT UNIQUE NOT NULL,
-    calendar_id BIGINT NOT NULL,
-    PRIMARY KEY (calendar_id, event_id, user_id),
+    id SERIAL PRIMARY KEY,
     title VARCHAR(300) NOT NULL,
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
     user_id INTEGER NOT NULL REFERENCES ps.USER(id) ON DELETE CASCADE
     );
 
@@ -69,19 +69,17 @@ CREATE TABLE IF NOT EXISTS ps.RULE_EVENT (
     id           SERIAL PRIMARY KEY,
     start_time   TIMESTAMP NOT NULL,
     end_time     TIMESTAMP NOT NULL,
-    calendar_id  BIGINT NOT NULL,
-    event_id     BIGINT NOT NULL,
     user_id      INTEGER NOT NULL,
-    UNIQUE(user_id, start_time, end_time, calendar_id, event_id),
-    CONSTRAINT fk_re_ruleevent_user
+    event_id     INTEGER NOT NULL,
+    CONSTRAINT fk_user
     FOREIGN KEY (user_id)
     REFERENCES ps.USER(id)
     ON DELETE CASCADE,
-    CONSTRAINT fk_re_ruleevent_event
-    FOREIGN KEY (calendar_id, event_id, user_id)
-    REFERENCES ps.EVENT (calendar_id, event_id, user_id)
+    CONSTRAINT fk_event
+    FOREIGN KEY (event_id)
+    REFERENCES ps.EVENT (id)
     ON DELETE CASCADE
-    );
+);
 
 
 

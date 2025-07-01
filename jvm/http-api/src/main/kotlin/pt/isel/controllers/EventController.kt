@@ -30,10 +30,10 @@ class EventController(
     ): ResponseEntity<*> {
         val result =
             eventService.createEvent(
-                eventId = eventIn.eventId,
-                calendarId = eventIn.calendarId,
                 title = eventIn.title,
                 userId = authUser.user.id,
+                startTime = eventIn.startTime,
+                endTime = eventIn.endTime,
             )
         return when (result) {
             is Success -> ResponseEntity.status(HttpStatus.CREATED).body(result.value)
@@ -41,16 +41,14 @@ class EventController(
         }
     }
 
-    @GetMapping("/{id}/calendar/{calendarId}")
+    @GetMapping("/{id}")
     fun getEvent(
         authUser: AuthenticatedUser,
-        @PathVariable id: Long,
-        @PathVariable calendarId: Long,
+        @PathVariable id: Int,
     ): ResponseEntity<*> {
         val result =
             eventService.getEvent(
                 eventId = id,
-                calendarId = calendarId,
                 userId = authUser.user.id,
             )
         return when (result) {
@@ -71,15 +69,15 @@ class EventController(
         }
     }
 
-    @PutMapping("/update/title")
+    @PutMapping("{id}/update/title")
     fun updateEvent(
         authUser: AuthenticatedUser,
         @RequestBody eventIn: EventInput,
+        @PathVariable id: Int,
     ): ResponseEntity<*> {
         val result =
             eventService.updateEvent(
-                eventId = eventIn.eventId,
-                calendarId = eventIn.calendarId,
+                eventId = id,
                 newTitle = eventIn.title,
                 userId = authUser.user.id,
             )
@@ -89,16 +87,14 @@ class EventController(
         }
     }
 
-    @DeleteMapping("/remove/{id}/calendar/{calendarId}")
+    @DeleteMapping("/remove/{id}")
     fun deleteEvent(
         authUser: AuthenticatedUser,
-        @PathVariable id: Long,
-        @PathVariable calendarId: Long,
+        @PathVariable id: Int,
     ): ResponseEntity<*> {
         val result =
             eventService.deleteEvent(
                 eventId = id,
-                calendarId = calendarId,
                 userId = authUser.user.id,
             )
         return when (result) {

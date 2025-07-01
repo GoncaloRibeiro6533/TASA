@@ -71,7 +71,7 @@ class JdbiRulesRepositoryTests {
             val user = userRepo.createUser("username", "user@example.com", "password")
             val ruleRepo = JdbiRuleRepository(handle)
             val eventRepo = JdbiEventRepository(handle)
-            val event = eventRepo.create(1L, 1L, "Test Event", user)
+            val event = eventRepo.create("Test Event", user, "2025-10-01T10:00".toLocalDateTime(), "2025-10-01T11:00".toLocalDateTime())
             val startTime = testClock.now().plus(2.days).toLocalDateTime(TimeZone.currentSystemDefault())
             val endTime = testClock.now().plus(3.days).toLocalDateTime(TimeZone.currentSystemDefault())
             val rule =
@@ -147,7 +147,7 @@ class JdbiRulesRepositoryTests {
             val user = userRepo.createUser("username", "user@example.com", "password")
             val ruleRepo = JdbiRuleRepository(handle)
             val eventRepo = JdbiEventRepository(handle)
-            val event = eventRepo.create(1L, 1L, "Test Event", user)
+            val event = eventRepo.create("Test Event", user, "2025-10-01T10:00".toLocalDateTime(), "2025-10-01T11:00".toLocalDateTime())
             val startTime = testClock.now().plus(2.days).toLocalDateTime(TimeZone.currentSystemDefault())
             val endTime = testClock.now().plus(3.days).toLocalDateTime(TimeZone.currentSystemDefault())
             val rule =
@@ -202,7 +202,7 @@ class JdbiRulesRepositoryTests {
             val user = userRepo.createUser("username", "user@example.com", "password")
             val ruleRepo = JdbiRuleRepository(handle)
             val eventRepo = JdbiEventRepository(handle)
-            val event = eventRepo.create(1L, 1L, "Test Event", user)
+            val event = eventRepo.create("Test Event", user, "2025-10-01T10:00".toLocalDateTime(), "2025-10-01T11:00".toLocalDateTime())
             val startTime = testClock.now().plus(2.days).toLocalDateTime(TimeZone.currentSystemDefault())
             val endTime = testClock.now().plus(3.days).toLocalDateTime(TimeZone.currentSystemDefault())
             val rule =

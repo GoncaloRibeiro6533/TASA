@@ -1,4 +1,5 @@
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toLocalDateTime
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import pt.isel.Event
@@ -21,8 +22,9 @@ class MockRuleRepositoryTests {
     private val event =
         Event(
             id = 1,
-            calendarId = 1,
             title = "Test Event",
+            startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+            endTime = "2025-11-01T01:00:00".toLocalDateTime(),
         )
     private val location =
         Location(

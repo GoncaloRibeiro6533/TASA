@@ -59,7 +59,7 @@ class OpenApiConfig {
                         "bearerAuth",
                         SecurityScheme()
                             .type(SecurityScheme.Type.HTTP)
-                            .scheme("bearer")
+                            .scheme("bearer"),
                     ),
             )
             .addSecurityItem(

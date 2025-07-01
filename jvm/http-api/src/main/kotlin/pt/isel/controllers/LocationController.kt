@@ -131,7 +131,6 @@ class LocationController(
         }
     }
 
-
     private fun LocationError.toResponse() =
         when (this) {
             is LocationError.InvalidLocationName -> Problem.InvalidLocationName.response(HttpStatus.BAD_REQUEST)

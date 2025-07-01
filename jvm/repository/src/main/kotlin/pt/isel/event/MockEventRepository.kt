@@ -1,32 +1,36 @@
 package pt.isel.event
 
+import kotlinx.datetime.LocalDateTime
 import pt.isel.Event
 import pt.isel.User
 
 class MockEventRepository : EventRepository {
-    private val events = mutableMapOf<Int, MutableList<Event>>()
+    companion object {
+        private var eventId = 0
+        private val events = mutableMapOf<Int, MutableList<Event>>()
+    }
 
     override fun create(
-        eventId: Long,
-        calendarId: Long,
         title: String,
         user: User,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
     ): Event {
         val event =
             Event(
-                id = eventId,
-                calendarId = calendarId,
+                id = eventId++,
                 title = title,
+                startTime = startTime,
+                endTime = endTime,
             )
         events.computeIfAbsent(user.id) { mutableListOf() }.add(event)
         return event
     }
 
-    override fun findById(
-        eventId: Long,
-        calendarId: Long,
-        user: User,
-    ): Event? = events[user.id]?.find { it.id == eventId && it.calendarId == calendarId }
+    override fun findById(id: Int): Event? =
+        events.values
+            .flatten()
+            .find { it.id == id }
 
     override fun findAll(): List<Event> = events.values.flatten()
 
@@ -52,5 +56,6 @@ class MockEventRepository : EventRepository {
 
     override fun clear() {
         events.clear()
+        eventId = 0
     }
 }

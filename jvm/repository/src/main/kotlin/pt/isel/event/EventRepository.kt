@@ -1,5 +1,6 @@
 package pt.isel.event
 
+import kotlinx.datetime.LocalDateTime
 import pt.isel.Event
 import pt.isel.User
 
@@ -8,17 +9,13 @@ import pt.isel.User
  */
 interface EventRepository {
     fun create(
-        eventId: Long,
-        calendarId: Long,
         title: String,
         user: User,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
     ): Event
 
-    fun findById(
-        eventId: Long,
-        calendarId: Long,
-        user: User,
-    ): Event?
+    fun findById(id: Int): Event?
 
     fun findAll(): List<Event>
 

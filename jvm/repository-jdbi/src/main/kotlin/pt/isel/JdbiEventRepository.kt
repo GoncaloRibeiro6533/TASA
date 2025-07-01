@@ -1,5 +1,7 @@
 package pt.isel
 
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toJavaLocalDateTime
 import org.jdbi.v3.core.Handle
 import pt.isel.event.EventRepository
 
@@ -7,43 +9,39 @@ class JdbiEventRepository(
     private val handle: Handle,
 ) : EventRepository {
     override fun create(
-        eventId: Long,
-        calendarId: Long,
         title: String,
         user: User,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
     ): Event {
-        handle.createUpdate(
-            """
-            INSERT INTO ps.Event (event_id, calendar_id, title, user_id) 
-            VALUES (:eventId, :calendarId, :title, :userId)
-            """.trimIndent(),
-        )
-            .bind("eventId", eventId)
-            .bind("calendarId", calendarId)
-            .bind("title", title)
-            .bind("userId", user.id)
-            .execute()
+        val id =
+            handle.createUpdate(
+                """
+                INSERT INTO ps.Event (title, user_id, start_time, end_time)
+                VALUES (:title, :userId, :startTime, :endTime)
+                """.trimIndent(),
+            )
+                .bind("startTime", startTime.toJavaLocalDateTime())
+                .bind("endTime", endTime.toJavaLocalDateTime())
+                .bind("title", title)
+                .bind("userId", user.id).executeAndReturnGeneratedKeys()
+                .mapTo(Int::class.java).one()
         return Event(
-            id = eventId,
-            calendarId = calendarId,
+            id = id,
             title = title,
+            startTime = startTime,
+            endTime = endTime,
         )
     }
 
-    override fun findById(
-        eventId: Long,
-        calendarId: Long,
-        user: User,
-    ): Event? {
+    override fun findById(id: Int): Event? {
         return handle.createQuery(
             """
-            SELECT event_id, calendar_id,title FROM ps.event 
-            WHERE event_id = :eventId AND calendar_id = :calendarId AND user_id = :userId  
+            SELECT id,title, start_time, end_time FROM ps.event 
+            WHERE id = :eventId
             """.trimIndent(),
         )
-            .bind("eventId", eventId)
-            .bind("calendarId", calendarId)
-            .bind("userId", user.id)
+            .bind("eventId", id)
             .mapTo(Event::class.java)
             .findOne()
             .orElse(null)
@@ -56,7 +54,7 @@ class JdbiEventRepository(
     }
 
     override fun findByUserId(user: User): List<Event> {
-        return handle.createQuery("SELECT event_id, calendar_id, title FROM ps.event WHERE user_id = :userId")
+        return handle.createQuery("SELECT id, title, start_time, end_time FROM ps.event WHERE user_id = :userId")
             .bind("userId", user.id)
             .mapTo(Event::class.java)
             .list()
@@ -70,13 +68,11 @@ class JdbiEventRepository(
         handle.createUpdate(
             """
             UPDATE ps.event SET title = :newTitle 
-                WHERE event_id = :eventId AND calendar_id = :calendarId AND user_id = :userId
+                WHERE id = :eventId
             """.trimIndent(),
         )
             .bind("newTitle", newTitle)
             .bind("eventId", event.id)
-            .bind("calendarId", event.calendarId)
-            .bind("userId", user.id)
             .execute()
         return event.copy(title = newTitle)
     }
@@ -85,10 +81,8 @@ class JdbiEventRepository(
         user: User,
         event: Event,
     ): Boolean {
-        return handle.createUpdate("DELETE FROM ps.event WHERE event_id = :eventId AND calendar_id = :calendarId AND user_id = :userId")
+        return handle.createUpdate("DELETE FROM ps.event WHERE id = :eventId")
             .bind("eventId", event.id)
-            .bind("calendarId", event.calendarId)
-            .bind("userId", user.id)
             .execute() > 0
     }
 

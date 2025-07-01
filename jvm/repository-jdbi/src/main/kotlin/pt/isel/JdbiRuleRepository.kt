@@ -17,15 +17,14 @@ class JdbiRuleRepository(
         val id =
             handle.createUpdate(
                 """
-                INSERT INTO ps.RULE_EVENT (start_time, end_time, user_id, event_id, calendar_id)
-                VALUES (:startTime, :endTime, :userId, :eventId, :calendarId)
+                INSERT INTO ps.RULE_EVENT (start_time, end_time, user_id, event_id)
+                VALUES (:startTime, :endTime, :userId, :eventId)
                 """.trimIndent(),
             )
                 .bind("startTime", startTime.toJavaLocalDateTime())
                 .bind("endTime", endTime.toJavaLocalDateTime())
                 .bind("userId", user.id)
                 .bind("eventId", event.id)
-                .bind("calendarId", event.calendarId)
                 .executeAndReturnGeneratedKeys()
                 .mapTo(Int::class.java).one()
         return RuleEvent(
@@ -95,16 +94,15 @@ class JdbiRuleRepository(
                     r.start_time,
                     r.end_time,
                     r.user_id,
-                    e.event_id,
-                    e.calendar_id,
+                    r.event_id,
                     e.title,
-                    e.user_id,
+                    e.start_time as event_start_time,
+                    e.end_time as event_end_time,
                     u.username,
                     u.email
                 FROM ps.RULE_EVENT r
                 JOIN ps.USER u ON r.user_id = u.id
-                JOIN ps.EVENT e ON (e.event_id = r.event_id 
-                AND e.calendar_id = r.calendar_id AND e.user_id = r.user_id);
+                JOIN ps.EVENT e ON e.id = r.event_id;
                 """.trimIndent(),
             ).mapTo(RuleEvent::class.java)
                 .list()
@@ -119,16 +117,15 @@ class JdbiRuleRepository(
                 r.start_time,
                 r.end_time,
                 r.user_id,
-                e.event_id,
-                e.calendar_id,
+                r.event_id,
                 e.title,
-                e.user_id,
+                e.start_time as event_start_time,
+                e.end_time as event_end_time,
                 u.username,
                 u.email
             FROM ps.RULE_EVENT r
             JOIN ps.USER u ON r.user_id = u.id
-            JOIN ps.EVENT e ON (e.event_id = r.event_id 
-            AND e.calendar_id = r.calendar_id AND e.user_id = r.user_id)
+            JOIN ps.EVENT e ON e.id = r.event_id 
             WHERE r.id= :id
             """.trimIndent(),
         )
@@ -198,16 +195,15 @@ class JdbiRuleRepository(
                     r.start_time,
                     r.end_time,
                     r.user_id,
-                    e.event_id,
-                    e.calendar_id,
+                    r.event_id,
                     e.title,
-                    e.user_id,
+                    e.start_time as event_start_time,
+                    e.end_time as event_end_time,
                     u.username,
                     u.email
                 FROM ps.RULE_EVENT r
                 JOIN ps.USER u ON r.user_id = u.id
-                JOIN ps.EVENT e ON (e.event_id = r.event_id 
-                AND e.calendar_id = r.calendar_id AND e.user_id = r.user_id)
+                JOIN ps.EVENT e ON e.id = r.event_id 
                 WHERE r.user_id= :userId
                 """.trimIndent(),
             )

@@ -91,18 +91,17 @@ class RuleServiceTests {
         assertIs<User>(user.value)
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val sut =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -121,28 +120,7 @@ class RuleServiceTests {
         val sut =
             ruleService.createRuleEvent(
                 user.value.id,
-                -1L,
-                1L,
-                "2025-06-23T10:00:00".toLocalDateTime(),
-                "2025-06-23T11:00:00".toLocalDateTime(),
-            )
-        assertTrue(sut is Failure)
-        assertIs<RuleError.NegativeIdentifier>(sut.value)
-    }
-
-    @ParameterizedTest
-    @MethodSource("transactionManagers")
-    fun `create rule event should fail with negative calendarId`(trxManager: TransactionManager) {
-        val ruleService = RuleService(trxManager)
-        val userService = createUserService(trxManager, TestClock())
-        val user = userService.register("Alice", "alice@example.com", "Safe_2027")
-        assertTrue(user is Success)
-        assertIs<User>(user.value)
-        val sut =
-            ruleService.createRuleEvent(
-                user.value.id,
-                1L,
-                -1L,
+                -1,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -161,8 +139,7 @@ class RuleServiceTests {
         val sut =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                1,
                 "2025-06-23T11:00:00".toLocalDateTime(),
                 "2025-06-23T10:00:00".toLocalDateTime(),
             )
@@ -181,8 +158,7 @@ class RuleServiceTests {
         val sut =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                1,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T10:00:00".toLocalDateTime(),
             )
@@ -197,8 +173,7 @@ class RuleServiceTests {
         val sut =
             ruleService.createRuleEvent(
                 9999,
-                1L,
-                1L,
+                1,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -218,18 +193,17 @@ class RuleServiceTests {
         val endTime = "2025-06-23T11:00:00".toLocalDateTime()
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val firstRule =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 startTime,
                 endTime,
             )
@@ -237,8 +211,7 @@ class RuleServiceTests {
         val sut =
             ruleService.createRuleEvent(
                 user.value.id,
-                2L,
-                1L,
+                event.value.id,
                 startTime,
                 endTime,
             )
@@ -410,18 +383,17 @@ class RuleServiceTests {
         assertIs<User>(user.value)
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val rule =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -446,18 +418,17 @@ class RuleServiceTests {
         assertIs<User>(user.value)
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val rule =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -478,18 +449,17 @@ class RuleServiceTests {
         assertIs<User>(user.value)
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val rule =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -510,18 +480,17 @@ class RuleServiceTests {
         assertIs<User>(user.value)
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val rule =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -558,18 +527,17 @@ class RuleServiceTests {
         assertIs<User>(user2.value)
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val rule =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -789,18 +757,17 @@ class RuleServiceTests {
         assertIs<RuleLocation>(rule0.value)
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val rule1 =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 "2025-06-23T11:01:00".toLocalDateTime(),
                 "2025-06-23T12:00:00".toLocalDateTime(),
             )
@@ -841,18 +808,17 @@ class RuleServiceTests {
         assertIs<User>(user.value)
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val rule =
             ruleService.createRuleEvent(
                 userId = user.value.id,
-                eventId = 1L,
-                calendarId = 1L,
+                eventId = event.value.id,
                 startTime = "2025-06-23T10:00:00".toLocalDateTime(),
                 endTime = "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -877,20 +843,20 @@ class RuleServiceTests {
         val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
         assertTrue(user is Success)
         assertIs<User>(user.value)
+
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val rule =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -936,18 +902,17 @@ class RuleServiceTests {
         assertIs<User>(user.value)
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val rule =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -974,18 +939,17 @@ class RuleServiceTests {
         assertIs<User>(user.value)
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val rule =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -1012,18 +976,17 @@ class RuleServiceTests {
         assertIs<User>(user.value)
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val rule =
             ruleService.createRuleEvent(
                 userId = user.value.id,
-                eventId = 1L,
-                calendarId = 1L,
+                eventId = event.value.id,
                 startTime = "2025-06-23T10:00:00".toLocalDateTime(),
                 endTime = "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -1050,18 +1013,17 @@ class RuleServiceTests {
         assertIs<User>(user.value)
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val rule =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -1107,18 +1069,17 @@ class RuleServiceTests {
         assertIs<User>(user.value)
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val rule =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -1127,8 +1088,7 @@ class RuleServiceTests {
         val rule2 =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 "2025-06-23T11:30:00".toLocalDateTime(),
                 "2025-06-23T12:00:00".toLocalDateTime(),
             )
@@ -1158,18 +1118,17 @@ class RuleServiceTests {
         assertIs<User>(user2.value)
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val rule =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -1483,18 +1442,17 @@ class RuleServiceTests {
         assertIs<User>(user2.value)
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val rule =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -1518,18 +1476,17 @@ class RuleServiceTests {
         assertIs<User>(user.value)
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val rule =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -1554,18 +1511,17 @@ class RuleServiceTests {
         assertIs<User>(user.value)
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val rule =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -1590,18 +1546,17 @@ class RuleServiceTests {
         assertIs<User>(user.value)
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val rule =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -1626,18 +1581,17 @@ class RuleServiceTests {
         assertIs<User>(user.value)
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val rule =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -1665,18 +1619,17 @@ class RuleServiceTests {
         assertIs<User>(user2.value)
         val event =
             EventService(trxManager).createEvent(
-                1L,
-                1L,
-                "Title",
-                user.value.id,
+                title = "Test Event",
+                userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val rule =
             ruleService.createRuleEvent(
                 user.value.id,
-                1L,
-                1L,
+                event.value.id,
                 "2025-06-23T10:00:00".toLocalDateTime(),
                 "2025-06-23T11:00:00".toLocalDateTime(),
             )
@@ -1874,7 +1827,6 @@ class RuleServiceTests {
         assertIs<RuleError.NotAllowed>(sut.value)
     }
 
-    // TODO move
     @ParameterizedTest
     @MethodSource("transactionManagers")
     fun `checkCollisionTime with multiple times`(trxManager: TransactionManager) {

@@ -1,3 +1,4 @@
+import kotlinx.datetime.toLocalDateTime
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.Jdbi
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -49,16 +50,17 @@ class JdbiEventRepositoryTests {
             val user = userRepo.createUser("username", "user@example.com", "password")
             val event =
                 eventRepo.create(
-                    eventId = 1L,
-                    calendarId = 1L,
                     title = "Test Event",
                     user = user,
+                    startTime = "2025-10-01T10:00".toLocalDateTime(),
+                    endTime = "2025-10-01T11:00".toLocalDateTime(),
                 )
-            val createdEvent = eventRepo.findById(event.id, event.calendarId, user)
+            val createdEvent = eventRepo.findById(event.id)
             assertNotNull(createdEvent)
             assertEquals(event.id, createdEvent.id)
-            assertEquals(event.calendarId, createdEvent.calendarId)
             assertEquals(event.title, createdEvent.title)
+            assertEquals(event.startTime, createdEvent.startTime)
+            assertEquals(event.endTime, createdEvent.endTime)
         }
     }
 
@@ -72,16 +74,17 @@ class JdbiEventRepositoryTests {
             val user = userRepo.createUser("username", "user@example.com", "password")
             val event =
                 eventRepo.create(
-                    eventId = 1L,
-                    calendarId = 1L,
                     title = "Test Event",
                     user = user,
+                    startTime = "2025-10-01T10:00".toLocalDateTime(),
+                    endTime = "2025-10-01T11:00".toLocalDateTime(),
                 )
-            val foundEvent = eventRepo.findById(event.id, event.calendarId, user)
+            val foundEvent = eventRepo.findById(event.id)
             assertNotNull(foundEvent)
             assertEquals(event.id, foundEvent.id)
-            assertEquals(event.calendarId, foundEvent.calendarId)
             assertEquals(event.title, foundEvent.title)
+            assertEquals(event.startTime, foundEvent.startTime)
+            assertEquals(event.endTime, foundEvent.endTime)
         }
     }
 
@@ -95,10 +98,10 @@ class JdbiEventRepositoryTests {
             val user = userRepo.createUser("username", "user@example.com", "password")
             val event =
                 eventRepo.create(
-                    eventId = 1L,
-                    calendarId = 1L,
                     title = "Test Event",
                     user = user,
+                    startTime = "2025-10-01T10:00".toLocalDateTime(),
+                    endTime = "2025-10-01T11:00".toLocalDateTime(),
                 )
             val updatedEvent =
                 eventRepo.update(
@@ -108,9 +111,12 @@ class JdbiEventRepositoryTests {
                 )
             assertNotNull(updatedEvent)
             assertEquals("Updated Event Title", updatedEvent.title)
-            val sut = eventRepo.findById(event.id, event.calendarId, user)
+            val sut = eventRepo.findById(event.id)
             assertNotNull(sut)
             assertEquals("Updated Event Title", sut.title)
+            assertEquals(event.startTime, sut.startTime)
+            assertEquals(event.endTime, sut.endTime)
+            assertEquals(event.id, sut.id)
         }
     }
 
@@ -124,14 +130,14 @@ class JdbiEventRepositoryTests {
             val user = userRepo.createUser("username", "user@example.com", "password")
             val event =
                 eventRepo.create(
-                    eventId = 1L,
-                    calendarId = 1L,
                     title = "Test Event",
                     user = user,
+                    startTime = "2025-10-01T10:00".toLocalDateTime(),
+                    endTime = "2025-10-01T11:00".toLocalDateTime(),
                 )
             val deleted = eventRepo.delete(event = event, user = user)
             assertEquals(true, deleted)
-            val foundEvent = eventRepo.findById(event.id, event.calendarId, user)
+            val foundEvent = eventRepo.findById(event.id)
             assertEquals(null, foundEvent)
         }
     }
@@ -145,16 +151,16 @@ class JdbiEventRepositoryTests {
 
             val user = userRepo.createUser("username", "user@example.com", "password")
             eventRepo.create(
-                eventId = 1L,
-                calendarId = 1L,
                 title = "Event 1",
                 user = user,
+                startTime = "2025-10-01T10:00".toLocalDateTime(),
+                endTime = "2025-10-01T11:00".toLocalDateTime(),
             )
             eventRepo.create(
-                eventId = 2L,
-                calendarId = 1L,
                 title = "Event 2",
                 user = user,
+                startTime = "2025-10-01T12:00".toLocalDateTime(),
+                endTime = "2025-10-01T13:00".toLocalDateTime(),
             )
             val events = eventRepo.findByUserId(user)
             assertEquals(2, events.size)
@@ -172,14 +178,14 @@ class JdbiEventRepositoryTests {
             val user = userRepo.createUser("username", "user@example.com", "password")
             val event =
                 eventRepo.create(
-                    eventId = 1L,
-                    calendarId = 1L,
                     title = "Test Event",
                     user = user,
+                    startTime = "2025-10-01T10:00".toLocalDateTime(),
+                    endTime = "2025-10-01T11:00".toLocalDateTime(),
                 )
             val deleted = eventRepo.delete(event = event, user = user)
             assertEquals(true, deleted)
-            val foundEvent = eventRepo.findById(event.id, event.calendarId, user)
+            val foundEvent = eventRepo.findById(event.id)
             assertEquals(null, foundEvent)
         }
     }
@@ -192,10 +198,10 @@ class JdbiEventRepositoryTests {
             val eventRepo = JdbiEventRepository(handle)
             val user = userRepo.createUser("username", "user@example.com", "password")
             eventRepo.create(
-                eventId = 1L,
-                calendarId = 1L,
                 title = "Test Event",
                 user = user,
+                startTime = "2025-10-01T10:00".toLocalDateTime(),
+                endTime = "2025-10-01T11:00".toLocalDateTime(),
             )
             eventRepo.clear()
             val events = eventRepo.findByUserId(user)

@@ -25,9 +25,10 @@ class RuleEventMapper : RowMapper<RuleEvent> {
                 ),
             event =
                 Event(
-                    id = rs.getLong("event_id"),
-                    calendarId = rs.getLong("calendar_id"),
+                    id = rs.getInt("event_id"),
                     title = rs.getString("title"),
+                    startTime = rs.getTimestamp("event_start_time").toLocalDateTime().toKotlinLocalDateTime(),
+                    endTime = rs.getTimestamp("event_end_time").toLocalDateTime().toKotlinLocalDateTime(),
                 ),
         )
     }

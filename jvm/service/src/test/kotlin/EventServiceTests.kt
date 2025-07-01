@@ -1,3 +1,4 @@
+import kotlinx.datetime.toLocalDateTime
 import org.jdbi.v3.core.Jdbi
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -83,51 +84,13 @@ class EventServiceTests {
         val eventService = EventService(trxManager)
         val event =
             eventService.createEvent(
-                eventId = 1,
-                calendarId = 1,
                 title = "Test Event",
                 userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
-    }
-
-    @ParameterizedTest
-    @MethodSource("transactionManagers")
-    fun `create event should return error if eventId is negative`(trxManager: TransactionManager) {
-        val userService = createUserService(trxManager, TestClock())
-        val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
-        assertTrue(user is Success)
-        assertIs<User>(user.value)
-        val eventService = EventService(trxManager)
-        val event =
-            eventService.createEvent(
-                eventId = -1,
-                calendarId = 1,
-                title = "Test Event",
-                userId = user.value.id,
-            )
-        assertTrue(event is Failure)
-        assertIs<EventError.NegativeIdentifier>(event.value)
-    }
-
-    @ParameterizedTest
-    @MethodSource("transactionManagers")
-    fun `create event should return error if calendarId is negative`(trxManager: TransactionManager) {
-        val userService = createUserService(trxManager, TestClock())
-        val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
-        assertTrue(user is Success)
-        assertIs<User>(user.value)
-        val eventService = EventService(trxManager)
-        val event =
-            eventService.createEvent(
-                eventId = 1,
-                calendarId = -1,
-                title = "Test Event",
-                userId = user.value.id,
-            )
-        assertTrue(event is Failure)
-        assertIs<EventError.NegativeIdentifier>(event.value)
     }
 
     @ParameterizedTest
@@ -140,10 +103,10 @@ class EventServiceTests {
         val eventService = EventService(trxManager)
         val event =
             eventService.createEvent(
-                eventId = 1,
-                calendarId = 1,
                 title = "",
                 userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Failure)
         assertIs<EventError.EventNameCannotBeBlank>(event.value)
@@ -151,7 +114,7 @@ class EventServiceTests {
 
     @ParameterizedTest
     @MethodSource("transactionManagers")
-    fun `create event should return error if event with given id and calendar id exists`(trxManager: TransactionManager) {
+    fun `create event should return error if event exists`(trxManager: TransactionManager) {
         val userService = createUserService(trxManager, TestClock())
         val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
         assertTrue(user is Success)
@@ -159,19 +122,19 @@ class EventServiceTests {
         val eventService = EventService(trxManager)
         val event =
             eventService.createEvent(
-                eventId = 1,
-                calendarId = 1,
                 title = "Test Event",
                 userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val sut =
             eventService.createEvent(
-                eventId = 1,
-                calendarId = 1,
                 title = "Test Event",
                 userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(sut is Failure)
         assertIs<EventError.AlreadyExists>(sut.value)
@@ -183,10 +146,10 @@ class EventServiceTests {
         val eventService = EventService(trxManager)
         val event =
             eventService.createEvent(
-                eventId = 1,
-                calendarId = 1,
                 title = "Test Event",
-                userId = 9999,
+                userId = 99999,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Failure)
         assertIs<EventError.UserNotFound>(event.value)
@@ -202,24 +165,22 @@ class EventServiceTests {
         val eventService = EventService(trxManager)
         val event =
             eventService.createEvent(
-                eventId = 1,
-                calendarId = 1,
                 title = "Test Event",
                 userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val updatedEvent =
             eventService.updateEvent(
-                eventId = 1,
-                calendarId = 1,
+                eventId = event.value.id,
                 newTitle = "Updated Event",
                 userId = user.value.id,
             )
         assertTrue(updatedEvent is Success)
         assertIs<Event>(updatedEvent.value)
-        assertEquals(1, updatedEvent.value.id)
-        assertEquals(1, updatedEvent.value.calendarId)
+        assertEquals(event.value.id, updatedEvent.value.id)
         assertEquals("Updated Event", updatedEvent.value.title)
     }
 
@@ -234,26 +195,6 @@ class EventServiceTests {
         val updatedEvent =
             eventService.updateEvent(
                 eventId = -1,
-                calendarId = 1,
-                newTitle = "Updated Event",
-                userId = user.value.id,
-            )
-        assertTrue(updatedEvent is Failure)
-        assertIs<EventError.NegativeIdentifier>(updatedEvent.value)
-    }
-
-    @ParameterizedTest
-    @MethodSource("transactionManagers")
-    fun `updateEvent should return error if calendarId is negative`(trxManager: TransactionManager) {
-        val userService = createUserService(trxManager, TestClock())
-        val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
-        assertTrue(user is Success)
-        assertIs<User>(user.value)
-        val eventService = EventService(trxManager)
-        val updatedEvent =
-            eventService.updateEvent(
-                eventId = 1,
-                calendarId = -1,
                 newTitle = "Updated Event",
                 userId = user.value.id,
             )
@@ -271,17 +212,16 @@ class EventServiceTests {
         val eventService = EventService(trxManager)
         val event =
             eventService.createEvent(
-                eventId = 1,
-                calendarId = 1,
                 title = "Test Event",
                 userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val updatedEvent =
             eventService.updateEvent(
-                eventId = 1,
-                calendarId = 1,
+                eventId = event.value.id,
                 newTitle = "",
                 userId = user.value.id,
             )
@@ -299,17 +239,16 @@ class EventServiceTests {
         val eventService = EventService(trxManager)
         val event =
             eventService.createEvent(
-                eventId = 1,
-                calendarId = 1,
                 title = "Test Event",
                 userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val updatedEvent =
             eventService.updateEvent(
                 eventId = 1,
-                calendarId = 1,
                 newTitle = "Updated Event",
                 userId = 9999,
             )
@@ -328,7 +267,6 @@ class EventServiceTests {
         val updatedEvent =
             eventService.updateEvent(
                 eventId = 1,
-                calendarId = 1,
                 newTitle = "Updated Event",
                 userId = user.value.id,
             )
@@ -346,10 +284,10 @@ class EventServiceTests {
         val eventService = EventService(trxManager)
         val event =
             eventService.createEvent(
-                eventId = 1,
-                calendarId = 1,
                 title = "Test Event",
                 userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
@@ -388,17 +326,16 @@ class EventServiceTests {
         val eventService = EventService(trxManager)
         val event =
             eventService.createEvent(
-                eventId = 1,
-                calendarId = 1,
                 title = "Test Event",
                 userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val sut =
             eventService.deleteEvent(
-                eventId = 1,
-                calendarId = 1,
+                eventId = event.value.id,
                 userId = user.value.id,
             )
         assertTrue(sut is Success)
@@ -416,44 +353,16 @@ class EventServiceTests {
         val eventService = EventService(trxManager)
         val event =
             eventService.createEvent(
-                eventId = 1,
-                calendarId = 1,
                 title = "Test Event",
                 userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val sut =
             eventService.deleteEvent(
                 eventId = -1,
-                calendarId = 1,
-                userId = user.value.id,
-            )
-        assertTrue(sut is Failure)
-        assertIs<EventError.NegativeIdentifier>(sut.value)
-    }
-
-    @ParameterizedTest
-    @MethodSource("transactionManagers")
-    fun `deleteEvent should return error if calendar id is negative`(trxManager: TransactionManager) {
-        val userService = createUserService(trxManager, TestClock())
-        val user = userService.register("Bob", "bob@example.com", "Tasa_2025")
-        assertTrue(user is Success)
-        assertIs<User>(user.value)
-        val eventService = EventService(trxManager)
-        val event =
-            eventService.createEvent(
-                eventId = 1,
-                calendarId = 1,
-                title = "Test Event",
-                userId = user.value.id,
-            )
-        assertTrue(event is Success)
-        assertIs<Event>(event.value)
-        val sut =
-            eventService.deleteEvent(
-                eventId = 1,
-                calendarId = -1,
                 userId = user.value.id,
             )
         assertTrue(sut is Failure)
@@ -470,17 +379,16 @@ class EventServiceTests {
         val eventService = EventService(trxManager)
         val event =
             eventService.createEvent(
-                eventId = 1,
-                calendarId = 1,
                 title = "Test Event",
                 userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val sut =
             eventService.deleteEvent(
                 eventId = 1,
-                calendarId = 1,
                 userId = -1,
             )
         assertTrue(sut is Failure)
@@ -497,17 +405,16 @@ class EventServiceTests {
         val eventService = EventService(trxManager)
         val event =
             eventService.createEvent(
-                eventId = 1,
-                calendarId = 1,
                 title = "Test Event",
                 userId = user.value.id,
+                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
         val sut =
             eventService.deleteEvent(
                 eventId = 1,
-                calendarId = 1,
                 userId = 9999,
             )
         assertTrue(sut is Failure)
@@ -525,7 +432,6 @@ class EventServiceTests {
         val sut =
             eventService.deleteEvent(
                 eventId = 1,
-                calendarId = 1,
                 userId = user.value.id,
             )
         assertTrue(sut is Failure)

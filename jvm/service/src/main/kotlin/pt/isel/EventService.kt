@@ -1,6 +1,7 @@
 package pt.isel
 
 import jakarta.inject.Named
+import kotlinx.datetime.LocalDateTime
 import pt.isel.transaction.TransactionManager
 
 /**
@@ -44,30 +45,27 @@ class EventService(
      * @return Either an [EventError] or the created [Event].
      */
     fun createEvent(
-        eventId: Long,
-        calendarId: Long,
         title: String,
         userId: Int,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
     ): Either<EventError, Event> {
         return trxManager.run {
-            if (eventId < 0 || calendarId < 0) {
-                return@run failure(EventError.NegativeIdentifier)
-            }
             if (title.isBlank()) {
                 return@run failure(EventError.EventNameCannotBeBlank)
             }
             val user = userRepo.findById(userId) ?: return@run failure(EventError.UserNotFound)
             if (eventRepo.findByUserId(user)
-                    .any { it.id == eventId && it.calendarId == calendarId }
+                    .any { it.title == title && it.startTime == startTime && it.endTime == endTime }
             ) {
                 return@run failure(EventError.AlreadyExists)
             }
             return@run success(
                 eventRepo.create(
-                    eventId = eventId,
-                    calendarId = calendarId,
                     title = title,
                     user = user,
+                    startTime = startTime,
+                    endTime = endTime,
                 ),
             )
         }
@@ -77,27 +75,25 @@ class EventService(
      * Updates the title of an event.
      *
      * @param eventId The ID of the event to be updated.
-     * @param calendarId The ID of the calendar to which the event belongs.
      * @param newTitle The new title for the event.
      * @param userId The ID of the user updating the event.
      *
      * @return Either an [EventError] or the updated [Event].
      */
     fun updateEvent(
-        eventId: Long,
-        calendarId: Long,
+        eventId: Int,
         newTitle: String,
         userId: Int,
     ): Either<EventError, Event> {
         return trxManager.run {
-            if (eventId < 0 || calendarId < 0) {
+            if (eventId < 0) {
                 return@run failure(EventError.NegativeIdentifier)
             }
             if (newTitle.isBlank()) {
                 return@run failure(EventError.EventNameCannotBeBlank)
             }
             val user = userRepo.findById(userId) ?: return@run failure(EventError.UserNotFound)
-            val event = eventRepo.findById(eventId, calendarId, user) ?: return@run failure(EventError.EventNotFound)
+            val event = eventRepo.findById(eventId) ?: return@run failure(EventError.EventNotFound)
             if (event !in eventRepo.findByUserId(user)) return@run failure(EventError.NotAllowed)
             eventRepo.update(user, event, newTitle)
             return@run success(event.copy(title = newTitle))
@@ -105,16 +101,15 @@ class EventService(
     }
 
     fun getEvent(
-        eventId: Long,
-        calendarId: Long,
+        eventId: Int,
         userId: Int,
     ): Either<EventError, Event> =
         trxManager.run {
-            if (eventId < 0 || calendarId < 0) {
+            if (eventId < 0 || userId < 0) {
                 return@run failure(EventError.NegativeIdentifier)
             }
             val user = userRepo.findById(userId) ?: return@run failure(EventError.UserNotFound)
-            val event = eventRepo.findById(eventId, calendarId, user) ?: return@run failure(EventError.EventNotFound)
+            val event = eventRepo.findById(eventId) ?: return@run failure(EventError.EventNotFound)
             if (event !in eventRepo.findByUserId(user)) return@run failure(EventError.NotAllowed)
             return@run success(event)
         }
@@ -141,21 +136,19 @@ class EventService(
      *
      * @param userId The ID of the user whose events are to be retrieved.
      * @param eventId The ID of the event to be deleted.
-     * @param calendarId The ID of the calendar whose events are to be retrieved.
      *
      * @return Either an [EventError] or a boolean indicating success.
      */
     fun deleteEvent(
         userId: Int,
-        eventId: Long,
-        calendarId: Long,
+        eventId: Int,
     ): Either<EventError, Boolean> {
         return trxManager.run {
-            if (eventId < 0 || calendarId < 0 || userId < 0) {
+            if (eventId < 0 || userId < 0) {
                 return@run failure(EventError.NegativeIdentifier)
             }
             val user = userRepo.findById(userId) ?: return@run failure(EventError.UserNotFound)
-            val event = eventRepo.findById(eventId, calendarId, user) ?: return@run failure(EventError.EventNotFound)
+            val event = eventRepo.findById(eventId) ?: return@run failure(EventError.EventNotFound)
             if (event !in eventRepo.findByUserId(user)) return@run failure(EventError.NotAllowed)
             return@run success(eventRepo.delete(user, event))
         }

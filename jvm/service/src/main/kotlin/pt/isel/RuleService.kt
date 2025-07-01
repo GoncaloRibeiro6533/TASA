@@ -66,13 +66,12 @@ class RuleService(
      */
     fun createRuleEvent(
         userId: Int,
-        eventId: Long,
-        calendarId: Long,
+        eventId: Int,
         startTime: LocalDateTime,
         endTime: LocalDateTime,
     ): Either<RuleError, RuleEvent> =
         trxManager.run {
-            if (userId < 0 || eventId < 0 || calendarId < 0) {
+            if (userId < 0 || eventId < 0) {
                 return@run failure(RuleError.NegativeIdentifier)
             }
             if (startTime > endTime || startTime == endTime) {
@@ -91,7 +90,7 @@ class RuleService(
                 return@run failure(RuleError.RuleAlreadyExistsForGivenTime)
             }
             val event =
-                eventRepo.findById(eventId, calendarId, user)
+                eventRepo.findById(eventId)
                     ?: return@run failure(RuleError.EventNotFound)
             if (!eventRepo.findByUserId(user).contains(event)) {
                 return@run failure(RuleError.NotAllowed)
@@ -330,14 +329,10 @@ class RuleService(
             if (rule.creator != user) {
                 return@run failure(RuleError.NotAllowed)
             }
-            // TODO use return?
             ruleRepo.deleteLocationEvent(rule)
             return@run success(Unit)
         }
 
-    // TODO add delete with a array of ids
-
-    // TODO move
     fun checkCollisionTime(
         startTimeX: LocalDateTime,
         endTimeX: LocalDateTime,

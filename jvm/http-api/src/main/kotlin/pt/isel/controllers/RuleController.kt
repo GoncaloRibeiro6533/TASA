@@ -79,7 +79,6 @@ class RuleController(
             ruleService.createRuleEvent(
                 userId = authUser.user.id,
                 eventId = rule.eventId,
-                calendarId = rule.calendarId,
                 startTime = rule.startTime,
                 endTime = rule.endTime,
             )
