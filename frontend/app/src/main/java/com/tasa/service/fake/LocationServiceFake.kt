@@ -2,7 +2,7 @@ package com.tasa.service.fake
 
 import com.tasa.domain.ApiError
 import com.tasa.domain.Location
-import com.tasa.service.LocationService
+import com.tasa.service.interfaces.LocationService
 import com.tasa.utils.Either
 import com.tasa.utils.success
 

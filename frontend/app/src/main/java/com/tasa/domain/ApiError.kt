@@ -1,3 +1,3 @@
 package com.tasa.domain
 
-data class ApiError(val message: String)
+open class ApiError(val message: String)

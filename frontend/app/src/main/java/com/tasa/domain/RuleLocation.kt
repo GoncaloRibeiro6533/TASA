@@ -1,5 +1,7 @@
 package com.tasa.domain
 
+import com.tasa.service.http.models.rule.RuleLocationInput
+import com.tasa.service.http.models.rule.RuleLocationUpdateInput
 import com.tasa.storage.entities.RuleLocationEntity
 import java.time.LocalDateTime
 
@@ -56,6 +58,21 @@ class RuleLocation(
             startTime = startTime,
             endTime = endTime,
             location = this.location,
+        )
+    }
+
+    fun toRuleLocationInput(locationId: Int): RuleLocationInput {
+        return RuleLocationInput(
+            startTime = startTime,
+            endTime = endTime,
+            locationId = locationId,
+        )
+    }
+
+    fun toRuleLocationUpdateInput(): RuleLocationUpdateInput {
+        return RuleLocationUpdateInput(
+            startTime = startTime,
+            endTime = endTime,
         )
     }
 }

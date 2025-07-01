@@ -2,7 +2,7 @@ package com.tasa.service.fake
 
 import com.tasa.domain.ApiError
 import com.tasa.domain.Event
-import com.tasa.service.EventService
+import com.tasa.service.interfaces.EventService
 import com.tasa.utils.Either
 import com.tasa.utils.failure
 import com.tasa.utils.success
@@ -30,8 +30,8 @@ class EventServiceFake : EventService {
         return success(events.find { it.id == id })
     }
 
-    override suspend fun fetchEventByName(name: String): Either<ApiError, Event?> {
-        return success(events.find { it.title == name })
+    override suspend fun fetchEventAll(): Either<ApiError, List<Event>> {
+        return success(events)
     }
 
     override suspend fun insertEvent(event: Event): Either<ApiError, Event> {
@@ -44,7 +44,7 @@ class EventServiceFake : EventService {
         return success(events)
     }
 
-    override suspend fun updateEvent(event: Event): Either<ApiError, Event> {
+    override suspend fun updateEventTitle(event: Event): Either<ApiError, Event> {
         if (!events.contains(event)) return failure(ApiError("Event not found"))
         events.removeIf { it.id == event.id && it.calendarId == event.calendarId }
         events.add(event)
@@ -57,11 +57,6 @@ class EventServiceFake : EventService {
     ): Either<ApiError, Unit> {
         if (!events.any { it.id == id && it.calendarId == calendarId }) return failure(ApiError("Event not found"))
         events.removeIf { it.id == id && it.calendarId == calendarId }
-        return success(Unit)
-    }
-
-    override suspend fun clear(): Either<ApiError, Unit> {
-        events.clear()
         return success(Unit)
     }
 }

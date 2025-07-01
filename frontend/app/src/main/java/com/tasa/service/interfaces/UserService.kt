@@ -1,19 +1,17 @@
-package com.tasa.service
+package com.tasa.service.interfaces
 
 import com.tasa.domain.ApiError
-import com.tasa.domain.user.AuthenticatedUser
 import com.tasa.domain.user.User
+import com.tasa.service.http.models.user.LoginOutput
 import com.tasa.utils.Either
 
 interface UserService {
-    suspend fun fetchUser(): Either<ApiError, User>
-
     suspend fun updateUsername(newUsername: String): Either<ApiError, User>
 
     suspend fun login(
         username: String,
         password: String,
-    ): Either<ApiError, AuthenticatedUser>
+    ): Either<ApiError, LoginOutput>
 
     suspend fun register(
         username: String,

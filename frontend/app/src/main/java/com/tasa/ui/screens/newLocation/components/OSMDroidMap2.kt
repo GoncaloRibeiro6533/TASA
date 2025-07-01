@@ -55,8 +55,8 @@ fun OSMDroidMap2(
         val location = currentLocation ?: return@LaunchedEffect
         val radius = accuracy ?: return@LaunchedEffect
 
-        @Suppress("DEPRECATED")
         // Atualiza o círculo de precisão
+        @Suppress("DEPRECATED")
         val circle =
             accuracyCircleRef.value ?: Polygon().apply {
                 fillPaint.color = 0x22007AFF

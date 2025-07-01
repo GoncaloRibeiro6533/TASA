@@ -1,4 +1,4 @@
-package com.tasa.service
+package com.tasa.service.interfaces
 
 import com.tasa.domain.ApiError
 import com.tasa.domain.Event
@@ -12,18 +12,16 @@ interface EventService {
         calendarId: Long,
     ): Either<ApiError, Event?>
 
-    suspend fun fetchEventByName(name: String): Either<ApiError, Event?>
+    suspend fun fetchEventAll(): Either<ApiError, List<Event>>
 
     suspend fun insertEvent(event: Event): Either<ApiError, Event>
 
     suspend fun insertEvents(events: List<Event>): Either<ApiError, List<Event>>
 
-    suspend fun updateEvent(event: Event): Either<ApiError, Event>
+    suspend fun updateEventTitle(event: Event): Either<ApiError, Event>
 
     suspend fun deleteEventById(
         id: Long,
         calendarId: Long,
     ): Either<ApiError, Unit>
-
-    suspend fun clear(): Either<ApiError, Unit>
 }

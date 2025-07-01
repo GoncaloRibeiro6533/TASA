@@ -1,5 +1,7 @@
 package com.tasa.domain
 
+import com.tasa.service.http.models.rule.RuleEventInput
+import com.tasa.service.http.models.rule.RuleEventUpdateInput
 import com.tasa.storage.entities.RuleEventEntity
 import com.tasa.ui.screens.rule.EditRuleActivity.RuleParcelableEvent
 import java.time.LocalDateTime
@@ -51,7 +53,7 @@ class RuleEvent(
         id: Int?,
         startTime: LocalDateTime,
         endTime: LocalDateTime,
-    ): Rule {
+    ): RuleEvent {
         return RuleEvent(
             id = id,
             startTime = startTime,
@@ -68,6 +70,22 @@ class RuleEvent(
             eventTitle = event.title,
             eventId = event.id,
             calendarId = event.calendarId,
+        )
+    }
+
+    fun toRuleEventInput(): RuleEventInput {
+        return RuleEventInput(
+            startTime = startTime,
+            endTime = endTime,
+            eventId = event.id,
+            calendarId = event.calendarId,
+        )
+    }
+
+    fun toRuleEventUpdateInput(): RuleEventUpdateInput {
+        return RuleEventUpdateInput(
+            startTime = startTime,
+            endTime = endTime,
         )
     }
 }

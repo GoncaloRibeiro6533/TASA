@@ -300,7 +300,7 @@ class RuleController(
     private fun RuleError.toResponse(): ResponseEntity<*> {
         return when (this) {
             is RuleError.NegativeIdentifier -> Problem.NegativeIdentifier.response(HttpStatus.BAD_REQUEST)
-            is RuleError.InvalidRadius -> Problem.InvalidText.response(HttpStatus.BAD_REQUEST)
+            is RuleError.InvalidRadius -> Problem.InvalidRadius.response(HttpStatus.BAD_REQUEST)
             is RuleError.RuleNotFound -> Problem.RuleNotFound.response(HttpStatus.NOT_FOUND)
             is RuleError.RuleAlreadyExistsForGivenTime -> Problem.RuleAlreadyExistsForGivenTime.response(HttpStatus.CONFLICT)
             is RuleError.EndTimeMustBeBeforeEndTime -> Problem.EndTimeMustBeBeforeStartTime.response(HttpStatus.BAD_REQUEST)

@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.tasa.domain.user.User
-import com.tasa.service.UserService
+import com.tasa.service.interfaces.UserService
 import com.tasa.utils.Failure
 import com.tasa.utils.Success
 import kotlinx.coroutines.delay

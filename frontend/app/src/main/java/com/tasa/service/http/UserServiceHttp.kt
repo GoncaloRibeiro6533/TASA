@@ -1,15 +1,13 @@
 package com.tasa.service.http
 
 import com.tasa.domain.ApiError
-import com.tasa.domain.user.AuthenticatedUser
 import com.tasa.domain.user.User
-import com.tasa.service.UserService
-import com.tasa.service.http.models.user.UserDTO
+import com.tasa.service.http.models.user.LoginOutput
 import com.tasa.service.http.models.user.UserLoginCredentialsInput
 import com.tasa.service.http.models.user.UserRegisterInput
 import com.tasa.service.http.utils.get
 import com.tasa.service.http.utils.post
-import com.tasa.service.http.utils.put
+import com.tasa.service.interfaces.UserService
 import com.tasa.utils.Either
 import com.tasa.utils.Failure
 import com.tasa.utils.Success
@@ -18,30 +16,17 @@ import com.tasa.utils.success
 import io.ktor.client.HttpClient
 
 class UserServiceHttp(private val client: HttpClient) : UserService {
-    override suspend fun fetchUser(): Either<ApiError, User> {
-        TODO()
-    }
-
     override suspend fun updateUsername(newUsername: String): Either<ApiError, User> {
-        return when (
-            val response =
-                client.put<UserDTO>(
-                    url = "/user/edit/username",
-                    body = null, // UsernameUpdateInput(newUsername)
-                )
-        ) {
-            is Success -> success(response.value.toUser())
-            is Failure -> failure(response.value)
-        }
+        TODO()
     }
 
     override suspend fun login(
         username: String,
         password: String,
-    ): Either<ApiError, AuthenticatedUser> {
+    ): Either<ApiError, LoginOutput> {
         return when (
             val response =
-                client.post<AuthenticatedUser>(
+                client.post<LoginOutput>(
                     url = "/user/login",
                     body = UserLoginCredentialsInput(username = username, password = password),
                 )
@@ -58,18 +43,18 @@ class UserServiceHttp(private val client: HttpClient) : UserService {
     ): Either<ApiError, User> =
         when (
             val response =
-                client.post<UserDTO>(
+                client.post<User>(
                     url = "/user/pdm/register",
                     body = UserRegisterInput(username, email, password),
                 )
         ) {
-            is Success -> success(response.value.toUser())
+            is Success -> success(response.value)
             is Failure -> failure(response.value)
         }
 
     override suspend fun findUserById(id: Int): Either<ApiError, User> {
-        return when (val response = client.get<UserDTO>("/user/$id")) {
-            is Success -> success(response.value.toUser())
+        return when (val response = client.get<User>("/user/$id")) {
+            is Success -> success(response.value)
             is Failure -> failure(response.value)
         }
     }

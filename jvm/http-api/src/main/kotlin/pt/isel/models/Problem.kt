@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity
 import java.net.URI
 
 private const val MEDIA_TYPE = "application/problem+json"
-private const val PROBLEM_URI_PATH = ""
+private const val PROBLEM_URI_PATH = "https://github.com/GoncaloRibeiro6533/TASA/tree/main/docs/problems"
 
 sealed class Problem(
     typeUri: URI,
@@ -19,8 +19,6 @@ sealed class Problem(
             .status(status)
             .header("Content-Type", MEDIA_TYPE)
             .body(this)
-
-    data object InvalidText : Problem(URI("$PROBLEM_URI_PATH/invalid-text"))
 
     data object NoMatchingUsername : Problem(URI("$PROBLEM_URI_PATH/no-matching-username"))
 

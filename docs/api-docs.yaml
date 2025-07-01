@@ -235,7 +235,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EventInput'
+                $ref: '#/components/schemas/EventList'
         '500':
           description: Internal server error
 
@@ -435,6 +435,35 @@ paths:
         '500':
           description: Internal server error
 
+  /location/remove/{id}:
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Locations
+      summary: Remove a location of a user
+      description: Deletes a location given its identifier.
+      parameters:
+        - name: id
+          in: path
+          description: Location identifier
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 5208
+      responses:
+        '200':
+          description: Ok
+        '400':
+          description: Location identifier is negative.
+        '404':
+          description: Location not found.
+        '403':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+        
 
   /rule/location/{id}/update:
     put:
@@ -833,6 +862,18 @@ components:
           description: Event title
           example: Meeting.
 
+    EventList:
+      type: array
+      properties:
+        nEvents:
+          type: integer
+          description: number of results
+          example: 20
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventInput'
+
     LoginOutput:
       type: object
       required:
@@ -1020,25 +1061,15 @@ components:
     RuleEventOutput:
       type: object
       required:
-        - calendarId
+        - id
         - endTime
-        - eventId
         - startTime
+        - event
       properties:
         id:
           type: integer
           description: Rule dentifier
           example: 10
-        eventId:
-          type: integer
-          format: int64
-          description: Event identifier.
-          example: 1025
-        calendarId:
-          type: integer
-          format: int64
-          description: Calendar identifier.
-          example: 2054
         startTime:
           type: string
           format: date-time
@@ -1049,6 +1080,10 @@ components:
           format: date-time
           description: End time of rule
           example: "2024-10-01T12:00:00Z"
+        event:
+          type: object
+          $ref: '#/components/schemas/EventInput'
+
 
     RuleEventOutputList:
       type: object

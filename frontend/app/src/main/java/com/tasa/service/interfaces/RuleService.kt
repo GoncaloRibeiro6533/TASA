@@ -1,4 +1,4 @@
-package com.tasa.service
+package com.tasa.service.interfaces
 
 import com.tasa.domain.ApiError
 import com.tasa.domain.Rule
@@ -36,4 +36,8 @@ interface RuleService {
     suspend fun deleteRuleEventById(id: Int): Either<ApiError, Unit>
 
     suspend fun deleteRuleLocationById(id: Int): Either<ApiError, Unit>
+
+    suspend fun updateRuleEvent(ruleEvent: RuleEvent): Either<ApiError, RuleEvent>
+
+    suspend fun updateRuleLocation(ruleLocation: RuleLocation): Either<ApiError, RuleLocation>
 }

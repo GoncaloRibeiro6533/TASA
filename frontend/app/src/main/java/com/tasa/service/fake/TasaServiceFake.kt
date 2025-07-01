@@ -1,10 +1,10 @@
 package com.tasa.service.fake
 
-import com.tasa.service.EventService
-import com.tasa.service.LocationService
-import com.tasa.service.RuleService
 import com.tasa.service.TasaService
-import com.tasa.service.UserService
+import com.tasa.service.interfaces.EventService
+import com.tasa.service.interfaces.LocationService
+import com.tasa.service.interfaces.RuleService
+import com.tasa.service.interfaces.UserService
 
 class TasaServiceFake : TasaService {
     override val userService: UserService by lazy {

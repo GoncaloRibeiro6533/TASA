@@ -1,4 +1,4 @@
-package com.tasa.service
+package com.tasa.service.interfaces
 
 import com.tasa.domain.ApiError
 import com.tasa.domain.Location

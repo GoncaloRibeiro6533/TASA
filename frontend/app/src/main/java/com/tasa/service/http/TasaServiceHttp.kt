@@ -1,10 +1,10 @@
 package com.tasa.service.http
 
-import com.tasa.service.EventService
-import com.tasa.service.LocationService
-import com.tasa.service.RuleService
 import com.tasa.service.TasaService
-import com.tasa.service.UserService
+import com.tasa.service.interfaces.EventService
+import com.tasa.service.interfaces.LocationService
+import com.tasa.service.interfaces.RuleService
+import com.tasa.service.interfaces.UserService
 import io.ktor.client.HttpClient
 
 class TasaServiceHttp(private val client: HttpClient) : TasaService {
@@ -12,12 +12,12 @@ class TasaServiceHttp(private val client: HttpClient) : TasaService {
         UserServiceHttp(client)
     }
     override val locationService: LocationService by lazy {
-        TODO()
+        LocationServiceHttp(client)
     }
     override val eventService: EventService by lazy {
-        TODO()
+        EventServiceHttp(client)
     }
     override val ruleService: RuleService by lazy {
-        TODO()
+        RuleServiceHttp(client)
     }
 }

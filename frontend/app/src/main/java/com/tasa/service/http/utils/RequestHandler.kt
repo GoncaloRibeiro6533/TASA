@@ -10,6 +10,7 @@ import com.tasa.utils.failure
 import com.tasa.utils.success
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -76,6 +77,21 @@ suspend inline fun <reified T : Any> HttpClient.put(
     }
 }
 
+suspend inline fun <reified T : Any> HttpClient.delete(
+    url: String,
+    token: String = "",
+): Either<ApiError, T> {
+    return try {
+        delete(BASE_URL + url) {
+            if (token.isNotEmpty()) header("Authorization", "$SCHEME $token")
+            header("Content-Type", MEDIA_TYPE)
+            header("Accept", "$MEDIA_TYPE, $ERROR_MEDIA_TYPE")
+        }.processResponse()
+    } catch (e: Exception) {
+        failure(ApiError("Unexpected error: ${e.message ?: e.cause?.message}"))
+    }
+}
+
 // Function to process the HTTP response
 suspend inline fun <reified T : Any> HttpResponse.processResponse(): Either<ApiError, T> {
     try {
@@ -96,6 +112,7 @@ suspend inline fun <reified T : Any> HttpResponse.processResponse(): Either<ApiE
                 success(body)
             }
             else -> {
+                // TODO
                 if (this.status.value == 400 || this.status.value == 404 || this.status.value == 502) {
                     failure(ApiError("Failed to process request"))
                 } else {

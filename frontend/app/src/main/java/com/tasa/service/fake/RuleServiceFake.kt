@@ -6,7 +6,7 @@ import com.tasa.domain.Location
 import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
-import com.tasa.service.RuleService
+import com.tasa.service.interfaces.RuleService
 import com.tasa.utils.Either
 import com.tasa.utils.failure
 import com.tasa.utils.success
@@ -117,25 +117,25 @@ class RuleServiceFake : RuleService {
     }
 
     override suspend fun insertRuleEvent(ruleEvent: RuleEvent): Either<ApiError, RuleEvent> {
-        val newRuleEvent = ruleEvent.copy(id = ++ruleEventId) as RuleEvent
+        val newRuleEvent = ruleEvent.copy(id = ++ruleEventId)
         ruleEvents.add(newRuleEvent)
         return success(newRuleEvent)
     }
 
     override suspend fun insertRuleLocation(ruleLocation: RuleLocation): Either<ApiError, RuleLocation> {
-        val newRuleLocation = ruleLocation.copy(id = ++ruleLocationId) as RuleLocation
+        val newRuleLocation = ruleLocation.copy(id = ++ruleLocationId)
         ruleLocations.add(newRuleLocation)
         return success(newRuleLocation)
     }
 
     override suspend fun insertRuleEvents(ruleEvents: List<RuleEvent>): Either<ApiError, List<RuleEvent>> {
-        val newRuleEvents = ruleEvents.map { it.copy(id = ++ruleEventId) } as List<RuleEvent>
+        val newRuleEvents = ruleEvents.map { it.copy(id = ++ruleEventId) }
         Companion.ruleEvents.addAll(newRuleEvents)
         return success(newRuleEvents)
     }
 
     override suspend fun insertRuleLocations(ruleLocations: List<RuleLocation>): Either<ApiError, List<RuleLocation>> {
-        val newRuleLocations = ruleLocations.map { it.copy(id = ++ruleLocationId) } as List<RuleLocation>
+        val newRuleLocations = ruleLocations.map { it.copy(id = ++ruleLocationId) }
         Companion.ruleLocations.addAll(newRuleLocations)
         return success(newRuleLocations)
     }
@@ -155,6 +155,26 @@ class RuleServiceFake : RuleService {
         return if (ruleLocation != null) {
             ruleLocations.remove(ruleLocation)
             success(Unit)
+        } else {
+            failure(ApiError("RuleLocation not found"))
+        }
+    }
+
+    override suspend fun updateRuleEvent(ruleEvent: RuleEvent): Either<ApiError, RuleEvent> {
+        val index = ruleEvents.indexOfFirst { it.id == ruleEvent.id }
+        return if (index != -1) {
+            ruleEvents[index] = ruleEvent
+            success(ruleEvent)
+        } else {
+            failure(ApiError("RuleEvent not found"))
+        }
+    }
+
+    override suspend fun updateRuleLocation(ruleLocation: RuleLocation): Either<ApiError, RuleLocation> {
+        val index = ruleLocations.indexOfFirst { it.id == ruleLocation.id }
+        return if (index != -1) {
+            ruleLocations[index] = ruleLocation
+            success(ruleLocation)
         } else {
             failure(ApiError("RuleLocation not found"))
         }

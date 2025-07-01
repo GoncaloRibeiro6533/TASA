@@ -1,11 +1,14 @@
 package com.tasa.service.fake
 
 import com.tasa.domain.ApiError
-import com.tasa.domain.user.AuthenticatedUser
 import com.tasa.domain.user.User
-import com.tasa.service.UserService
+import com.tasa.service.http.models.user.LoginOutput
+import com.tasa.service.http.models.user.TokenExternalInfo
+import com.tasa.service.interfaces.UserService
 import com.tasa.utils.Either
+import com.tasa.utils.failure
 import com.tasa.utils.success
+import java.time.LocalDateTime
 
 class UserServiceFake : UserService {
     companion object {
@@ -30,10 +33,6 @@ class UserServiceFake : UserService {
             )
     }
 
-    override suspend fun fetchUser(): Either<ApiError, User> {
-        return success(users[0])
-    }
-
     override suspend fun updateUsername(newUsername: String): Either<ApiError, User> {
         val result = users[0].copy(username = newUsername)
         users[0] = result
@@ -43,15 +42,24 @@ class UserServiceFake : UserService {
     override suspend fun login(
         username: String,
         password: String,
-    ): Either<ApiError, AuthenticatedUser> {
+    ): Either<ApiError, LoginOutput> {
         val user =
             users.find { it.username == username }
-                ?: return Either.Left(ApiError("User not found"))
+                ?: return failure(ApiError("User not found"))
         if (passwords[user.id] != password) {
-            return Either.Left(ApiError("Invalid password"))
+            return failure(ApiError("Invalid password"))
         }
-        val token = token[user.id] ?: return Either.Left(ApiError("Token not found"))
-        return success(AuthenticatedUser(user, token))
+        val token = token[user.id] ?: return failure(ApiError("Token not found"))
+        return success(
+            LoginOutput(
+                user,
+                TokenExternalInfo(
+                    token = token,
+                    refreshToken = token,
+                    expiration = LocalDateTime.now().plusDays(1),
+                ),
+            ),
+        )
     }
 
     override suspend fun register(

@@ -12,6 +12,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.tasa.DependenciesContainer
 import com.tasa.R
+import com.tasa.location.LocationService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
@@ -29,7 +30,8 @@ class LocationStatusWorker(
                 if (LocalDateTime.now().hour in 0..7) {
                     return@withContext Result.success()
                 }
-                if (isGpsEnabled && repo.getLocationStatus() == false) {
+                // TODO
+                if (isGpsEnabled && repo.getLocationStatus() == false && (!LocationService.isRunning)) {
                     Log.d("LocationStateReceiver", "Location is back ON")
                     val geofenceManager = (context.applicationContext as DependenciesContainer).geofenceManager
                     if (context.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)

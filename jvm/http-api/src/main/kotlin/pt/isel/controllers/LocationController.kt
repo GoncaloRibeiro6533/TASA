@@ -2,6 +2,7 @@ package pt.isel.controllers
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -113,6 +114,23 @@ class LocationController(
             is Failure -> result.value.toResponse()
         }
     }
+
+    @DeleteMapping("remove/{id}")
+    fun deleteLocation(
+        authUser: AuthenticatedUser,
+        @PathVariable id: Int,
+    ): ResponseEntity<*> {
+        val result: Either<LocationError, Boolean> =
+            locationService.deleteLocation(
+                userId = authUser.user.id,
+                locationId = id,
+            )
+        return when (result) {
+            is Success -> ResponseEntity.ok(null)
+            is Failure -> result.value.toResponse()
+        }
+    }
+
 
     private fun LocationError.toResponse() =
         when (this) {
