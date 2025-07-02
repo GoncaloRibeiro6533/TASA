@@ -140,7 +140,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EventInput'
+                $ref: '#/components/schemas/EventOutput'
         '400':
           description: Event name is empty.
         '409':
@@ -149,7 +149,7 @@ paths:
           description: Internal server error
 
 
-  /event/update/title:
+  /event/{id}/update/title:
     put:
       security:
         - bearerAuth: []
@@ -157,6 +157,15 @@ paths:
         - Events
       summary: Update a event
       description: Updated the title of a event.
+      parameters:
+        - name: id
+          in: path
+          description: Event identifier
+          required: true
+          schema:
+            type: integer
+            format: int32
+            example: 5287
       requestBody:
         description: Event data
         content:
@@ -170,7 +179,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EventInput'
+                $ref: '#/components/schemas/EventOutput'
         '400':
           description: Event name is empty.
         '404':
@@ -180,7 +189,7 @@ paths:
         '500':
           description: Internal server error
 
-  /event/{id}/calendar/{calendarId}:
+  /event/{id}:
     get:
       security:
         - bearerAuth: []
@@ -195,23 +204,15 @@ paths:
           required: true
           schema:
             type: integer
-            format: int64
+            format: int32
             example: 5287
-        - name: calendarId
-          in: path
-          description: Calendar identifier
-          required: true
-          schema:
-            type: integer
-            format: int64
-            example: 2803
       responses:
         '200':
           description: Ok
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EventInput'
+                $ref: '#/components/schemas/EventOutput'
         '400':
           description: Event identifier is negative.
         '404':
@@ -239,7 +240,7 @@ paths:
         '500':
           description: Internal server error
 
-  /event/remove/{id}/calendar/{calendarId}:
+  /event/remove/{id}:
     delete:
       security:
         - bearerAuth: []
@@ -254,16 +255,8 @@ paths:
           required: true
           schema:
             type: integer
-            format: int64
+            format: int32
             example: 5208
-        - name: calendarId
-          in: path
-          description: Calendar identifier
-          required: true
-          schema:
-            type: integer
-            format: int64
-            example: 2487
       responses:
         '200':
           description: Ok
@@ -843,20 +836,44 @@ components:
     EventInput:
       type: object
       required:
-        - calendarId
-        - eventId
         - title
+        - endTime
+        - startTime
       properties:
-        eventId:
+        startTime:
+          type: string
+          format: date-time
+          example: "2024-10-01T12:00:00Z"
+        endTime:
+          type: string
+          format: date-time
+          example: "2024-10-01T12:00:00Z"
+        title:
+          type: string
+          description: Event title
+          example: Meeting.
+    
+    EventOutput:
+      type: object
+      required:
+        - id
+        - title
+        - endTime
+        - startTime
+      properties:
+        id:
           type: integer
-          format: int64
-          description: event identifier
-          example: 1855
-        calendarId:
-          type: integer
-          format: int64
-          description: calendar identifier
-          example: 1855
+          format: int32
+          description: Event identifier
+          example: 1025
+        startTime:
+          type: string
+          format: date-time
+          example: "2024-10-01T12:00:00Z"
+        endTime:
+          type: string
+          format: date-time
+          example: "2024-10-01T12:00:00Z"
         title:
           type: string
           description: Event title
@@ -872,7 +889,7 @@ components:
         events:
           type: array
           items:
-            $ref: '#/components/schemas/EventInput'
+            $ref: '#/components/schemas/EventOutput'
 
     LoginOutput:
       type: object
@@ -928,21 +945,15 @@ components:
     RuleEventInput:
       type: object
       required:
-        - calendarId
         - endTime
         - eventId
         - startTime
       properties:
         eventId:
           type: integer
-          format: int64
+          format: int32
           description: Event identifier.
           example: 1025
-        calendarId:
-          type: integer
-          format: int64
-          description: Calendar identifier.
-          example: 2054
         startTime:
           type: string
           format: date-time
@@ -1081,8 +1092,7 @@ components:
           description: End time of rule
           example: "2024-10-01T12:00:00Z"
         event:
-          type: object
-          $ref: '#/components/schemas/EventInput'
+          $ref: '#/components/schemas/EventOutput'
 
 
     RuleEventOutputList:
