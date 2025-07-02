@@ -7,6 +7,13 @@ import java.net.URI
 private const val MEDIA_TYPE = "application/problem+json"
 private const val PROBLEM_URI_PATH = "https://github.com/GoncaloRibeiro6533/TASA/tree/main/docs/problems"
 
+data class ProblemResponse(
+    val type: String,
+    val title: String,
+    val status: Int,
+    val detail: String,
+)
+
 sealed class Problem(
     typeUri: URI,
 ) {
@@ -14,11 +21,21 @@ sealed class Problem(
     val type = typeUri.toString()
     val title = typeUri.toString().split("/").last()
 
-    fun response(status: HttpStatus): ResponseEntity<Any> =
+    fun response(
+        status: HttpStatus,
+        detail: String,
+    ): ResponseEntity<Any> =
         ResponseEntity
             .status(status)
             .header("Content-Type", MEDIA_TYPE)
-            .body(this)
+            .body(
+                ProblemResponse(
+                    type = type,
+                    title = title,
+                    status = status.value(),
+                    detail = detail,
+                ),
+            )
 
     data object NoMatchingUsername : Problem(URI("$PROBLEM_URI_PATH/no-matching-username"))
 

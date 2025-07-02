@@ -36,11 +36,11 @@ class EventService(
 ) {
     /**
      * Creates an event for a user.
-     *
-     * @param eventId The ID of the event to be created.
-     * @param calendarId The ID of the calendar to which the event belongs.
+     *.
      * @param title The title of the event.
      * @param userId The ID of the user creating the event.
+     * @param startTime The start time of the event.
+     * @endTime The end time of the event.
      *
      * @return Either an [EventError] or the created [Event].
      */
@@ -94,6 +94,10 @@ class EventService(
             }
             val user = userRepo.findById(userId) ?: return@run failure(EventError.UserNotFound)
             val event = eventRepo.findById(eventId) ?: return@run failure(EventError.EventNotFound)
+            val events = eventRepo.findByUserId(user)
+            if (events.any { it.title == newTitle && it.startTime == event.startTime && it.endTime == event.endTime }) {
+                return@run failure(EventError.AlreadyExists)
+            }
             if (event !in eventRepo.findByUserId(user)) return@run failure(EventError.NotAllowed)
             eventRepo.update(user, event, newTitle)
             return@run success(event.copy(title = newTitle))

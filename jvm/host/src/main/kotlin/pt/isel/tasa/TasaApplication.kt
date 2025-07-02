@@ -10,14 +10,18 @@ import org.jdbi.v3.core.Jdbi
 import org.postgresql.ds.PGSimpleDataSource
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.context.MessageSource
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
+import org.springframework.context.support.ReloadableResourceBundleMessageSource
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
+import org.springframework.web.servlet.LocaleResolver
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver
 import pt.isel.Sha256TokenEncoder
 import pt.isel.TransactionManagerJdbi
 import pt.isel.UsersDomainConfig
@@ -25,6 +29,7 @@ import pt.isel.configureWithAppRequirements
 import pt.isel.pipeline.AuthenticatedUserArgumentResolver
 import pt.isel.pipeline.AuthenticationInterceptor
 import pt.isel.transaction.TransactionManagerInMem
+import java.util.Locale
 import kotlin.time.Duration.Companion.hours
 
 @Configuration
@@ -105,6 +110,22 @@ class TasaApplication {
             tokenRollingTtl = 24.hours,
             maxTokensPerUser = 3,
         )
+
+    @Bean
+    fun messageSource(): MessageSource {
+        return ReloadableResourceBundleMessageSource().apply {
+            setBasename("classpath:messages")
+            setDefaultEncoding("UTF-8")
+            setUseCodeAsDefaultMessage(true)
+        }
+    }
+
+    @Bean
+    fun localeResolver(): LocaleResolver {
+        val resolver = AcceptHeaderLocaleResolver()
+        resolver.setDefaultLocale(Locale.ENGLISH)
+        return resolver
+    }
 }
 
 fun main() {

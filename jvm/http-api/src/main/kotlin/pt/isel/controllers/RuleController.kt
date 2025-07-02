@@ -18,7 +18,7 @@ import pt.isel.RuleEvent
 import pt.isel.RuleLocation
 import pt.isel.RuleService
 import pt.isel.Success
-import pt.isel.models.Problem
+import pt.isel.errorHandlers.RuleErrorHandler
 import pt.isel.models.rule.RuleEventInput
 import pt.isel.models.rule.RuleEventOutput
 import pt.isel.models.rule.RuleEventUpdateInput
@@ -36,6 +36,7 @@ import pt.isel.models.rule.RuleLocationUpdateInput
 @RequestMapping("api/rule")
 class RuleController(
     private val ruleService: RuleService,
+    private val ruleErrorHandler: RuleErrorHandler,
 ) {
     /**
      * Creates a new location rule.
@@ -59,7 +60,7 @@ class RuleController(
         return when (result) {
             is Success -> ResponseEntity.status(HttpStatus.CREATED).body(result.value)
             is Failure ->
-                result.value.toResponse()
+                ruleErrorHandler.toResponse(result.value, rule.locationId.toString())
         }
     }
 
@@ -85,7 +86,10 @@ class RuleController(
         return when (result) {
             is Success -> ResponseEntity.status(HttpStatus.CREATED).body(result.value)
             is Failure ->
-                result.value.toResponse()
+                ruleErrorHandler.toResponse(
+                    ruleError = result.value,
+                    input = rule.eventId.toString(),
+                )
         }
     }
 
@@ -120,7 +124,10 @@ class RuleController(
                     ),
                 )
             is Failure ->
-                result.value.toResponse()
+                ruleErrorHandler.toResponse(
+                    ruleError = result.value,
+                    input = id.toString(),
+                )
         }
     }
 
@@ -148,7 +155,10 @@ class RuleController(
         return when (result) {
             is Success -> ResponseEntity.status(HttpStatus.OK).body(result.value)
             is Failure ->
-                result.value.toResponse()
+                ruleErrorHandler.toResponse(
+                    ruleError = result.value,
+                    input = id.toString(),
+                )
         }
     }
 
@@ -180,7 +190,10 @@ class RuleController(
                     ),
                 )
             is Failure ->
-                result.value.toResponse()
+                ruleErrorHandler.toResponse(
+                    ruleError = result.value,
+                    input = id.toString(),
+                )
         }
     }
 
@@ -212,7 +225,10 @@ class RuleController(
                     ),
                 )
             is Failure ->
-                result.value.toResponse()
+                ruleErrorHandler.toResponse(
+                    ruleError = result.value,
+                    input = id.toString(),
+                )
         }
     }
 
@@ -244,7 +260,12 @@ class RuleController(
                     ),
                 )
             }
-            is Failure -> result.value.toResponse()
+
+            is Failure -> {
+                ruleErrorHandler.toResponse(
+                    ruleError = result.value,
+                )
+            }
         }
     }
 
@@ -268,7 +289,7 @@ class RuleController(
         return when (result) {
             is Success -> ResponseEntity.status(HttpStatus.OK).body(null)
             is Failure ->
-                result.value.toResponse()
+                ruleErrorHandler.toResponse(result.value, id.toString())
         }
     }
 
@@ -292,26 +313,7 @@ class RuleController(
         return when (result) {
             is Success -> ResponseEntity.status(HttpStatus.OK).body(null)
             is Failure ->
-                result.value.toResponse()
-        }
-    }
-
-    private fun RuleError.toResponse(): ResponseEntity<*> {
-        return when (this) {
-            is RuleError.NegativeIdentifier -> Problem.NegativeIdentifier.response(HttpStatus.BAD_REQUEST)
-            is RuleError.InvalidRadius -> Problem.InvalidRadius.response(HttpStatus.BAD_REQUEST)
-            is RuleError.RuleNotFound -> Problem.RuleNotFound.response(HttpStatus.NOT_FOUND)
-            is RuleError.RuleAlreadyExistsForGivenTime -> Problem.RuleAlreadyExistsForGivenTime.response(HttpStatus.CONFLICT)
-            is RuleError.EndTimeMustBeBeforeEndTime -> Problem.EndTimeMustBeBeforeStartTime.response(HttpStatus.BAD_REQUEST)
-            is RuleError.InvalidCoordinate -> Problem.InvalidCoordinate.response(HttpStatus.BAD_REQUEST)
-            is RuleError.InvalidLatitude -> Problem.InvalidLatitude.response(HttpStatus.BAD_REQUEST)
-            is RuleError.InvalidLongitude -> Problem.InvalidLongitude.response(HttpStatus.BAD_REQUEST)
-            is RuleError.NotAllowed -> Problem.NotAllowed.response(HttpStatus.FORBIDDEN)
-            is RuleError.StartTimeMustBeBeforeEndTime -> Problem.StartTimeMustBeBeforeEndTime.response(HttpStatus.BAD_REQUEST)
-            is RuleError.TitleCannotBeBlank -> Problem.TitleCannotBeBlank.response(HttpStatus.BAD_REQUEST)
-            is RuleError.UserNotFound -> Problem.UserNotFound.response(HttpStatus.NOT_FOUND)
-            is RuleError.EventNotFound -> Problem.EventNotFound.response(HttpStatus.NOT_FOUND)
-            is RuleError.LocationNotFound -> Problem.LocationNotFound.response(HttpStatus.NOT_FOUND)
+                ruleErrorHandler.toResponse(result.value, id.toString())
         }
     }
 }

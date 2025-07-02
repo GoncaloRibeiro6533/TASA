@@ -8,9 +8,8 @@ INSERT INTO ps.USER (email, username, passwordHash) VALUES
 
 -- 3. One calendar event each
 INSERT INTO ps.EVENT (title, user_id, start_time, end_time) VALUES
-    ('Meeting',  '2025-05-10 09:00',  '2025-05-10 10:00' (SELECT id FROM ps.USER WHERE username='bob')),
-    ('Briefing',  '2025-05-10 09:00','2025-05-10 10:00',(SELECT id FROM ps.USER WHERE username='alice'));
-
+                                                                ('Meeting', (SELECT id FROM ps.USER WHERE username='bob'), '2025-05-10 09:00', '2025-05-10 10:00'),
+                                                                ('Briefing', (SELECT id FROM ps.USER WHERE username='alice'), '2025-05-10 09:00', '2025-05-10 10:00');
 -- 4. One location (ISEL) each
 INSERT INTO ps.LOCATION (name, latitude, longitude, user_id) VALUES
     ('ISEL Campus', 38.7569, -9.1165, (SELECT id FROM ps.USER WHERE username='bob')),

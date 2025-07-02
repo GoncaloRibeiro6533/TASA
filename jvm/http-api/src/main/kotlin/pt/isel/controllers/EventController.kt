@@ -11,17 +11,17 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.AuthenticatedUser
-import pt.isel.EventError
 import pt.isel.EventService
 import pt.isel.Failure
 import pt.isel.Success
-import pt.isel.models.Problem
+import pt.isel.errorHandlers.EventErrorHandler
 import pt.isel.models.event.EventInput
 
 @RestController
 @RequestMapping("api/event")
 class EventController(
     private val eventService: EventService,
+    private val eventErrorHandler: EventErrorHandler,
 ) {
     @PostMapping("/create")
     fun createEvent(
@@ -37,7 +37,11 @@ class EventController(
             )
         return when (result) {
             is Success -> ResponseEntity.status(HttpStatus.CREATED).body(result.value)
-            is Failure -> result.value.toResponse()
+            is Failure ->
+                eventErrorHandler.toResponse(
+                    eventError = result.value,
+                    input = eventIn.title,
+                )
         }
     }
 
@@ -53,7 +57,7 @@ class EventController(
             )
         return when (result) {
             is Success -> ResponseEntity.ok(result.value)
-            is Failure -> result.value.toResponse()
+            is Failure -> eventErrorHandler.toResponse(result.value)
         }
     }
 
@@ -65,7 +69,7 @@ class EventController(
             )
         return when (result) {
             is Success -> ResponseEntity.ok(result.value)
-            is Failure -> result.value.toResponse()
+            is Failure -> eventErrorHandler.toResponse(result.value)
         }
     }
 
@@ -83,7 +87,7 @@ class EventController(
             )
         return when (result) {
             is Success -> ResponseEntity.ok(result.value)
-            is Failure -> result.value.toResponse()
+            is Failure -> eventErrorHandler.toResponse(result.value, eventIn.title)
         }
     }
 
@@ -99,17 +103,7 @@ class EventController(
             )
         return when (result) {
             is Success -> ResponseEntity.status(HttpStatus.OK).body(null)
-            is Failure -> result.value.toResponse()
+            is Failure -> eventErrorHandler.toResponse(result.value, id.toString())
         }
     }
-
-    private fun EventError.toResponse() =
-        when (this) {
-            is EventError.AlreadyExists -> Problem.EventAlreadyExists.response(HttpStatus.CONFLICT)
-            is EventError.EventNotFound -> Problem.EventNotFound.response(HttpStatus.NOT_FOUND)
-            is EventError.EventNameCannotBeBlank -> Problem.EventNameCannotBeBlank.response(HttpStatus.BAD_REQUEST)
-            is EventError.NegativeIdentifier -> Problem.NegativeIdentifier.response(HttpStatus.BAD_REQUEST)
-            is EventError.NotAllowed -> Problem.NotAllowed.response(HttpStatus.FORBIDDEN)
-            is EventError.UserNotFound -> Problem.UserNotFound.response(HttpStatus.NOT_FOUND)
-        }
 }

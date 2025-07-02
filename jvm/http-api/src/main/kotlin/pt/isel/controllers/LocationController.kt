@@ -17,7 +17,7 @@ import pt.isel.Location
 import pt.isel.LocationError
 import pt.isel.LocationService
 import pt.isel.Success
-import pt.isel.models.Problem
+import pt.isel.errorHandlers.LocationErrorHandler
 import pt.isel.models.location.LocationInput
 import pt.isel.models.location.LocationList
 
@@ -25,6 +25,7 @@ import pt.isel.models.location.LocationList
 @RequestMapping("api/location")
 class LocationController(
     private val locationService: LocationService,
+    private val locationErrorHandler: LocationErrorHandler,
 ) {
     @PostMapping("/create")
     fun createLocation(
@@ -41,7 +42,7 @@ class LocationController(
             )
         return when (result) {
             is Success -> ResponseEntity.status(HttpStatus.CREATED).body(result.value)
-            is Failure -> result.value.toResponse()
+            is Failure -> locationErrorHandler.toResponse(result.value, locationInput.name)
         }
     }
 
@@ -57,7 +58,7 @@ class LocationController(
             )
         return when (result) {
             is Success -> ResponseEntity.ok(result.value)
-            is Failure -> result.value.toResponse()
+            is Failure -> locationErrorHandler.toResponse(result.value, id.toString())
         }
     }
 
@@ -75,7 +76,9 @@ class LocationController(
                         locations = result.value,
                     ),
                 )
-            is Failure -> result.value.toResponse()
+            is Failure -> {
+                locationErrorHandler.toResponse(result.value)
+            }
         }
     }
 
@@ -93,7 +96,9 @@ class LocationController(
             )
         return when (result) {
             is Success -> ResponseEntity.ok(result.value)
-            is Failure -> result.value.toResponse()
+            is Failure -> {
+                locationErrorHandler.toResponse(result.value, name)
+            }
         }
     }
 
@@ -111,7 +116,9 @@ class LocationController(
             )
         return when (result) {
             is Success -> ResponseEntity.ok(result.value)
-            is Failure -> result.value.toResponse()
+            is Failure -> {
+                locationErrorHandler.toResponse(result.value, radius.toString())
+            }
         }
     }
 
@@ -127,19 +134,7 @@ class LocationController(
             )
         return when (result) {
             is Success -> ResponseEntity.ok(null)
-            is Failure -> result.value.toResponse()
+            is Failure -> locationErrorHandler.toResponse(result.value, id.toString())
         }
     }
-
-    private fun LocationError.toResponse() =
-        when (this) {
-            is LocationError.InvalidLocationName -> Problem.InvalidLocationName.response(HttpStatus.BAD_REQUEST)
-            is LocationError.AlreadyExists -> Problem.LocationAlreadyExists.response(HttpStatus.BAD_REQUEST)
-            is LocationError.InvalidLocationCoordinates -> Problem.InvalidLocationCoordinates.response(HttpStatus.BAD_REQUEST)
-            is LocationError.InvalidLocationRadius -> Problem.InvalidLocationRadius.response(HttpStatus.BAD_REQUEST)
-            is LocationError.LocationNotFound -> Problem.LocationNotFound.response(HttpStatus.NOT_FOUND)
-            is LocationError.NegativeIdentifier -> Problem.NegativeIdentifier.response(HttpStatus.BAD_REQUEST)
-            is LocationError.NotAllowed -> Problem.NotAllowed.response(HttpStatus.FORBIDDEN)
-            is LocationError.UserNotFound -> Problem.UserNotFound.response(HttpStatus.NOT_FOUND)
-        }
 }

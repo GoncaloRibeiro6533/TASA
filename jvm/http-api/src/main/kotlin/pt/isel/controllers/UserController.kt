@@ -16,7 +16,7 @@ import pt.isel.TokenExternalInfo
 import pt.isel.User
 import pt.isel.UserError
 import pt.isel.UserService
-import pt.isel.models.Problem
+import pt.isel.errorHandlers.UserErrorHandler
 import pt.isel.models.user.LoginOutput
 import pt.isel.models.user.UserLoginCredentialsInput
 import pt.isel.models.user.UserRegisterInput
@@ -29,6 +29,7 @@ import pt.isel.models.user.UserRegisterInput
 @RequestMapping("api/user")
 class UserController(
     private val userService: UserService,
+    private val userErrorHandler: UserErrorHandler,
 ) {
     /**
      * Registers a new user.
@@ -49,7 +50,7 @@ class UserController(
         return when (result) {
             is Success -> ResponseEntity.status(HttpStatus.CREATED).body(result.value)
             is Failure ->
-                result.value.toResponse()
+                userErrorHandler.toResponse(result.value)
         }
     }
 
@@ -74,7 +75,7 @@ class UserController(
                     LoginOutput(result.value.first, result.value.second),
                 )
             is Failure ->
-                result.value.toResponse()
+                userErrorHandler.toResponse(result.value)
         }
     }
 
@@ -91,7 +92,7 @@ class UserController(
         return when (result) {
             is Success -> ResponseEntity.status(HttpStatus.OK).body(null)
             is Failure ->
-                result.value.toResponse()
+                userErrorHandler.toResponse(result.value)
         }
     }
 
@@ -111,32 +112,7 @@ class UserController(
             is Success ->
                 ResponseEntity.status(HttpStatus.OK).body(result.value)
             is Failure ->
-                result.value.toResponse()
-        }
-    }
-
-    /**
-     * Converts a [UserError] to a [ResponseEntity].
-     */
-    private fun UserError.toResponse(): ResponseEntity<*> {
-        return when (this) {
-            is UserError.SessionExpired -> Problem.SessionExpired.response(HttpStatus.UNAUTHORIZED)
-            is UserError.NegativeIdentifier -> Problem.NegativeIdentifier.response(HttpStatus.BAD_REQUEST)
-            is UserError.UserNotFound -> Problem.UserNotFound.response(HttpStatus.NOT_FOUND)
-            is UserError.UsernameAlreadyExists -> Problem.UsernameAlreadyInUse.response(HttpStatus.CONFLICT)
-            is UserError.UsernameCannotBeBlank -> Problem.UsernameCannotBeBlank.response(HttpStatus.BAD_REQUEST)
-            is UserError.PasswordCannotBeBlank -> Problem.PasswordCannotBeBlank.response(HttpStatus.BAD_REQUEST)
-            is UserError.EmailCannotBeBlank -> Problem.EmailCannotBeBlank.response(HttpStatus.BAD_REQUEST)
-            is UserError.InvalidEmail -> Problem.InvalidEmail.response(HttpStatus.BAD_REQUEST)
-            is UserError.EmailAlreadyInUse -> Problem.EmailAlreadyInUse.response(HttpStatus.CONFLICT)
-            is UserError.UsernameToLong -> Problem.UsernameToLong.response(HttpStatus.BAD_REQUEST)
-            is UserError.NoMatchingUsername -> Problem.NoMatchingUsername.response(HttpStatus.NOT_FOUND)
-            is UserError.NoMatchingPassword -> Problem.NoMatchingPassword.response(HttpStatus.BAD_REQUEST)
-            is UserError.WeakPassword -> Problem.WeakPassword.response(HttpStatus.BAD_REQUEST)
-            is UserError.NegativeLimit -> Problem.NegativeLimit.response(HttpStatus.BAD_REQUEST)
-            is UserError.NegativeSkip -> Problem.NegativeSkip.response(HttpStatus.BAD_REQUEST)
-            is UserError.InvalidTokenFormat -> Problem.InvalidTokenFormat.response(HttpStatus.BAD_REQUEST)
-            is UserError.UsernameToShort -> Problem.UsernameTooShort.response(HttpStatus.BAD_REQUEST)
+                userErrorHandler.toResponse(result.value)
         }
     }
 }
