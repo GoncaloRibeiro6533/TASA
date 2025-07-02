@@ -6,9 +6,9 @@ import android.content.Context
 import android.content.Context.ALARM_SERVICE
 import android.content.Intent
 import android.os.Parcelable
-import android.util.Log
 import androidx.core.net.toUri
 import com.tasa.domain.Action
+import com.tasa.domain.TasaException
 import com.tasa.domain.TriggerTime
 import com.tasa.domain.toTriggerTime
 import com.tasa.repository.TasaRepo
@@ -48,10 +48,9 @@ class AlarmScheduler(
             }
         try {
             val alarmMgr = context.getSystemService(ALARM_SERVICE) as AlarmManager
-            Log.d("Alarm", "Alarme agendado para ${calendar.time}")
             alarmMgr.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
         } catch (e: Throwable) {
-            Log.d("Alarm", "Erro ao agendar alarme: ${e.message}")
+            throw TasaException("Erro ao agendar alarme: ${e.message}")
         }
     }
 

@@ -8,6 +8,7 @@ import com.tasa.domain.Event
     primaryKeys = ["eventId", "calendarId"],
 )
 data class EventEntity(
+    val externalId: Int? = null,
     val eventId: Long,
     val calendarId: Long,
     val title: String,

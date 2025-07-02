@@ -58,12 +58,15 @@ fun EditRuleScreen(
                             onDismiss = { onError() },
                         )
                     }
-                    EditRuleState.Loading -> {
+                    EditRuleState.Uninitialized,
+                    EditRuleState.Loading,
+                    -> {
                         LoadingView()
                     }
                     is EditRuleState.Editing -> {
                         EditRuleEventView(
                             rule = rule as RuleEvent,
+                            event = viewModel.event,
                             onUpdate = { newStartTime, newEndTime ->
                                 onRuleUpdate(newStartTime, newEndTime)
                             },

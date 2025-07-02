@@ -73,20 +73,24 @@ class CalendarScreenViewModel(
         if (_state.value == CalendarScreenState.Loading) return
         _state.value = CalendarScreenState.Loading
         viewModelScope.launch {
-            val collides = repo.ruleRepo.isCollision(event.startTime, event.endTime)
-            if (!collides) {
-                val rule =
-                    repo.ruleRepo.insertRuleEvent(
-                        startTime = startTime ?: event.startTime,
-                        endTime = endTime ?: event.endTime,
-                        event = event.event,
-                    )
-                ruleScheduler.scheduleAlarm(rule.startTime.toTriggerTime(), Action.MUTE, activityContext)
-                ruleScheduler.scheduleAlarm(rule.endTime.toTriggerTime(), Action.UNMUTE, activityContext)
-                _state.value = CalendarScreenState.SuccessOnSchedule(events)
-            } else {
-                _state.value =
-                    CalendarScreenState.Error(R.string.rule_already_exists_for_this_time)
+            try {
+                val collides = repo.ruleRepo.isCollision(event.startTime, event.endTime)
+                if (!collides) {
+                    val rule =
+                        repo.ruleRepo.insertRuleEvent(
+                            startTime = startTime ?: event.startTime,
+                            endTime = endTime ?: event.endTime,
+                            event = event.event,
+                        )
+                    ruleScheduler.scheduleAlarm(rule.startTime.toTriggerTime(), Action.MUTE, activityContext)
+                    ruleScheduler.scheduleAlarm(rule.endTime.toTriggerTime(), Action.UNMUTE, activityContext)
+                    _state.value = CalendarScreenState.SuccessOnSchedule(events)
+                } else {
+                    _state.value =
+                        CalendarScreenState.Error(R.string.rule_already_exists_for_this_time)
+                }
+            } catch (ex: Throwable) {
+                _state.value = CalendarScreenState.Error(R.string.error_creating_rule)
             }
         }
     }

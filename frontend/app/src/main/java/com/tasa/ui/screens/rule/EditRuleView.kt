@@ -28,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tasa.R
+import com.tasa.domain.CalendarEvent
 import com.tasa.domain.Event
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.toFormattedDate
@@ -54,6 +55,7 @@ fun toInterval(
 @Composable
 fun EditRuleEventView(
     rule: RuleEvent,
+    event: CalendarEvent? = null,
     onUpdate: (LocalDateTime, LocalDateTime) -> Unit = { _, _ -> },
     onCancel: () -> Unit = {},
 ) {
@@ -67,8 +69,10 @@ fun EditRuleEventView(
     var selectedTimeType by remember { mutableStateOf("start") }
 
     val valid =
-        !startTime.isAfter(endTime) && toInterval(startTime, endTime).isWithin(toInterval(rule.startTime, rule.endTime)) &&
-            startTime.isAfter(LocalDateTime.now().plusMinutes(5)) && endTime.isAfter(LocalDateTime.now().plusMinutes(5))
+        !startTime.isAfter(endTime) &&
+            toInterval(startTime, endTime).isWithin(toInterval(rule.startTime, rule.endTime)) &&
+            startTime.isAfter(LocalDateTime.now().plusMinutes(5)) &&
+            endTime.isAfter(LocalDateTime.now().plusMinutes(5))
 
     Column(
         modifier =
@@ -80,6 +84,18 @@ fun EditRuleEventView(
         Text(stringResource(R.string.edit_rule_event_title), style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(16.dp))
 
+        if (event != null) {
+            Text(stringResource(R.string.event) + ":", style = MaterialTheme.typography.bodyLarge)
+            Text(
+                text = event.title,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = event.startTime.toFormattedDate() + " - " + event.endTime.toFormattedDate(),
+                style = MaterialTheme.typography.bodyLarge,
+            )
+        }
         Text(stringResource(R.string.current_start_time) + ": ${rule.startTime.toFormattedDate()}")
         Text(stringResource(R.string.current_end_time) + ": ${rule.endTime.toFormattedDate()}")
 

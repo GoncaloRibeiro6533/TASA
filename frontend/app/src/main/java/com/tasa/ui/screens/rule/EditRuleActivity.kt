@@ -111,7 +111,14 @@ class EditRuleActivity : ComponentActivity() {
             return
         }
         rule = ruleParcelableEvent?.toRuleEvent() ?: ruleParcelableLocation!!.toRuleLocation()
-
+        if (rule is RuleEvent) {
+            val r = rule as RuleEvent
+            viewModel.setEventTime(
+                eventId = r.event.id,
+                calendarId = r.event.calendarId,
+                activityContext = this,
+            )
+        }
         setContent {
             EditRuleScreen(
                 viewModel = viewModel,

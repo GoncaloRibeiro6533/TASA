@@ -21,7 +21,6 @@ class LocationStateReceiver : BroadcastReceiver() {
         context: Context,
         intent: Intent,
     ) {
-        Log.d("LocationStateReceiver", "onReceive: ${intent.action}")
         if (intent.action == LocationManager.PROVIDERS_CHANGED_ACTION) {
             val repo = (context.applicationContext as DependenciesContainer).userInfoRepository
             val isLocationEnabled = isLocationEnabled(context)
@@ -42,7 +41,6 @@ class LocationStateReceiver : BroadcastReceiver() {
             } else {
                 CoroutineScope(Dispatchers.IO).launch {
                     if (repo.getLocationStatus() == true) {
-                        Log.d("LocationStateReceiver", "Location is OFF")
                         repo.setLocationStatus(false)
                         showLocationDisabledNotification(context)
                     }

@@ -6,15 +6,15 @@ import com.tasa.utils.Either
 import kotlinx.coroutines.flow.Flow
 
 interface UserRepositoryInterface {
-    suspend fun changeUsername(newUsername: String): Either<ApiError, User>
+    suspend fun createUser(
+        username: String,
+        email: String,
+        password: String,
+    ): Either<ApiError, User>
 
     fun getUsers(): Flow<List<User>>
 
-    suspend fun insertUser(users: List<User>)
-
-    suspend fun updateUser(user: User)
+    suspend fun insertUser(user: User)
 
     suspend fun clear()
-
-    suspend fun fetchByUsername(username: String): Either<ApiError, List<User>>
 }

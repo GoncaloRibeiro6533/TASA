@@ -26,7 +26,7 @@ class LocationServiceFake : LocationService {
         return success(locations)
     }
 
-    override suspend fun fetchLocationById(id: Int): Either<ApiError, Location?> {
+    override suspend fun fetchLocationById(id: Int): Either<ApiError, Location> {
         val location = locations.find { it.id == id }
         return if (location != null) {
             success(location)

@@ -7,7 +7,7 @@ import com.tasa.utils.Either
 interface LocationService {
     suspend fun fetchLocations(): Either<ApiError, List<Location>>
 
-    suspend fun fetchLocationById(id: Int): Either<ApiError, Location?>
+    suspend fun fetchLocationById(id: Int): Either<ApiError, Location>
 
     suspend fun fetchLocationByName(name: String): Either<ApiError, Location?>
 

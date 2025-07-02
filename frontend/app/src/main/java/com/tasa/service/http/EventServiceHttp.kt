@@ -2,6 +2,7 @@ package com.tasa.service.http
 
 import com.tasa.domain.ApiError
 import com.tasa.domain.Event
+import com.tasa.service.http.models.event.EventOutput
 import com.tasa.service.http.utils.delete
 import com.tasa.service.http.utils.get
 import com.tasa.service.http.utils.post
@@ -29,8 +30,8 @@ class EventServiceHttp(private val client: HttpClient) : EventService {
         }
     }
 
-    override suspend fun fetchEventAll(): Either<ApiError, List<Event>> {
-        return when (val response = client.get<List<Event>>("/event/all")) {
+    override suspend fun fetchEventAll(): Either<ApiError, List<EventOutput>> {
+        return when (val response = client.get<List<EventOutput>>("/event/all")) {
             is Success -> success(response.value)
             is Failure -> failure(response.value)
         }

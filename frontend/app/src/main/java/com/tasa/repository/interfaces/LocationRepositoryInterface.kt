@@ -1,12 +1,14 @@
 package com.tasa.repository.interfaces
 
+import com.tasa.domain.ApiError
 import com.tasa.domain.Location
+import com.tasa.utils.Either
 import kotlinx.coroutines.flow.Flow
 
 interface LocationRepositoryInterface {
     suspend fun fetchLocations(): Flow<List<Location>>
 
-    suspend fun fetchLocationById(id: Int): Flow<Location?>
+    suspend fun fetchLocationById(id: Int): Either<ApiError, Flow<Location?>>
 
     suspend fun fetchLocationByName(name: String): Flow<Location?>
 

@@ -39,4 +39,10 @@ interface EventDao {
 
     @Query("SELECT COUNT(*) > 0 FROM event")
     suspend fun hasEvents(): Boolean
+
+    @Query("SELECT COUNT(*) > 0 FROM event WHERE calendarId = :calendarId AND eventId = :eventId")
+    suspend fun hasEventById(
+        eventId: Long,
+        calendarId: Long,
+    ): Boolean
 }

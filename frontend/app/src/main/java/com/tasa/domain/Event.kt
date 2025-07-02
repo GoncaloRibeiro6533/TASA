@@ -9,6 +9,7 @@ import com.tasa.storage.entities.EventEntity
  * @property title the event's title
  */
 data class Event(
+    val externalId: Int? = null,
     val id: Long,
     val calendarId: Long,
     val title: String,

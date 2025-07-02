@@ -2,10 +2,12 @@ package com.tasa.service.fake
 
 import com.tasa.domain.ApiError
 import com.tasa.domain.Event
+import com.tasa.service.http.models.event.EventOutput
 import com.tasa.service.interfaces.EventService
 import com.tasa.utils.Either
 import com.tasa.utils.failure
 import com.tasa.utils.success
+import java.time.LocalDateTime
 
 class EventServiceFake : EventService {
     companion object {
@@ -30,8 +32,17 @@ class EventServiceFake : EventService {
         return success(events.find { it.id == id })
     }
 
-    override suspend fun fetchEventAll(): Either<ApiError, List<Event>> {
-        return success(events)
+    override suspend fun fetchEventAll(): Either<ApiError, List<EventOutput>> {
+        return success(
+            events.map { event ->
+                EventOutput(
+                    id = event.id.toInt(),
+                    title = event.title,
+                    startTime = LocalDateTime.parse("2023-01-01T10:00:00"),
+                    endTime = LocalDateTime.parse("2023-01-01T11:00:00"),
+                )
+            },
+        )
     }
 
     override suspend fun insertEvent(event: Event): Either<ApiError, Event> {

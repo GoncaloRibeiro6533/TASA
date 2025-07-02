@@ -60,4 +60,7 @@
     <string name="log_in">Log In</string>
     <string name="register">Register</string>
     <string name="about_us">About us</string>
+    <string name="error_creating_rule">An error occurred while creating the rule.</string>
+    <string name="error_on_editing_rule">An error occurred while editing this rule.</string>
+    <string name="event">Event</string>
 </resources>

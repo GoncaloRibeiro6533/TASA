@@ -1,5 +1,7 @@
 package com.tasa.domain.user
 
+import com.tasa.storage.entities.UserEntity
+
 data class User(
     val id: Int,
     val username: String,
@@ -19,5 +21,13 @@ data class User(
 
     companion object {
         const val MAX_USERNAME_LENGTH = 50
+    }
+
+    fun toUserEntity(): UserEntity {
+        return UserEntity(
+            id = id,
+            username = username,
+            email = email,
+        )
     }
 }

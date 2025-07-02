@@ -31,7 +31,6 @@ class BootReceiver : BroadcastReceiver() {
                         activityTransitionManager.registerActivityTransitions()
                     }
                 } catch (e: SecurityException) {
-                    // Permissão não concedida, lidar conforme necessário
                 }
             }
             val geofenceManager =
@@ -40,7 +39,6 @@ class BootReceiver : BroadcastReceiver() {
                 try {
                     geofenceManager.onBootRegisterGeofences()
                 } catch (e: SecurityException) {
-                    // Permissão não concedida, lidar conforme necessário
                 }
             }
         }

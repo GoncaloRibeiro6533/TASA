@@ -73,12 +73,11 @@ class RuleEvent(
         )
     }
 
-    fun toRuleEventInput(): RuleEventInput {
+    fun toRuleEventInput(eventId: Int): RuleEventInput {
         return RuleEventInput(
             startTime = startTime,
             endTime = endTime,
-            eventId = event.id,
-            calendarId = event.calendarId,
+            eventId = eventId,
         )
     }
 

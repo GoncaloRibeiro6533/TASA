@@ -22,7 +22,7 @@ class LocationServiceHttp(private val client: HttpClient) : LocationService {
         }
     }
 
-    override suspend fun fetchLocationById(id: Int): Either<ApiError, Location?> {
+    override suspend fun fetchLocationById(id: Int): Either<ApiError, Location> {
         return when (val response = client.get<Location>("/location/$id")) {
             is Success -> success(response.value)
             is Failure -> failure(response.value)

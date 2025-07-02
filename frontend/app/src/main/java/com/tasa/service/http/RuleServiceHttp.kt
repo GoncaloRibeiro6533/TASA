@@ -24,6 +24,8 @@ sealed class RuleServiceError(message: String = "") : ApiError(message) {
     data object LocationIdNull : RuleServiceError()
 
     data object RuleIdNull : RuleServiceError()
+
+    data object EventIdNull : RuleServiceError()
 }
 
 class RuleServiceHttp(private val client: HttpClient) : RuleService {
@@ -67,7 +69,14 @@ class RuleServiceHttp(private val client: HttpClient) : RuleService {
     }
 
     override suspend fun insertRuleEvent(ruleEvent: RuleEvent): Either<ApiError, RuleEvent> {
-        return when (val response = client.post<RuleEventOutput>("/rule/event", body = ruleEvent.toRuleEventInput())) {
+        if (ruleEvent.event.externalId == null) return failure(RuleServiceError.EventIdNull)
+        return when (
+            val response =
+                client.post<RuleEventOutput>(
+                    "/rule/event",
+                    body = ruleEvent.toRuleEventInput(ruleEvent.event.externalId),
+                )
+        ) {
             is Success -> success(response.value.toRuleEvent())
             is Failure -> failure(response.value)
         }

@@ -60,4 +60,7 @@
     <string name="log_in">Iniciar sessão</string>
     <string name="register">Criar conta</string>
     <string name="about_us">Acerca</string>
+    <string name="error_creating_rule">Ocurreu um erro ao criar a regra</string>
+    <string name="error_on_editing_rule">Ocurrreu um erro ao editar a regra</string>
+    <string name="event">Evento</string>
 </resources>

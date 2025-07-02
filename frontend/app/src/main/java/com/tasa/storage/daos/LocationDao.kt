@@ -47,4 +47,7 @@ interface LocationDao {
 
     @Query("SELECT COUNT(*) FROM location")
     suspend fun hasLocations(): Boolean
+
+    @Query("SELECT COUNT(*) FROM location WHERE id = :id")
+    suspend fun hasLocationById(id: Int): Boolean
 }

@@ -2,6 +2,7 @@ package com.tasa.service.interfaces
 
 import com.tasa.domain.ApiError
 import com.tasa.domain.Event
+import com.tasa.service.http.models.event.EventOutput
 import com.tasa.utils.Either
 
 interface EventService {
@@ -12,7 +13,7 @@ interface EventService {
         calendarId: Long,
     ): Either<ApiError, Event?>
 
-    suspend fun fetchEventAll(): Either<ApiError, List<Event>>
+    suspend fun fetchEventAll(): Either<ApiError, List<EventOutput>>
 
     suspend fun insertEvent(event: Event): Either<ApiError, Event>
 
