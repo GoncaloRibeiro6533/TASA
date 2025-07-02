@@ -17,7 +17,7 @@ data class CalendarEvent(
     val event: Event
         get() {
             return Event(
-                id = eventId,
+                eventId = eventId,
                 calendarId = calendarId,
                 title = title,
             )

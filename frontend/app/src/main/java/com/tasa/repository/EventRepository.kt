@@ -2,7 +2,9 @@ package com.tasa.repository
 
 import android.content.Context
 import com.tasa.domain.ApiError
+import com.tasa.domain.AuthenticationException
 import com.tasa.domain.Event
+import com.tasa.domain.UserInfoRepository
 import com.tasa.repository.interfaces.EventRepositoryInterface
 import com.tasa.service.TasaService
 import com.tasa.storage.TasaDB
@@ -19,13 +21,21 @@ import kotlinx.coroutines.flow.map
 class EventRepository(
     private val local: TasaDB,
     private val remote: TasaService,
+    private val userInfoRepository: UserInfoRepository,
 ) : EventRepositoryInterface {
     private suspend fun hasEvents(): Boolean {
         return local.eventDao().hasEvents()
     }
 
+    private suspend fun getToken(): String {
+        return userInfoRepository.getToken() ?: throw AuthenticationException(
+            "User is not authenticated. Please log in again.",
+            null,
+        )
+    }
+
     private suspend fun getFromApi(context: Context): Either<ApiError, List<Event>> {
-        val result = remote.eventService.fetchEventAll()
+        val result = remote.eventService.fetchEventAll(getToken())
         return when (result) {
             is Success -> {
                 success(
@@ -64,8 +74,8 @@ class EventRepository(
             .map { event ->
                 event.let {
                     Event(
-                        externalId = it.externalId,
-                        id = it.eventId,
+                        id = it.externalId,
+                        eventId = it.eventId,
                         calendarId = it.calendarId,
                         title = it.title,
                     )
@@ -82,12 +92,12 @@ class EventRepository(
     }
 
     override suspend fun updateEvent(event: Event): Either<ApiError, Event> {
-        val remoteResult = remote.eventService.updateEventTitle(event)
+        val remoteResult = remote.eventService.updateEventTitle(event, getToken())
         return when (remoteResult) {
             is Success -> {
                 local.eventDao().updateEvent(
-                    eventId = remoteResult.value.id,
-                    calendarId = remoteResult.value.calendarId,
+                    eventId = event.eventId,
+                    calendarId = event.calendarId,
                     title = remoteResult.value.title,
                 )
                 success(remoteResult.value)
@@ -99,10 +109,13 @@ class EventRepository(
     }
 
     override suspend fun deleteEvent(event: Event): Either<ApiError, Unit> {
-        val remoteResult = remote.eventService.deleteEventById(event.id, event.calendarId)
+        if (event.id == null) {
+            return failure(ApiError("Event ID cannot be zero."))
+        }
+        val remoteResult = remote.eventService.deleteEventById(event.id, getToken())
         return when (remoteResult) {
             is Success -> {
-                local.eventDao().deleteEvent(event.id, event.calendarId)
+                local.eventDao().deleteEvent(event.eventId, event.calendarId)
                 success(Unit)
             }
 

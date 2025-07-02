@@ -1,8 +1,10 @@
 package com.tasa.repository
 
 import com.tasa.domain.ApiError
+import com.tasa.domain.AuthenticationException
 import com.tasa.domain.Location
 import com.tasa.domain.TasaException
+import com.tasa.domain.UserInfoRepository
 import com.tasa.repository.interfaces.LocationRepositoryInterface
 import com.tasa.service.TasaService
 import com.tasa.storage.TasaDB
@@ -17,6 +19,7 @@ import kotlinx.coroutines.flow.map
 class LocationRepository(
     private val local: TasaDB,
     private val remote: TasaService,
+    private val userInfoRepository: UserInfoRepository,
 ) : LocationRepositoryInterface {
     private suspend fun hasLocations(): Boolean {
         return local.locationDao().hasLocations()
@@ -26,7 +29,14 @@ class LocationRepository(
         return local.locationDao().hasLocationById(id)
     }
 
-    private suspend fun getFromApi() = remote.locationService.fetchLocations()
+    private suspend fun getToken(): String {
+        return userInfoRepository.getToken() ?: throw AuthenticationException(
+            "User is not authenticated. Please log in again.",
+            null,
+        )
+    }
+
+    private suspend fun getFromApi() = remote.locationService.fetchLocations(getToken())
 
     override suspend fun fetchLocations(): Flow<List<Location>> {
         return if (hasLocations()) {
@@ -48,7 +58,7 @@ class LocationRepository(
         return if (hasLocationById(id)) {
             success(local.locationDao().getLocationById(id).map { it?.toLocation() })
         } else {
-            when (val location = remote.locationService.fetchLocationById(id)) {
+            when (val location = remote.locationService.fetchLocationById(id, getToken())) {
                 is Success -> {
                     local.locationDao().insertLocation(location.value.toEntity())
                     success(local.locationDao().getLocationById(id).map { it?.toLocation() })
@@ -69,7 +79,7 @@ class LocationRepository(
     }
 
     override suspend fun insertLocation(location: Location) {
-        val remote = remote.locationService.insertLocation(location)
+        val remote = remote.locationService.insertLocation(location, getToken())
         when (remote) {
             is Success -> {
                 local.locationDao().insertLocation(remote.value.toEntity())
@@ -85,7 +95,7 @@ class LocationRepository(
     }
 
     override suspend fun deleteLocationById(id: Int) {
-        val remote = remote.locationService.deleteLocationById(id)
+        val remote = remote.locationService.deleteLocationById(id, getToken())
         when (remote) {
             is Success -> local.locationDao().deleteLocationById(id)
             is Failure -> throw TasaException(remote.value.message, null)

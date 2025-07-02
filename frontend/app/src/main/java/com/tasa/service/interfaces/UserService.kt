@@ -6,8 +6,6 @@ import com.tasa.service.http.models.user.LoginOutput
 import com.tasa.utils.Either
 
 interface UserService {
-    suspend fun updateUsername(newUsername: String): Either<ApiError, User>
-
     suspend fun login(
         username: String,
         password: String,
@@ -19,9 +17,10 @@ interface UserService {
         email: String,
     ): Either<ApiError, User>
 
-    suspend fun findUserById(id: Int): Either<ApiError, User>
+    suspend fun findUserById(
+        id: Int,
+        token: String,
+    ): Either<ApiError, User>
 
-    suspend fun logout(): Either<ApiError, Unit>
-
-    suspend fun findUserByUsername(query: String): Either<ApiError, List<User>>
+    suspend fun logout(token: String): Either<ApiError, Unit>
 }

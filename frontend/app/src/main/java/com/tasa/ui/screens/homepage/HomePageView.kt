@@ -36,10 +36,11 @@ import com.tasa.R
 import com.tasa.domain.Event
 import com.tasa.domain.Location
 import com.tasa.domain.Rule
-import com.tasa.domain.RuleBase
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
 import com.tasa.domain.RuleLocationTimeless
+import com.tasa.domain.TimedRule
+import com.tasa.domain.TimelessRule
 import com.tasa.ui.screens.homepage.components.CompactButton
 import com.tasa.ui.screens.homepage.components.RulesToggleBar
 import com.tasa.ui.screens.homepage.components.SquareButton
@@ -60,13 +61,13 @@ const val MAP_BUTTON = "map_button"
 
 @Composable
 fun HomePageView(
-    rules: StateFlow<List<RuleBase>>,
+    rules: StateFlow<List<Rule>>,
     onNavigateToMyLocations: () -> Unit,
     onNavigationToMap: () -> Unit,
     onNavigateToCreateRuleEvent: () -> Unit,
     onNavigationToMyExceptions: () -> Unit,
     onEdit: (EditRuleActivity.RuleParcelableEvent) -> Unit = {},
-    onDelete: (RuleBase) -> Unit = {},
+    onDelete: (Rule) -> Unit = {},
 ) {
     var list by rememberSaveable { mutableStateOf(true) } // true = Timed, false = Location
     var ruleList = rules.collectAsState().value
@@ -119,8 +120,7 @@ fun HomePageView(
         ) {
             val filteredRules =
                 ruleList.filter {
-                    (it is RuleLocationTimeless && !list) ||
-                        (it is RuleEvent && list) || (it is RuleLocation && list)
+                    (it is TimelessRule && !list) || (it is TimedRule && list)
                 }
 
             if (filteredRules.isEmpty()) {
@@ -228,6 +228,7 @@ fun HomePageViewPreview() {
                     Event(
                         title = "Reunião de equipa",
                         id = 1,
+                        eventId = 1,
                         calendarId = 1,
                     ),
             ),
@@ -239,6 +240,7 @@ fun HomePageViewPreview() {
                     Event(
                         title = "Almoço de negócios",
                         id = 2,
+                        eventId = 2,
                         calendarId = 1,
                     ),
             ),
@@ -250,6 +252,7 @@ fun HomePageViewPreview() {
                     Event(
                         title = "Reunião com cliente",
                         id = 3,
+                        eventId = 3,
                         calendarId = 1,
                     ),
             ),
@@ -261,6 +264,7 @@ fun HomePageViewPreview() {
                     Event(
                         title = "Reunião de projeto",
                         id = 4,
+                        eventId = 4,
                         calendarId = 1,
                     ),
             ),
@@ -272,6 +276,7 @@ fun HomePageViewPreview() {
                     Event(
                         title = "Reunião de revisão",
                         id = 5,
+                        eventId = 5,
                         calendarId = 1,
                     ),
             ),
@@ -283,6 +288,7 @@ fun HomePageViewPreview() {
                     Event(
                         title = "Reunião de feedback",
                         id = 6,
+                        eventId = 6,
                         calendarId = 1,
                     ),
             ),
@@ -467,6 +473,7 @@ fun HomePageViewHorizontalPreview() {
                     Event(
                         title = "Reunião de equipa",
                         id = 1,
+                        eventId = 1,
                         calendarId = 1,
                     ),
             ),
@@ -478,6 +485,7 @@ fun HomePageViewHorizontalPreview() {
                     Event(
                         title = "Almoço de negócios",
                         id = 2,
+                        eventId = 2,
                         calendarId = 1,
                     ),
             ),
@@ -489,6 +497,7 @@ fun HomePageViewHorizontalPreview() {
                     Event(
                         title = "Reunião com cliente",
                         id = 3,
+                        eventId = 3,
                         calendarId = 1,
                     ),
             ),
@@ -500,6 +509,7 @@ fun HomePageViewHorizontalPreview() {
                     Event(
                         title = "Reunião de projeto",
                         id = 4,
+                        eventId = 4,
                         calendarId = 1,
                     ),
             ),
@@ -511,6 +521,7 @@ fun HomePageViewHorizontalPreview() {
                     Event(
                         title = "Reunião de revisão",
                         id = 5,
+                        eventId = 5,
                         calendarId = 1,
                     ),
             ),
@@ -522,6 +533,7 @@ fun HomePageViewHorizontalPreview() {
                     Event(
                         title = "Reunião de feedback",
                         id = 6,
+                        eventId = 6,
                         calendarId = 1,
                     ),
             ),

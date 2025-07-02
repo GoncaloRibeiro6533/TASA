@@ -1,32 +1,24 @@
 package com.tasa.repository.interfaces
 
+import com.tasa.domain.ApiError
 import com.tasa.domain.Event
 import com.tasa.domain.Location
 import com.tasa.domain.Rule
-import com.tasa.domain.RuleBase
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
 import com.tasa.domain.RuleLocationTimeless
+import com.tasa.utils.Either
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 
 interface RuleRepositoryInterface {
-    suspend fun fetchAllRules(): Flow<List<RuleBase>>
+    suspend fun fetchAllRules(): Either<ApiError, Flow<List<Rule>>>
 
-    suspend fun fetchRuleEvents(): Flow<List<RuleEvent>>
+    suspend fun fetchRuleEvents(): Either<ApiError, Flow<List<RuleEvent>>>
 
     suspend fun fetchRuleLocations(): Flow<List<RuleLocation>>
 
-    suspend fun fetchRuleEventsById(id: Int): RuleEvent?
-
-    suspend fun fetchRuleLocationsById(id: Int): RuleLocation?
-
     suspend fun fetchRuleLocationsByName(name: String): List<RuleLocation>
-
-    suspend fun fetchRuleEventsCalendarIdAndEventId(
-        calendarId: LocalDateTime,
-        eventId: LocalDateTime,
-    ): RuleEvent?
 
     suspend fun fetchRuleByTime(
         startTime: LocalDateTime,
@@ -43,12 +35,7 @@ interface RuleRepositoryInterface {
         startTime: LocalDateTime,
         endTime: LocalDateTime,
         location: Location,
-        geofenceId: Int,
     ): RuleLocation
-
-    suspend fun insertRuleEvents(ruleEvents: List<RuleEvent>)
-
-    suspend fun insertRuleLocations(ruleLocations: Map<RuleLocation, Int>)
 
     suspend fun deleteRuleEventById(id: Int)
 
@@ -90,8 +77,6 @@ interface RuleRepositoryInterface {
         startTime: LocalDateTime,
         endTime: LocalDateTime,
     )
-
-    suspend fun getRuleLocationByGeofenceId(geofenceId: Int): List<RuleLocation>
 
     suspend fun getRulesForLocation(location: Location): List<RuleLocation>
 

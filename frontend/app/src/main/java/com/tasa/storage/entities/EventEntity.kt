@@ -15,7 +15,8 @@ data class EventEntity(
 ) {
     fun toEvent(): Event {
         return Event(
-            id = eventId,
+            id = externalId,
+            eventId = eventId,
             calendarId = calendarId,
             title = title,
         )

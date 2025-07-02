@@ -16,50 +16,48 @@ import com.tasa.utils.success
 import io.ktor.client.HttpClient
 
 class EventServiceHttp(private val client: HttpClient) : EventService {
-    override suspend fun fetchEvents(): Either<ApiError, List<Event>> {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun fetchEventById(
-        id: Long,
-        calendarId: Long,
+        id: Int,
+        token: String,
     ): Either<ApiError, Event?> {
-        return when (val response = client.get<Event>("/event/$id/calendar/$calendarId")) {
+        return when (val response = client.get<Event>("/event/$id", token = token)) {
             is Success -> success(response.value)
             is Failure -> failure(response.value)
         }
     }
 
-    override suspend fun fetchEventAll(): Either<ApiError, List<EventOutput>> {
-        return when (val response = client.get<List<EventOutput>>("/event/all")) {
+    override suspend fun fetchEventAll(token: String): Either<ApiError, List<EventOutput>> {
+        return when (val response = client.get<List<EventOutput>>("/event/all", token = token)) {
             is Success -> success(response.value)
             is Failure -> failure(response.value)
         }
     }
 
-    override suspend fun insertEvent(event: Event): Either<ApiError, Event> {
-        return when (val response = client.post<Event>("/event/create", body = event)) {
+    override suspend fun insertEvent(
+        event: Event,
+        token: String,
+    ): Either<ApiError, Event> {
+        return when (val response = client.post<Event>("/event/create", body = event, token = token)) {
             is Success -> success(response.value)
             is Failure -> failure(response.value)
         }
     }
 
-    override suspend fun insertEvents(events: List<Event>): Either<ApiError, List<Event>> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun updateEventTitle(event: Event): Either<ApiError, Event> {
-        return when (val response = client.put<Event>("/event/update/title", body = event)) {
+    override suspend fun updateEventTitle(
+        event: Event,
+        token: String,
+    ): Either<ApiError, Event> {
+        return when (val response = client.put<Event>("/event/update/title", body = event, token = token)) {
             is Success -> success(response.value)
             is Failure -> failure(response.value)
         }
     }
 
     override suspend fun deleteEventById(
-        id: Long,
-        calendarId: Long,
+        id: Int,
+        token: String,
     ): Either<ApiError, Unit> {
-        return when (val response = client.delete<Unit>("/event/remove/$id/calendar/$calendarId")) {
+        return when (val response = client.delete<Unit>("/event/remove/$id", token = token)) {
             is Success -> success(Unit)
             is Failure -> failure(response.value)
         }

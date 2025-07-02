@@ -79,6 +79,7 @@ class TasaApplication : Application(), DependenciesContainer {
         TasaRepo(
             local = clientDB,
             remote = service,
+            userInfoRepository = userInfoRepository,
         )
     }
 

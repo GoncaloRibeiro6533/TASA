@@ -2,6 +2,7 @@ package com.tasa.domain
 
 import com.tasa.domain.user.User
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
 
 interface UserInfoRepository {
     val userInfo: Flow<User?>
@@ -41,4 +42,16 @@ interface UserInfoRepository {
     suspend fun setLocationStatus(enabled: Boolean)
 
     suspend fun getLocationStatus(): Boolean?
+
+    suspend fun getToken(): String?
+
+    suspend fun setToken(token: String)
+
+    suspend fun saveRefreshToken(token: String)
+
+    suspend fun getRefreshToken(): String?
+
+    suspend fun getSessionExpiration(): LocalDateTime?
+
+    suspend fun setSessionExpiration(expiration: LocalDateTime)
 }

@@ -1,6 +1,7 @@
 package com.tasa.repository
 
 import com.tasa.domain.ApiError
+import com.tasa.domain.UserInfoRepository
 import com.tasa.domain.user.User
 import com.tasa.repository.interfaces.UserRepositoryInterface
 import com.tasa.service.TasaService
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.map
 class UserRepository(
     private val local: TasaDB,
     private val remote: TasaService,
+    private val userInfoRepository: UserInfoRepository,
 ) : UserRepositoryInterface {
     override suspend fun createUser(
         username: String,
@@ -23,18 +25,15 @@ class UserRepository(
         password: String,
     ): Either<ApiError, User> {
         val result = remote.userService.register(username, email, password)
-        when (result) {
+        return when (result) {
             is Success -> {
-                val userEntity = result.value.toUserEntity()
-                local.userDao().insertUser(userEntity)
-                return success(result.value)
+                success(result.value)
             }
-            is Failure -> return failure(result.value)
+            is Failure -> failure(result.value)
         }
     }
 
     override suspend fun insertUser(user: User) {
-        // remote.userService.register()
         local.userDao().insertUser(
             user.toUserEntity(),
         )
@@ -54,5 +53,40 @@ class UserRepository(
 
     override suspend fun clear() {
         local.userDao().clear()
+    }
+
+    override suspend fun createToken(
+        email: String,
+        password: String,
+    ): Either<ApiError, User> {
+        val result = remote.userService.login(email, password)
+        return when (result) {
+            is Success -> {
+                val userEntity = result.value.user.toUserEntity()
+                local.userDao().insertUser(userEntity)
+                userInfoRepository.setToken(result.value.session.token)
+                userInfoRepository.saveRefreshToken(result.value.session.refreshToken)
+                userInfoRepository.setSessionExpiration(result.value.session.expiration)
+                userInfoRepository.updateUserInfo(result.value.user)
+                success(result.value.user)
+            }
+            is Failure -> failure(result.value)
+        }
+    }
+
+    override suspend fun logout(): Either<ApiError, Unit> {
+        val token =
+            userInfoRepository.getToken()
+                ?: return failure(ApiError("User is not authenticated. Please log in again."))
+
+        val result = remote.userService.logout(token)
+        return when (result) {
+            is Success -> {
+                userInfoRepository.clearUserInfo()
+                local.userDao().clear()
+                success(Unit)
+            }
+            is Failure -> failure(result.value)
+        }
     }
 }

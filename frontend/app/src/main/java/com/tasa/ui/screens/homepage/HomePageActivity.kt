@@ -133,8 +133,10 @@ class HomePageActivity : ComponentActivity() {
                                 navigateTo(this@HomePageActivity, MenuActivity::class.java)
                                 finish()
                             },
-                            onFatalError = { finish() },
-                            // TODO close app
+                            onFatalError = {
+                                viewModel.onFatalError()
+                                finish()
+                            },
                             onEditRule = { rule: EditRuleActivity.RuleParcelableEvent ->
                                 val intent = Intent(this@HomePageActivity, EditRuleActivity::class.java).putExtra("rule_event", rule)
                                 startActivity(intent)
@@ -174,15 +176,4 @@ class HomePageActivity : ComponentActivity() {
             false
         }
     }
-    /*fun hasLocationPermissions(): Boolean {
-        val fine = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-        val background =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
-            } else {
-                true
-            }
-
-        return fine && background
-    }*/
 }

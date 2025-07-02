@@ -19,3 +19,23 @@ class TasaException(
         return super.hashCode()
     }
 }
+
+class AuthenticationException(
+    message: String,
+    cause: Throwable? = null,
+) : Throwable(message, cause) {
+    override fun toString(): String {
+        return "AuthenticationException(message='$message', cause=$cause)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is AuthenticationException) return false
+        if (!super.equals(other)) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return super.hashCode()
+    }
+}

@@ -14,9 +14,9 @@ data class EventOutput(
         calendarId: Long,
     ): Event {
         return Event(
-            externalId = id,
+            id = id,
             calendarId = calendarId,
-            id = eventId,
+            eventId = eventId,
             title = title,
         )
     }

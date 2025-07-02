@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.tasa.domain.ApiError
 import com.tasa.domain.user.User
-import com.tasa.service.interfaces.UserService
+import com.tasa.repository.UserRepository
 import com.tasa.utils.Failure
 import com.tasa.utils.Success
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +23,7 @@ sealed interface RegisterScreenState {
 }
 
 class RegisterScreenViewModel(
-    private val userServices: UserService,
+    private val userRepository: UserRepository,
     initialState: RegisterScreenState = RegisterScreenState.Idle,
 ) : ViewModel() {
     private val _state = MutableStateFlow<RegisterScreenState>(initialState)
@@ -39,7 +39,7 @@ class RegisterScreenViewModel(
             viewModelScope.launch {
                 _state.value =
                     try {
-                        val user = userServices.register(username, password, email)
+                        val user = userRepository.createUser(username, email, password)
                         when (user) {
                             is Success -> {
                                 RegisterScreenState.Success(user.value)
@@ -59,8 +59,8 @@ class RegisterScreenViewModel(
 }
 
 @Suppress("UNCHECKED_CAST")
-class RegisterScreenViewModelFactory(private val userService: UserService) : ViewModelProvider.Factory {
+class RegisterScreenViewModelFactory(private val userRepository: UserRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return RegisterScreenViewModel(userService) as T
+        return RegisterScreenViewModel(userRepository) as T
     }
 }

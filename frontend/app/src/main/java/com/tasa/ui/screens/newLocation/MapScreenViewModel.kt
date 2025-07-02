@@ -20,6 +20,8 @@ import com.tasa.domain.UserInfoRepository
 import com.tasa.domain.toLocalDateTime
 import com.tasa.location.LocationUpdatesRepository
 import com.tasa.repository.TasaRepo
+import com.tasa.utils.Failure
+import com.tasa.utils.Success
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -81,7 +83,7 @@ sealed interface MapsScreenState {
         val locationName: StateFlow<String>,
     ) : MapsScreenState
 
-    data class Error(val error: Int) : MapsScreenState
+    data class Error(val error: String) : MapsScreenState
 }
 
 class MapScreenViewModel(
@@ -150,10 +152,10 @@ class MapScreenViewModel(
                                 locationName = _locationName,
                             )
                     } else {
-                        _state.value = MapsScreenState.Error(R.string.no_results_found)
+                        _state.value = MapsScreenState.Error(R.string.no_results_found.toString())
                     }
                 } catch (e: Exception) {
-                    _state.value = MapsScreenState.Error(R.string.unexpected_error)
+                    _state.value = MapsScreenState.Error(R.string.unexpected_error.toString())
                 }
             }
         }
@@ -269,7 +271,7 @@ class MapScreenViewModel(
             viewModelScope.launch {
                 try {
                     if (repo.locationRepo.getLocationByName(locationName) != null) {
-                        _state.value = MapsScreenState.Error(R.string.error_location_name_already_exists)
+                        _state.value = MapsScreenState.Error(R.string.error_location_name_already_exists.toString())
                         return@launch
                     }
                     repo.locationRepo.insertLocation(
@@ -283,7 +285,7 @@ class MapScreenViewModel(
                     )
                     onSuccess()
                 } catch (ex: Throwable) {
-                    _state.value = MapsScreenState.Error(R.string.unexpected_error)
+                    _state.value = MapsScreenState.Error(R.string.unexpected_error.toString())
                 }
             }
         }
@@ -317,7 +319,7 @@ class MapScreenViewModel(
                         }
                 }
             } catch (ex: Throwable) {
-                _state.value = MapsScreenState.Error(R.string.unexpected_error)
+
             }
         }
     }
@@ -338,7 +340,7 @@ class MapScreenViewModel(
                     context.getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
                 val isGpsEnabled = locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)
                 if (!isGpsEnabled) {
-                    _state.value = MapsScreenState.Error(R.string.location_disabled_warning)
+                    _state.value = MapsScreenState.Error(R.string.location_disabled_warning.toString())
                     return@launch
                 }
                 getCurrentLocation().let { location ->
@@ -361,7 +363,7 @@ class MapScreenViewModel(
                     }
                 }
             } catch (ex: Throwable) {
-                _state.value = MapsScreenState.Error(R.string.unexpected_error)
+                _state.value = MapsScreenState.Error(R.string.unexpected_error.toString())
             }
         }
     }

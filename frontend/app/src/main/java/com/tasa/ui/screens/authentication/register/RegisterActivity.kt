@@ -12,12 +12,12 @@ import com.tasa.utils.navigateTo
 import kotlin.getValue
 
 class RegisterActivity : ComponentActivity() {
-    private val userService by lazy { (application as DependenciesContainer).service.userService }
+    private val userRepo by lazy { (application as DependenciesContainer).repo.userRepo }
 
     private val viewModel by viewModels<RegisterScreenViewModel>(
         factoryProducer = {
             RegisterScreenViewModelFactory(
-                userService = userService,
+                userRepository = userRepo,
             )
         },
     )

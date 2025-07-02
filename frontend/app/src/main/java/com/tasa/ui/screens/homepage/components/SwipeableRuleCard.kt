@@ -25,8 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.tasa.R
 import com.tasa.domain.Event
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
@@ -79,7 +81,7 @@ fun SwipeableRuleCardEvent(
                             backgroundColor = MaterialTheme.colorScheme.primary,
                             icon = Icons.Default.Edit,
                             alignment = Alignment.CenterStart,
-                            label = "Editar",
+                            label = stringResource(R.string.edit),
                         )
 
                     DismissDirection.EndToStart ->
@@ -87,7 +89,7 @@ fun SwipeableRuleCardEvent(
                             backgroundColor = MaterialTheme.colorScheme.error,
                             icon = Icons.Default.Delete,
                             alignment = Alignment.CenterEnd,
-                            label = "Apagar",
+                            label = stringResource(R.string.delete),
                         )
                 }
 
@@ -162,7 +164,7 @@ fun SwipeableRuleCardLocation(
                             backgroundColor = MaterialTheme.colorScheme.primary,
                             icon = Icons.Default.Edit,
                             alignment = Alignment.CenterStart,
-                            label = "Editar",
+                            label = stringResource(R.string.edit),
                         )
 
                     DismissDirection.EndToStart ->
@@ -170,7 +172,7 @@ fun SwipeableRuleCardLocation(
                             backgroundColor = MaterialTheme.colorScheme.error,
                             icon = Icons.Default.Delete,
                             alignment = Alignment.CenterEnd,
-                            label = "Apagar",
+                            label = stringResource(R.string.delete),
                         )
                 }
 
@@ -242,7 +244,7 @@ fun SwipeableRuleCardLocationTimeless(
                             backgroundColor = MaterialTheme.colorScheme.primary,
                             icon = Icons.Default.Edit,
                             alignment = Alignment.CenterStart,
-                            label = "Editar",
+                            label = stringResource(R.string.edit),
                         )
 
                     DismissDirection.EndToStart ->
@@ -250,10 +252,9 @@ fun SwipeableRuleCardLocationTimeless(
                             backgroundColor = MaterialTheme.colorScheme.error,
                             icon = Icons.Default.Delete,
                             alignment = Alignment.CenterEnd,
-                            label = "Apagar",
+                            label = stringResource(R.string.delete),
                         )
                 }
-
             Box(
                 modifier =
                     modifier
@@ -298,6 +299,7 @@ fun SwipeableRuleCardPreview() {
                 Event(
                     id = 1,
                     calendarId = 1,
+                    eventId = 1,
                     title = "Sample Event",
                 ),
         )

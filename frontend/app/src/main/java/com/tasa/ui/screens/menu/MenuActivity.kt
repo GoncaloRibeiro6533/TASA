@@ -18,14 +18,12 @@ import com.tasa.ui.screens.start.StartActivity
 import com.tasa.utils.navigateTo
 
 class MenuActivity : ComponentActivity() {
-    private val service by lazy { (application as DependenciesContainer).service }
     private val userInfoRepository by lazy { (application as DependenciesContainer).userInfoRepository }
     private val repo by lazy { (application as DependenciesContainer).repo }
     private val viewModel by viewModels<MenuViewModel>(
         factoryProducer = {
             MenuViewModelFactory(
                 userInfoRepository,
-                service,
                 repo,
             )
         },

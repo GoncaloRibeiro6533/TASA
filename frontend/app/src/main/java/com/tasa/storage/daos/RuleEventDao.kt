@@ -93,4 +93,7 @@ interface RuleEventDao {
         startTime: LocalDateTime,
         endTime: LocalDateTime,
     )
+
+    @Query("SELECT COUNT(*)> 0 FROM rule_event")
+    suspend fun hasRules(): Boolean
 }

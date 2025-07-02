@@ -17,4 +17,11 @@ interface UserRepositoryInterface {
     suspend fun insertUser(user: User)
 
     suspend fun clear()
+
+    suspend fun createToken(
+        email: String,
+        password: String,
+    ): Either<ApiError, User>
+
+    suspend fun logout(): Either<ApiError, Unit>
 }

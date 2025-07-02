@@ -12,6 +12,7 @@ import com.tasa.domain.user.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import java.time.LocalDateTime
 
 class UserInfoRepo(private val store: DataStore<Preferences>) : UserInfoRepository {
     override val userInfo: Flow<User?> =
@@ -116,6 +117,40 @@ class UserInfoRepo(private val store: DataStore<Preferences>) : UserInfoReposito
         return preferences[LOCATION_STATUS_KEY]?.toBoolean()
     }
 
+    override suspend fun getToken(): String? {
+        val preferences = store.data.first()
+        return preferences[TOKEN_KEY]
+    }
+
+    override suspend fun setToken(token: String) {
+        store.edit { preferences ->
+            preferences[TOKEN_KEY] = token
+        }
+    }
+
+    override suspend fun saveRefreshToken(token: String) {
+        store.edit { preferences ->
+            preferences[REFRESH_TOKEN_KEY] = token
+        }
+    }
+
+    override suspend fun getRefreshToken(): String? {
+        val preferences = store.data.first()
+        return preferences[REFRESH_TOKEN_KEY]
+    }
+
+    override suspend fun getSessionExpiration(): LocalDateTime? {
+        val preferences = store.data.first()
+        val expirationString = preferences[SESSION_EXPIRATION_KEY] ?: return null
+        return LocalDateTime.parse(expirationString)
+    }
+
+    override suspend fun setSessionExpiration(expiration: LocalDateTime) {
+        store.edit { preferences ->
+            preferences[SESSION_EXPIRATION_KEY] = expiration.toString()
+        }
+    }
+
     override val lastActivityTransition: Flow<Int?> =
         store.data.map { preferences ->
             preferences[TRANSITION_KEY]?.toIntOrNull()
@@ -131,6 +166,9 @@ private val ACTIVITY_KEY = stringPreferencesKey("activity")
 private val TRANSITION_KEY = stringPreferencesKey("transition")
 private val NOTIFIES_OF_NO_LOCATION_KEY = stringPreferencesKey("notifies_of_no_location")
 private val LOCATION_STATUS_KEY = stringPreferencesKey("location_status")
+private val TOKEN_KEY = stringPreferencesKey("token")
+private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
+private val SESSION_EXPIRATION_KEY = stringPreferencesKey("session_expiration")
 
 private fun Preferences.toUser(): User? {
     val username = this[USERNAME_KEY] ?: return null

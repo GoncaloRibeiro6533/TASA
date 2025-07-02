@@ -6,23 +6,25 @@ import com.tasa.service.http.models.event.EventOutput
 import com.tasa.utils.Either
 
 interface EventService {
-    suspend fun fetchEvents(): Either<ApiError, List<Event>>
-
     suspend fun fetchEventById(
-        id: Long,
-        calendarId: Long,
+        id: Int,
+        token: String,
     ): Either<ApiError, Event?>
 
-    suspend fun fetchEventAll(): Either<ApiError, List<EventOutput>>
+    suspend fun fetchEventAll(token: String): Either<ApiError, List<EventOutput>>
 
-    suspend fun insertEvent(event: Event): Either<ApiError, Event>
+    suspend fun insertEvent(
+        event: Event,
+        token: String,
+    ): Either<ApiError, Event>
 
-    suspend fun insertEvents(events: List<Event>): Either<ApiError, List<Event>>
-
-    suspend fun updateEventTitle(event: Event): Either<ApiError, Event>
+    suspend fun updateEventTitle(
+        event: Event,
+        token: String,
+    ): Either<ApiError, Event>
 
     suspend fun deleteEventById(
-        id: Long,
-        calendarId: Long,
+        id: Int,
+        token: String,
     ): Either<ApiError, Unit>
 }

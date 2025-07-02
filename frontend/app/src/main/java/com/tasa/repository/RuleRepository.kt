@@ -1,27 +1,68 @@
 package com.tasa.repository
 
+import com.tasa.domain.ApiError
+import com.tasa.domain.AuthenticationException
 import com.tasa.domain.Event
 import com.tasa.domain.Location
 import com.tasa.domain.Rule
-import com.tasa.domain.RuleBase
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
 import com.tasa.domain.RuleLocationTimeless
+import com.tasa.domain.UserInfoRepository
 import com.tasa.repository.interfaces.RuleRepositoryInterface
 import com.tasa.service.TasaService
 import com.tasa.storage.TasaDB
+import com.tasa.utils.Either
+import com.tasa.utils.Failure
+import com.tasa.utils.Success
+import com.tasa.utils.failure
+import com.tasa.utils.success
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import java.time.LocalDateTime
+import kotlin.collections.filter
+import kotlin.collections.map
 
 class RuleRepository(
     private val local: TasaDB,
     private val remote: TasaService,
+    private val userInfoRepository: UserInfoRepository,
 ) : RuleRepositoryInterface {
-    override suspend fun fetchAllRules(): Flow<List<RuleBase>> {
-        val now = LocalDateTime.now()
+    private suspend fun getToken(): String {
+        return userInfoRepository.getToken() ?: throw AuthenticationException(
+            "User is not authenticated. Please log in again.",
+            null,
+        )
+    }
 
+    private suspend fun getFromApi() = remote.ruleService.fetchRules(getToken())
+
+    private suspend fun hasRules(): Boolean {
+        return local.ruleEventDao().hasRules() && local.ruleLocationDao().hasRules()
+    }
+
+    override suspend fun fetchAllRules(): Either<ApiError, Flow<List<Rule>>> {
+        return if (hasRules()) {
+            success(getFromLocal())
+        } else {
+            when (val result = getFromApi()) {
+                is Success -> {
+                    local.ruleEventDao().insertRuleEvents(
+                        result.value.filterIsInstance<RuleEvent>().map { it.toRuleEventEntity() },
+                    )
+                    local.ruleLocationDao().insertRuleLocations(
+                        result.value.filterIsInstance<RuleLocation>().map { it.toRuleLocationEntity() },
+                    )
+                    success(getFromLocal())
+                }
+                is Failure -> failure(result.value)
+            }
+        }
+    }
+
+    private fun getFromLocal(): Flow<List<Rule>> {
+        val now = LocalDateTime.now()
         val ruleEventFlow =
             local.ruleEventDao().getAllRuleEvents()
                 .map { list ->
@@ -51,33 +92,31 @@ class RuleRepository(
         }
     }
 
-    override suspend fun fetchRuleEvents(): Flow<List<RuleEvent>> {
-        return local.ruleEventDao().getAllRuleEvents().map { it.map { it.toRuleEvent() } }
+    override suspend fun fetchRuleEvents(): Either<ApiError, Flow<List<RuleEvent>>> {
+        return if (local.ruleEventDao().hasRules()) {
+            success(local.ruleEventDao().getAllRuleEvents().map { it.map { it.toRuleEvent() } })
+        } else {
+            when (val result = getFromApi()) {
+                is Success -> {
+                    local.ruleEventDao().insertRuleEvents(
+                        result.value.filterIsInstance<RuleEvent>().map { it.toRuleEventEntity() },
+                    )
+
+                    success(local.ruleEventDao().getAllRuleEvents().map { it.map { it.toRuleEvent() } })
+                }
+                is Failure -> failure(result.value)
+            }
+        }
     }
 
     override suspend fun fetchRuleLocations(): Flow<List<RuleLocation>> {
         return local.ruleLocationDao().getAllRuleLocations().map { it.map { it.toRuleLocation() } }
     }
 
-    override suspend fun fetchRuleEventsById(id: Int): RuleEvent? {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun fetchRuleLocationsById(id: Int): RuleLocation? {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun fetchRuleLocationsByName(name: String): List<RuleLocation> {
         return local.ruleLocationDao().getRuleLocationsByLocationNameResult(name).map {
             it.toRuleLocation()
         }
-    }
-
-    override suspend fun fetchRuleEventsCalendarIdAndEventId(
-        calendarId: LocalDateTime,
-        eventId: LocalDateTime,
-    ): RuleEvent? {
-        TODO("Not yet implemented")
     }
 
     override suspend fun fetchRuleByTime(
@@ -144,7 +183,6 @@ class RuleRepository(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
         location: Location,
-        geofenceId: Int,
     ): RuleLocation {
         val ruleLocation =
             RuleLocation(
@@ -152,20 +190,8 @@ class RuleRepository(
                 endTime = endTime,
                 location = location,
             )
-        local.ruleLocationDao().insertRuleLocation(ruleLocation.toRuleLocationEntity(geofenceId))
+        local.ruleLocationDao().insertRuleLocation(ruleLocation.toRuleLocationEntity())
         return ruleLocation
-    }
-
-    override suspend fun insertRuleEvents(ruleEvents: List<RuleEvent>) {
-        local.ruleEventDao().insertRuleEvents(ruleEvents.map { it.toRuleEventEntity() })
-    }
-
-    override suspend fun insertRuleLocations(ruleLocations: Map<RuleLocation, Int>) {
-        local.ruleLocationDao().insertRuleLocations(
-            ruleLocations.map {
-                it.key.toRuleLocationEntity(it.value)
-            },
-        )
     }
 
     override suspend fun deleteRuleEventById(id: Int) {
@@ -195,7 +221,7 @@ class RuleRepository(
                 val eventsNotToDelete =
                     rules.filter { it !in rulesToDelete && it.event in events }.map { it.event }
                 events.filter { it !in eventsNotToDelete }.forEach {
-                    local.eventDao().deleteEvent(it.id, it.calendarId)
+                    local.eventDao().deleteEvent(it.eventId, it.calendarId)
                 }
                 rulesToDelete.forEach {
                     local.ruleEventDao().deleteRuleEventByStartAndEndTime(it.startTime, it.endTime)
@@ -246,12 +272,6 @@ class RuleRepository(
             startTime,
             endTime,
         )
-    }
-
-    override suspend fun getRuleLocationByGeofenceId(geofenceId: Int): List<RuleLocation> {
-        return local.ruleLocationDao().getRuleLocationByGeofenceId(geofenceId).map {
-            it.toRuleLocation()
-        }
     }
 
     override suspend fun getRulesForLocation(location: Location): List<RuleLocation> {

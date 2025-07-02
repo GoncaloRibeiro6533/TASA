@@ -210,6 +210,7 @@ fun PreviewEditRuleEventView() {
                     id = 42,
                     calendarId = 10,
                     title = "Workshop Android Jetpack",
+                    eventId = 22,
                 ),
         )
     EditRuleEventView(rule = rule)

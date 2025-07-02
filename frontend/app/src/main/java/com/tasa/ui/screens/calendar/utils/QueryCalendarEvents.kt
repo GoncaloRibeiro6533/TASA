@@ -183,8 +183,8 @@ fun Context.toLocalEvent(
                 continue
             }
             return Event(
-                externalId = externalId,
-                id = it.getLong(idIndex),
+                id = externalId,
+                eventId = it.getLong(idIndex),
                 calendarId = it.getLong(calendarIdIndex),
                 title = it.getString(titleIndex) ?: "Sem título",
             )

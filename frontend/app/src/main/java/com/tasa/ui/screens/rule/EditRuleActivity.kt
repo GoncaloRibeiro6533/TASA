@@ -24,7 +24,7 @@ class EditRuleActivity : ComponentActivity() {
         (application as DependenciesContainer).ruleScheduler
     }
 
-    private lateinit var rule: Rule
+    private lateinit var rule: RuleEvent
 
     private val viewModel by viewModels<EditRuleViewModel>(
         factoryProducer = {
@@ -80,7 +80,8 @@ class EditRuleActivity : ComponentActivity() {
                 endTime = endTime,
                 event =
                     Event(
-                        id = eventId,
+                        id = id,
+                        eventId = eventId,
                         calendarId = calendarId,
                         title = eventTitle,
                     ),
@@ -105,17 +106,15 @@ class EditRuleActivity : ComponentActivity() {
                 intent.getParcelableExtra("rule_location") as? RuleParcelableLocation
             }
 
-        if (ruleParcelableEvent == null && ruleParcelableLocation == null) {
+        if (ruleParcelableEvent == null) {
             navigateTo(this, HomePageActivity::class.java)
             finish()
             return
-        }
-        rule = ruleParcelableEvent?.toRuleEvent() ?: ruleParcelableLocation!!.toRuleLocation()
-        if (rule is RuleEvent) {
-            val r = rule as RuleEvent
+        } else {
+            rule = ruleParcelableEvent.toRuleEvent()
             viewModel.setEventTime(
-                eventId = r.event.id,
-                calendarId = r.event.calendarId,
+                eventId = rule.event.eventId,
+                calendarId = rule.event.calendarId,
                 activityContext = this,
             )
         }
@@ -129,6 +128,7 @@ class EditRuleActivity : ComponentActivity() {
                 onRuleUpdate = {
                         startTime, endTime ->
                     viewModel.updateRule(
+                        rule = rule,
                         newStartTime = startTime,
                         newEndTime = endTime,
                         activityContext = this,

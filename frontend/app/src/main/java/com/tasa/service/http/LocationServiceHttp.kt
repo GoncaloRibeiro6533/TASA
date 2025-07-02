@@ -15,30 +15,33 @@ import com.tasa.utils.success
 import io.ktor.client.HttpClient
 
 class LocationServiceHttp(private val client: HttpClient) : LocationService {
-    override suspend fun fetchLocations(): Either<ApiError, List<Location>> {
-        return when (val response = client.get<LocationList>("/location/all")) {
+    override suspend fun fetchLocations(token: String): Either<ApiError, List<Location>> {
+        return when (val response = client.get<LocationList>("/location/all", token = token)) {
             is Success -> success(response.value.locations)
             is Failure -> failure(response.value)
         }
     }
 
-    override suspend fun fetchLocationById(id: Int): Either<ApiError, Location> {
-        return when (val response = client.get<Location>("/location/$id")) {
+    override suspend fun fetchLocationById(
+        id: Int,
+        token: String,
+    ): Either<ApiError, Location> {
+        return when (val response = client.get<Location>("/location/$id", token = token)) {
             is Success -> success(response.value)
             is Failure -> failure(response.value)
         }
     }
 
-    override suspend fun fetchLocationByName(name: String): Either<ApiError, Location?> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun insertLocation(location: Location): Either<ApiError, Location> {
+    override suspend fun insertLocation(
+        location: Location,
+        token: String,
+    ): Either<ApiError, Location> {
         return when (
             val response =
                 client.post<Location>(
                     "/location/create",
                     body = location.toLocationInput(),
+                    token = token,
                 )
         ) {
             is Success -> success(response.value)
@@ -46,18 +49,13 @@ class LocationServiceHttp(private val client: HttpClient) : LocationService {
         }
     }
 
-    override suspend fun insertLocations(locations: List<Location>): Either<ApiError, List<Location>> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun deleteLocationById(id: Int): Either<ApiError, Unit> {
-        return when (val response = client.delete<Unit>("/location/remove/$id")) {
+    override suspend fun deleteLocationById(
+        id: Int,
+        token: String,
+    ): Either<ApiError, Unit> {
+        return when (val response = client.delete<Unit>("/location/remove/$id", token = token)) {
             is Success -> success(response.value)
             is Failure -> failure(response.value)
         }
-    }
-
-    override suspend fun deleteLocationByName(name: String): Either<ApiError, Unit> {
-        TODO("Not yet implemented")
     }
 }

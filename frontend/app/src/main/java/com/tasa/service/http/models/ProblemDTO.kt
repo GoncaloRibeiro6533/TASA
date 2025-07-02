@@ -1,12 +1,20 @@
 package com.tasa.service.http.models
 
-import com.tasa.domain.Problem
 import kotlinx.serialization.Serializable
 import java.net.URI
 
 @Serializable
 data class ProblemDTO(
     val type: String,
+    val title: String,
+    val status: Int,
+    val detail: String,
 ) {
-    fun toProblem() = Problem(URI(type))
+    fun toProblem() =
+        ProblemResponse(
+            type = URI.create(type).toString(),
+            title = title,
+            status = status,
+            detail = detail,
+        )
 }

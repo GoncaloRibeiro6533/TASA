@@ -63,4 +63,8 @@
     <string name="error_creating_rule">Ocurreu um erro ao criar a regra</string>
     <string name="error_on_editing_rule">Ocurrreu um erro ao editar a regra</string>
     <string name="event">Evento</string>
+    <string name="edit">Editar</string>
+    <string name="delete">Apagar</string>
+    <string name="time_based_rules">Temporais</string>
+    <string name="location_based_rules">Geográficas</string>
 </resources>

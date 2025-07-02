@@ -68,10 +68,15 @@ interface RuleLocationDao {
         endTime: LocalDateTime,
     ): Boolean
 
+    @Query("SELECT COUNT(*)> 0 FROM rule_location")
+    suspend fun hasRules(): Boolean
+
     @Query(
-        "SELECT rule_location.*, location.* FROM rule_location " +
-            "INNER JOIN location ON rule_location.locationName = location.name " +
-            "WHERE rule_location.geofenceId = :id",
+        """
+        SELECT rule_location.*, location.* FROM rule_location
+                INNER JOIN location ON rule_location.locationName = location.name 
+                WHERE rule_location.id = :id
+    """,
     )
-    suspend fun getRuleLocationByGeofenceId(id: Int): List<RuleLocationWithLocation>
+    fun fetchRuleLocationById(id: Int): RuleLocationWithLocation?
 }

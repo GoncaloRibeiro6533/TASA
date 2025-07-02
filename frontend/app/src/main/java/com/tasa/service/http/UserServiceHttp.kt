@@ -16,10 +16,6 @@ import com.tasa.utils.success
 import io.ktor.client.HttpClient
 
 class UserServiceHttp(private val client: HttpClient) : UserService {
-    override suspend fun updateUsername(newUsername: String): Either<ApiError, User> {
-        TODO()
-    }
-
     override suspend fun login(
         username: String,
         password: String,
@@ -52,26 +48,26 @@ class UserServiceHttp(private val client: HttpClient) : UserService {
             is Failure -> failure(response.value)
         }
 
-    override suspend fun findUserById(id: Int): Either<ApiError, User> {
-        return when (val response = client.get<User>("/user/$id")) {
+    override suspend fun findUserById(
+        id: Int,
+        token: String,
+    ): Either<ApiError, User> {
+        return when (val response = client.get<User>("/user/$id", token = token)) {
             is Success -> success(response.value)
             is Failure -> failure(response.value)
         }
     }
 
-    override suspend fun logout(): Either<ApiError, Unit> {
+    override suspend fun logout(token: String): Either<ApiError, Unit> {
         return when (
             val response =
                 client.post<Unit>(
                     url = "/user/logout",
+                    token = token,
                 )
         ) {
             is Success -> success(Unit)
             is Failure -> failure(response.value)
         }
-    }
-
-    override suspend fun findUserByUsername(query: String): Either<ApiError, List<User>> {
-        TODO()
     }
 }

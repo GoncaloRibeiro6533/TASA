@@ -17,12 +17,6 @@ import java.time.LocalDateTime
             childColumns = ["locationName"],
             // onDelete = ForeignKey.CASCADE
         ),
-        ForeignKey(
-            entity = GeofenceEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["geofenceId"],
-            // onDelete = ForeignKey.CASCADE
-        ),
     ],
 )
 data class RuleLocationEntity(
@@ -30,7 +24,6 @@ data class RuleLocationEntity(
     val startTime: LocalDateTime,
     val endTime: LocalDateTime,
     val locationName: String,
-    val geofenceId: Int,
 )
 
 data class RuleLocationWithLocation(

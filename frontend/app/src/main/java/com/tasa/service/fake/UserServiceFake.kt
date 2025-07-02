@@ -27,16 +27,10 @@ class UserServiceFake : UserService {
                 1 to "Strong_password123",
             )
 
-        private val token =
+        private val tokens =
             mutableMapOf<Int, String>(
                 1 to "token",
             )
-    }
-
-    override suspend fun updateUsername(newUsername: String): Either<ApiError, User> {
-        val result = users[0].copy(username = newUsername)
-        users[0] = result
-        return success(result)
     }
 
     override suspend fun login(
@@ -49,7 +43,7 @@ class UserServiceFake : UserService {
         if (passwords[user.id] != password) {
             return failure(ApiError("Invalid password"))
         }
-        val token = token[user.id] ?: return failure(ApiError("Token not found"))
+        val token = tokens[user.id] ?: return failure(ApiError("Token not found"))
         return success(
             LoginOutput(
                 user,
@@ -81,18 +75,16 @@ class UserServiceFake : UserService {
         return success(user)
     }
 
-    override suspend fun findUserById(id: Int): Either<ApiError, User> {
+    override suspend fun findUserById(
+        id: Int,
+        token: String,
+    ): Either<ApiError, User> {
         val user = users.find { it.id == id } ?: return Either.Left(ApiError("User not found"))
         return success(user)
     }
 
-    override suspend fun logout(): Either<ApiError, Unit> {
-        token.clear()
+    override suspend fun logout(token: String): Either<ApiError, Unit> {
+        tokens.clear()
         return success(Unit)
-    }
-
-    override suspend fun findUserByUsername(query: String): Either<ApiError, List<User>> {
-        val result = users.filter { it.username.contains(query, ignoreCase = true) }
-        return success(result)
     }
 }

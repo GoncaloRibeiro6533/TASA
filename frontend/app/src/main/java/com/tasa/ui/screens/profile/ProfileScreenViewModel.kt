@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.tasa.domain.ApiError
 import com.tasa.domain.UserInfoRepository
 import com.tasa.repository.TasaRepo
-import com.tasa.utils.Failure
 import com.tasa.utils.Success
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,7 +43,11 @@ class ProfileScreenViewModel(
             return viewModelScope.launch {
                 _screenState.value =
                     try {
-                        val userInfo = userRepo.getUserInfo() ?: throw Exception("User not authenticated")
+                        val userInfo = userRepo.getUserInfo()
+                        if (userInfo == null) {
+                            ProfileScreenState.Error(ApiError("User not found"))
+                            return@launch
+                        }
                         ProfileScreenState.Success(Profile(userInfo.username, userInfo.email))
                     } catch (e: Throwable) {
                         ProfileScreenState.Error(ApiError("Error fetching user"))
@@ -52,27 +55,6 @@ class ProfileScreenViewModel(
             }
         } else {
             return null
-        }
-    }
-
-    fun editUsername(newUsername: String) {
-        if (_screenState.value != ProfileScreenState.Loading) {
-            _screenState.value = ProfileScreenState.Loading
-            viewModelScope.launch {
-                _screenState.value =
-                    try {
-                        val user = repo.userRepo.changeUsername(newUsername)
-                        when (user) {
-                            is Success -> {
-                                userRepo.updateUserInfo(user.value)
-                                ProfileScreenState.Success(Profile(user.value.username, user.value.email))
-                            }
-                            is Failure -> ProfileScreenState.Error(user.value)
-                        }
-                    } catch (e: Throwable) {
-                        ProfileScreenState.Error(ApiError("Error updating username"))
-                    }
-            }
         }
     }
 

@@ -24,6 +24,7 @@ class RuleServiceFake : RuleService {
                     event =
                         Event(
                             id = 1,
+                            eventId = 1,
                             calendarId = 1,
                             title = "Event 1",
                         ),
@@ -48,11 +49,14 @@ class RuleServiceFake : RuleService {
             )
     }
 
-    override suspend fun fetchRules(): Either<ApiError, List<Rule>> {
+    override suspend fun fetchRules(token: String): Either<ApiError, List<Rule>> {
         return success(ruleLocations + ruleEvents)
     }
 
-    override suspend fun fetchRuleEventById(id: Int): Either<ApiError, RuleEvent> {
+    override suspend fun fetchRuleEventById(
+        id: Int,
+        token: String,
+    ): Either<ApiError, RuleEvent> {
         if (ruleEvents.isEmpty()) return failure(ApiError("RuleEvent not found"))
         val ruleEvent = ruleEvents.find { it.id == id }
         return if (ruleEvent != null) {
@@ -62,20 +66,10 @@ class RuleServiceFake : RuleService {
         }
     }
 
-    override suspend fun fetchRulesEventByCalendarIdAndEventId(
-        calendarId: Long,
-        eventId: Long,
-    ): Either<ApiError, List<RuleEvent>> {
-        if (ruleEvents.isEmpty()) return failure(ApiError("RuleEvent not found"))
-        val ruleEvent = ruleEvents.filter { it.event.calendarId == calendarId && it.event.id == eventId }
-        return if (ruleEvent.isNotEmpty()) {
-            success(ruleEvent)
-        } else {
-            failure(ApiError("RuleEvent not found"))
-        }
-    }
-
-    override suspend fun fetchRuleLocationById(id: Int): Either<ApiError, RuleLocation> {
+    override suspend fun fetchRuleLocationById(
+        id: Int,
+        token: String,
+    ): Either<ApiError, RuleLocation> {
         if (ruleLocations.isEmpty()) return failure(ApiError("RuleLocation not found"))
         val ruleLocation = ruleLocations.find { it.id == id }
         return if (ruleLocation != null) {
@@ -85,62 +79,28 @@ class RuleServiceFake : RuleService {
         }
     }
 
-    override suspend fun fetchRulesLocationByName(name: String): Either<ApiError, List<RuleLocation>> {
-        if (ruleLocations.isEmpty()) return failure(ApiError("RuleLocation not found"))
-        val ruleLocation = ruleLocations.filter { it.location.name == name }
-        return if (ruleLocation.isNotEmpty()) {
-            success(ruleLocation)
-        } else {
-            failure(ApiError("RuleLocation not found"))
-        }
-    }
-
-    override suspend fun fetchRulesByTime(
-        startTime: Long,
-        endTime: Long,
-    ): Either<ApiError, List<Rule>> {
-        val ruleEvents =
-            ruleEvents.filter {
-                it.startTime.toEpochSecond(null) >= startTime &&
-                    it.endTime.toEpochSecond(null) <= endTime
-            }
-        val ruleLocations =
-            ruleLocations.filter {
-                it.startTime.toEpochSecond(null) >= startTime &&
-                    it.endTime.toEpochSecond(null) <= endTime
-            }
-        return if (ruleEvents.isNotEmpty() || ruleLocations.isNotEmpty()) {
-            success(ruleEvents + ruleLocations)
-        } else {
-            failure(ApiError("Rule not found"))
-        }
-    }
-
-    override suspend fun insertRuleEvent(ruleEvent: RuleEvent): Either<ApiError, RuleEvent> {
+    override suspend fun insertRuleEvent(
+        ruleEvent: RuleEvent,
+        token: String,
+    ): Either<ApiError, RuleEvent> {
         val newRuleEvent = ruleEvent.copy(id = ++ruleEventId)
         ruleEvents.add(newRuleEvent)
         return success(newRuleEvent)
     }
 
-    override suspend fun insertRuleLocation(ruleLocation: RuleLocation): Either<ApiError, RuleLocation> {
+    override suspend fun insertRuleLocation(
+        ruleLocation: RuleLocation,
+        token: String,
+    ): Either<ApiError, RuleLocation> {
         val newRuleLocation = ruleLocation.copy(id = ++ruleLocationId)
         ruleLocations.add(newRuleLocation)
         return success(newRuleLocation)
     }
 
-    override suspend fun insertRuleEvents(ruleEvents: List<RuleEvent>): Either<ApiError, List<RuleEvent>> {
-        val newRuleEvents = ruleEvents.map { it.copy(id = ++ruleEventId) }
-        Companion.ruleEvents.addAll(newRuleEvents)
-        return success(newRuleEvents)
-    }
-
-    override suspend fun insertRuleLocations(ruleLocations: List<RuleLocation>): Either<ApiError, List<RuleLocation>> {
-        val newRuleLocations = ruleLocations.map { it.copy(id = ++ruleLocationId) }
-        Companion.ruleLocations.addAll(newRuleLocations)
-        return success(newRuleLocations)
-    }
-
-    override suspend fun deleteRuleEventById(id: Int): Either<ApiError, Unit> {
+    override suspend fun deleteRuleEventById(
+        id: Int,
+        token: String,
+    ): Either<ApiError, Unit> {
         val ruleEvent = ruleEvents.find { it.id == id }
         return if (ruleEvent != null) {
             ruleEvents.remove(ruleEvent)
@@ -150,7 +110,10 @@ class RuleServiceFake : RuleService {
         }
     }
 
-    override suspend fun deleteRuleLocationById(id: Int): Either<ApiError, Unit> {
+    override suspend fun deleteRuleLocationById(
+        id: Int,
+        token: String,
+    ): Either<ApiError, Unit> {
         val ruleLocation = ruleLocations.find { it.id == id }
         return if (ruleLocation != null) {
             ruleLocations.remove(ruleLocation)
@@ -160,7 +123,12 @@ class RuleServiceFake : RuleService {
         }
     }
 
-    override suspend fun updateRuleEvent(ruleEvent: RuleEvent): Either<ApiError, RuleEvent> {
+    override suspend fun updateRuleEvent(
+        ruleEvent: RuleEvent,
+        newStartTime: LocalDateTime,
+        newEndTime: LocalDateTime,
+        token: String,
+    ): Either<ApiError, RuleEvent> {
         val index = ruleEvents.indexOfFirst { it.id == ruleEvent.id }
         return if (index != -1) {
             ruleEvents[index] = ruleEvent
@@ -170,7 +138,12 @@ class RuleServiceFake : RuleService {
         }
     }
 
-    override suspend fun updateRuleLocation(ruleLocation: RuleLocation): Either<ApiError, RuleLocation> {
+    override suspend fun updateRuleLocation(
+        ruleLocation: RuleLocation,
+        newStartTime: LocalDateTime,
+        newEndTime: LocalDateTime,
+        token: String,
+    ): Either<ApiError, RuleLocation> {
         val index = ruleLocations.indexOfFirst { it.id == ruleLocation.id }
         return if (index != -1) {
             ruleLocations[index] = ruleLocation

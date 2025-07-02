@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.core.text.isDigitsOnly
 import com.tasa.R
 import com.tasa.ui.components.ErrorAlert
 import com.tasa.ui.components.LoadingView
@@ -84,7 +85,12 @@ fun MapScreen(
                 is MapsScreenState.Error -> {
                     ErrorAlert(
                         title = stringResource(R.string.error),
-                        message = stringResource(state.error),
+                        message =
+                            if (state.error.isDigitsOnly()) {
+                                stringResource(state.error.toInt())
+                            } else {
+                                state.error
+                            },
                         buttonText = stringResource(R.string.Ok),
                     ) {
                         onNavigationBack()

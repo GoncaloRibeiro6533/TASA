@@ -22,11 +22,14 @@ class LocationServiceFake : LocationService {
             )
     }
 
-    override suspend fun fetchLocations(): Either<ApiError, List<Location>> {
+    override suspend fun fetchLocations(token: String): Either<ApiError, List<Location>> {
         return success(locations)
     }
 
-    override suspend fun fetchLocationById(id: Int): Either<ApiError, Location> {
+    override suspend fun fetchLocationById(
+        id: Int,
+        token: String,
+    ): Either<ApiError, Location> {
         val location = locations.find { it.id == id }
         return if (location != null) {
             success(location)
@@ -35,16 +38,10 @@ class LocationServiceFake : LocationService {
         }
     }
 
-    override suspend fun fetchLocationByName(name: String): Either<ApiError, Location?> {
-        val location = locations.find { it.name == name }
-        return if (location != null) {
-            success(location)
-        } else {
-            Either.Left(ApiError("Location not found"))
-        }
-    }
-
-    override suspend fun insertLocation(location: Location): Either<ApiError, Location> {
+    override suspend fun insertLocation(
+        location: Location,
+        token: String,
+    ): Either<ApiError, Location> {
         val newLocation = location.copy(id = currentId++)
         if (locations.any { it.name == newLocation.name }) {
             return Either.Left(ApiError("Location with this name already exists"))
@@ -53,23 +50,11 @@ class LocationServiceFake : LocationService {
         return success(newLocation)
     }
 
-    override suspend fun insertLocations(locations: List<Location>): Either<ApiError, List<Location>> {
-        Companion.locations.addAll(locations.map { it.copy(id = currentId++) })
-        return success(Companion.locations.filter { it.id in locations.map { it.id } })
-    }
-
-    override suspend fun deleteLocationById(id: Int): Either<ApiError, Unit> {
+    override suspend fun deleteLocationById(
+        id: Int,
+        token: String,
+    ): Either<ApiError, Unit> {
         val location = locations.find { it.id == id }
-        return if (location != null) {
-            locations.remove(location)
-            success(Unit)
-        } else {
-            Either.Left(ApiError("Location not found"))
-        }
-    }
-
-    override suspend fun deleteLocationByName(name: String): Either<ApiError, Unit> {
-        val location = locations.find { it.name == name }
         return if (location != null) {
             locations.remove(location)
             success(Unit)

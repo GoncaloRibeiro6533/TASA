@@ -9,7 +9,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.tasa.R
 import com.tasa.alarm.AlarmScheduler
-import com.tasa.domain.RuleBase
+import com.tasa.domain.ApiError
+import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
 import com.tasa.domain.RuleLocationTimeless
@@ -18,6 +19,8 @@ import com.tasa.domain.toTriggerTime
 import com.tasa.geofence.GeofenceManager
 import com.tasa.location.LocationService
 import com.tasa.repository.TasaRepo
+import com.tasa.utils.Failure
+import com.tasa.utils.Success
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,7 +32,7 @@ sealed interface HomeScreenState {
 
     data object Loading : HomeScreenState
 
-    data class Success(val rules: StateFlow<List<RuleBase>>) : HomeScreenState
+    data class Success(val rules: StateFlow<List<Rule>>) : HomeScreenState
 
     data class Error(val error: Int) : HomeScreenState
 }
@@ -44,10 +47,9 @@ class HomePageScreenViewModel(
     private val _state = MutableStateFlow<HomeScreenState>(initialState)
     val state: StateFlow<HomeScreenState> = _state.asStateFlow()
 
-    private val _rules = MutableStateFlow<List<RuleBase>>(emptyList())
-    val rules: StateFlow<List<RuleBase>> = _rules.asStateFlow()
+    private val _rules = MutableStateFlow<List<Rule>>(emptyList())
+    val rules: StateFlow<List<Rule>> = _rules.asStateFlow()
 
-    /*
     fun onFatalError() {
         viewModelScope.launch {
             try {
@@ -58,15 +60,9 @@ class HomePageScreenViewModel(
                 repo.locationRepo.clear()
                 userInfo.clearUserInfo()
             } catch (e: Exception) {
-                repo.userRepo.clear()
-                repo.ruleRepo.clean()
-                repo.alarmRepo.clear()
-                repo.eventRepo.clear()
-                repo.locationRepo.clear()
-                userInfo.clearUserInfo()
             }
         }
-    }*/
+    }
 
     @RequiresPermission(
         allOf = [
@@ -90,9 +86,16 @@ class HomePageScreenViewModel(
         _state.value = HomeScreenState.Loading
         return viewModelScope.launch {
             try {
-                repo.ruleRepo.fetchAllRules().collect { stream ->
-                    _rules.value = stream
-                    _state.value = HomeScreenState.Success(rules)
+                when (val result = repo.ruleRepo.fetchAllRules()) {
+                    is Success ->
+                        result.value.collect { stream ->
+                            _rules.value = stream
+                            _state.value = HomeScreenState.Success(rules)
+                        }
+                    is Failure -> {
+                        val error: ApiError = result.value
+                        _state.value = HomeScreenState.Error(R.string.unexpected_error)
+                    }
                 }
             } catch (e: Throwable) {
                 _state.value =
@@ -102,7 +105,7 @@ class HomePageScreenViewModel(
     }
 
     fun cancelRule(
-        rule: RuleBase,
+        rule: Rule,
         context: Context,
     ) {
         viewModelScope.launch {
@@ -110,7 +113,7 @@ class HomePageScreenViewModel(
                 when (rule) {
                     is RuleEvent -> {
                         repo.ruleRepo.deleteRuleEventByEventIdAndCalendarIdAndStarTimeAndEndtime(
-                            rule.event.id,
+                            rule.event.eventId,
                             rule.event.calendarId,
                             rule.startTime,
                             rule.endTime,

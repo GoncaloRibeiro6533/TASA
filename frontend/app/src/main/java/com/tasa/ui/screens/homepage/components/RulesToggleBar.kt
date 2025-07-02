@@ -12,7 +12,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.tasa.R
 
 const val RULES_BAR = "rules_bar"
 
@@ -31,7 +33,7 @@ fun RulesToggleBar(
         horizontalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = "Rules Timed",
+            text = stringResource(R.string.time_based_rules),
             modifier =
                 Modifier
                     .clickable { onSelectTimed() }
@@ -46,7 +48,7 @@ fun RulesToggleBar(
         )
         Spacer(modifier = Modifier.width(24.dp))
         Text(
-            text = "Rules Location",
+            text = stringResource(R.string.location_based_rules),
             modifier =
                 Modifier
                     .clickable { onSelectLocation() }

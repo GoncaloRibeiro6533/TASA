@@ -98,10 +98,16 @@ class MyLocationsScreenViewModel(
                     return@launch
                 }
                 if (!collides) {
+                    val radius =
+                        if (location.radius < 100) {
+                            100f
+                        } else {
+                            location.radius.toFloat()
+                        }
                     geofenceManager.registerGeofence(
                         location.name,
                         location.toLocation(),
-                        location.radius.toFloat() + 50f,
+                        radius,
                     )
                     val id =
                         repo.geofenceRepo.createGeofence(
@@ -111,7 +117,6 @@ class MyLocationsScreenViewModel(
                         startTime,
                         endTime,
                         location,
-                        id.toInt(),
                     )
                     _state.value = MyLocationsScreenState.Success(_locations)
                     _successMessage.value = R.string.rule_created_successfully

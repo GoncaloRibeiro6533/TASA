@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.tasa.domain.ApiError
 import com.tasa.domain.UserInfoRepository
 import com.tasa.repository.TasaRepo
-import com.tasa.service.TasaService
 import com.tasa.utils.Failure
 import com.tasa.utils.Success
 import kotlinx.coroutines.launch
@@ -26,7 +25,6 @@ sealed class MenuScreenState {
 
 class MenuViewModel(
     private val userInfo: UserInfoRepository,
-    private val service: TasaService,
     private val repo: TasaRepo,
     initialState: MenuScreenState = MenuScreenState.Idle,
 ) : ViewModel() {
@@ -39,7 +37,7 @@ class MenuViewModel(
         viewModelScope.launch {
             state =
                 try {
-                    when (service.userService.logout()) {
+                    when (repo.userRepo.logout()) {
                         is Success -> {
                             repo.ruleRepo.clean()
                             repo.locationRepo.clear()
@@ -76,13 +74,11 @@ class MenuViewModel(
 @Suppress("UNCHECKED_CAST")
 class MenuViewModelFactory(
     private val userInfo: UserInfoRepository,
-    private val service: TasaService,
     private val repo: TasaRepo,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return MenuViewModel(
             userInfo,
-            service,
             repo,
         ) as T
     }

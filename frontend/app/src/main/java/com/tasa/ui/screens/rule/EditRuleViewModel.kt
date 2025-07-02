@@ -10,9 +10,7 @@ import com.tasa.R
 import com.tasa.alarm.AlarmScheduler
 import com.tasa.domain.Action
 import com.tasa.domain.CalendarEvent
-import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
-import com.tasa.domain.RuleLocation
 import com.tasa.domain.toLocalDateTime
 import com.tasa.domain.toTriggerTime
 import com.tasa.repository.TasaRepo
@@ -31,7 +29,7 @@ sealed class EditRuleState {
         val newEndTime: LocalDateTime,
     ) : EditRuleState()
 
-    data class Success(val rule: Rule) : EditRuleState()
+    data class Success(val rule: RuleEvent) : EditRuleState()
 
     data class Error(val error: Int) : EditRuleState()
 
@@ -41,7 +39,7 @@ sealed class EditRuleState {
 class EditRuleViewModel(
     private val repo: TasaRepo,
     private val alarmScheduler: AlarmScheduler,
-    private val rule: Rule,
+    private val rule: RuleEvent,
     initialState: EditRuleState = EditRuleState.Uninitialized,
 ) : ViewModel() {
     private val _state = MutableStateFlow<EditRuleState>(initialState)
@@ -73,7 +71,7 @@ class EditRuleViewModel(
     }
 
     fun updateRule(
-        rule: Rule = this.rule,
+        rule: RuleEvent,
         newStartTime: LocalDateTime,
         newEndTime: LocalDateTime,
         activityContext: Context,
@@ -84,68 +82,68 @@ class EditRuleViewModel(
             try {
                 val isCollision = repo.ruleRepo.isCollisionWithAnother(rule, newStartTime, newEndTime)
                 if (!isCollision) {
-                    when (rule) {
-                        is RuleLocation -> {
+                    // when (rule) {
+                        /*is RuleLocation -> {
                             // TODO
-                        }
-                        is RuleEvent -> {
-                            if (!newStartTime.isAfter(newEndTime) &&
-                                !toInterval(newStartTime, newEndTime)
-                                    .isWithin(toInterval(rule.startTime, rule.endTime))
-                            ) {
-                                _state.value = EditRuleState.Error(R.string.new_time_is_not_on_event_time)
-                                return@launch
-                            }
-                            repo.ruleRepo.updateRuleEvent(
-                                rule.id,
-                                newStartTime,
-                                newEndTime,
-                                rule.startTime,
-                                rule.endTime,
-                            )
-                            val alarmStart =
-                                repo.alarmRepo.getAlarmByTriggerTime(
-                                    rule.startTime.toTriggerTime().value,
-                                )
-                            val alarmEnd =
-                                repo.alarmRepo.getAlarmByTriggerTime(
-                                    rule.endTime.toTriggerTime().value,
-                                )
-                            if (alarmStart == null || alarmEnd == null) {
-                                alarmScheduler.scheduleAlarm(
-                                    newStartTime.toTriggerTime(),
-                                    Action.MUTE,
-                                    activityContext,
-                                )
-                                alarmScheduler.scheduleAlarm(
-                                    newEndTime.toTriggerTime(),
-                                    Action.UNMUTE,
-                                    activityContext,
-                                )
-                            } else {
-                                alarmScheduler.updateAlarm(
-                                    alarmStart.id,
-                                    newStartTime.toTriggerTime(),
-                                    alarmStart.action,
-                                    activityContext,
-                                )
-                                alarmScheduler.updateAlarm(
-                                    alarmEnd.id,
-                                    newEndTime.toTriggerTime(),
-                                    alarmEnd.action,
-                                    activityContext,
-                                )
-                            }
-                            _state.value =
-                                EditRuleState.Success(
-                                    rule.copy(
-                                        startTime = newStartTime,
-                                        endTime = newEndTime,
-                                    ),
-                                )
-                        }
+                        }*/
+                    //  is RuleEvent -> {
+                    if (!newStartTime.isAfter(newEndTime) &&
+                        !toInterval(newStartTime, newEndTime)
+                            .isWithin(toInterval(rule.startTime, rule.endTime))
+                    ) {
+                        _state.value = EditRuleState.Error(R.string.new_time_is_not_on_event_time)
+                        return@launch
                     }
-                } else {
+                    repo.ruleRepo.updateRuleEvent(
+                        rule.id,
+                        newStartTime,
+                        newEndTime,
+                        rule.startTime,
+                        rule.endTime,
+                    )
+                    val alarmStart =
+                        repo.alarmRepo.getAlarmByTriggerTime(
+                            rule.startTime.toTriggerTime().value,
+                        )
+                    val alarmEnd =
+                        repo.alarmRepo.getAlarmByTriggerTime(
+                            rule.endTime.toTriggerTime().value,
+                        )
+                    if (alarmStart == null || alarmEnd == null) {
+                        alarmScheduler.scheduleAlarm(
+                            newStartTime.toTriggerTime(),
+                            Action.MUTE,
+                            activityContext,
+                        )
+                        alarmScheduler.scheduleAlarm(
+                            newEndTime.toTriggerTime(),
+                            Action.UNMUTE,
+                            activityContext,
+                        )
+                    } else {
+                        alarmScheduler.updateAlarm(
+                            alarmStart.id,
+                            newStartTime.toTriggerTime(),
+                            alarmStart.action,
+                            activityContext,
+                        )
+                        alarmScheduler.updateAlarm(
+                            alarmEnd.id,
+                            newEndTime.toTriggerTime(),
+                            alarmEnd.action,
+                            activityContext,
+                        )
+                    }
+                    _state.value =
+                        EditRuleState.Success(
+                            rule.copy(
+                                startTime = newStartTime,
+                                endTime = newEndTime,
+                            ),
+                        )
+                }
+                // }
+                else {
                     _state.value = EditRuleState.Error(R.string.rule_already_exists_for_this_time)
                 }
             } catch (ex: Throwable) {
@@ -227,7 +225,7 @@ class EditRuleViewModel(
 class EditRuleViewModelFactory(
     private val repo: TasaRepo,
     private val alarmScheduler: AlarmScheduler,
-    private val rule: Rule,
+    private val rule: RuleEvent,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return EditRuleViewModel(

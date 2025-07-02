@@ -32,7 +32,7 @@ import com.tasa.storage.entities.UserEntity
         GeofenceEntity::class,
         RuleLocationTimelessEntity::class,
     ],
-    version = 10,
+    version = 11,
 )
 @TypeConverters(Converters::class)
 abstract class TasaDB : RoomDatabase() {

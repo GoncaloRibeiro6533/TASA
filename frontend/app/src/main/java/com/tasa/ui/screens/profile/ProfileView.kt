@@ -17,17 +17,14 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -172,7 +169,7 @@ fun ProfileDetails(
                         .testTag(USERNAME_TEXT_TAG),
             )
             Spacer(modifier = Modifier.width(8.dp))
-            IconButton(
+           /* IconButton(
                 onClick = onEditUsernameClick,
                 modifier =
                     Modifier
@@ -186,7 +183,7 @@ fun ProfileDetails(
                     modifier = Modifier.size(20.dp),
                     tint = MaterialTheme.colorScheme.primary,
                 )
-            }
+            }*/
         }
     }
     Spacer(modifier = Modifier.height(16.dp))
