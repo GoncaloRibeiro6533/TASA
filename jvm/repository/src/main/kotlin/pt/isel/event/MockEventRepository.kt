@@ -1,8 +1,8 @@
 package pt.isel.event
 
-import kotlinx.datetime.LocalDateTime
 import pt.isel.Event
 import pt.isel.User
+import java.time.LocalDateTime
 
 class MockEventRepository : EventRepository {
     companion object {

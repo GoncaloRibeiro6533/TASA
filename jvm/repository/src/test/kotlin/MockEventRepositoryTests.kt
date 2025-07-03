@@ -1,4 +1,5 @@
 
+import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import org.junit.jupiter.api.BeforeEach
 import pt.isel.Event
@@ -11,8 +12,8 @@ import kotlin.test.assertIs
 class MockEventRepositoryTests {
     private val repo = MockEventRepository()
 
-    private val startTime = "2025-10-01T10:00".toLocalDateTime()
-    private val endTime = "2025-10-01T11:00".toLocalDateTime()
+    private val startTime = "2025-10-01T10:00".toLocalDateTime().toJavaLocalDateTime()
+    private val endTime = "2025-10-01T11:00".toLocalDateTime().toJavaLocalDateTime()
 
     private val event =
         Event(
@@ -54,8 +55,8 @@ class MockEventRepositoryTests {
             Event(
                 id = 2,
                 title = "Test Event 2",
-                startTime = "2025-10-01T12:00".toLocalDateTime(),
-                endTime = "2025-10-01T13:00".toLocalDateTime(),
+                startTime = "2025-10-01T12:00".toLocalDateTime().toJavaLocalDateTime(),
+                endTime = "2025-10-01T13:00".toLocalDateTime().toJavaLocalDateTime(),
             )
         val result = repo.create(event.title, user, event.startTime, event.endTime)
         val result2 = repo.create(event2.title, user, event2.startTime, event2.endTime)
@@ -71,8 +72,8 @@ class MockEventRepositoryTests {
             Event(
                 id = 2,
                 title = "Test Event 2",
-                startTime = "2025-10-01T12:00".toLocalDateTime(),
-                endTime = "2025-10-01T13:00".toLocalDateTime(),
+                startTime = "2025-10-01T12:00".toLocalDateTime().toJavaLocalDateTime(),
+                endTime = "2025-10-01T13:00".toLocalDateTime().toJavaLocalDateTime(),
             )
         val eventResult = repo.create(event.title, user, event.startTime, event.endTime)
         assertIs<Event>(eventResult)

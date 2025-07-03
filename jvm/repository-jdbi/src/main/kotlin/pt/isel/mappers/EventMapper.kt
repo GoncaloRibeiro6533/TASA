@@ -1,6 +1,5 @@
 package pt.isel.mappers
 
-import kotlinx.datetime.toKotlinLocalDateTime
 import org.jdbi.v3.core.mapper.RowMapper
 import org.jdbi.v3.core.statement.StatementContext
 import pt.isel.Event
@@ -14,8 +13,8 @@ class EventMapper : RowMapper<Event> {
         return Event(
             id = rs.getInt("id"),
             title = rs.getString("title"),
-            startTime = rs.getTimestamp("start_time").toLocalDateTime().toKotlinLocalDateTime(),
-            endTime = rs.getTimestamp("end_time").toLocalDateTime().toKotlinLocalDateTime(),
+            startTime = rs.getTimestamp("start_time").toLocalDateTime(),
+            endTime = rs.getTimestamp("end_time").toLocalDateTime(),
         )
     }
 }

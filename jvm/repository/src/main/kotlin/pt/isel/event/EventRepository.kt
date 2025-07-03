@@ -1,8 +1,8 @@
 package pt.isel.event
 
-import kotlinx.datetime.LocalDateTime
 import pt.isel.Event
 import pt.isel.User
+import java.time.LocalDateTime
 
 /**
  * Interface that defines the operations that can be done on the Event repository.

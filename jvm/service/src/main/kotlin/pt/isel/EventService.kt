@@ -1,8 +1,8 @@
 package pt.isel
 
 import jakarta.inject.Named
-import kotlinx.datetime.LocalDateTime
 import pt.isel.transaction.TransactionManager
+import java.time.LocalDateTime
 
 /**
  * Represents the possible errors that can occur when creating, updating, deleting or retrieving events.

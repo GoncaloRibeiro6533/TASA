@@ -1,7 +1,7 @@
 package pt.isel.models.rule
 
-import kotlinx.datetime.LocalDateTime
 import pt.isel.Event
+import java.time.LocalDateTime
 
 data class RuleEventOutput(
     val id: Int,

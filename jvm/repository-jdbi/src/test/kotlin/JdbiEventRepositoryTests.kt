@@ -1,3 +1,4 @@
+import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.Jdbi
@@ -44,7 +45,6 @@ class JdbiEventRepositoryTests {
     fun `should create an event`() {
         runWithHandle { handle ->
             val userRepo = JdbiUserRepository(handle)
-            val sessionRepo = JdbiSessionRepository(handle)
             val eventRepo = JdbiEventRepository(handle)
 
             val user = userRepo.createUser("username", "user@example.com", "password")
@@ -52,8 +52,8 @@ class JdbiEventRepositoryTests {
                 eventRepo.create(
                     title = "Test Event",
                     user = user,
-                    startTime = "2025-10-01T10:00".toLocalDateTime(),
-                    endTime = "2025-10-01T11:00".toLocalDateTime(),
+                    startTime = "2025-10-01T10:00".toLocalDateTime().toJavaLocalDateTime(),
+                    endTime = "2025-10-01T11:00".toLocalDateTime().toJavaLocalDateTime(),
                 )
             val createdEvent = eventRepo.findById(event.id)
             assertNotNull(createdEvent)
@@ -68,7 +68,6 @@ class JdbiEventRepositoryTests {
     fun `should find an event by id`() {
         runWithHandle { handle ->
             val userRepo = JdbiUserRepository(handle)
-            val sessionRepo = JdbiSessionRepository(handle)
             val eventRepo = JdbiEventRepository(handle)
 
             val user = userRepo.createUser("username", "user@example.com", "password")
@@ -76,8 +75,8 @@ class JdbiEventRepositoryTests {
                 eventRepo.create(
                     title = "Test Event",
                     user = user,
-                    startTime = "2025-10-01T10:00".toLocalDateTime(),
-                    endTime = "2025-10-01T11:00".toLocalDateTime(),
+                    startTime = "2025-10-01T10:00".toLocalDateTime().toJavaLocalDateTime(),
+                    endTime = "2025-10-01T11:00".toLocalDateTime().toJavaLocalDateTime(),
                 )
             val foundEvent = eventRepo.findById(event.id)
             assertNotNull(foundEvent)
@@ -92,7 +91,6 @@ class JdbiEventRepositoryTests {
     fun `should update an event`() {
         runWithHandle { handle ->
             val userRepo = JdbiUserRepository(handle)
-            val sessionRepo = JdbiSessionRepository(handle)
             val eventRepo = JdbiEventRepository(handle)
 
             val user = userRepo.createUser("username", "user@example.com", "password")
@@ -100,8 +98,8 @@ class JdbiEventRepositoryTests {
                 eventRepo.create(
                     title = "Test Event",
                     user = user,
-                    startTime = "2025-10-01T10:00".toLocalDateTime(),
-                    endTime = "2025-10-01T11:00".toLocalDateTime(),
+                    startTime = "2025-10-01T10:00".toLocalDateTime().toJavaLocalDateTime(),
+                    endTime = "2025-10-01T11:00".toLocalDateTime().toJavaLocalDateTime(),
                 )
             val updatedEvent =
                 eventRepo.update(
@@ -124,7 +122,6 @@ class JdbiEventRepositoryTests {
     fun `should delete an event`() {
         runWithHandle { handle ->
             val userRepo = JdbiUserRepository(handle)
-            val sessionRepo = JdbiSessionRepository(handle)
             val eventRepo = JdbiEventRepository(handle)
 
             val user = userRepo.createUser("username", "user@example.com", "password")
@@ -132,8 +129,8 @@ class JdbiEventRepositoryTests {
                 eventRepo.create(
                     title = "Test Event",
                     user = user,
-                    startTime = "2025-10-01T10:00".toLocalDateTime(),
-                    endTime = "2025-10-01T11:00".toLocalDateTime(),
+                    startTime = "2025-10-01T10:00".toLocalDateTime().toJavaLocalDateTime(),
+                    endTime = "2025-10-01T11:00".toLocalDateTime().toJavaLocalDateTime(),
                 )
             val deleted = eventRepo.delete(event = event, user = user)
             assertEquals(true, deleted)
@@ -146,21 +143,20 @@ class JdbiEventRepositoryTests {
     fun `should find all events for a user`() {
         runWithHandle { handle ->
             val userRepo = JdbiUserRepository(handle)
-            val sessionRepo = JdbiSessionRepository(handle)
             val eventRepo = JdbiEventRepository(handle)
 
             val user = userRepo.createUser("username", "user@example.com", "password")
             eventRepo.create(
                 title = "Event 1",
                 user = user,
-                startTime = "2025-10-01T10:00".toLocalDateTime(),
-                endTime = "2025-10-01T11:00".toLocalDateTime(),
+                startTime = "2025-10-01T10:00".toLocalDateTime().toJavaLocalDateTime(),
+                endTime = "2025-10-01T11:00".toLocalDateTime().toJavaLocalDateTime(),
             )
             eventRepo.create(
                 title = "Event 2",
                 user = user,
-                startTime = "2025-10-01T12:00".toLocalDateTime(),
-                endTime = "2025-10-01T13:00".toLocalDateTime(),
+                startTime = "2025-10-01T12:00".toLocalDateTime().toJavaLocalDateTime(),
+                endTime = "2025-10-01T13:00".toLocalDateTime().toJavaLocalDateTime(),
             )
             val events = eventRepo.findByUserId(user)
             assertEquals(2, events.size)
@@ -173,15 +169,14 @@ class JdbiEventRepositoryTests {
     fun `should delete event`() {
         runWithHandle { handle ->
             val userRepo = JdbiUserRepository(handle)
-            val sessionRepo = JdbiSessionRepository(handle)
             val eventRepo = JdbiEventRepository(handle)
             val user = userRepo.createUser("username", "user@example.com", "password")
             val event =
                 eventRepo.create(
                     title = "Test Event",
                     user = user,
-                    startTime = "2025-10-01T10:00".toLocalDateTime(),
-                    endTime = "2025-10-01T11:00".toLocalDateTime(),
+                    startTime = "2025-10-01T10:00".toLocalDateTime().toJavaLocalDateTime(),
+                    endTime = "2025-10-01T11:00".toLocalDateTime().toJavaLocalDateTime(),
                 )
             val deleted = eventRepo.delete(event = event, user = user)
             assertEquals(true, deleted)
@@ -194,14 +189,13 @@ class JdbiEventRepositoryTests {
     fun `should clear repository`() {
         runWithHandle { handle ->
             val userRepo = JdbiUserRepository(handle)
-            val sessionRepo = JdbiSessionRepository(handle)
             val eventRepo = JdbiEventRepository(handle)
             val user = userRepo.createUser("username", "user@example.com", "password")
             eventRepo.create(
                 title = "Test Event",
                 user = user,
-                startTime = "2025-10-01T10:00".toLocalDateTime(),
-                endTime = "2025-10-01T11:00".toLocalDateTime(),
+                startTime = "2025-10-01T10:00".toLocalDateTime().toJavaLocalDateTime(),
+                endTime = "2025-10-01T11:00".toLocalDateTime().toJavaLocalDateTime(),
             )
             eventRepo.clear()
             val events = eventRepo.findByUserId(user)

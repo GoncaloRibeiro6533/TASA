@@ -1,9 +1,8 @@
 package pt.isel
 
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.toJavaLocalDateTime
 import org.jdbi.v3.core.Handle
 import pt.isel.event.EventRepository
+import java.time.LocalDateTime
 
 class JdbiEventRepository(
     private val handle: Handle,
@@ -21,8 +20,8 @@ class JdbiEventRepository(
                 VALUES (:title, :userId, :startTime, :endTime)
                 """.trimIndent(),
             )
-                .bind("startTime", startTime.toJavaLocalDateTime())
-                .bind("endTime", endTime.toJavaLocalDateTime())
+                .bind("startTime", startTime)
+                .bind("endTime", endTime)
                 .bind("title", title)
                 .bind("userId", user.id).executeAndReturnGeneratedKeys()
                 .mapTo(Int::class.java).one()

@@ -1,6 +1,6 @@
 package pt.isel.models.event
 
-import kotlinx.datetime.LocalDateTime
+import java.time.LocalDateTime
 
 data class EventInput(
     val title: String,

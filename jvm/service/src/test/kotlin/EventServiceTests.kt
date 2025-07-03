@@ -1,3 +1,4 @@
+import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import org.jdbi.v3.core.Jdbi
 import org.junit.jupiter.params.ParameterizedTest
@@ -86,8 +87,8 @@ class EventServiceTests {
             eventService.createEvent(
                 title = "Test Event",
                 userId = user.value.id,
-                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
-                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
+                startTime = "2025-11-01T00:00:00".toLocalDateTime().toJavaLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime().toJavaLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
@@ -105,8 +106,8 @@ class EventServiceTests {
             eventService.createEvent(
                 title = "",
                 userId = user.value.id,
-                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
-                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
+                startTime = "2025-11-01T00:00:00".toLocalDateTime().toJavaLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime().toJavaLocalDateTime(),
             )
         assertTrue(event is Failure)
         assertIs<EventError.EventNameCannotBeBlank>(event.value)
@@ -124,8 +125,8 @@ class EventServiceTests {
             eventService.createEvent(
                 title = "Test Event",
                 userId = user.value.id,
-                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
-                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
+                startTime = "2025-11-01T00:00:00".toLocalDateTime().toJavaLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime().toJavaLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
@@ -133,8 +134,8 @@ class EventServiceTests {
             eventService.createEvent(
                 title = "Test Event",
                 userId = user.value.id,
-                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
-                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
+                startTime = "2025-11-01T00:00:00".toLocalDateTime().toJavaLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime().toJavaLocalDateTime(),
             )
         assertTrue(sut is Failure)
         assertIs<EventError.AlreadyExists>(sut.value)
@@ -148,8 +149,8 @@ class EventServiceTests {
             eventService.createEvent(
                 title = "Test Event",
                 userId = 99999,
-                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
-                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
+                startTime = "2025-11-01T00:00:00".toLocalDateTime().toJavaLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime().toJavaLocalDateTime(),
             )
         assertTrue(event is Failure)
         assertIs<EventError.UserNotFound>(event.value)
@@ -167,8 +168,8 @@ class EventServiceTests {
             eventService.createEvent(
                 title = "Test Event",
                 userId = user.value.id,
-                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
-                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
+                startTime = "2025-11-01T00:00:00".toLocalDateTime().toJavaLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime().toJavaLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
@@ -214,8 +215,8 @@ class EventServiceTests {
             eventService.createEvent(
                 title = "Test Event",
                 userId = user.value.id,
-                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
-                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
+                startTime = "2025-11-01T00:00:00".toLocalDateTime().toJavaLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime().toJavaLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
@@ -241,8 +242,8 @@ class EventServiceTests {
             eventService.createEvent(
                 title = "Test Event",
                 userId = user.value.id,
-                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
-                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
+                startTime = "2025-11-01T00:00:00".toLocalDateTime().toJavaLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime().toJavaLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
@@ -286,8 +287,8 @@ class EventServiceTests {
             eventService.createEvent(
                 title = "Test Event",
                 userId = user.value.id,
-                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
-                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
+                startTime = "2025-11-01T00:00:00".toLocalDateTime().toJavaLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime().toJavaLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
@@ -328,8 +329,8 @@ class EventServiceTests {
             eventService.createEvent(
                 title = "Test Event",
                 userId = user.value.id,
-                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
-                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
+                startTime = "2025-11-01T00:00:00".toLocalDateTime().toJavaLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime().toJavaLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
@@ -355,8 +356,8 @@ class EventServiceTests {
             eventService.createEvent(
                 title = "Test Event",
                 userId = user.value.id,
-                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
-                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
+                startTime = "2025-11-01T00:00:00".toLocalDateTime().toJavaLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime().toJavaLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
@@ -381,8 +382,8 @@ class EventServiceTests {
             eventService.createEvent(
                 title = "Test Event",
                 userId = user.value.id,
-                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
-                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
+                startTime = "2025-11-01T00:00:00".toLocalDateTime().toJavaLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime().toJavaLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)
@@ -407,8 +408,8 @@ class EventServiceTests {
             eventService.createEvent(
                 title = "Test Event",
                 userId = user.value.id,
-                startTime = "2025-11-01T00:00:00".toLocalDateTime(),
-                endTime = "2025-11-01T01:00:00".toLocalDateTime(),
+                startTime = "2025-11-01T00:00:00".toLocalDateTime().toJavaLocalDateTime(),
+                endTime = "2025-11-01T01:00:00".toLocalDateTime().toJavaLocalDateTime(),
             )
         assertTrue(event is Success)
         assertIs<Event>(event.value)

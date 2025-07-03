@@ -1,13 +1,14 @@
 package pt.isel
 
+import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import org.junit.jupiter.api.Assertions.assertEquals
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 class EventTests {
-    private val startTime = "2025-10-01T10:00".toLocalDateTime()
-    private val endTime = "2025-10-01T11:00".toLocalDateTime()
+    private val startTime = "2025-10-01T10:00".toLocalDateTime().toJavaLocalDateTime()
+    private val endTime = "2025-10-01T11:00".toLocalDateTime().toJavaLocalDateTime()
 
     @Test
     fun `event creation succeeds`() {
