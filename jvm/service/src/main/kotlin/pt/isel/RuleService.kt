@@ -1,8 +1,8 @@
 package pt.isel
 
 import jakarta.inject.Named
-import kotlinx.datetime.LocalDateTime
 import pt.isel.transaction.TransactionManager
+import java.time.LocalDateTime
 
 /**
  * Represents the possible errors that can occur while applying or validating rules.
@@ -78,7 +78,7 @@ class RuleService(
                 return@run failure(RuleError.StartTimeMustBeBeforeEndTime)
             }
             val user = userRepo.findById(userId) ?: return@run failure(RuleError.UserNotFound)
-            if (ruleRepo.findByUserId(user).any {
+            if (ruleRepo.findByUserId(user).filterIsInstance<RuleEvent>().any {
                     checkCollisionTime(
                         it.startTime,
                         it.endTime,
@@ -110,34 +110,19 @@ class RuleService(
      *
      * @param userId the ID of the user for whom the rule is being created
      * @param title the title of the location rule
-     * @param startTime the start time of the rule
-     * @param endTime the end time of the rule
      * @param name the name of the location
-     * @param latitude the latitude of the location
-     * @param longitude the longitude of the location
-     * @param radius the radius around the location
      * @return an [Either] instance containing either the created [RuleLocation] wrapped in [Either.Right]
      *         or an instance of [RuleError] wrapped in [Either.Left] if validation fails
      */
     fun createLocationRule(
         userId: Int,
-        startTime: LocalDateTime,
-        endTime: LocalDateTime,
         locationId: Int,
     ): Either<RuleError, RuleLocation> =
         trxManager.run {
-            if (startTime > endTime || startTime == endTime) {
-                return@run failure(RuleError.StartTimeMustBeBeforeEndTime)
-            }
             if (userId < 0) return@run failure(RuleError.NegativeIdentifier)
             val user = userRepo.findById(userId) ?: return@run failure(RuleError.UserNotFound)
-            if (ruleRepo.findByUserId(user).any {
-                    checkCollisionTime(
-                        it.startTime,
-                        it.endTime,
-                        startTime,
-                        endTime,
-                    )
+            if (ruleRepo.findByUserId(user).filterIsInstance<RuleLocation>().any {
+                    it.location.id == locationId
                 }
             ) {
                 return@run failure(RuleError.RuleAlreadyExistsForGivenTime)
@@ -150,8 +135,6 @@ class RuleService(
                 ruleRepo.createLocationRule(
                     location,
                     user,
-                    startTime,
-                    endTime,
                 )
             success(rule)
         }
@@ -231,7 +214,7 @@ class RuleService(
             if (userId < 0 || ruleId < 0) return@run failure(RuleError.NegativeIdentifier)
             val user = userRepo.findById(userId) ?: return@run failure(RuleError.UserNotFound)
             val rule = ruleRepo.findRuleEventById(ruleId) ?: return@run failure(RuleError.RuleNotFound)
-            val userRules = ruleRepo.findByUserId(user)
+            val userRules = ruleRepo.findByUserId(user).filterIsInstance<RuleEvent>()
             if (userRules.any {
                     it.id != ruleId &&
                         checkCollisionTime(
@@ -246,44 +229,6 @@ class RuleService(
             }
             if (rule.creator != user) return@run failure(RuleError.NotAllowed)
             val updatedRule = ruleRepo.updateRuleEvent(rule, startTime, endTime)
-            return@run success(updatedRule)
-        }
-
-    /**
-     * Updates the specified location rule with new start and end times.
-     *
-     * @param userId the ID of the user who owns the rule
-     * @param ruleId the ID of the rule to be updated
-     * @param startTime the new start time for the rule
-     * @param endTime the new end time for the rule
-     * @return an [Either] instance containing either the updated [RuleLocation] wrapped in [Either.Right]
-     *        or an instance of [RuleError] wrapped in [Either.Left] if any validation fails.
-     */
-    fun updateLocationRule(
-        userId: Int,
-        ruleId: Int,
-        startTime: LocalDateTime,
-        endTime: LocalDateTime,
-    ): Either<RuleError, RuleLocation> =
-        trxManager.run {
-            if (startTime >= endTime) return@run failure(RuleError.StartTimeMustBeBeforeEndTime)
-            if (userId < 0 || ruleId < 0) return@run failure(RuleError.NegativeIdentifier)
-            val user = userRepo.findById(userId) ?: return@run failure(RuleError.UserNotFound)
-            val rule = ruleRepo.findRuleLocationById(ruleId) ?: return@run failure(RuleError.RuleNotFound)
-            if (rule.creator != user) return@run failure(RuleError.NotAllowed)
-            if (ruleRepo.findByUserId(user).any {
-                    it.id != ruleId &&
-                        checkCollisionTime(
-                            it.startTime,
-                            it.endTime,
-                            startTime,
-                            endTime,
-                        )
-                }
-            ) {
-                return@run failure(RuleError.RuleAlreadyExistsForGivenTime)
-            }
-            val updatedRule = ruleRepo.updateRuleLocation(rule, startTime, endTime)
             return@run success(updatedRule)
         }
 

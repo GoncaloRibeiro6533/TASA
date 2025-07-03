@@ -1,4 +1,5 @@
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.Jdbi
@@ -48,19 +49,13 @@ class JdbiRulesRepositoryTests {
             val ruleRepo = JdbiRuleRepository(handle)
             val locationRepo = JdbiLocationRepository(handle)
             val location = locationRepo.create("Test Location", 30.0, 10.0, 100.0, user)
-            val startTime = testClock.now().plus(2.days).toLocalDateTime(TimeZone.currentSystemDefault())
-            val endTime = testClock.now().plus(3.days).toLocalDateTime(TimeZone.currentSystemDefault())
             val rule =
                 ruleRepo.createLocationRule(
                     location = location,
                     user = user,
-                    startTime = startTime,
-                    endTime = endTime,
                 )
             assertEquals(location.id, rule.location.id)
             assertEquals(user.id, rule.creator.id)
-            assertEquals(startTime, rule.startTime)
-            assertEquals(endTime, rule.endTime)
         }
     }
 
@@ -71,9 +66,15 @@ class JdbiRulesRepositoryTests {
             val user = userRepo.createUser("username", "user@example.com", "password")
             val ruleRepo = JdbiRuleRepository(handle)
             val eventRepo = JdbiEventRepository(handle)
-            val event = eventRepo.create("Test Event", user, "2025-10-01T10:00".toLocalDateTime(), "2025-10-01T11:00".toLocalDateTime())
-            val startTime = testClock.now().plus(2.days).toLocalDateTime(TimeZone.currentSystemDefault())
-            val endTime = testClock.now().plus(3.days).toLocalDateTime(TimeZone.currentSystemDefault())
+            val event =
+                eventRepo.create(
+                    "Test Event",
+                    user,
+                    "2025-10-01T10:00".toLocalDateTime().toJavaLocalDateTime(),
+                    "2025-10-01T11:00".toLocalDateTime().toJavaLocalDateTime(),
+                )
+            val startTime = testClock.now().plus(2.days).toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime()
+            val endTime = testClock.now().plus(3.days).toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime()
             val rule =
                 ruleRepo.createEventRule(
                     event = event,
@@ -96,47 +97,13 @@ class JdbiRulesRepositoryTests {
             val ruleRepo = JdbiRuleRepository(handle)
             val locationRepo = JdbiLocationRepository(handle)
             val location = locationRepo.create("Test Location", 30.0, 10.0, 100.0, user)
-            val startTime = testClock.now().plus(2.days).toLocalDateTime(TimeZone.currentSystemDefault())
-            val endTime = testClock.now().plus(3.days).toLocalDateTime(TimeZone.currentSystemDefault())
             ruleRepo.createLocationRule(
                 location = location,
                 user = user,
-                startTime = startTime,
-                endTime = endTime,
             )
             val rules = ruleRepo.findByUserId(user)
             assertEquals(1, rules.size)
             assertEquals(user.id, rules[0].creator.id)
-            assertEquals(startTime, rules[0].startTime)
-            assertEquals(endTime, rules[0].endTime)
-        }
-    }
-
-    @Test
-    fun `should update a location rule`() {
-        runWithHandle { handle ->
-            val userRepo = JdbiUserRepository(handle)
-            val user = userRepo.createUser("username", "user@example.com", "password")
-            val ruleRepo = JdbiRuleRepository(handle)
-            val locationRepo = JdbiLocationRepository(handle)
-            val location = locationRepo.create("Test Location", 30.0, 10.0, 100.0, user)
-            val startTime = testClock.now().plus(2.days).toLocalDateTime(TimeZone.currentSystemDefault())
-            val endTime = testClock.now().plus(3.days).toLocalDateTime(TimeZone.currentSystemDefault())
-            val rule =
-                ruleRepo.createLocationRule(
-                    location,
-                    user,
-                    startTime,
-                    endTime,
-                )
-            val newStartTime = testClock.now().plus(4.days).toLocalDateTime(TimeZone.currentSystemDefault())
-            val newEndTime = testClock.now().plus(5.days).toLocalDateTime(TimeZone.currentSystemDefault())
-            val updatedRule = ruleRepo.updateRuleLocation(rule, newStartTime, newEndTime)
-            assertEquals(rule.id, updatedRule.id)
-            assertEquals(location.id, updatedRule.location.id)
-            assertEquals(user.id, updatedRule.creator.id)
-            assertEquals(newStartTime, updatedRule.startTime)
-            assertEquals(newEndTime, updatedRule.endTime)
         }
     }
 
@@ -147,18 +114,24 @@ class JdbiRulesRepositoryTests {
             val user = userRepo.createUser("username", "user@example.com", "password")
             val ruleRepo = JdbiRuleRepository(handle)
             val eventRepo = JdbiEventRepository(handle)
-            val event = eventRepo.create("Test Event", user, "2025-10-01T10:00".toLocalDateTime(), "2025-10-01T11:00".toLocalDateTime())
+            val event =
+                eventRepo.create(
+                    "Test Event",
+                    user,
+                    "2025-10-01T10:00".toLocalDateTime().toJavaLocalDateTime(),
+                    "2025-10-01T11:00".toLocalDateTime().toJavaLocalDateTime(),
+                )
             val startTime = testClock.now().plus(2.days).toLocalDateTime(TimeZone.currentSystemDefault())
             val endTime = testClock.now().plus(3.days).toLocalDateTime(TimeZone.currentSystemDefault())
             val rule =
                 ruleRepo.createEventRule(
                     event = event,
                     user = user,
-                    startTime = startTime,
-                    endTime = endTime,
+                    startTime = startTime.toJavaLocalDateTime(),
+                    endTime = endTime.toJavaLocalDateTime(),
                 )
-            val newStartTime = testClock.now().plus(4.days).toLocalDateTime(TimeZone.currentSystemDefault())
-            val newEndTime = testClock.now().plus(5.days).toLocalDateTime(TimeZone.currentSystemDefault())
+            val newStartTime = testClock.now().plus(4.days).toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime()
+            val newEndTime = testClock.now().plus(5.days).toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime()
             val updatedRule = ruleRepo.updateRuleEvent(rule, newStartTime, newEndTime)
             assertEquals(rule.id, updatedRule.id)
             assertEquals(event.id, updatedRule.event.id)
@@ -176,14 +149,10 @@ class JdbiRulesRepositoryTests {
             val ruleRepo = JdbiRuleRepository(handle)
             val locationRepo = JdbiLocationRepository(handle)
             val location = locationRepo.create("Test Location", 30.0, 10.0, 100.0, user)
-            val startTime = testClock.now().plus(2.days).toLocalDateTime(TimeZone.currentSystemDefault())
-            val endTime = testClock.now().plus(3.days).toLocalDateTime(TimeZone.currentSystemDefault())
             val rule =
                 ruleRepo.createLocationRule(
                     location,
                     user,
-                    startTime,
-                    endTime,
                 )
             val deleted =
                 ruleRepo.deleteLocationEvent(
@@ -202,9 +171,15 @@ class JdbiRulesRepositoryTests {
             val user = userRepo.createUser("username", "user@example.com", "password")
             val ruleRepo = JdbiRuleRepository(handle)
             val eventRepo = JdbiEventRepository(handle)
-            val event = eventRepo.create("Test Event", user, "2025-10-01T10:00".toLocalDateTime(), "2025-10-01T11:00".toLocalDateTime())
-            val startTime = testClock.now().plus(2.days).toLocalDateTime(TimeZone.currentSystemDefault())
-            val endTime = testClock.now().plus(3.days).toLocalDateTime(TimeZone.currentSystemDefault())
+            val event =
+                eventRepo.create(
+                    "Test Event",
+                    user,
+                    "2025-10-01T10:00".toLocalDateTime().toJavaLocalDateTime(),
+                    "2025-10-01T11:00".toLocalDateTime().toJavaLocalDateTime(),
+                )
+            val startTime = testClock.now().plus(2.days).toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime()
+            val endTime = testClock.now().plus(3.days).toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime()
             val rule =
                 ruleRepo.createEventRule(
                     event = event,
@@ -230,21 +205,15 @@ class JdbiRulesRepositoryTests {
             val ruleRepo = JdbiRuleRepository(handle)
             val locationRepo = JdbiLocationRepository(handle)
             val location = locationRepo.create("Test Location", 30.0, 10.0, 100.0, user)
-            val startTime = testClock.now().plus(2.days).toLocalDateTime(TimeZone.currentSystemDefault())
-            val endTime = testClock.now().plus(3.days).toLocalDateTime(TimeZone.currentSystemDefault())
             val rule =
                 ruleRepo.createLocationRule(
                     location,
                     user,
-                    startTime,
-                    endTime,
                 )
             val rules = ruleRepo.findAll()
             assertEquals(1, rules.size)
             assertEquals(rule.id, rules[0].id)
             assertEquals(user.id, rules[0].creator.id)
-            assertEquals(startTime, rules[0].startTime)
-            assertEquals(endTime, rules[0].endTime)
         }
     }
 
@@ -256,13 +225,9 @@ class JdbiRulesRepositoryTests {
             val ruleRepo = JdbiRuleRepository(handle)
             val locationRepo = JdbiLocationRepository(handle)
             val location = locationRepo.create("Test Location", 30.0, 10.0, 100.0, user)
-            val startTime = testClock.now().plus(2.days).toLocalDateTime(TimeZone.currentSystemDefault())
-            val endTime = testClock.now().plus(3.days).toLocalDateTime(TimeZone.currentSystemDefault())
             ruleRepo.createLocationRule(
                 location,
                 user,
-                startTime,
-                endTime,
             )
             ruleRepo.clear()
             val rules = ruleRepo.findAll()

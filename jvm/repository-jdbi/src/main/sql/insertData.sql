@@ -20,12 +20,10 @@ INSERT INTO ps.RULE_EVENT (start_time,end_time, event_id,user_id) VALUES
     ('2025-05-10 09:00','2025-05-10 10:00',(SELECT id FROM ps.EVENT WHERE title='Meeting'),(SELECT id FROM ps.USER WHERE username='bob')),
     ('2025-05-11 14:00','2025-05-11 15:00',(SELECT id FROM ps.EVENT WHERE title='Briefing'),(SELECT id FROM ps.USER WHERE username='alice'));
 
-INSERT INTO ps.RULE_LOCATION (start_time,end_time,location_id,user_id) VALUES
-    ('2025-05-12 08:00','2025-05-12 12:00',
+INSERT INTO ps.RULE_LOCATION (location_id,user_id) VALUES(
         (SELECT id FROM ps.LOCATION WHERE user_id=(SELECT id FROM ps.USER WHERE username='bob')),
         (SELECT id FROM ps.USER WHERE username='bob')
     ),
-    ('2025-05-13 13:00','2025-05-13 17:00',
-        (SELECT id FROM ps.LOCATION WHERE user_id=(SELECT id FROM ps.USER WHERE username='alice')),
+    ((SELECT id FROM ps.LOCATION WHERE user_id=(SELECT id FROM ps.USER WHERE username='alice')),
         (SELECT id FROM ps.USER WHERE username='alice')
     );

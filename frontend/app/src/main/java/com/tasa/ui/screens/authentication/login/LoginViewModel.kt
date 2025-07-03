@@ -34,16 +34,24 @@ class LoginScreenViewModel(
         if (_state.value == LoginScreenState.Loading) return
         _state.value = LoginScreenState.Loading
         viewModelScope.launch {
-            val authenticatedUser = userRepository.createToken(email, password)
-            when (authenticatedUser) {
-                is Success -> {
-                    _state.value = LoginScreenState.Success(authenticatedUser.value)
+            try {
+                val authenticatedUser = userRepository.createToken(email, password)
+                when (authenticatedUser) {
+                    is Success -> {
+                        _state.value = LoginScreenState.Success(authenticatedUser.value)
+                    }
+                    is Failure -> {
+                        _state.value = LoginScreenState.Error(authenticatedUser.value.message)
+                    }
                 }
-                is Failure -> {
-                    _state.value = LoginScreenState.Error(authenticatedUser.value.message)
-                }
+            } catch (e: Throwable) {
+                _state.value = LoginScreenState.Error(e.message ?: "An unexpected error occurred")
             }
         }
+    }
+
+    fun setIdleState() {
+        _state.value = LoginScreenState.Idle
     }
 }
 

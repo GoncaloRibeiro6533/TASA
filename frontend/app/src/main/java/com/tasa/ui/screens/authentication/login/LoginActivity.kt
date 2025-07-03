@@ -28,7 +28,10 @@ class LoginActivity : ComponentActivity() {
             TasaTheme {
                 LoginScreen(
                     viewModel = viewModel,
-                    onLoginSuccess = { navigateTo(this, HomePageActivity::class.java) },
+                    onLoginSuccess = {
+                        navigateTo(this, HomePageActivity::class.java)
+                        finish()
+                    },
                     onNavigationBack = { navigateTo(this, StartActivity::class.java) },
                     onRegisterRequested = { navigateTo(this, RegisterActivity::class.java) },
                 )

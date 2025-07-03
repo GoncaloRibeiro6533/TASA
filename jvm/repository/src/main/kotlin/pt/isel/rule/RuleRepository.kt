@@ -1,12 +1,12 @@
 package pt.isel.rule
 
-import kotlinx.datetime.LocalDateTime
 import pt.isel.Event
 import pt.isel.Location
 import pt.isel.Rule
 import pt.isel.RuleEvent
 import pt.isel.RuleLocation
 import pt.isel.User
+import java.time.LocalDateTime
 
 /**
  * Interface that defines the operations that can be done on the Rule repository.
@@ -22,8 +22,6 @@ interface RuleRepository {
     fun createLocationRule(
         location: Location,
         user: User,
-        startTime: LocalDateTime,
-        endTime: LocalDateTime,
     ): RuleLocation
 
     fun findAll(): List<Rule>
@@ -39,12 +37,6 @@ interface RuleRepository {
         startTime: LocalDateTime,
         endTime: LocalDateTime,
     ): RuleEvent
-
-    fun updateRuleLocation(
-        rule: RuleLocation,
-        startTime: LocalDateTime,
-        endTime: LocalDateTime,
-    ): RuleLocation
 
     fun deleteRuleEvent(rule: RuleEvent): Boolean
 

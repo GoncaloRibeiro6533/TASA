@@ -1,6 +1,5 @@
 package pt.isel.mappers
 
-import kotlinx.datetime.toKotlinLocalDateTime
 import org.jdbi.v3.core.mapper.RowMapper
 import org.jdbi.v3.core.statement.StatementContext
 import pt.isel.Location
@@ -15,8 +14,6 @@ class RuleLocationMapper : RowMapper<RuleLocation> {
     ): RuleLocation {
         return RuleLocation(
             id = rs.getInt("id"),
-            startTime = rs.getTimestamp("start_time").toLocalDateTime().toKotlinLocalDateTime(),
-            endTime = rs.getTimestamp("end_time").toLocalDateTime().toKotlinLocalDateTime(),
             creator =
                 User(
                     id = rs.getInt("user_id"),

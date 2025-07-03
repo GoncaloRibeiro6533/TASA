@@ -3,6 +3,7 @@ package com.tasa.storage.entities
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.Relation
 import com.tasa.domain.RuleEvent
 import java.time.LocalDateTime
@@ -17,6 +18,9 @@ import java.time.LocalDateTime
             childColumns = ["eventId", "calendarId"],
             // onDelete = ForeignKey.CASCADE,
         ),
+    ],
+    indices = [
+        Index(value = ["eventId", "calendarId"]),
     ],
 )
 data class RuleEventEntity(

@@ -23,6 +23,7 @@ class LocationStateReceiver : BroadcastReceiver() {
     ) {
         if (intent.action == LocationManager.PROVIDERS_CHANGED_ACTION) {
             val repo = (context.applicationContext as DependenciesContainer).userInfoRepository
+            val db = (context.applicationContext as DependenciesContainer).repo
             val isLocationEnabled = isLocationEnabled(context)
             if (isLocationEnabled) {
                 Log.d("LocationStateReceiver", "Location is back ON")
@@ -35,7 +36,7 @@ class LocationStateReceiver : BroadcastReceiver() {
                             repo.setLocationStatus(true)
                         }
                         Log.d("LocationStateReceiver", "Re-registering geofences")
-                        geofenceManager.onBootRegisterGeofences()
+                        geofenceManager.onBootRegisterGeofences(db.geofenceRepo.getAllGeofences())
                     }
                 }
             } else {

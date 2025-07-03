@@ -1,16 +1,12 @@
 package pt.isel
 
-import kotlinx.datetime.LocalDateTime
-
 class RuleLocation(
     id: Int,
-    startTime: LocalDateTime,
-    endTime: LocalDateTime,
     creator: User,
     val location: Location,
-) : Rule(id, startTime, endTime, creator) {
+) : Rule(id, creator) {
     override fun toString(): String {
-        return "RuleLocation(id=$id, startTime=$startTime, endTime=$endTime, creator=$creator,location=$location)"
+        return "RuleLocation(id=$id, creator=$creator, location=$location)"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -23,12 +19,10 @@ class RuleLocation(
 
     fun copy(
         id: Int = this.id,
-        startTime: LocalDateTime = this.startTime,
-        endTime: LocalDateTime = this.endTime,
         creator: User = this.creator,
         location: Location = this.location,
     ): RuleLocation {
-        return RuleLocation(id, startTime, endTime, creator, location)
+        return RuleLocation(id, creator, location)
     }
 
     override fun hashCode(): Int {

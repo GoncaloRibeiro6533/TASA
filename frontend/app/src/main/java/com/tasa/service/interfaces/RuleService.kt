@@ -1,24 +1,25 @@
 package com.tasa.service.interfaces
 
 import com.tasa.domain.ApiError
-import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
-import com.tasa.domain.RuleLocation
+import com.tasa.domain.RuleLocationTimeless
+import com.tasa.service.http.models.rule.RuleEventOutput
+import com.tasa.service.http.models.rule.RuleListOutput
 import com.tasa.utils.Either
 import java.time.LocalDateTime
 
 interface RuleService {
-    suspend fun fetchRules(token: String): Either<ApiError, List<Rule>>
+    suspend fun fetchRules(token: String): Either<ApiError, RuleListOutput>
 
     suspend fun fetchRuleEventById(
         id: Int,
         token: String,
-    ): Either<ApiError, RuleEvent>
+    ): Either<ApiError, RuleEventOutput>
 
     suspend fun fetchRuleLocationById(
         id: Int,
         token: String,
-    ): Either<ApiError, RuleLocation>
+    ): Either<ApiError, RuleLocationTimeless>
 
 /*    suspend fun fetchRulesByTime(
         startTime: Long,
@@ -31,9 +32,9 @@ interface RuleService {
     ): Either<ApiError, RuleEvent>
 
     suspend fun insertRuleLocation(
-        ruleLocation: RuleLocation,
+        ruleLocation: RuleLocationTimeless,
         token: String,
-    ): Either<ApiError, RuleLocation>
+    ): Either<ApiError, RuleLocationTimeless>
 
     suspend fun deleteRuleEventById(
         id: Int,
@@ -51,11 +52,4 @@ interface RuleService {
         newEndTime: LocalDateTime,
         token: String,
     ): Either<ApiError, RuleEvent>
-
-    suspend fun updateRuleLocation(
-        ruleLocation: RuleLocation,
-        newStartTime: LocalDateTime,
-        newEndTime: LocalDateTime,
-        token: String,
-    ): Either<ApiError, RuleLocation>
 }

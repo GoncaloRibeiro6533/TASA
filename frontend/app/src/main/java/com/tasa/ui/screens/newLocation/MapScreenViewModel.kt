@@ -20,8 +20,6 @@ import com.tasa.domain.UserInfoRepository
 import com.tasa.domain.toLocalDateTime
 import com.tasa.location.LocationUpdatesRepository
 import com.tasa.repository.TasaRepo
-import com.tasa.utils.Failure
-import com.tasa.utils.Success
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -154,7 +152,7 @@ class MapScreenViewModel(
                     } else {
                         _state.value = MapsScreenState.Error(R.string.no_results_found.toString())
                     }
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     _state.value = MapsScreenState.Error(R.string.unexpected_error.toString())
                 }
             }

@@ -19,6 +19,7 @@ import com.tasa.repository.TasaRepo
 import com.tasa.service.TasaService
 import com.tasa.service.fake.TasaServiceFake
 import com.tasa.service.http.TasaServiceHttp
+import com.tasa.service.http.models.LocalDateTimeSerializer
 import com.tasa.storage.TasaDB
 import com.tasa.utils.PropertiesConfigLoader
 import com.tasa.workers.CoroutineDBCleaner
@@ -28,6 +29,8 @@ import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 
 class TasaApplication : Application(), DependenciesContainer {
@@ -39,6 +42,10 @@ class TasaApplication : Application(), DependenciesContainer {
                         ignoreUnknownKeys = true
                         prettyPrint = true
                         isLenient = true
+                        serializersModule =
+                            SerializersModule {
+                                contextual(LocalDateTime::class, LocalDateTimeSerializer)
+                            }
                     },
                 )
             }
@@ -75,16 +82,8 @@ class TasaApplication : Application(), DependenciesContainer {
         }
     }
 
-    override val repo: TasaRepo by lazy {
-        TasaRepo(
-            local = clientDB,
-            remote = service,
-            userInfoRepository = userInfoRepository,
-        )
-    }
-
     override val ruleScheduler: AlarmScheduler by lazy {
-        AlarmScheduler(repo)
+        AlarmScheduler(this)
     }
 
     override val activityTransitionManager: UserActivityTransitionManager by lazy {
@@ -92,7 +91,18 @@ class TasaApplication : Application(), DependenciesContainer {
     }
 
     override val geofenceManager: GeofenceManager by lazy {
-        GeofenceManager(this, repo, fusedLocationClient)
+        GeofenceManager(this, fusedLocationClient)
+    }
+
+    override val repo: TasaRepo by lazy {
+        TasaRepo(
+            local = clientDB,
+            remote = service,
+            userInfoRepository = userInfoRepository,
+            ruleScheduler = ruleScheduler,
+            geofenceManager = geofenceManager,
+            context = this,
+        )
     }
 
     private val fusedLocationClient by lazy {

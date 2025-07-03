@@ -2,15 +2,21 @@ package com.tasa.service.http.models.rule
 
 import com.tasa.domain.Event
 import com.tasa.domain.RuleEvent
+import com.tasa.service.http.models.event.EventOutput
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 import java.time.LocalDateTime
 
+@Serializable
 data class RuleEventOutput(
     val id: Int,
+    @Contextual
     val startTime: LocalDateTime,
+    @Contextual
     val endTime: LocalDateTime,
-    val event: Event,
+    val event: EventOutput,
 ) {
-    fun toRuleEvent(): RuleEvent {
+    fun toRuleEvent(event: Event): RuleEvent {
         return RuleEvent(
             id = id,
             startTime = startTime,

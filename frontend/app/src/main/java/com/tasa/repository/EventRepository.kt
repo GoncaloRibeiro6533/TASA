@@ -40,7 +40,12 @@ class EventRepository(
             is Success -> {
                 success(
                     result.value.mapNotNull { event ->
-                        context.toLocalEvent(event.id, event.title, event.startTime, event.endTime)
+                        context.toLocalEvent(
+                            event.id,
+                            event.title,
+                            event.startTime,
+                            event.endTime,
+                        )
                     },
                 )
             }

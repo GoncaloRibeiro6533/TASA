@@ -131,7 +131,6 @@ class EditRuleActivity : ComponentActivity() {
                         rule = rule,
                         newStartTime = startTime,
                         newEndTime = endTime,
-                        activityContext = this,
                     )
                 },
                 onRuleUpdated = {

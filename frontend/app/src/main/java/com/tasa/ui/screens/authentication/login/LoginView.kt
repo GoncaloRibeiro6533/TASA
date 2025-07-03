@@ -1,5 +1,6 @@
 package com.tasa.ui.screens.authentication.login
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import com.tasa.ui.screens.authentication.components.validatePassword
 import com.tasa.ui.screens.authentication.components.validateUsername
 import com.tasa.ui.screens.authentication.login.components.LoginButton
 import com.tasa.ui.screens.authentication.login.components.LoginTextFields
+import com.tasa.ui.theme.TasaTheme
 
 const val LOGIN_VIEW = "login_view"
 const val LOGIN_TEXT_FIELDS = "login_text_fields"
@@ -100,11 +102,13 @@ fun LoginView(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true, uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewLoginView() {
-    LoginView(
-        onSubmit = { _, _ -> },
-        onRegisterRequested = { },
-    )
+    TasaTheme {
+        LoginView(
+            onSubmit = { _, _ -> },
+            onRegisterRequested = { },
+        )
+    }
 }

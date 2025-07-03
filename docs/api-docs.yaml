@@ -658,61 +658,6 @@ paths:
                 $ref: '#/components/schemas/Problem'
         
 
-  /rule/location/{id}/update:
-    put:
-      security:
-        - bearerAuth: []
-      tags:
-        - Rules
-      summary: Updates a rule location
-      description: Updates a rule location with a new start time and end time.
-      parameters:
-        - name: id
-          in: path
-          description: Rule identifier
-          required: true
-          schema:
-            type: integer
-            format: int32
-      requestBody:
-        description: Rule new end and start time.
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/RuleLocationUpdateInput"
-        required: true
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RuleLocationOutput'
-        '400':
-          description: StartTime is blank
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '404':
-          description: Rule not found.
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '403':
-          description: Unauthorized
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal server error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-
   /rule/event/{id}/update/time:
     put:
       security:
@@ -1367,30 +1312,15 @@ components:
     RuleLocationOutput:
       required:
         - id
-        - endTime
-        - locationId
-        - startTime
+        - location
       type: object
       properties:
         id:
           type: integer
           description: Rule dentifier
           example: 10
-        startTime:
-          type: string
-          format: date-time
-          description: Start time of rule
-          example: "2024-10-01T12:00:00Z"
-        endTime:
-          type: string
-          format: date-time
-          description: End time of rule
-          example: "2024-10-01T12:00:00Z"
-        locationId:
-          type: integer
-          format: int32
-          description: Location identifier.
-          example: 10
+        location:
+          $ref: '#/components/schemas/Location'
 
     RuleEventOutput:
       type: object

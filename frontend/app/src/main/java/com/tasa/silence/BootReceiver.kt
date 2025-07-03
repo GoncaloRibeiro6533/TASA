@@ -18,8 +18,9 @@ class BootReceiver : BroadcastReceiver() {
         if (intent?.action == Intent.ACTION_BOOT_COMPLETED) {
             val alarmScheduler = (context.applicationContext as DependenciesContainer).ruleScheduler
             val scope = CoroutineScope(Dispatchers.IO)
+            val repo = (context.applicationContext as DependenciesContainer).repo
             scope.launch {
-                alarmScheduler.rescheduleAllAlarms(context)
+                alarmScheduler.rescheduleAllAlarms(repo.alarmRepo.getAllAlarms())
             }
             val activityTransitionManager =
                 (context.applicationContext as DependenciesContainer).activityTransitionManager
@@ -37,7 +38,7 @@ class BootReceiver : BroadcastReceiver() {
                 (context.applicationContext as DependenciesContainer).geofenceManager
             scope.launch {
                 try {
-                    geofenceManager.onBootRegisterGeofences()
+                    geofenceManager.onBootRegisterGeofences(repo.geofenceRepo.getAllGeofences())
                 } catch (e: SecurityException) {
                 }
             }

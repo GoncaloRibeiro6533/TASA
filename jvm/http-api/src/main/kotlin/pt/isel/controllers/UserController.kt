@@ -71,7 +71,7 @@ class UserController(
             )
         return when (result) {
             is Success ->
-                ResponseEntity.status(HttpStatus.OK).body(
+                ResponseEntity.status(HttpStatus.CREATED).body(
                     LoginOutput(result.value.first, result.value.second),
                 )
             is Failure ->

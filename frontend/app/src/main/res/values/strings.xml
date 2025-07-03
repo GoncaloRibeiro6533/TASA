@@ -67,4 +67,5 @@
     <string name="delete">Delete</string>
     <string name="time_based_rules">Time based</string>
     <string name="location_based_rules">Location based</string>
+    <string name="login_button_content_description" translatable="false">logint button</string>
 </resources>

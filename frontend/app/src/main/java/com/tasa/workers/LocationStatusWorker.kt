@@ -25,6 +25,7 @@ class LocationStatusWorker(
         val isGpsEnabled = isLocationEnabled(context)
         val repo =
             (context.applicationContext as DependenciesContainer).userInfoRepository
+        val db = (context.applicationContext as DependenciesContainer).repo
         return withContext(Dispatchers.IO) {
             try {
                 if (LocalDateTime.now().hour in 0..7) {
@@ -39,7 +40,7 @@ class LocationStatusWorker(
                     ) {
                         repo.setLocationStatus(true)
                         Log.d("LocationStateReceiver", "Re-registering geofences")
-                        geofenceManager.onBootRegisterGeofences()
+                        geofenceManager.onBootRegisterGeofences(db.geofenceRepo.getAllGeofences())
                     }
                 } else {
                     if (repo.getLocationStatus() == true && !isGpsEnabled) {
@@ -48,7 +49,7 @@ class LocationStatusWorker(
                     }
                 }
                 Result.success()
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 Result.failure()
             }
         }

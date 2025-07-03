@@ -1,9 +1,8 @@
 package pt.isel
 
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.toJavaLocalDateTime
 import org.jdbi.v3.core.Handle
 import pt.isel.rule.RuleRepository
+import java.time.LocalDateTime
 
 class JdbiRuleRepository(
     private val handle: Handle,
@@ -21,8 +20,8 @@ class JdbiRuleRepository(
                 VALUES (:startTime, :endTime, :userId, :eventId)
                 """.trimIndent(),
             )
-                .bind("startTime", startTime.toJavaLocalDateTime())
-                .bind("endTime", endTime.toJavaLocalDateTime())
+                .bind("startTime", startTime)
+                .bind("endTime", endTime)
                 .bind("userId", user.id)
                 .bind("eventId", event.id)
                 .executeAndReturnGeneratedKeys()
@@ -39,26 +38,20 @@ class JdbiRuleRepository(
     override fun createLocationRule(
         location: Location,
         user: User,
-        startTime: LocalDateTime,
-        endTime: LocalDateTime,
     ): RuleLocation {
         val id =
             handle.createUpdate(
                 """
-                INSERT INTO ps.RULE_LOCATION (start_time, end_time, user_id, location_id)
-                VALUES (:startTime, :endTime, :userId, :locationId)
+                INSERT INTO ps.RULE_LOCATION (user_id, location_id)
+                VALUES (:userId, :locationId)
                 """.trimIndent(),
             )
-                .bind("startTime", startTime.toJavaLocalDateTime())
-                .bind("endTime", endTime.toJavaLocalDateTime())
                 .bind("userId", user.id)
                 .bind("locationId", location.id)
                 .executeAndReturnGeneratedKeys()
                 .mapTo(Int::class.java).one()
         return RuleLocation(
             id = id,
-            startTime = startTime,
-            endTime = endTime,
             creator = user,
             location = location,
         )
@@ -70,8 +63,6 @@ class JdbiRuleRepository(
                 """
                 SELECT
                     r.id,
-                    r.start_time,
-                    r.end_time,
                     r.user_id,
                     r.location_id,
                     u.username,
@@ -140,8 +131,6 @@ class JdbiRuleRepository(
             """
             SELECT
                 r.id,
-                r.start_time,
-                r.end_time,
                 r.user_id,
                 r.location_id,
                 u.username,
@@ -168,8 +157,6 @@ class JdbiRuleRepository(
                 """
                 SELECT
                     r.id,
-                    r.start_time,
-                    r.end_time,
                     r.user_id,
                     r.location_id,
                     u.username,
@@ -218,42 +205,16 @@ class JdbiRuleRepository(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
     ): RuleEvent {
-        val id =
-            handle.createUpdate(
-                """
-                UPDATE ps.RULE_EVENT
-                SET start_time = :startTime, end_time = :endTime
-                WHERE id = :id
-                """.trimIndent(),
-            )
-                .bind("startTime", startTime.toJavaLocalDateTime())
-                .bind("endTime", endTime.toJavaLocalDateTime())
-                .bind("id", rule.id)
-                .executeAndReturnGeneratedKeys()
-                .mapTo(Int::class.java).one()
-        return rule.copy(
-            startTime = startTime,
-            endTime = endTime,
-        )
-    }
-
-    override fun updateRuleLocation(
-        rule: RuleLocation,
-        startTime: LocalDateTime,
-        endTime: LocalDateTime,
-    ): RuleLocation {
         handle.createUpdate(
             """
-            UPDATE ps.RULE_LOCATION
+            UPDATE ps.RULE_EVENT
             SET start_time = :startTime, end_time = :endTime
             WHERE id = :id
             """.trimIndent(),
         )
-            .bind("startTime", startTime.toJavaLocalDateTime())
-            .bind("endTime", endTime.toJavaLocalDateTime())
+            .bind("startTime", startTime)
+            .bind("endTime", endTime)
             .bind("id", rule.id)
-            .executeAndReturnGeneratedKeys()
-            .mapTo(Int::class.java).one()
         return rule.copy(
             startTime = startTime,
             endTime = endTime,

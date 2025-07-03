@@ -2,6 +2,7 @@ package com.tasa.service.http
 
 import com.tasa.domain.ApiError
 import com.tasa.domain.Event
+import com.tasa.service.http.models.event.EventInput
 import com.tasa.service.http.models.event.EventOutput
 import com.tasa.service.http.utils.delete
 import com.tasa.service.http.utils.get
@@ -19,8 +20,8 @@ class EventServiceHttp(private val client: HttpClient) : EventService {
     override suspend fun fetchEventById(
         id: Int,
         token: String,
-    ): Either<ApiError, Event?> {
-        return when (val response = client.get<Event>("/event/$id", token = token)) {
+    ): Either<ApiError, EventOutput?> {
+        return when (val response = client.get<EventOutput>("/event/$id", token = token)) {
             is Success -> success(response.value)
             is Failure -> failure(response.value)
         }
@@ -34,10 +35,10 @@ class EventServiceHttp(private val client: HttpClient) : EventService {
     }
 
     override suspend fun insertEvent(
-        event: Event,
+        event: EventInput,
         token: String,
-    ): Either<ApiError, Event> {
-        return when (val response = client.post<Event>("/event/create", body = event, token = token)) {
+    ): Either<ApiError, EventOutput> {
+        return when (val response = client.post<EventOutput>("/event/create", body = event, token = token)) {
             is Success -> success(response.value)
             is Failure -> failure(response.value)
         }
@@ -47,8 +48,8 @@ class EventServiceHttp(private val client: HttpClient) : EventService {
         event: Event,
         token: String,
     ): Either<ApiError, Event> {
-        return when (val response = client.put<Event>("/event/update/title", body = event, token = token)) {
-            is Success -> success(response.value)
+        return when (val response = client.put<EventOutput>("/event/update/title", body = event, token = token)) {
+            is Success -> success(response.value.toEvent(event.eventId, event.calendarId))
             is Failure -> failure(response.value)
         }
     }

@@ -35,7 +35,7 @@ class StartScreenViewModel(
                     } else {
                         StartScreenState.NotLogged
                     }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 state = StartScreenState.NotLogged
             }
         }

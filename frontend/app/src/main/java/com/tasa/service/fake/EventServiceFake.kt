@@ -2,6 +2,7 @@ package com.tasa.service.fake
 
 import com.tasa.domain.ApiError
 import com.tasa.domain.Event
+import com.tasa.service.http.models.event.EventInput
 import com.tasa.service.http.models.event.EventOutput
 import com.tasa.service.interfaces.EventService
 import com.tasa.utils.Either
@@ -24,7 +25,7 @@ class EventServiceFake : EventService {
     override suspend fun fetchEventById(
         id: Int,
         token: String,
-    ): Either<ApiError, Event?> {
+    ): Either<ApiError, EventOutput?> {
         return success(null)
     }
 
@@ -33,12 +34,17 @@ class EventServiceFake : EventService {
     }
 
     override suspend fun insertEvent(
-        event: Event,
+        event: EventInput,
         token: String,
-    ): Either<ApiError, Event> {
-        events.add(event)
-        return success(event)
-    }
+    ): Either<ApiError, EventOutput> =
+        success(
+            EventOutput(
+                id = 1,
+                title = event.title,
+                startTime = event.startTime,
+                endTime = event.endTime,
+            ),
+        )
 
     override suspend fun updateEventTitle(
         event: Event,

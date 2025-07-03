@@ -31,7 +31,7 @@ fun StartScreen(
             topBar = {
                 TopBar(
                     NavigationHandlers(
-                        // onAboutRequested = onAboutRequested,
+                        onAboutRequested = onAboutRequested,
                     ),
                 )
             },

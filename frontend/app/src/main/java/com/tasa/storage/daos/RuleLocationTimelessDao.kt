@@ -16,14 +16,30 @@ interface RuleLocationTimelessDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRuleLocations(ruleLocations: List<RuleLocationTimelessEntity>)
 
-    @Query("SELECT * FROM rule_location_timeless WHERE id = :id")
+    @Query(
+        " SELECT rule_location_timeless.*, location.* FROM rule_location_timeless\n" +
+            "            INNER JOIN location ON rule_location_timeless.locationName = location.name\n" +
+            "            WHERE rule_location_timeless.id = :id",
+    )
     fun getRuleLocationById(id: Int): Flow<RuleLocationTimelessEntity?>
+
+    @Query(
+        "SELECT rule_location_timeless.*, location.* FROM rule_location_timeless\n" +
+            "            INNER JOIN location ON rule_location_timeless.locationName = location.name\n" +
+            "            WHERE rule_location_timeless.id = :id",
+    )
+    suspend fun getRuleLocationByIdResult(id: Int): RuleLocationTimelessWithLocation?
 
     @Query("SELECT * FROM rule_location_timeless join location on rule_location_timeless.locationName = location.name")
     fun getAllRuleLocations(): Flow<List<RuleLocationTimelessWithLocation>>
 
-    @Query("SELECT * FROM rule_location_timeless WHERE locationName = :locationName")
-    fun getRuleLocationsByLocationName(locationName: String): Flow<List<RuleLocationTimelessEntity>>
+    @Query(
+        """   SELECT rule_location_timeless.*, location.* FROM rule_location_timeless
+            INNER JOIN location ON rule_location_timeless.locationName = location.name
+            WHERE rule_location_timeless.locationName = :locationName
+            """,
+    )
+    fun getRuleLocationsByLocationName(locationName: String): Flow<List<RuleLocationTimelessWithLocation>>
 
     @Query(
         """
@@ -45,11 +61,4 @@ interface RuleLocationTimelessDao {
 
     @Query("SELECT COUNT(*) FROM rule_location_timeless WHERE locationName= :locationName")
     suspend fun exists(locationName: String): Boolean
-
-    @Query(
-        "SELECT rule_location_timeless.*, location.* FROM rule_location_timeless " +
-            "INNER JOIN location ON rule_location_timeless.locationName = location.name " +
-            "WHERE rule_location_timeless.geofenceId = :id",
-    )
-    suspend fun getRuleLocationByGeofenceId(id: Int): List<RuleLocationTimelessWithLocation>
 }

@@ -14,7 +14,7 @@ import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
-import com.tasa.repository.TasaRepo
+import com.tasa.storage.entities.GeofenceEntity
 import kotlinx.coroutines.tasks.await
 
 const val TAG = "GeofenceManager"
@@ -22,7 +22,6 @@ const val CUSTOM_REQUEST_CODE_GEOFENCE = 1001
 
 class GeofenceManager(
     context: Context,
-    private val repo: TasaRepo,
     private val locationProviderClient: FusedLocationProviderClient,
 ) {
     private val client = LocationServices.getGeofencingClient(context)
@@ -67,13 +66,6 @@ class GeofenceManager(
             client.removeGeofences(listOf(requestId)).await()
         }
 
-    @Suppress("unused")
-    suspend fun deregisterAllGeofences() =
-        runCatching {
-            client.removeGeofences(geofencingPendingIntent).await()
-            repo.geofenceRepo.clear()
-        }
-
     private fun createGeofencingRequest(geofence: Geofence): GeofencingRequest {
         return GeofencingRequest.Builder().apply {
             setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER or GeofencingRequest.INITIAL_TRIGGER_EXIT)
@@ -96,9 +88,9 @@ class GeofenceManager(
     }
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-    suspend fun onBootRegisterGeofences() {
-        val list =
-            repo.geofenceRepo.getAllGeofences().map {
+    suspend fun onBootRegisterGeofences(list: List<GeofenceEntity>) {
+        val result =
+            list.map {
                     geofenceEntity ->
                 if (deregisterGeofence(geofenceEntity.name).isSuccess) {
                     registerGeofence(
@@ -113,7 +105,7 @@ class GeofenceManager(
                 }
                 geofenceEntity
             }
-        if (list.isNotEmpty()) {
+        if (result.isNotEmpty()) {
             getCurrentLocation()
         }
     }

@@ -1,12 +1,12 @@
 package pt.isel.rule
 
-import kotlinx.datetime.LocalDateTime
 import pt.isel.Event
 import pt.isel.Location
 import pt.isel.Rule
 import pt.isel.RuleEvent
 import pt.isel.RuleLocation
 import pt.isel.User
+import java.time.LocalDateTime
 
 class MockRuleRepository : RuleRepository {
     private var ruleId = 0
@@ -37,14 +37,10 @@ class MockRuleRepository : RuleRepository {
     override fun createLocationRule(
         location: Location,
         user: User,
-        startTime: LocalDateTime,
-        endTime: LocalDateTime,
     ): RuleLocation {
         val rule =
             RuleLocation(
                 id = ruleId++,
-                startTime = startTime,
-                endTime = endTime,
                 creator = user,
                 location = location,
             )
@@ -87,27 +83,6 @@ class MockRuleRepository : RuleRepository {
             )
         eventRules[key]?.removeIf { it.id == rule.id }
         eventRules[key]?.add(updatedRule)
-        return updatedRule
-    }
-
-    override fun updateRuleLocation(
-        rule: RuleLocation,
-        startTime: LocalDateTime,
-        endTime: LocalDateTime,
-    ): RuleLocation {
-        val key = locationRules.entries.find { it.value.contains(rule) }?.key
-        locationRules[key]?.removeIf { it.id == rule.id }
-        val updatedRule =
-            RuleLocation(
-                id = rule.id,
-                startTime = startTime,
-                endTime = endTime,
-                creator = rule.creator,
-                location = rule.location,
-            )
-        locationRules[key]?.add(
-            updatedRule,
-        )
         return updatedRule
     }
 

@@ -2,10 +2,10 @@ package pt.isel
 
 import jakarta.inject.Named
 import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.toJavaInstant
 import pt.isel.transaction.TransactionManager
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 data class TokenExternalInfo(
     val token: String,
@@ -133,7 +133,7 @@ class UserService(
                     TokenExternalInfo(
                         token = tokenValue,
                         refreshToken = refreshTokenValue,
-                        newSession.token.expiresAt.toLocalDateTime(TimeZone.currentSystemDefault()),
+                        LocalDateTime.ofInstant(newSession.token.expiresAt.toJavaInstant(), ZoneId.of("UTC")),
                     ),
             )
         }

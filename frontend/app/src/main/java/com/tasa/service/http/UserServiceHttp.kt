@@ -40,8 +40,13 @@ class UserServiceHttp(private val client: HttpClient) : UserService {
         when (
             val response =
                 client.post<User>(
-                    url = "/user/pdm/register",
-                    body = UserRegisterInput(username, email, password),
+                    url = "/user/register",
+                    body =
+                        UserRegisterInput(
+                            username = username,
+                            email = email,
+                            password = password,
+                        ),
                 )
         ) {
             is Success -> success(response.value)

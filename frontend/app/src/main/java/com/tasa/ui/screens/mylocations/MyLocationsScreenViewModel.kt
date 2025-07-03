@@ -53,7 +53,6 @@ class MyLocationsScreenViewModel(
     private val _successMessage: MutableStateFlow<Int?> = MutableStateFlow(null)
     val successMessage: StateFlow<Int?> = _successMessage.asStateFlow()
 
-    @Suppress("unused")
     fun loadLocations(): Job? {
         if (_state.value is MyLocationsScreenState.Loading) return null
         _state.value = MyLocationsScreenState.Loading
@@ -64,7 +63,7 @@ class MyLocationsScreenViewModel(
                     _locations.value = stream
                     _state.value = MyLocationsScreenState.Success(_locations)
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 _state.value = MyLocationsScreenState.Error(R.string.unexpected_error)
             }
         }
@@ -76,58 +75,6 @@ class MyLocationsScreenViewModel(
 
     fun setSuccessState() {
         _state.value = MyLocationsScreenState.Success(_locations)
-    }
-
-    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    fun createRulesForLocation(
-        location: Location,
-        startTime: LocalDateTime,
-        endTime: LocalDateTime,
-    ) {
-        if (_state.value is MyLocationsScreenState.Loading) return
-        _state.value = MyLocationsScreenState.Loading
-        viewModelScope.launch {
-            try {
-                val collides = repo.ruleRepo.isCollision(startTime, endTime)
-                val otherRulesForLocation = repo.ruleRepo.getRulesForLocation(location)
-                val timelessRulesForLocation =
-                    repo.ruleRepo.getTimelessRulesForLocation(location)
-                if (otherRulesForLocation.isNotEmpty() || timelessRulesForLocation.isNotEmpty()) {
-                    _state.value =
-                        MyLocationsScreenState.Error(R.string.rule_already_exists_for_this_location)
-                    return@launch
-                }
-                if (!collides) {
-                    val radius =
-                        if (location.radius < 100) {
-                            100f
-                        } else {
-                            location.radius.toFloat()
-                        }
-                    geofenceManager.registerGeofence(
-                        location.name,
-                        location.toLocation(),
-                        radius,
-                    )
-                    val id =
-                        repo.geofenceRepo.createGeofence(
-                            location,
-                        )
-                    repo.ruleRepo.insertRuleLocation(
-                        startTime,
-                        endTime,
-                        location,
-                    )
-                    _state.value = MyLocationsScreenState.Success(_locations)
-                    _successMessage.value = R.string.rule_created_successfully
-                } else {
-                    _state.value =
-                        MyLocationsScreenState.Error(R.string.rule_already_exists_for_this_time)
-                }
-            } catch (e: Exception) {
-                _state.value = MyLocationsScreenState.Error(R.string.unexpected_error)
-            }
-        }
     }
 
     fun deleteLocation(
@@ -143,7 +90,6 @@ class MyLocationsScreenViewModel(
                     geofences.forEach { geofence ->
                         geofenceManager.deregisterGeofence(geofence.name)
                     }
-                    repo.ruleRepo.deleteRuleLocationByName(location.name)
                     repo.ruleRepo.deleteRuleLocationTimelessByLocation(location)
                     repo.geofenceRepo.deleteGeofence(geofences.first())
                     if (LocationService.isRunning && LocationService.locationName == location.name) {
@@ -157,7 +103,7 @@ class MyLocationsScreenViewModel(
                 repo.locationRepo.deleteLocationByName(location.name)
                 _state.value = MyLocationsScreenState.Success(_locations)
                 _successMessage.value = R.string.location_deleted
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 Log.d("MyLocationsScreenViewModel", "deleteLocation: ", e)
                 _state.value = MyLocationsScreenState.Error(R.string.unexpected_error)
             }
@@ -170,10 +116,9 @@ class MyLocationsScreenViewModel(
         _state.value = MyLocationsScreenState.Loading
         viewModelScope.launch {
             try {
-                val otherRulesForLocation = repo.ruleRepo.getRulesForLocation(location)
                 val timelessRulesForLocation =
                     repo.ruleRepo.getTimelessRulesForLocation(location)
-                if (otherRulesForLocation.isNotEmpty() || timelessRulesForLocation.isNotEmpty()) {
+                if (timelessRulesForLocation.isNotEmpty()) {
                     _state.value =
                         MyLocationsScreenState.Error(R.string.rule_already_exists_for_this_location)
                     return@launch
@@ -200,7 +145,7 @@ class MyLocationsScreenViewModel(
                 )
                 _state.value = MyLocationsScreenState.Success(_locations)
                 _successMessage.value = R.string.rule_created_successfully
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 _state.value = MyLocationsScreenState.Error(R.string.unexpected_error)
             }
         }

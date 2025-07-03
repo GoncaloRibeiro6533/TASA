@@ -58,7 +58,7 @@ class MenuViewModel(
                             MenuScreenState.LoggedOut
                         }
                     }
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     repo.ruleRepo.clean()
                     repo.locationRepo.clear()
                     repo.alarmRepo.clear()

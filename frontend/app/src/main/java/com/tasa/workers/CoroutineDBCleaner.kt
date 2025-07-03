@@ -20,7 +20,7 @@ class CoroutineDBCleaner(
                 repo.alarmRepo.clearOlderAlarms(now)
                 repo.ruleRepo.cleanOldRules(now.toLocalDateTime())
                 Result.success()
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 Result.failure()
             }
         }

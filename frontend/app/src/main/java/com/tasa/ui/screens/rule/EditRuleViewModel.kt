@@ -74,7 +74,6 @@ class EditRuleViewModel(
         rule: RuleEvent,
         newStartTime: LocalDateTime,
         newEndTime: LocalDateTime,
-        activityContext: Context,
     ) {
         if (_state.value !is EditRuleState.Editing) return
         _state.value = EditRuleState.Loading
@@ -82,11 +81,6 @@ class EditRuleViewModel(
             try {
                 val isCollision = repo.ruleRepo.isCollisionWithAnother(rule, newStartTime, newEndTime)
                 if (!isCollision) {
-                    // when (rule) {
-                        /*is RuleLocation -> {
-                            // TODO
-                        }*/
-                    //  is RuleEvent -> {
                     if (!newStartTime.isAfter(newEndTime) &&
                         !toInterval(newStartTime, newEndTime)
                             .isWithin(toInterval(rule.startTime, rule.endTime))
@@ -110,28 +104,46 @@ class EditRuleViewModel(
                             rule.endTime.toTriggerTime().value,
                         )
                     if (alarmStart == null || alarmEnd == null) {
+                        val startAlarmId =
+                            repo.alarmRepo.createAlarm(
+                                newStartTime.toTriggerTime().value,
+                                Action.MUTE,
+                            )
                         alarmScheduler.scheduleAlarm(
+                            startAlarmId,
                             newStartTime.toTriggerTime(),
                             Action.MUTE,
-                            activityContext,
                         )
+                        val endAlarmId =
+                            repo.alarmRepo.createAlarm(
+                                newEndTime.toTriggerTime().value,
+                                Action.UNMUTE,
+                            )
                         alarmScheduler.scheduleAlarm(
+                            endAlarmId,
                             newEndTime.toTriggerTime(),
                             Action.UNMUTE,
-                            activityContext,
                         )
                     } else {
                         alarmScheduler.updateAlarm(
                             alarmStart.id,
                             newStartTime.toTriggerTime(),
                             alarmStart.action,
-                            activityContext,
+                        )
+                        repo.alarmRepo.updateAlarm(
+                            triggerTime = newStartTime.toTriggerTime().value,
+                            action = alarmStart.action,
+                            id = alarmStart.id,
                         )
                         alarmScheduler.updateAlarm(
                             alarmEnd.id,
                             newEndTime.toTriggerTime(),
                             alarmEnd.action,
-                            activityContext,
+                        )
+                        repo.alarmRepo.updateAlarm(
+                            triggerTime = newEndTime.toTriggerTime().value,
+                            action = alarmEnd.action,
+                            id = alarmEnd.id,
                         )
                     }
                     _state.value =
@@ -141,9 +153,7 @@ class EditRuleViewModel(
                                 endTime = newEndTime,
                             ),
                         )
-                }
-                // }
-                else {
+                } else {
                     _state.value = EditRuleState.Error(R.string.rule_already_exists_for_this_time)
                 }
             } catch (ex: Throwable) {

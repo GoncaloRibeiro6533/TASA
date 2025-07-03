@@ -1,14 +1,18 @@
 package pt.isel
 
-import kotlinx.datetime.LocalDateTime
+import java.time.LocalDateTime
 
+/**
+* @property startTime the rule's start time
+* @property endTime the rule's end time
+**/
 class RuleEvent(
     id: Int,
-    startTime: LocalDateTime,
-    endTime: LocalDateTime,
+    val startTime: LocalDateTime,
+    val endTime: LocalDateTime,
     creator: User,
     val event: Event,
-) : Rule(id, startTime, endTime, creator) {
+) : Rule(id, creator) {
     override fun toString(): String {
         return "RuleEvent(id=$id, startTime=$startTime, endTime=$endTime, creator= $creator, event=$event)"
     }

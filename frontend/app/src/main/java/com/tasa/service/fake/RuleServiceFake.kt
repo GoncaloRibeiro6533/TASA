@@ -3,9 +3,11 @@ package com.tasa.service.fake
 import com.tasa.domain.ApiError
 import com.tasa.domain.Event
 import com.tasa.domain.Location
-import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
-import com.tasa.domain.RuleLocation
+import com.tasa.domain.RuleLocationTimeless
+import com.tasa.service.http.models.rule.RuleEventOutput
+import com.tasa.service.http.models.rule.RuleListOutput
+import com.tasa.service.http.models.rule.RuleLocationOutput
 import com.tasa.service.interfaces.RuleService
 import com.tasa.utils.Either
 import com.tasa.utils.failure
@@ -32,11 +34,9 @@ class RuleServiceFake : RuleService {
             )
         private var ruleLocationId = 1
         private val ruleLocations =
-            mutableListOf<RuleLocation>(
-                RuleLocation(
+            mutableListOf<RuleLocationTimeless>(
+                RuleLocationTimeless(
                     id = 1,
-                    startTime = LocalDateTime.parse("2025-06-01T10:00:00"),
-                    endTime = LocalDateTime.parse("2025-06-01T12:00:00"),
                     location =
                         Location(
                             id = 1,
@@ -49,27 +49,31 @@ class RuleServiceFake : RuleService {
             )
     }
 
-    override suspend fun fetchRules(token: String): Either<ApiError, List<Rule>> {
-        return success(ruleLocations + ruleEvents)
+    override suspend fun fetchRules(token: String): Either<ApiError, RuleListOutput> {
+        return success(
+            RuleListOutput(
+                eventRulesN = 1,
+                eventRules = emptyList<RuleEventOutput>(),
+                locationRulesN = 0,
+                locationRules = emptyList<RuleLocationOutput>(),
+            ),
+        )
     }
 
     override suspend fun fetchRuleEventById(
         id: Int,
         token: String,
-    ): Either<ApiError, RuleEvent> {
+    ): Either<ApiError, RuleEventOutput> {
         if (ruleEvents.isEmpty()) return failure(ApiError("RuleEvent not found"))
         val ruleEvent = ruleEvents.find { it.id == id }
-        return if (ruleEvent != null) {
-            success(ruleEvent)
-        } else {
-            failure(ApiError("RuleEvent not found"))
-        }
+
+        return failure(ApiError("RuleEvent not found"))
     }
 
     override suspend fun fetchRuleLocationById(
         id: Int,
         token: String,
-    ): Either<ApiError, RuleLocation> {
+    ): Either<ApiError, RuleLocationTimeless> {
         if (ruleLocations.isEmpty()) return failure(ApiError("RuleLocation not found"))
         val ruleLocation = ruleLocations.find { it.id == id }
         return if (ruleLocation != null) {
@@ -89,9 +93,9 @@ class RuleServiceFake : RuleService {
     }
 
     override suspend fun insertRuleLocation(
-        ruleLocation: RuleLocation,
+        ruleLocation: RuleLocationTimeless,
         token: String,
-    ): Either<ApiError, RuleLocation> {
+    ): Either<ApiError, RuleLocationTimeless> {
         val newRuleLocation = ruleLocation.copy(id = ++ruleLocationId)
         ruleLocations.add(newRuleLocation)
         return success(newRuleLocation)
@@ -135,21 +139,6 @@ class RuleServiceFake : RuleService {
             success(ruleEvent)
         } else {
             failure(ApiError("RuleEvent not found"))
-        }
-    }
-
-    override suspend fun updateRuleLocation(
-        ruleLocation: RuleLocation,
-        newStartTime: LocalDateTime,
-        newEndTime: LocalDateTime,
-        token: String,
-    ): Either<ApiError, RuleLocation> {
-        val index = ruleLocations.indexOfFirst { it.id == ruleLocation.id }
-        return if (index != -1) {
-            ruleLocations[index] = ruleLocation
-            success(ruleLocation)
-        } else {
-            failure(ApiError("RuleLocation not found"))
         }
     }
 }

@@ -17,6 +17,16 @@ private const val TEXT_FIELD_WIDTH_FACTOR = 0.6f
 const val LOGIN_USERNAME_TEXT_FIELD = "login_username_text_fields"
 const val LOGIN_PASSWORD_TEXT_FIELD = "login_password_text_fields"
 
+/**
+ * The text fields for the login operation on the login page:
+ * - Username field
+ * - Password field
+ *
+ * @param username username to show
+ * @param password password to show
+ * @param onUsernameChangeCallback callback to be invoked when the username text is changed
+ * @param onPasswordChangeCallback callback to be invoked when the password text is changed
+ */
 @Composable
 fun LoginTextFields(
     username: String,
@@ -29,10 +39,7 @@ fun LoginTextFields(
         UsernameTextField(
             username = username,
             onUsernameChangeCallback = onUsernameChangeCallback,
-            modifier =
-                Modifier
-                    .padding(bottom = USERNAME_TO_PASSWORD_PADDING.dp)
-                    .testTag(LOGIN_USERNAME_TEXT_FIELD),
+            modifier = Modifier.padding(bottom = USERNAME_TO_PASSWORD_PADDING.dp).testTag(LOGIN_USERNAME_TEXT_FIELD),
         )
         PasswordTextField(
             password = password,

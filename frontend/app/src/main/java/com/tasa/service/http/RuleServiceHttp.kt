@@ -1,9 +1,8 @@
 package com.tasa.service.http
 
 import com.tasa.domain.ApiError
-import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
-import com.tasa.domain.RuleLocation
+import com.tasa.domain.RuleLocationTimeless
 import com.tasa.service.http.RuleServiceError.LocationIdNull
 import com.tasa.service.http.models.rule.RuleEventOutput
 import com.tasa.service.http.models.rule.RuleListOutput
@@ -30,9 +29,9 @@ sealed class RuleServiceError(message: String = "") : ApiError(message) {
 }
 
 class RuleServiceHttp(private val client: HttpClient) : RuleService {
-    override suspend fun fetchRules(token: String): Either<ApiError, List<Rule>> {
+    override suspend fun fetchRules(token: String): Either<ApiError, RuleListOutput> {
         return when (val response = client.get<RuleListOutput>("/rule/all", token = token)) {
-            is Success -> success(response.value.toRules())
+            is Success -> success(response.value)
             is Failure -> failure(response.value)
         }
     }
@@ -40,9 +39,9 @@ class RuleServiceHttp(private val client: HttpClient) : RuleService {
     override suspend fun fetchRuleEventById(
         id: Int,
         token: String,
-    ): Either<ApiError, RuleEvent> {
+    ): Either<ApiError, RuleEventOutput> {
         return when (val response = client.get<RuleEventOutput>("/rule/event/$id", token = token)) {
-            is Success -> success(response.value.toRuleEvent())
+            is Success -> success(response.value)
             is Failure -> failure(response.value)
         }
     }
@@ -50,8 +49,8 @@ class RuleServiceHttp(private val client: HttpClient) : RuleService {
     override suspend fun fetchRuleLocationById(
         id: Int,
         token: String,
-    ): Either<ApiError, RuleLocation> {
-        return when (val response = client.get<RuleLocation>("/rule/location/$id", token = token)) {
+    ): Either<ApiError, RuleLocationTimeless> {
+        return when (val response = client.get<RuleLocationTimeless>("/rule/location/$id", token = token)) {
             is Success -> success(response.value)
             is Failure -> failure(response.value)
         }
@@ -70,25 +69,25 @@ class RuleServiceHttp(private val client: HttpClient) : RuleService {
                     token = token,
                 )
         ) {
-            is Success -> success(response.value.toRuleEvent())
+            is Success -> success(response.value.toRuleEvent(ruleEvent.event))
             is Failure -> failure(response.value)
         }
     }
 
     override suspend fun insertRuleLocation(
-        ruleLocation: RuleLocation,
+        ruleLocation: RuleLocationTimeless,
         token: String,
-    ): Either<ApiError, RuleLocation> {
+    ): Either<ApiError, RuleLocationTimeless> {
         if (ruleLocation.location.id == null) return failure(LocationIdNull)
         return when (
             val response =
                 client.post<RuleLocationOutput>(
                     "/rule/location",
-                    body = ruleLocation.toRuleLocationInput(ruleLocation.location.id),
+                    body = ruleLocation.toRuleLocationTimelessInput(ruleLocation.location.id),
                     token = token,
                 )
         ) {
-            is Success -> success(response.value.toRuleLocation())
+            is Success -> success(response.value.toRuleLocationTimeless())
             is Failure -> failure(response.value)
         }
     }
@@ -128,28 +127,7 @@ class RuleServiceHttp(private val client: HttpClient) : RuleService {
                     token = token,
                 )
         ) {
-            is Success -> success(response.value.toRuleEvent())
-            is Failure -> failure(response.value)
-        }
-    }
-
-    override suspend fun updateRuleLocation(
-        ruleLocation: RuleLocation,
-        newStartTime: LocalDateTime,
-        newEndTime: LocalDateTime,
-        token: String,
-    ): Either<ApiError, RuleLocation> {
-        if (ruleLocation.id == null) return failure(RuleServiceError.RuleIdNull)
-        if (ruleLocation.location.id == null) return failure(LocationIdNull)
-        return when (
-            val response =
-                client.put<RuleLocationOutput>(
-                    "/rule/location/${ruleLocation.id}/update",
-                    body = ruleLocation.toRuleLocationUpdateInput(),
-                    token = token,
-                )
-        ) {
-            is Success -> success(response.value.toRuleLocation())
+            is Success -> success(response.value.toRuleEvent(ruleEvent.event))
             is Failure -> failure(response.value)
         }
     }

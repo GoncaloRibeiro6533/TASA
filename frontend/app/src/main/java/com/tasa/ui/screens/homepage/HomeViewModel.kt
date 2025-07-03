@@ -3,6 +3,7 @@ package com.tasa.ui.screens.homepage
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -59,7 +60,7 @@ class HomePageScreenViewModel(
                 repo.eventRepo.clear()
                 repo.locationRepo.clear()
                 userInfo.clearUserInfo()
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
             }
         }
     }
@@ -73,14 +74,21 @@ class HomePageScreenViewModel(
     fun registerGeofences() {
         viewModelScope.launch {
             try {
-                if (repo.geofenceRepo.getAllGeofences().isNotEmpty()) {
-                    geofenceManager.onBootRegisterGeofences()
+                val list = repo.geofenceRepo.getAllGeofences()
+                if (list.isNotEmpty()) {
+                    geofenceManager.onBootRegisterGeofences(list)
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
             }
         }
     }
 
+    @RequiresPermission(
+        allOf = [
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+        ],
+    )
     fun loadLocalData(): Job? {
         if (_state.value is HomeScreenState.Loading) return null
         _state.value = HomeScreenState.Loading
@@ -100,6 +108,7 @@ class HomePageScreenViewModel(
             } catch (e: Throwable) {
                 _state.value =
                     HomeScreenState.Error(R.string.unexpected_error)
+                Log.d("HomePageScreenViewModel", "loadLocalData: ${e.message}")
             }
         }
     }
@@ -129,28 +138,7 @@ class HomePageScreenViewModel(
                             alarmScheduler.cancelAlarm(alarmEnd.id, context)
                         }
                     }
-                    is RuleLocation -> {
-                        repo.ruleRepo.deleteRuleLocationByName(rule.location.name)
-                        val rules = repo.ruleRepo.getRulesForLocation(rule.location)
-                        if (rules.isEmpty()) {
-                            val geofences =
-                                repo.geofenceRepo.getAllGeofences()
-                                    .filter { it.name == rule.location.name }
-                            if (geofences.isNotEmpty()) {
-                                geofenceManager.deregisterGeofence(geofences.first().name)
-                                repo.geofenceRepo.deleteGeofence(geofences.first())
-                            }
-                        }
-                        if (LocationService.isRunning && LocationService.locationName ==
-                            rule.location.name
-                        ) {
-                            val serviceIntent =
-                                Intent(context, LocationService::class.java).apply {
-                                    putExtra("requestId", LocationService.reqId)
-                                }
-                            context.stopService(serviceIntent)
-                        }
-                    }
+                    is RuleLocation -> {}
                     is RuleLocationTimeless -> {
                         val geofences =
                             repo.geofenceRepo.getAllGeofences()
@@ -175,7 +163,7 @@ class HomePageScreenViewModel(
                     }
                 }
                 _state.value = HomeScreenState.Success(rules)
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 _state.value = HomeScreenState.Error(R.string.error_on_cancel_rule)
             }
         }

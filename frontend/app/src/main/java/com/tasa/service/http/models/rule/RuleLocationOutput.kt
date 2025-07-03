@@ -1,20 +1,17 @@
 package com.tasa.service.http.models.rule
 
 import com.tasa.domain.Location
-import com.tasa.domain.RuleLocation
-import java.time.LocalDateTime
+import com.tasa.domain.RuleLocationTimeless
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class RuleLocationOutput(
     val id: Int,
-    val startTime: LocalDateTime,
-    val endTime: LocalDateTime,
     val location: Location,
 ) {
-    fun toRuleLocation(): RuleLocation {
-        return RuleLocation(
+    fun toRuleLocationTimeless(): RuleLocationTimeless {
+        return RuleLocationTimeless(
             id = id,
-            startTime = startTime,
-            endTime = endTime,
             location = location,
         )
     }

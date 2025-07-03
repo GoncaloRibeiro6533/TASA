@@ -8,7 +8,7 @@ import com.tasa.domain.RuleLocationTimeless
 
 @Entity(
     tableName = "rule_location_timeless",
-    primaryKeys = ["locationName", "geofenceId"],
+    primaryKeys = ["locationName"],
     foreignKeys = [
         ForeignKey(
             entity = LocationEntity::class,
@@ -16,18 +16,11 @@ import com.tasa.domain.RuleLocationTimeless
             childColumns = ["locationName"],
             // onDelete = ForeignKey.CASCADE
         ),
-        ForeignKey(
-            entity = GeofenceEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["geofenceId"],
-            // onDelete = ForeignKey.CASCADE
-        ),
     ],
 )
 data class RuleLocationTimelessEntity(
     val id: Int? = null,
     val locationName: String,
-    val geofenceId: Int,
 )
 
 data class RuleLocationTimelessWithLocation(

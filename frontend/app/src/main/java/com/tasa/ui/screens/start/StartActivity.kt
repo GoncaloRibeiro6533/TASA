@@ -10,7 +10,6 @@ import com.tasa.ui.screens.about.AboutActivity
 import com.tasa.ui.screens.authentication.login.LoginActivity
 import com.tasa.ui.screens.authentication.register.RegisterActivity
 import com.tasa.ui.screens.homepage.HomePageActivity
-import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
 
 class StartActivity : ComponentActivity() {
@@ -27,15 +26,13 @@ class StartActivity : ComponentActivity() {
         enableEdgeToEdge()
         viewModel.getSession()
         setContent {
-            TasaTheme {
-                StartScreen(
-                    viewModel = viewModel,
-                    onLoginRequested = { navigateTo(this, LoginActivity::class.java) },
-                    onRegisterRequested = { navigateTo(this, RegisterActivity::class.java) },
-                    onAboutRequested = { navigateTo(this, AboutActivity::class.java) },
-                    onLoggedIntent = { navigateTo(this, HomePageActivity::class.java) },
-                )
-            }
+            StartScreen(
+                viewModel = viewModel,
+                onLoginRequested = { navigateTo(this, LoginActivity::class.java) },
+                onRegisterRequested = { navigateTo(this, RegisterActivity::class.java) },
+                onAboutRequested = { navigateTo(this, AboutActivity::class.java) },
+                onLoggedIntent = { navigateTo(this, HomePageActivity::class.java) },
+            )
         }
     }
 }

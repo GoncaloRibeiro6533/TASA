@@ -24,7 +24,12 @@ class UserRepository(
         email: String,
         password: String,
     ): Either<ApiError, User> {
-        val result = remote.userService.register(username, email, password)
+        val result =
+            remote.userService.register(
+                username = username,
+                password = password,
+                email = email,
+            )
         return when (result) {
             is Success -> {
                 success(result.value)
@@ -66,7 +71,9 @@ class UserRepository(
                 local.userDao().insertUser(userEntity)
                 userInfoRepository.setToken(result.value.session.token)
                 userInfoRepository.saveRefreshToken(result.value.session.refreshToken)
-                userInfoRepository.setSessionExpiration(result.value.session.expiration)
+                userInfoRepository.setSessionExpiration(
+                    result.value.session.expiration,
+                )
                 userInfoRepository.updateUserInfo(result.value.user)
                 success(result.value.user)
             }

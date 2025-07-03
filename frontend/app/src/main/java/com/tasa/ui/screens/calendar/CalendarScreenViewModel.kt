@@ -51,13 +51,13 @@ class CalendarScreenViewModel(
         _state.value = CalendarScreenState.Loading
         return viewModelScope.launch {
             try {
-                activityContext.calendarEventsFlow().collect {
+                activityContext.calendarEventsFlow().collect { it ->
                     _events.value = it
                     if (_state.value is CalendarScreenState.Loading) {
                         _state.value = CalendarScreenState.Success(events)
                     }
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 _state.value = CalendarScreenState.Error(R.string.unexpected_error)
                 Log.e("CalendarViewModel", "Error loading events: ${e.message}")
             }
@@ -82,8 +82,26 @@ class CalendarScreenViewModel(
                             endTime = endTime ?: event.endTime,
                             event = event.event,
                         )
-                    ruleScheduler.scheduleAlarm(rule.startTime.toTriggerTime(), Action.MUTE, activityContext)
-                    ruleScheduler.scheduleAlarm(rule.endTime.toTriggerTime(), Action.UNMUTE, activityContext)
+                    val alarmIdStart =
+                        repo.alarmRepo.createAlarm(
+                            rule.startTime.toTriggerTime().value,
+                            Action.MUTE,
+                        )
+                    ruleScheduler.scheduleAlarm(
+                        alarmIdStart,
+                        rule.startTime.toTriggerTime(),
+                        Action.MUTE,
+                    )
+                    val alarmIdEnd =
+                        repo.alarmRepo.createAlarm(
+                            rule.endTime.toTriggerTime().value,
+                            Action.UNMUTE,
+                        )
+                    ruleScheduler.scheduleAlarm(
+                        alarmIdEnd,
+                        rule.endTime.toTriggerTime(),
+                        Action.UNMUTE,
+                    )
                     _state.value = CalendarScreenState.SuccessOnSchedule(events)
                 } else {
                     _state.value =

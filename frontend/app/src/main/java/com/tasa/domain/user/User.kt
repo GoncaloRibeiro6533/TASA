@@ -1,7 +1,9 @@
 package com.tasa.domain.user
 
 import com.tasa.storage.entities.UserEntity
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class User(
     val id: Int,
     val username: String,

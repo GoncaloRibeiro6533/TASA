@@ -44,9 +44,6 @@ class MyLocationsActivity : ComponentActivity() {
                     onNavigateBack = {
                         finish()
                     },
-                    onCreateRuleLocation = { location, startTime, endTime ->
-                        viewModel.createRulesForLocation(location, startTime, endTime)
-                    },
                     onCreateRuleLocationTimeless = { location ->
                         viewModel.createTimelessRuleLocation(location)
                     },

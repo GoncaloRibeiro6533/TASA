@@ -2,6 +2,7 @@ package com.tasa.storage.entities
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
@@ -13,6 +14,7 @@ import androidx.room.PrimaryKey
             childColumns = ["name"],
         ),
     ],
+    indices = [Index(value = ["name"])],
 )
 data class GeofenceEntity(
     @PrimaryKey(autoGenerate = true) val id: Int,

@@ -3,6 +3,7 @@ package com.tasa.domain
 import android.location.Location
 import com.tasa.service.http.models.location.LocationInput
 import com.tasa.storage.entities.LocationEntity
+import kotlinx.serialization.Serializable
 
 /**
  * Represents a location defined by its name, latitude and longitude.
@@ -14,6 +15,7 @@ import com.tasa.storage.entities.LocationEntity
  * @throws IllegalArgumentException if any of the parameters is invalid
  */
 
+@Serializable
 data class Location(
     val id: Int? = null,
     val name: String,

@@ -1,5 +1,4 @@
 package com.tasa.ui.screens.authentication.components
-
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
@@ -15,6 +14,16 @@ import androidx.compose.ui.unit.dp
 
 private const val BUTTON_PADDING = 6
 
+/**
+ * A button with an icon.
+ *
+ * @param onClick the action to be performed when the button is clicked
+ * @param painter the icon of the button
+ * @param contentDescription the description of the icon
+ * @param modifier the modifier of the button
+ * @param text the text of the button
+ * @param enabled whether the button is enabled or not
+ */
 @Composable
 fun IconButton(
     onClick: () -> Unit,

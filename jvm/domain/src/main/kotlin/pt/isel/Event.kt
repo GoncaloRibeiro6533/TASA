@@ -1,6 +1,6 @@
 package pt.isel
 
-import kotlinx.datetime.LocalDateTime
+import java.time.LocalDateTime
 
 /**
  * Represents an event.

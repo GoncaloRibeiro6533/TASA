@@ -18,7 +18,6 @@ import com.tasa.ui.components.HandleSuccessSnackbar
 import com.tasa.ui.components.LoadingView
 import com.tasa.ui.components.NavigationHandlers
 import com.tasa.ui.components.TopBar
-import java.time.LocalDateTime
 
 @Composable
 fun MyLocationsScreen(
@@ -28,7 +27,6 @@ fun MyLocationsScreen(
     onDeleteLocation: (Location) -> Unit,
     onEditLocation: (Location) -> Unit,
     onNavigateBack: () -> Unit,
-    onCreateRuleLocation: (Location, LocalDateTime, LocalDateTime) -> Unit,
     onCreateRuleLocationTimeless: (Location) -> Unit,
     onSetCreateRuleState: (Location) -> Unit,
     onSetSuccessState: () -> Unit,
@@ -57,7 +55,8 @@ fun MyLocationsScreen(
                     )
 
                 is MyLocationsScreenState.Uninitialized,
-                MyLocationsScreenState.Loading,
+                is MyLocationsScreenState.Loading,
+                is MyLocationsScreenState.CreatingRuleLocation,
                 -> LoadingView()
 
                 is MyLocationsScreenState.Success -> {
@@ -76,20 +75,6 @@ fun MyLocationsScreen(
                         onSetCreateTimelessRuleState = { location ->
                             onCreateRuleLocationTimeless(location)
                         },
-                    )
-                }
-
-                is MyLocationsScreenState.CreatingRuleLocation -> {
-                    CreateRuleLocationView(
-                        location = state.location,
-                        onCreate = { location, start, end ->
-                            onCreateRuleLocation(
-                                location,
-                                start,
-                                end,
-                            )
-                        },
-                        onCancel = onSetSuccessState,
                     )
                 }
             }

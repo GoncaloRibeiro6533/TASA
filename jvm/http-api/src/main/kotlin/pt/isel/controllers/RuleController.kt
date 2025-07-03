@@ -20,12 +20,12 @@ import pt.isel.RuleService
 import pt.isel.Success
 import pt.isel.errorHandlers.RuleErrorHandler
 import pt.isel.models.rule.RuleEventInput
+import pt.isel.models.rule.RuleEventListOutput
 import pt.isel.models.rule.RuleEventOutput
 import pt.isel.models.rule.RuleEventUpdateInput
 import pt.isel.models.rule.RuleListOutput
 import pt.isel.models.rule.RuleLocationInput
 import pt.isel.models.rule.RuleLocationOutput
-import pt.isel.models.rule.RuleLocationUpdateInput
 
 /**
  * Controller for managing rules.
@@ -53,8 +53,6 @@ class RuleController(
         val result: Either<RuleError, RuleLocation> =
             ruleService.createLocationRule(
                 userId = authUser.user.id,
-                startTime = rule.startTime,
-                endTime = rule.endTime,
                 locationId = rule.locationId,
             )
         return when (result) {
@@ -132,37 +130,6 @@ class RuleController(
     }
 
     /**
-     * Updates the location rule time.
-     *
-     * @param authUser the authenticated user
-     * @param id the rule ID
-     * @param rule the rule input
-     * @return the response entity with the updated rule
-     */
-    @PutMapping("/location/{id}/update")
-    fun updateRuleLocation(
-        authUser: AuthenticatedUser,
-        @PathVariable id: Int,
-        @RequestBody rule: RuleLocationUpdateInput,
-    ): ResponseEntity<*> {
-        val result: Either<RuleError, RuleLocation> =
-            ruleService.updateLocationRule(
-                userId = authUser.user.id,
-                ruleId = id,
-                startTime = rule.startTime,
-                endTime = rule.endTime,
-            )
-        return when (result) {
-            is Success -> ResponseEntity.status(HttpStatus.OK).body(result.value)
-            is Failure ->
-                ruleErrorHandler.toResponse(
-                    ruleError = result.value,
-                    input = id.toString(),
-                )
-        }
-    }
-
-    /**
      * Gets a location rule by ID.
      *
      * @param authUser the authenticated user
@@ -184,8 +151,6 @@ class RuleController(
                 ResponseEntity.status(HttpStatus.OK).body(
                     RuleLocationOutput(
                         id = result.value.id,
-                        startTime = result.value.startTime,
-                        endTime = result.value.endTime,
                         location = result.value.location,
                     ),
                 )
@@ -245,7 +210,7 @@ class RuleController(
             is Success -> {
                 val ruleLocationOutput =
                     result.value.filterIsInstance<RuleLocation>().map {
-                        RuleLocationOutput(it.id, it.startTime, it.endTime, it.location)
+                        RuleLocationOutput(it.id, it.location)
                     }
                 val ruleEventOutput =
                     result.value.filterIsInstance<RuleEvent>().map {
@@ -257,6 +222,31 @@ class RuleController(
                         eventRules = ruleEventOutput,
                         locationRulesN = ruleLocationOutput.size,
                         locationRules = ruleLocationOutput,
+                    ),
+                )
+            }
+
+            is Failure -> {
+                ruleErrorHandler.toResponse(
+                    ruleError = result.value,
+                )
+            }
+        }
+    }
+
+    @GetMapping("event/all")
+    fun getAllRuleEventFromUser(authUser: AuthenticatedUser): ResponseEntity<*> {
+        val result = ruleService.getRulesByUser(authUser.user.id)
+        return when (result) {
+            is Success -> {
+                val ruleEventOutput =
+                    result.value.filterIsInstance<RuleEvent>().map {
+                        RuleEventOutput(it.id, it.startTime, it.endTime, it.event)
+                    }
+                ResponseEntity.ok(
+                    RuleEventListOutput(
+                        nRules = ruleEventOutput.size,
+                        rules = ruleEventOutput,
                     ),
                 )
             }

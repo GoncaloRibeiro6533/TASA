@@ -149,7 +149,7 @@ fun Context.toLocalEvent(
 
         while (it.moveToNext()) {
             val description = it.getString(descriptionIndex)?.lowercase() ?: ""
-            val language = Locale.getDefault().displayLanguage
+            val language = Locale.getDefault().language.split('_').first()
             val keywords =
                 when (language) {
                     "pt" -> listOf("feriado", "comemoração", "data comemorativa", "feriados")

@@ -25,7 +25,7 @@ val BASE_URL = "${TasaApplication.Companion.apiUrl}/api"
 const val ERROR_MEDIA_TYPE = "application/problem+json"
 const val SCHEME = "bearer"
 const val NAME_WWW_AUTHENTICATE_HEADER = "WWW-Authenticate"
-var language = Locale.getDefault().displayLanguage.split('-').firstOrNull() ?: "en"
+var language = Locale.getDefault().language.split('_').firstOrNull() ?: "en"
 
 // Main GET request function
 suspend inline fun <reified T : Any> HttpClient.get(
@@ -39,7 +39,7 @@ suspend inline fun <reified T : Any> HttpClient.get(
             header("Accept", "$MEDIA_TYPE, $ERROR_MEDIA_TYPE")
             header("Accept-Language", language)
         }.processResponse()
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
         failure(ApiError("Unexpected error: ${e.message ?: e.cause?.message}"))
     }
 }
@@ -57,7 +57,7 @@ suspend inline fun <reified T : Any> HttpClient.post(
             header("Accept-Language", language)
             if (body != null) setBody(body)
         }.processResponse()
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
         failure(ApiError("Unexpected error: ${e.message ?: e.cause?.message}"))
     }
 }
@@ -75,7 +75,7 @@ suspend inline fun <reified T : Any> HttpClient.put(
             header("Accept-Language", language)
             if (body != null) setBody(body)
         }.processResponse()
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
         failure(ApiError("Unexpected error: ${e.message ?: e.cause?.message}"))
     }
 }
@@ -91,7 +91,7 @@ suspend inline fun <reified T : Any> HttpClient.delete(
             header("Accept", "$MEDIA_TYPE, $ERROR_MEDIA_TYPE")
             header("Accept-Language", language)
         }.processResponse()
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
         failure(ApiError("Unexpected error: ${e.message ?: e.cause?.message}"))
     }
 }
@@ -110,7 +110,9 @@ suspend inline fun <reified T : Any> HttpResponse.processResponse(): Either<ApiE
             null,
         )
     }
-    return when (this.headers[HttpHeaders.ContentType]) {
+    // TODO check for the utf-8 on server properties
+    val a = this.headers[HttpHeaders.ContentType]?.split(';')?.first()
+    return when (a) {
         ERROR_MEDIA_TYPE -> {
             val problem: ProblemResponse = this.body<ProblemResponse>()
             failure(ApiError(problem.detail))

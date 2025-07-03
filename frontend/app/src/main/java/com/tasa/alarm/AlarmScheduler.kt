@@ -8,23 +8,22 @@ import android.content.Intent
 import android.os.Parcelable
 import androidx.core.net.toUri
 import com.tasa.domain.Action
+import com.tasa.domain.Alarm
 import com.tasa.domain.TasaException
 import com.tasa.domain.TriggerTime
 import com.tasa.domain.toTriggerTime
-import com.tasa.repository.TasaRepo
 import com.tasa.silence.MuteReceiver
 import java.util.Calendar
 import kotlin.time.Duration.Companion.minutes
 
 class AlarmScheduler(
-    private val repo: TasaRepo,
+    private val context: Context,
 ) {
-    suspend fun scheduleAlarm(
+    fun scheduleAlarm(
+        alarmId: Int,
         time: TriggerTime,
         action: Action,
-        context: Context,
     ) {
-        val alarmId = repo.alarmRepo.createAlarm(time.value, action)
         val intent =
             Intent(context, MuteReceiver::class.java).apply {
                 putExtra("action", action as Parcelable)
@@ -54,13 +53,11 @@ class AlarmScheduler(
         }
     }
 
-    suspend fun updateAlarm(
+    fun updateAlarm(
         alarmId: Int,
         time: TriggerTime,
         action: Action,
-        context: Context,
     ) {
-        repo.alarmRepo.updateAlarm(time.value, action, alarmId)
         val intent =
             Intent(context, MuteReceiver::class.java).apply {
                 putExtra("action", action as Parcelable)
@@ -92,12 +89,10 @@ class AlarmScheduler(
         )
     }
 
-    suspend fun cancelAlarm(
+    fun cancelAlarm(
         alarmId: Int,
         context: Context,
     ) {
-        repo.alarmRepo.deleteAlarm(alarmId)
-
         val intent =
             Intent(context, MuteReceiver::class.java).apply {
                 data = "custom://alarm/$alarmId".toUri()
@@ -115,14 +110,13 @@ class AlarmScheduler(
         alarmMgr.cancel(pendingIntent)
     }
 
-    suspend fun rescheduleAllAlarms(context: Context) {
-        val alarms = repo.alarmRepo.getAllAlarms()
+    fun rescheduleAllAlarms(alarms: List<Alarm>) {
         val now = Calendar.getInstance().timeInMillis
         alarms.filter {
             it.triggerTime >= now ||
                 it.triggerTime < now.minus(10.minutes.inWholeMinutes)
         }.forEach { alarm ->
-            scheduleAlarm(alarm.triggerTime.toTriggerTime(), alarm.action, context)
+            scheduleAlarm(alarm.id, alarm.triggerTime.toTriggerTime(), alarm.action)
         }
     }
 }
