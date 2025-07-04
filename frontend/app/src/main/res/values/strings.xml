@@ -77,4 +77,6 @@
     <string name="name">Name</string>
     <string name="meters">meters</string>
     <string name="radius">Radius</string>
+    <string name="tasa_is_executing_in_the_backgrund">Tasa is monitoring location in the background</string>
+    <string name="user_to_found">User not found</string>
 </resources>

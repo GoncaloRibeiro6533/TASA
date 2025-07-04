@@ -22,14 +22,11 @@ import com.tasa.ui.components.TopBar
 @Composable
 fun MyLocationsScreen(
     viewModel: MyLocationsScreenViewModel,
-    onLocationSelected: (Location) -> Unit,
-    onAddLocation: () -> Unit,
     onDeleteLocation: (Location) -> Unit,
     onEditLocation: (Location) -> Unit,
     onNavigateBack: () -> Unit,
     onCreateRuleLocationTimeless: (Location) -> Unit,
     onSetCreateRuleState: (Location) -> Unit,
-    onSetSuccessState: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
@@ -49,7 +46,7 @@ fun MyLocationsScreen(
                 is MyLocationsScreenState.Error ->
                     ErrorAlert(
                         title = stringResource(R.string.error),
-                        message = stringResource(state.resourceID),
+                        message = state.message,
                         buttonText = stringResource(R.string.Ok),
                         onDismiss = { onNavigateBack() },
                     )

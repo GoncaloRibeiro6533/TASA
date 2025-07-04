@@ -11,6 +11,7 @@ import com.tasa.domain.CalendarEvent
 import com.tasa.domain.toTriggerTime
 import com.tasa.repository.TasaRepo
 import com.tasa.utils.QueryCalendarService
+import com.tasa.utils.StringResourceResolver
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,7 +30,7 @@ sealed interface CalendarScreenState {
 
     data class Success(val events: StateFlow<List<CalendarEvent>>) : CalendarScreenState
 
-    data class Error(val message: Int) : CalendarScreenState
+    data class Error(val message: String) : CalendarScreenState
 
     data class CreatingRuleEvent(val event: CalendarEvent) : CalendarScreenState
 }
@@ -38,6 +39,7 @@ class CalendarScreenViewModel(
     private val ruleScheduler: AlarmScheduler,
     private val repo: TasaRepo,
     private val queryCalendarService: QueryCalendarService,
+    private val stringResolver: StringResourceResolver,
     initialState: CalendarScreenState = CalendarScreenState.Uninitialized,
 ) : ViewModel() {
     private val _state = MutableStateFlow<CalendarScreenState>(initialState)
@@ -58,7 +60,10 @@ class CalendarScreenViewModel(
                     }
                 }
             } catch (e: Throwable) {
-                _state.value = CalendarScreenState.Error(R.string.unexpected_error)
+                _state.value =
+                    CalendarScreenState.Error(
+                        stringResolver.getString(R.string.unexpected_error),
+                    )
                 Log.e("CalendarViewModel", "Error loading events: ${e.message}")
             }
         }
@@ -104,10 +109,15 @@ class CalendarScreenViewModel(
                     _state.value = CalendarScreenState.SuccessOnSchedule(events)
                 } else {
                     _state.value =
-                        CalendarScreenState.Error(R.string.rule_already_exists_for_this_time)
+                        CalendarScreenState.Error(
+                            stringResolver.getString(R.string.rule_already_exists_for_this_time),
+                        )
                 }
             } catch (ex: Throwable) {
-                _state.value = CalendarScreenState.Error(R.string.error_creating_rule)
+                _state.value =
+                    CalendarScreenState.Error(
+                        stringResolver.getString(R.string.error_creating_rule),
+                    )
             }
         }
     }
@@ -126,12 +136,14 @@ class CalendarViewModelFactory(
     private val ruleScheduler: AlarmScheduler,
     private val repo: TasaRepo,
     private val queryCalendarService: QueryCalendarService,
+    private val stringResolver: StringResourceResolver,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return CalendarScreenViewModel(
             ruleScheduler = ruleScheduler,
             repo = repo,
             queryCalendarService = queryCalendarService,
+            stringResolver = stringResolver,
         ) as T
     }
 }

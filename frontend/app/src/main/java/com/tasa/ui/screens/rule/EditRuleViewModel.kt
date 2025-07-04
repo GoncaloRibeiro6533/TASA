@@ -12,6 +12,7 @@ import com.tasa.domain.RuleEvent
 import com.tasa.domain.toTriggerTime
 import com.tasa.repository.TasaRepo
 import com.tasa.utils.QueryCalendarService
+import com.tasa.utils.StringResourceResolver
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,7 +30,7 @@ sealed class EditRuleState {
 
     data class Success(val rule: RuleEvent) : EditRuleState()
 
-    data class Error(val error: Int) : EditRuleState()
+    data class Error(val error: String) : EditRuleState()
 
     data object Uninitialized : EditRuleState()
 }
@@ -39,6 +40,7 @@ class EditRuleViewModel(
     private val alarmScheduler: AlarmScheduler,
     private val rule: RuleEvent,
     private val queryCalendarService: QueryCalendarService,
+    private val stringResourceResolver: StringResourceResolver,
     initialState: EditRuleState = EditRuleState.Uninitialized,
 ) : ViewModel() {
     private val _state = MutableStateFlow<EditRuleState>(initialState)
@@ -56,14 +58,20 @@ class EditRuleViewModel(
             try {
                 val result = queryCalendarService.getEvent(eventId, calendarId)
                 if (result == null) {
-                    _state.value = EditRuleState.Error(R.string.error_on_editing_rule)
+                    _state.value =
+                        EditRuleState.Error(
+                            stringResourceResolver.getString(R.string.error_on_editing_rule),
+                        )
                     return@launch
                 }
                 event = result
                 _state.value = EditRuleState.Editing(rule.startTime, rule.endTime)
             } catch (ex: Throwable) {
                 Log.d("EditRuleViewModel", "Error getting event", ex)
-                _state.value = EditRuleState.Error(R.string.error_on_editing_rule)
+                _state.value =
+                    EditRuleState.Error(
+                        stringResourceResolver.getString(R.string.error_on_editing_rule),
+                    )
             }
         }
     }
@@ -83,7 +91,10 @@ class EditRuleViewModel(
                         !toInterval(newStartTime, newEndTime)
                             .isWithin(toInterval(rule.startTime, rule.endTime))
                     ) {
-                        _state.value = EditRuleState.Error(R.string.new_time_is_not_on_event_time)
+                        _state.value =
+                            EditRuleState.Error(
+                                stringResourceResolver.getString(R.string.new_time_is_not_on_event_time),
+                            )
                         return@launch
                     }
                     repo.ruleRepo.updateRuleEvent(
@@ -152,10 +163,16 @@ class EditRuleViewModel(
                             ),
                         )
                 } else {
-                    _state.value = EditRuleState.Error(R.string.rule_already_exists_for_this_time)
+                    _state.value =
+                        EditRuleState.Error(
+                            stringResourceResolver.getString(R.string.rule_already_exists_for_this_time),
+                        )
                 }
             } catch (ex: Throwable) {
-                _state.value = EditRuleState.Error(R.string.error_on_editing_rule)
+                _state.value =
+                    EditRuleState.Error(
+                        stringResourceResolver.getString(R.string.error_on_editing_rule),
+                    )
                 return@launch
             }
         }
@@ -168,6 +185,7 @@ class EditRuleViewModelFactory(
     private val alarmScheduler: AlarmScheduler,
     private val rule: RuleEvent,
     private val queryCalendarService: QueryCalendarService,
+    private val stringResourceResolver: StringResourceResolver,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return EditRuleViewModel(
@@ -175,6 +193,7 @@ class EditRuleViewModelFactory(
             alarmScheduler = alarmScheduler,
             rule = rule,
             queryCalendarService = queryCalendarService,
+            stringResourceResolver = stringResourceResolver,
         ) as T
     }
 }

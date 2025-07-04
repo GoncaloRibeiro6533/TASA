@@ -19,6 +19,7 @@ import com.tasa.location.LocationService
 import com.tasa.repository.TasaRepo
 import com.tasa.utils.Failure
 import com.tasa.utils.ServiceKiller
+import com.tasa.utils.StringResourceResolver
 import com.tasa.utils.Success
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +34,7 @@ sealed interface HomeScreenState {
 
     data class Success(val rules: StateFlow<List<Rule>>) : HomeScreenState
 
-    data class Error(val error: Int?, val message: String = "") : HomeScreenState
+    data class Error(val message: String) : HomeScreenState
 }
 
 class HomePageScreenViewModel(
@@ -42,6 +43,7 @@ class HomePageScreenViewModel(
     private val alarmScheduler: AlarmScheduler,
     private val geofenceManager: GeofenceManager,
     private val serviceKiller: ServiceKiller,
+    private val stringResolver: StringResourceResolver,
     initialState: HomeScreenState = HomeScreenState.Uninitialized,
 ) : ViewModel() {
     private val _state = MutableStateFlow<HomeScreenState>(initialState)
@@ -49,6 +51,9 @@ class HomePageScreenViewModel(
 
     private val _rules = MutableStateFlow<List<Rule>>(emptyList())
     val rules: StateFlow<List<Rule>> = _rules.asStateFlow()
+
+    private val _isLocal = MutableStateFlow<Boolean>(false)
+    val isLocal: StateFlow<Boolean> = _isLocal.asStateFlow()
 
     fun onFatalError() {
         viewModelScope.launch {
@@ -100,13 +105,22 @@ class HomePageScreenViewModel(
                             _state.value = HomeScreenState.Success(rules)
                         }
                     is Failure -> {
-                        _state.value = HomeScreenState.Error(null, result.value.message)
+                        _state.value = HomeScreenState.Error(result.value.message)
                     }
                 }
             } catch (e: Throwable) {
                 _state.value =
-                    HomeScreenState.Error(R.string.unexpected_error)
+                    HomeScreenState.Error(stringResolver.getString(R.string.unexpected_error))
                 Log.d("HomePageScreenViewModel", "loadLocalData: ${e.message}")
+            }
+        }
+    }
+
+    fun isLocal() {
+        viewModelScope.launch {
+            try {
+                _isLocal.value = userInfo.isLocal()
+            } catch (e: Throwable) {
             }
         }
     }
@@ -155,7 +169,10 @@ class HomePageScreenViewModel(
                 }
                 _state.value = HomeScreenState.Success(rules)
             } catch (e: Throwable) {
-                _state.value = HomeScreenState.Error(R.string.error_on_cancel_rule)
+                _state.value =
+                    HomeScreenState.Error(
+                        stringResolver.getString(R.string.error_on_cancel_rule),
+                    )
             }
         }
     }
@@ -168,6 +185,7 @@ class HomeViewModelFactory(
     private val alarmScheduler: AlarmScheduler,
     private val geofenceManager: GeofenceManager,
     private val serviceKiller: ServiceKiller,
+    private val stringResolver: StringResourceResolver,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return HomePageScreenViewModel(
@@ -176,6 +194,7 @@ class HomeViewModelFactory(
             alarmScheduler = alarmScheduler,
             geofenceManager = geofenceManager,
             serviceKiller = serviceKiller,
+            stringResolver = stringResolver,
         ) as T
     }
 }

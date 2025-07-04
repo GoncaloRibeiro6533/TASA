@@ -13,6 +13,7 @@ import com.tasa.storage.TasaDB
 import com.tasa.utils.QueryCalendarService
 import com.tasa.utils.SearchPlaceService
 import com.tasa.utils.ServiceKiller
+import com.tasa.utils.StringResourceResolver
 import io.ktor.client.HttpClient
 
 interface DependenciesContainer {
@@ -29,4 +30,5 @@ interface DependenciesContainer {
     val searchPlaceService: SearchPlaceService
     val queryCalendarService: QueryCalendarService
     val serviceKiller: ServiceKiller
+    val stringResourceResolver: StringResourceResolver
 }

@@ -25,11 +25,16 @@ class CalendarActivity : ComponentActivity() {
         (application as DependenciesContainer).queryCalendarService
     }
 
+    private val stringResolver by lazy {
+        (application as DependenciesContainer).stringResourceResolver
+    }
+
     private val viewModel by viewModels<CalendarScreenViewModel> {
         CalendarViewModelFactory(
             ruleScheduler = ruleScheduler,
             repo = repo,
             queryCalendarService = queryCalendarService,
+            stringResolver = stringResolver,
         )
     }
 
@@ -70,6 +75,7 @@ class CalendarActivity : ComponentActivity() {
             }
         }
     }
+
     @Suppress("DEPRECATION")
     override fun onBackPressed() {
         finish()

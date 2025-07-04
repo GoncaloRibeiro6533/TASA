@@ -22,12 +22,17 @@ class MyLocationsActivity : ComponentActivity() {
         (applicationContext as DependenciesContainer).serviceKiller
     }
 
+    private val stringResolver by lazy {
+        (applicationContext as DependenciesContainer).stringResourceResolver
+    }
+
     private val viewModel by viewModels<MyLocationsScreenViewModel>(
         factoryProducer = {
             MyLocationsScreenViewModelFactory(
                 repo = repo,
                 geofenceManager = geofenceManager,
                 serviceKiller = serviceKiller,
+                stringResolver = stringResolver,
             )
         },
     )
@@ -40,8 +45,6 @@ class MyLocationsActivity : ComponentActivity() {
             TasaTheme {
                 MyLocationsScreen(
                     viewModel = viewModel,
-                    onLocationSelected = {},
-                    onAddLocation = {},
                     onDeleteLocation = { location ->
                         viewModel.deleteLocation(location)
                     },
@@ -55,9 +58,6 @@ class MyLocationsActivity : ComponentActivity() {
                     onSetCreateRuleState = {
                             location ->
                         viewModel.setCreatingRuleLocationState(location)
-                    },
-                    onSetSuccessState = {
-                        viewModel.setSuccessState()
                     },
                 )
             }

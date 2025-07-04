@@ -3,10 +3,9 @@ package com.tasa.ui.screens.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.tasa.domain.ApiError
+import com.tasa.R
 import com.tasa.domain.UserInfoRepository
-import com.tasa.repository.TasaRepo
-import com.tasa.utils.Success
+import com.tasa.utils.StringResourceResolver
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,14 +23,12 @@ sealed interface ProfileScreenState {
 
     data class Success(val profile: Profile) : ProfileScreenState
 
-    data class EditingUsername(val profile: Profile) : ProfileScreenState
-
-    data class Error(val error: ApiError) : ProfileScreenState
+    data class Error(val error: String) : ProfileScreenState
 }
 
 class ProfileScreenViewModel(
     private val userRepo: UserInfoRepository,
-    private val repo: TasaRepo,
+    private val stringResourceResolver: StringResourceResolver,
     initialState: ProfileScreenState = ProfileScreenState.Idle,
 ) : ViewModel() {
     private val _screenState = MutableStateFlow<ProfileScreenState>(initialState)
@@ -45,28 +42,20 @@ class ProfileScreenViewModel(
                     try {
                         val userInfo = userRepo.getUserInfo()
                         if (userInfo == null) {
-                            ProfileScreenState.Error(ApiError("User not found"))
+                            ProfileScreenState.Error(
+                                stringResourceResolver.getString(R.string.user_to_found),
+                            )
                             return@launch
                         }
                         ProfileScreenState.Success(Profile(userInfo.username, userInfo.email))
                     } catch (e: Throwable) {
-                        ProfileScreenState.Error(ApiError("Error fetching user"))
+                        ProfileScreenState.Error(
+                            stringResourceResolver.getString(R.string.unexpected_error),
+                        )
                     }
             }
         } else {
             return null
-        }
-    }
-
-    fun setEditState(profile: Profile) {
-        if (_screenState.value != ProfileScreenState.EditingUsername(profile)) {
-            _screenState.value = ProfileScreenState.EditingUsername(profile)
-        }
-    }
-
-    fun setSuccessState(profile: Profile) {
-        if (_screenState.value != ProfileScreenState.Success(profile)) {
-            _screenState.value = ProfileScreenState.Success(profile)
         }
     }
 }
@@ -74,12 +63,12 @@ class ProfileScreenViewModel(
 @Suppress("UNCHECKED_CAST")
 class ProfileScreenViewModelFactory(
     private val repo: UserInfoRepository,
-    private val db: TasaRepo,
+    private val stringResourceResolver: StringResourceResolver,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return ProfileScreenViewModel(
             repo,
-            db,
+            stringResourceResolver,
         ) as T
     }
 }

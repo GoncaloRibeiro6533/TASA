@@ -28,19 +28,20 @@ fun HomePageScreen(
     onNavigationToMap: () -> Unit,
     onNavigateToCreateRuleEvent: () -> Unit = {},
     onNavigateToMyExceptions: () -> Unit = {},
-    onMenuRequested: () -> Unit = { },
+    onMenuRequested: (Boolean) -> Unit = { },
     onFatalError: () -> Unit = { },
     onEditRule: (EditRuleActivity.RuleParcelableEvent) -> Unit = {},
     onCancelRule: (Rule) -> Unit = { },
 ) {
     TasaTheme {
+        val isLocal = viewModel.isLocal.collectAsState().value
         Scaffold(
             modifier =
                 Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background),
             topBar = {
-                TopBar(NavigationHandlers(onMenuRequested = onMenuRequested))
+                TopBar(NavigationHandlers(onMenuRequested = { onMenuRequested(isLocal) }))
             },
         ) { innerPadding ->
             Column(
@@ -55,12 +56,7 @@ fun HomePageScreen(
                     is HomeScreenState.Error -> {
                         ErrorAlert(
                             title = stringResource(R.string.error),
-                            message =
-                                if (state.error != null) {
-                                    stringResource(state.error)
-                                } else {
-                                    state.message
-                                },
+                            message = state.message,
                             buttonText = stringResource(R.string.Ok),
                             onDismiss = { onFatalError() },
                         )

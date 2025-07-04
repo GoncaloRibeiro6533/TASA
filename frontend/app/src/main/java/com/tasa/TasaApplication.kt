@@ -21,6 +21,7 @@ import com.tasa.service.fake.TasaServiceFake
 import com.tasa.service.http.TasaServiceHttp
 import com.tasa.service.http.models.LocalDateTimeSerializer
 import com.tasa.storage.TasaDB
+import com.tasa.utils.DefaultStringResourceResolver
 import com.tasa.utils.PropertiesConfigLoader
 import com.tasa.utils.QueryCalendarService
 import com.tasa.utils.QueryCalendarServiceImpl
@@ -28,6 +29,7 @@ import com.tasa.utils.SearchPlaceService
 import com.tasa.utils.SearchPlaceServiceImpl
 import com.tasa.utils.ServiceKiller
 import com.tasa.utils.ServiceKillerImpl
+import com.tasa.utils.StringResourceResolver
 import com.tasa.workers.CoroutineDBCleaner
 import com.tasa.workers.LocationStatusWorker
 import io.ktor.client.HttpClient
@@ -129,6 +131,10 @@ class TasaApplication : Application(), DependenciesContainer {
 
     override val serviceKiller: ServiceKiller by lazy {
         ServiceKillerImpl(applicationContext)
+    }
+
+    override val stringResourceResolver: StringResourceResolver by lazy {
+        DefaultStringResourceResolver(applicationContext)
     }
 
     override fun onCreate() {

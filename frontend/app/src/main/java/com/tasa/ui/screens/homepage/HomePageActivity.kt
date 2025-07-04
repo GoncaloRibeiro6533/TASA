@@ -39,6 +39,10 @@ class HomePageActivity : ComponentActivity() {
         (applicationContext as DependenciesContainer).serviceKiller
     }
 
+    private val stringResolver by lazy {
+        (application as DependenciesContainer).stringResourceResolver
+    }
+
     private val viewModel by viewModels<HomePageScreenViewModel>(
         factoryProducer = {
             HomeViewModelFactory(
@@ -47,6 +51,7 @@ class HomePageActivity : ComponentActivity() {
                 alarmScheduler,
                 geofenceManager,
                 serviceKiller,
+                stringResolver,
             )
         },
     )
@@ -61,6 +66,8 @@ class HomePageActivity : ComponentActivity() {
     )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel.isLocal()
+        viewModel.loadLocalData()
         if (!isLocationEnabled(this)) {
             val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
@@ -71,7 +78,6 @@ class HomePageActivity : ComponentActivity() {
             if (!LocationService.isRunning) viewModel.registerGeofences()
         }
         registerReceiver(locationStatusReceiver, IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION))
-        viewModel.loadLocalData()
         val activityPermission =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 Manifest.permission.ACTIVITY_RECOGNITION
@@ -124,8 +130,9 @@ class HomePageActivity : ComponentActivity() {
                                     }
                                 startActivity(intent)
                             },
-                            onMenuRequested = {
-                                navigateTo(this@HomePageActivity, MenuActivity::class.java)
+                            onMenuRequested = { isLocal: Boolean ->
+                                val intent = Intent(this@HomePageActivity, MenuActivity::class.java).putExtra("isLocal", isLocal)
+                                startActivity(intent)
                                 finish()
                             },
                             onFatalError = {

@@ -31,6 +31,10 @@ class MapActivity : ComponentActivity() {
         (application as DependenciesContainer).searchPlaceService
     }
 
+    private val stringResolver by lazy {
+        (application as DependenciesContainer).stringResourceResolver
+    }
+
     private val viewModel by viewModels<MapScreenViewModel>(
         factoryProducer = {
             MapScreenViewModelFactory(
@@ -38,6 +42,7 @@ class MapActivity : ComponentActivity() {
                 locationClient = fusedLocationClient,
                 locationUpdatesRepository = locationManager,
                 searchPlaceService = searchPlaceService,
+                stringResolver = stringResolver,
             )
         },
     )
@@ -97,12 +102,6 @@ class MapActivity : ComponentActivity() {
                             )
                             finish()
                         }
-                    },
-                    onTouchSearchBox = {
-                        viewModel.setSearchingState()
-                    },
-                    onUnTouchSearchBox = {
-                        viewModel.setUnSearchingState()
                     },
                     onRecenterMap = {
                         viewModel.recenterMap()

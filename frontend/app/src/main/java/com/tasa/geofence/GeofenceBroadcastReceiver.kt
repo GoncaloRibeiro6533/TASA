@@ -41,11 +41,6 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
             }
 
             Geofence.GEOFENCE_TRANSITION_DWELL -> {
-                // "→ Está dentro há algum tempo (dwell)")
-                // Só se tiveres configurado este tipo de trigger
-            }
-
-            else -> {
             }
         }
     }

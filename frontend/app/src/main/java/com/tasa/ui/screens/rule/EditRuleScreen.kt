@@ -26,7 +26,6 @@ import java.time.LocalDateTime
 fun EditRuleScreen(
     viewModel: EditRuleViewModel,
     rule: Rule,
-    onRuleUpdated: (Rule) -> Unit,
     onRuleUpdate: (LocalDateTime, LocalDateTime) -> Unit,
     onBackPressed: () -> Unit,
     onError: () -> Unit = { },
@@ -53,7 +52,7 @@ fun EditRuleScreen(
                     is EditRuleState.Error -> {
                         ErrorAlert(
                             title = stringResource(R.string.error),
-                            message = stringResource(state.error),
+                            message = state.error,
                             buttonText = stringResource(R.string.Ok),
                             onDismiss = { onError() },
                         )

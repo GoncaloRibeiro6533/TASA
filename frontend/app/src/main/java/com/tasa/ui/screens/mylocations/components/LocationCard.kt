@@ -75,11 +75,11 @@ fun LocationCard(
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
-                    Text(
+                    /*Text(
                         text = address,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    )*/
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

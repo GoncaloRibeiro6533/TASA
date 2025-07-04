@@ -52,7 +52,7 @@ class RuleRepository(
     private suspend fun getFromApi() = remote.ruleService.fetchRules(getToken())
 
     private suspend fun hasRules(): Boolean {
-        return local.ruleEventDao().hasRules() && local.ruleLocationDao().hasRules()
+        return local.ruleEventDao().hasRules() || local.ruleLocationDao().hasRules()
     }
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)

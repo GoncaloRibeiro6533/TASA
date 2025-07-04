@@ -8,8 +8,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.tasa.domain.ApiError
 import com.tasa.domain.UserInfoRepository
+import com.tasa.location.LocationService
 import com.tasa.repository.TasaRepo
 import com.tasa.utils.Failure
+import com.tasa.utils.ServiceKiller
 import com.tasa.utils.Success
 import kotlinx.coroutines.launch
 
@@ -26,6 +28,7 @@ sealed class MenuScreenState {
 class MenuViewModel(
     private val userInfo: UserInfoRepository,
     private val repo: TasaRepo,
+    private val serviceKiller: ServiceKiller,
     initialState: MenuScreenState = MenuScreenState.Idle,
 ) : ViewModel() {
     var state: MenuScreenState by mutableStateOf(initialState)
@@ -45,6 +48,7 @@ class MenuViewModel(
                             repo.eventRepo.clear()
                             repo.userRepo.clear()
                             userInfo.clearUserInfo()
+                            serviceKiller.killServices(LocationService::class)
                             // Destroy the work manager
                             MenuScreenState.LoggedOut
                         }
@@ -75,11 +79,13 @@ class MenuViewModel(
 class MenuViewModelFactory(
     private val userInfo: UserInfoRepository,
     private val repo: TasaRepo,
+    private val serviceKiller: ServiceKiller,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return MenuViewModel(
             userInfo,
             repo,
+            serviceKiller,
         ) as T
     }
 }

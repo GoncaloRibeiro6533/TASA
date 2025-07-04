@@ -9,13 +9,13 @@ import com.tasa.DependenciesContainer
 
 class ProfileActivity : ComponentActivity() {
     private val userInfoRepository by lazy { (application as DependenciesContainer).userInfoRepository }
-    private val repo by lazy { (application as DependenciesContainer).repo }
+    private val stringResolver by lazy { (application as DependenciesContainer).stringResourceResolver }
 
     private val viewModel by viewModels<ProfileScreenViewModel>(
         factoryProducer = {
             ProfileScreenViewModelFactory(
                 userInfoRepository,
-                repo,
+                stringResolver,
             )
         },
     )
@@ -27,7 +27,7 @@ class ProfileActivity : ComponentActivity() {
         setContent {
             ProfileScreen(
                 viewModel = viewModel,
-                onEditAction = { profile -> viewModel.setEditState(profile) },
+                onEditAction = {},
                 onNavigateBack = { finish() },
             )
         }

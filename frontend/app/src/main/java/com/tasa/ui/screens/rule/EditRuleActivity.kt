@@ -25,6 +25,10 @@ class EditRuleActivity : ComponentActivity() {
         (application as DependenciesContainer).queryCalendarService
     }
 
+    private val stringResolver by lazy {
+        (application as DependenciesContainer).stringResourceResolver
+    }
+
     private lateinit var rule: RuleEvent
 
     private val viewModel by viewModels<EditRuleViewModel>(
@@ -34,6 +38,7 @@ class EditRuleActivity : ComponentActivity() {
                 alarmScheduler = ruleScheduler,
                 rule = rule,
                 queryCalendarService = queryCalendarService,
+                stringResourceResolver = stringResolver,
             )
         },
     )
@@ -109,10 +114,6 @@ class EditRuleActivity : ComponentActivity() {
                         newStartTime = startTime,
                         newEndTime = endTime,
                     )
-                },
-                onRuleUpdated = {
-                    navigateTo(this, HomePageActivity::class.java)
-                    finish()
                 },
                 onError = {
                     navigateTo(this, HomePageActivity::class.java)

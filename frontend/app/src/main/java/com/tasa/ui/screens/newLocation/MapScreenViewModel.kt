@@ -17,6 +17,7 @@ import com.tasa.domain.toLocalDateTime
 import com.tasa.location.LocationUpdatesRepository
 import com.tasa.repository.TasaRepo
 import com.tasa.utils.SearchPlaceService
+import com.tasa.utils.StringResourceResolver
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -84,6 +85,7 @@ class MapScreenViewModel(
     private val locationClient: FusedLocationProviderClient,
     private val locationUpdatesRepository: LocationUpdatesRepository,
     private val searchPlaceService: SearchPlaceService,
+    private val stringResolver: StringResourceResolver,
     initialState: MapsScreenState = MapsScreenState.Uninitialized,
 ) : ViewModel() {
     private val _activityState = MutableStateFlow<String?>(null)
@@ -148,10 +150,12 @@ class MapScreenViewModel(
                                 locationName = _locationName,
                             )
                     } else {
-                        _state.value = MapsScreenState.Error(R.string.no_results_found.toString())
+                        _state.value = MapsScreenState.Error(stringResolver.getString(
+                            R.string.no_results_found))
                     }
                 } catch (e: Throwable) {
-                    _state.value = MapsScreenState.Error(R.string.unexpected_error.toString())
+                    _state.value = MapsScreenState.Error(stringResolver.getString(
+                        R.string.unexpected_error))
                 }
             }
         }
@@ -269,7 +273,8 @@ class MapScreenViewModel(
             viewModelScope.launch {
                 try {
                     if (repo.locationRepo.getLocationByName(locationName) != null) {
-                        _state.value = MapsScreenState.Error(R.string.error_location_name_already_exists.toString())
+                        _state.value = MapsScreenState.Error(
+                            stringResolver.getString(R.string.error_location_name_already_exists))
                         return@launch
                     }
                     repo.locationRepo.insertLocation(
@@ -283,7 +288,8 @@ class MapScreenViewModel(
                     )
                     onSuccess()
                 } catch (ex: Throwable) {
-                    _state.value = MapsScreenState.Error(R.string.unexpected_error.toString())
+                    _state.value = MapsScreenState.Error(
+                        stringResolver.getString(R.string.unexpected_error))
                 }
             }
         }
@@ -303,7 +309,8 @@ class MapScreenViewModel(
             try {
                 getCurrentLocation().let { location ->
                     if (location == null) {
-                        _state.value = MapsScreenState.Error(R.string.location_disabled_warning.toString())
+                        _state.value = 
+                            MapsScreenState.Error(stringResolver.getString(R.string.location_disabled_warning))
                         return@launch
                     }
                     _currentLocation.value = location
@@ -325,7 +332,7 @@ class MapScreenViewModel(
                     }
                 }
             } catch (ex: Throwable) {
-                _state.value = MapsScreenState.Error(R.string.unexpected_error.toString())
+                _state.value = MapsScreenState.Error(stringResolver.getString(R.string.unexpected_error))
             }
         }
     }
@@ -366,6 +373,7 @@ class MapScreenViewModelFactory(
     private val locationClient: FusedLocationProviderClient,
     private val locationUpdatesRepository: LocationUpdatesRepository,
     private val searchPlaceService: SearchPlaceService,
+    private val stringResolver: StringResourceResolver,
     ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return MapScreenViewModel(
@@ -373,6 +381,7 @@ class MapScreenViewModelFactory(
             locationClient = locationClient,
             locationUpdatesRepository = locationUpdatesRepository,
             searchPlaceService = searchPlaceService,
+            stringResolver = stringResolver,
             initialState = MapsScreenState.Uninitialized,
         ) as T
     }

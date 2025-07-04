@@ -76,4 +76,6 @@
     <string name="name">Nome</string>
     <string name="meters">metros</string>
     <string name="radius">Raio</string>
+    <string name="tasa_is_executing_in_the_backgrund">Tasa está a executar em segundo</string>
+    <string name="user_to_found">Utilizador não encontrado</string>
 </resources>

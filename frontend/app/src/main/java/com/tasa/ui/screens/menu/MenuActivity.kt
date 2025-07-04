@@ -1,6 +1,8 @@
 package com.tasa.ui.screens.menu
 
+import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,42 +18,57 @@ import com.tasa.ui.screens.homepage.HomePageActivity
 import com.tasa.ui.screens.profile.ProfileActivity
 import com.tasa.ui.screens.start.StartActivity
 import com.tasa.utils.navigateTo
+import kotlinx.parcelize.Parcelize
 
 class MenuActivity : ComponentActivity() {
     private val userInfoRepository by lazy { (application as DependenciesContainer).userInfoRepository }
     private val repo by lazy { (application as DependenciesContainer).repo }
+    private val serviceKiller by lazy { (application as DependenciesContainer).serviceKiller }
     private val viewModel by viewModels<MenuViewModel>(
         factoryProducer = {
             MenuViewModelFactory(
                 userInfoRepository,
                 repo,
+                serviceKiller,
             )
         },
     )
 
+    @Parcelize
+    data class UserParcelable(
+        val id: Int,
+        val name: String,
+        val email: String,
+    ) : Parcelable
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val isLocal =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getBooleanExtra("isLocal", false)
+            } else {
+                @Suppress("DEPRECATION")
+                intent.getBooleanExtra("isLocal", false)
+            }
         setContent {
-            val menuItems =
+            var menuItems =
                 listOf(
-                /* MenuItem("About", "about screen", Icons.Default.Info) {
-                     navigateTo(
-                         this,
-                         AboutActivity::class.java
-                     )
-                 },*/
+                    MenuItem(stringResource(R.string.logout), "logout screen", Icons.AutoMirrored.Filled.ExitToApp) {
+                        WorkManager.getInstance(applicationContext).cancelAllWork()
+                        viewModel.logout()
+                    },
+                )
+            if (isLocal == false) {
+                menuItems = listOf(
                     MenuItem(stringResource(R.string.profile), "profile screen", Icons.Default.Person) {
                         navigateTo(
                             this,
                             ProfileActivity::class.java,
                         )
                     },
-                    MenuItem(stringResource(R.string.logout), "logout screen", Icons.AutoMirrored.Filled.ExitToApp) {
-                        WorkManager.getInstance(applicationContext).cancelAllWork()
-                        viewModel.logout()
-                    },
-                )
+                ) + menuItems
+            }
             MenuScreen(
                 viewModel = viewModel,
                 menuItems = menuItems,

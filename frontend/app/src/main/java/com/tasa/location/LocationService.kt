@@ -73,7 +73,6 @@ class LocationService : Service() {
         // get the location by requestId
         scope.launch {
             val result = repo.locationRepo.getLocationByName(requestId)
-            Log.d("LocationService", "RequestId: $requestId, Result: $result")
             if (result != null) {
                 radius = result.radius.toFloat()
                 locationOfSilence = result.toLocation()
@@ -140,9 +139,8 @@ class LocationService : Service() {
 
     private fun buildNotification(): Notification {
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Tasa está a monitorizar localização")
-            .setContentText("A app está ativa para geofencing.")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentTitle(getString(R.string.tasa_is_executing_in_the_backgrund))
+            .setSmallIcon(R.drawable.tasa_logo)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
     }

@@ -59,7 +59,7 @@ fun CalendarScreen(
                     is CalendarScreenState.Error -> {
                         ErrorAlert(
                             title = stringResource(R.string.error),
-                            message = stringResource(state.message),
+                            message = state.message,
                             buttonText = stringResource(R.string.Ok),
                             onDismiss = { onNavigationBack() },
                         )

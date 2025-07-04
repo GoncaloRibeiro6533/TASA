@@ -12,6 +12,7 @@ import com.tasa.geofence.GeofenceManager
 import com.tasa.location.LocationService
 import com.tasa.repository.TasaRepo
 import com.tasa.utils.ServiceKiller
+import com.tasa.utils.StringResourceResolver
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +25,7 @@ sealed interface MyLocationsScreenState {
 
     data object Loading : MyLocationsScreenState
 
-    data class Error(val resourceID: Int) : MyLocationsScreenState
+    data class Error(val message: String) : MyLocationsScreenState
 
     data class Success(
         val locations: StateFlow<List<Location>>,
@@ -42,6 +43,7 @@ class MyLocationsScreenViewModel(
     private val repo: TasaRepo,
     private val geofenceManager: GeofenceManager,
     private val serviceKiller: ServiceKiller,
+    private val stringResolver: StringResourceResolver,
     initialState: MyLocationsScreenState = MyLocationsScreenState.Uninitialized,
 ) : ViewModel() {
     private val _state: MutableStateFlow<MyLocationsScreenState> = MutableStateFlow(initialState)
@@ -64,7 +66,7 @@ class MyLocationsScreenViewModel(
                     _state.value = MyLocationsScreenState.Success(_locations)
                 }
             } catch (e: Throwable) {
-                _state.value = MyLocationsScreenState.Error(R.string.unexpected_error)
+                _state.value = MyLocationsScreenState.Error(stringResolver.getString(R.string.unexpected_error))
             }
         }
     }
@@ -98,7 +100,7 @@ class MyLocationsScreenViewModel(
                 _successMessage.value = R.string.location_deleted
             } catch (e: Throwable) {
                 Log.d("MyLocationsScreenViewModel", "deleteLocation: ", e)
-                _state.value = MyLocationsScreenState.Error(R.string.unexpected_error)
+                _state.value = MyLocationsScreenState.Error(stringResolver.getString(R.string.unexpected_error))
             }
         }
     }
@@ -113,7 +115,9 @@ class MyLocationsScreenViewModel(
                     repo.ruleRepo.getTimelessRulesForLocation(location)
                 if (timelessRulesForLocation.isNotEmpty()) {
                     _state.value =
-                        MyLocationsScreenState.Error(R.string.rule_already_exists_for_this_location)
+                        MyLocationsScreenState.Error(
+                            stringResolver.getString(R.string.rule_already_exists_for_this_location),
+                        )
                     return@launch
                 }
                 // ensure radius is at least 100 meters
@@ -139,7 +143,12 @@ class MyLocationsScreenViewModel(
                 _state.value = MyLocationsScreenState.Success(_locations)
                 _successMessage.value = R.string.rule_created_successfully
             } catch (e: Throwable) {
-                _state.value = MyLocationsScreenState.Error(R.string.unexpected_error)
+                _state.value =
+                    MyLocationsScreenState.Error(
+                        stringResolver.getString(
+                            R.string.unexpected_error,
+                        ),
+                    )
             }
         }
     }
@@ -154,12 +163,14 @@ class MyLocationsScreenViewModelFactory(
     private val repo: TasaRepo,
     private val geofenceManager: GeofenceManager,
     private val serviceKiller: ServiceKiller,
+    private val stringResolver: StringResourceResolver,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return MyLocationsScreenViewModel(
             repo = repo,
             geofenceManager = geofenceManager,
             serviceKiller = serviceKiller,
+            stringResolver = stringResolver,
         ) as T
     }
 }

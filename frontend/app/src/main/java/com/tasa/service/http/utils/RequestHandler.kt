@@ -127,6 +127,6 @@ suspend inline fun <reified T : Any> HttpResponse.processResponse(): Either<ApiE
             }
         }
     } catch (e: Throwable) {
-        return failure(ApiError("Unexpected error: ${e.message ?: e.cause?.message}"))
+        throw e
     }
 }
