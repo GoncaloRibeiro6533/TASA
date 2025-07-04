@@ -11,8 +11,10 @@ import com.tasa.domain.CalendarEvent
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.toTriggerTime
 import com.tasa.repository.TasaRepo
+import com.tasa.utils.Failure
 import com.tasa.utils.QueryCalendarService
 import com.tasa.utils.StringResourceResolver
+import com.tasa.utils.Success
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -97,71 +99,84 @@ class EditRuleViewModel(
                             )
                         return@launch
                     }
-                    repo.ruleRepo.updateRuleEvent(
-                        rule.id,
-                        newStartTime,
-                        newEndTime,
-                        rule.startTime,
-                        rule.endTime,
-                    )
-                    val alarmStart =
-                        repo.alarmRepo.getAlarmByTriggerTime(
-                            rule.startTime.toTriggerTime().value,
-                        )
-                    val alarmEnd =
-                        repo.alarmRepo.getAlarmByTriggerTime(
-                            rule.endTime.toTriggerTime().value,
-                        )
-                    if (alarmStart == null || alarmEnd == null) {
-                        val startAlarmId =
-                            repo.alarmRepo.createAlarm(
-                                newStartTime.toTriggerTime().value,
-                                Action.MUTE,
+                    when (
+                        val result =
+                            repo.ruleRepo.updateRuleEvent(
+                                rule,
+                                newStartTime,
+                                newEndTime,
+                                rule.startTime,
+                                rule.endTime,
                             )
-                        alarmScheduler.scheduleAlarm(
-                            startAlarmId,
-                            newStartTime.toTriggerTime(),
-                            Action.MUTE,
-                        )
-                        val endAlarmId =
-                            repo.alarmRepo.createAlarm(
-                                newEndTime.toTriggerTime().value,
-                                Action.UNMUTE,
-                            )
-                        alarmScheduler.scheduleAlarm(
-                            endAlarmId,
-                            newEndTime.toTriggerTime(),
-                            Action.UNMUTE,
-                        )
-                    } else {
-                        alarmScheduler.updateAlarm(
-                            alarmStart.id,
-                            newStartTime.toTriggerTime(),
-                            alarmStart.action,
-                        )
-                        repo.alarmRepo.updateAlarm(
-                            triggerTime = newStartTime.toTriggerTime().value,
-                            action = alarmStart.action,
-                            id = alarmStart.id,
-                        )
-                        alarmScheduler.updateAlarm(
-                            alarmEnd.id,
-                            newEndTime.toTriggerTime(),
-                            alarmEnd.action,
-                        )
-                        repo.alarmRepo.updateAlarm(
-                            triggerTime = newEndTime.toTriggerTime().value,
-                            action = alarmEnd.action,
-                            id = alarmEnd.id,
-                        )
+                    ) {
+                        is Failure -> {
+                            _state.value =
+                                EditRuleState.Error(
+                                    result.value.message,
+                                )
+                            return@launch
+                        }
+                        is Success -> {
+                            val alarmStart =
+                                repo.alarmRepo.getAlarmByTriggerTime(
+                                    rule.startTime.toTriggerTime().value,
+                                )
+                            val alarmEnd =
+                                repo.alarmRepo.getAlarmByTriggerTime(
+                                    rule.endTime.toTriggerTime().value,
+                                )
+                            if (alarmStart == null || alarmEnd == null) {
+                                val startAlarmId =
+                                    repo.alarmRepo.createAlarm(
+                                        newStartTime.toTriggerTime().value,
+                                        Action.MUTE,
+                                    )
+                                alarmScheduler.scheduleAlarm(
+                                    startAlarmId,
+                                    newStartTime.toTriggerTime(),
+                                    Action.MUTE,
+                                )
+                                val endAlarmId =
+                                    repo.alarmRepo.createAlarm(
+                                        newEndTime.toTriggerTime().value,
+                                        Action.UNMUTE,
+                                    )
+                                alarmScheduler.scheduleAlarm(
+                                    endAlarmId,
+                                    newEndTime.toTriggerTime(),
+                                    Action.UNMUTE,
+                                )
+                            } else {
+                                alarmScheduler.updateAlarm(
+                                    alarmStart.id,
+                                    newStartTime.toTriggerTime(),
+                                    alarmStart.action,
+                                )
+                                repo.alarmRepo.updateAlarm(
+                                    triggerTime = newStartTime.toTriggerTime().value,
+                                    action = alarmStart.action,
+                                    id = alarmStart.id,
+                                )
+                                alarmScheduler.updateAlarm(
+                                    alarmEnd.id,
+                                    newEndTime.toTriggerTime(),
+                                    alarmEnd.action,
+                                )
+                                repo.alarmRepo.updateAlarm(
+                                    triggerTime = newEndTime.toTriggerTime().value,
+                                    action = alarmEnd.action,
+                                    id = alarmEnd.id,
+                                )
+                            }
+                            _state.value =
+                                EditRuleState.Success(
+                                    rule.copy(
+                                        startTime = newStartTime,
+                                        endTime = newEndTime,
+                                    ),
+                                )
+                        }
                     }
-                    _state.value =
-                        EditRuleState.Success(
-                            rule.copy(
-                                startTime = newStartTime,
-                                endTime = newEndTime,
-                            ),
-                        )
                 } else {
                     _state.value =
                         EditRuleState.Error(

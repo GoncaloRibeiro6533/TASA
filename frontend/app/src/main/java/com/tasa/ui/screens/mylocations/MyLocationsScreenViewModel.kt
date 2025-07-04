@@ -11,8 +11,10 @@ import com.tasa.domain.Location
 import com.tasa.geofence.GeofenceManager
 import com.tasa.location.LocationService
 import com.tasa.repository.TasaRepo
+import com.tasa.utils.Failure
 import com.tasa.utils.ServiceKiller
 import com.tasa.utils.StringResourceResolver
+import com.tasa.utils.Success
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -120,26 +122,32 @@ class MyLocationsScreenViewModel(
                         )
                     return@launch
                 }
-                // ensure radius is at least 100 meters
-                val radius =
-                    if (location.radius < 100) {
-                        100f
-                    } else {
-                        location.radius.toFloat()
+                when (val result = repo.ruleRepo.insertRuleLocationTimeless(location)) {
+                    is Success -> {
+                        val radius =
+                            if (location.radius < 100) {
+                                100f
+                            } else {
+                                location.radius.toFloat()
+                            }
+                        geofenceManager.registerGeofence(
+                            location.name,
+                            location.toLocation(),
+                            radius,
+                        )
+                        val id =
+                            repo.geofenceRepo.createGeofence(
+                                location,
+                            )
                     }
-                geofenceManager.registerGeofence(
-                    location.name,
-                    location.toLocation(),
-                    radius,
-                )
-                val id =
-                    repo.geofenceRepo.createGeofence(
-                        location,
-                    )
-                repo.ruleRepo.insertRuleLocationTimeless(
-                    location,
-                    id.toInt(),
-                )
+                    is Failure -> {
+                        _state.value =
+                            MyLocationsScreenState.Error(
+                                result.value.message,
+                            )
+                        return@launch
+                    }
+                }
                 _state.value = MyLocationsScreenState.Success(_locations)
                 _successMessage.value = R.string.rule_created_successfully
             } catch (e: Throwable) {

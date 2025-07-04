@@ -10,8 +10,10 @@ import com.tasa.domain.Action
 import com.tasa.domain.CalendarEvent
 import com.tasa.domain.toTriggerTime
 import com.tasa.repository.TasaRepo
+import com.tasa.utils.Failure
 import com.tasa.utils.QueryCalendarService
 import com.tasa.utils.StringResourceResolver
+import com.tasa.utils.Success
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -86,27 +88,39 @@ class CalendarScreenViewModel(
                             endTime = endTime ?: event.endTime,
                             event = event.event,
                         )
-                    val alarmIdStart =
-                        repo.alarmRepo.createAlarm(
-                            rule.startTime.toTriggerTime().value,
-                            Action.MUTE,
-                        )
-                    ruleScheduler.scheduleAlarm(
-                        alarmIdStart,
-                        rule.startTime.toTriggerTime(),
-                        Action.MUTE,
-                    )
-                    val alarmIdEnd =
-                        repo.alarmRepo.createAlarm(
-                            rule.endTime.toTriggerTime().value,
-                            Action.UNMUTE,
-                        )
-                    ruleScheduler.scheduleAlarm(
-                        alarmIdEnd,
-                        rule.endTime.toTriggerTime(),
-                        Action.UNMUTE,
-                    )
-                    _state.value = CalendarScreenState.SuccessOnSchedule(events)
+                    when (rule) {
+                        is Failure -> {
+                            _state.value =
+                                CalendarScreenState.Error(
+                                    stringResolver.getString(R.string.error_creating_rule),
+                                )
+                            return@launch
+                        }
+                        is Success -> {
+                            val alarmIdStart =
+                                repo.alarmRepo.createAlarm(
+                                    rule.value.startTime.toTriggerTime().value,
+                                    Action.MUTE,
+                                )
+                            ruleScheduler.scheduleAlarm(
+                                alarmIdStart,
+                                rule.value.startTime.toTriggerTime(),
+                                Action.MUTE,
+                            )
+                            val alarmIdEnd =
+                                repo.alarmRepo.createAlarm(
+                                    rule.value.endTime.toTriggerTime().value,
+                                    Action.UNMUTE,
+                                )
+                            ruleScheduler.scheduleAlarm(
+                                alarmIdEnd,
+                                rule.value.endTime.toTriggerTime(),
+                                Action.UNMUTE,
+                            )
+                            _state.value = CalendarScreenState.SuccessOnSchedule(events)
+                            Log.d("CalendarViewModel", "Rule created: ${rule.value}")
+                        }
+                    }
                 } else {
                     _state.value =
                         CalendarScreenState.Error(

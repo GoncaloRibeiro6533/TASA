@@ -1,6 +1,7 @@
 package com.tasa.repository
 
 import com.tasa.domain.ApiError
+import com.tasa.domain.AuthenticationException
 import com.tasa.domain.UserInfoRepository
 import com.tasa.domain.user.User
 import com.tasa.repository.interfaces.UserRepositoryInterface
@@ -81,12 +82,15 @@ class UserRepository(
         }
     }
 
-    override suspend fun logout(): Either<ApiError, Unit> {
-        val token =
-            userInfoRepository.getToken()
-                ?: return failure(ApiError("User is not authenticated. Please log in again."))
+    private suspend fun getToken(): String {
+        return userInfoRepository.getToken() ?: throw AuthenticationException(
+            "User is not authenticated. Please log in again.",
+            null,
+        )
+    }
 
-        val result = remote.userService.logout(token)
+    override suspend fun logout(): Either<ApiError, Unit> {
+        val result = remote.userService.logout(getToken())
         return when (result) {
             is Success -> {
                 userInfoRepository.clearUserInfo()

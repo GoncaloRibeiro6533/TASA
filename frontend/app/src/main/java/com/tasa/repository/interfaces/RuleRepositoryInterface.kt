@@ -28,7 +28,7 @@ interface RuleRepositoryInterface {
         startTime: LocalDateTime,
         endTime: LocalDateTime,
         event: Event,
-    ): RuleEvent
+    ): Either<ApiError, RuleEvent>
 
     suspend fun deleteRuleEventById(id: Int)
 
@@ -53,12 +53,12 @@ interface RuleRepositoryInterface {
     suspend fun clean()
 
     suspend fun updateRuleEvent(
-        id: Int? = null,
+        rule: RuleEvent,
         newStartTime: LocalDateTime,
         newEndTime: LocalDateTime,
         oldStartTime: LocalDateTime,
         oldEndTime: LocalDateTime,
-    )
+    ): Either<ApiError, Unit>
 
     suspend fun deleteRuleEventByEventIdAndCalendarIdAndStarTimeAndEndtime(
         eventId: Long,
@@ -69,10 +69,7 @@ interface RuleRepositoryInterface {
 
     suspend fun getTimelessRulesForLocation(location: Location): List<RuleLocationTimeless>
 
-    suspend fun insertRuleLocationTimeless(
-        location: Location,
-        geofenceId: Int,
-    ): RuleLocationTimeless
+    suspend fun insertRuleLocationTimeless(location: Location): Either<ApiError, RuleLocationTimeless>
 
     suspend fun getRuleLocationTimelessById(id: Int): RuleLocationTimeless?
 

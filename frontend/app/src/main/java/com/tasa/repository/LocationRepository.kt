@@ -70,10 +70,6 @@ class LocationRepository(
         }
     }
 
-    override suspend fun fetchLocationByName(name: String): Flow<Location?> {
-        return local.locationDao().getLocationByName(name).map { it?.toLocation() }
-    }
-
     override suspend fun getLocationByName(name: String): Location? {
         return local.locationDao().getLocationByNameSync(name)?.toLocation()
     }
@@ -94,10 +90,6 @@ class LocationRepository(
         }
     }
 
-    override suspend fun insertLocations(locations: List<Location>) {
-        return local.locationDao().insertLocations(locations.map { it.toEntity() })
-    }
-
     override suspend fun deleteLocationById(id: Int) {
         val remote = remote.locationService.deleteLocationById(id, getToken())
         when (remote) {
@@ -106,8 +98,27 @@ class LocationRepository(
         }
     }
 
-    override suspend fun deleteLocationByName(name: String) {
-        local.locationDao().deleteLocationByName(name)
+    override suspend fun deleteLocationByName(name: String): Either<ApiError, Unit> {
+        if (userInfoRepository.isLocal()) {
+            local.locationDao().deleteLocationByName(name)
+            return success(Unit)
+        }
+        val localLocation = local.locationDao().getLocationByNameSync(name)
+        if (localLocation?.id != null)
+            {
+                val remote = remote.locationService.deleteLocationById(localLocation.id, getToken())
+                return when (remote) {
+                    is Success -> {
+                        local.locationDao().deleteLocationByName(name)
+                        success(Unit)
+                    }
+                    is Failure -> failure(remote.value)
+                }
+            } else
+            {
+                local.locationDao().deleteLocationByName(name)
+                return success(Unit)
+            }
     }
 
     override suspend fun clear() {

@@ -34,7 +34,7 @@ class EventRepository(
         )
     }
 
-    private suspend fun getFromApi(): Either<ApiError, List<Event>> {
+    suspend fun getFromApi(): Either<ApiError, List<Event>> {
         val result = remote.eventService.fetchEventAll(getToken())
         return when (result) {
             is Success -> {
@@ -88,14 +88,6 @@ class EventRepository(
             }
     }
 
-    override suspend fun insertEvent(event: Event) {
-        local.eventDao().insertEvents(event.toEventEntity())
-    }
-
-    override suspend fun insertEvents(events: List<Event>) {
-        local.eventDao().insertEvents(*events.map { it.toEventEntity() }.toTypedArray())
-    }
-
     override suspend fun updateEvent(event: Event): Either<ApiError, Event> {
         val remoteResult = remote.eventService.updateEventTitle(event, getToken())
         return when (remoteResult) {
@@ -114,17 +106,43 @@ class EventRepository(
     }
 
     override suspend fun deleteEvent(event: Event): Either<ApiError, Unit> {
-        if (event.id == null) {
-            return failure(ApiError("Event ID cannot be zero."))
+        if (userInfoRepository.isLocal()) {
+            local.eventDao().deleteEvent(event.eventId, event.calendarId)
+            return success(Unit)
         }
-        val remoteResult = remote.eventService.deleteEventById(event.id, getToken())
-        return when (remoteResult) {
-            is Success -> {
-                local.eventDao().deleteEvent(event.eventId, event.calendarId)
-                success(Unit)
+        if (event.id == null) {
+            val events = getFromApi()
+            when (events) {
+                is Success -> {
+                    val foundEvent =
+                        events.value.find {
+                            it.eventId == event.eventId && it.calendarId == event.calendarId
+                        }
+                    if (foundEvent != null && foundEvent.id != null) {
+                        val remoteResult = remote.eventService.deleteEventById(foundEvent.id, getToken())
+                        return when (remoteResult) {
+                            is Success -> {
+                                local.eventDao().deleteEvent(event.eventId, event.calendarId)
+                                return success(Unit)
+                            }
+                            is Failure -> return failure(remoteResult.value)
+                        }
+                    } else {
+                        local.eventDao().deleteEvent(event.eventId, event.calendarId)
+                        return success(Unit)
+                    }
+                }
+                is Failure -> return failure(events.value)
             }
-
-            is Failure -> failure(remoteResult.value)
+        } else {
+            val remoteResult = remote.eventService.deleteEventById(event.id, getToken())
+            return when (remoteResult) {
+                is Success -> {
+                    local.eventDao().deleteEvent(event.eventId, event.calendarId)
+                    success(Unit)
+                }
+                is Failure -> failure(remoteResult.value)
+            }
         }
     }
 

@@ -14,10 +14,6 @@ interface EventRepositoryInterface {
         eventId: Long,
     ): Flow<Event?>
 
-    suspend fun insertEvent(event: Event)
-
-    suspend fun insertEvents(events: List<Event>)
-
     suspend fun updateEvent(event: Event): Either<ApiError, Event>
 
     suspend fun deleteEvent(event: Event): Either<ApiError, Unit>

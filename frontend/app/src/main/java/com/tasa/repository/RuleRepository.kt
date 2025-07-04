@@ -11,11 +11,13 @@ import com.tasa.domain.Location
 import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocationTimeless
+import com.tasa.domain.TasaException
 import com.tasa.domain.UserInfoRepository
 import com.tasa.domain.toTriggerTime
 import com.tasa.geofence.GeofenceManager
 import com.tasa.repository.interfaces.RuleRepositoryInterface
 import com.tasa.service.TasaService
+import com.tasa.service.http.models.event.EventInput
 import com.tasa.storage.TasaDB
 import com.tasa.storage.entities.AlarmEntity
 import com.tasa.storage.entities.GeofenceEntity
@@ -246,27 +248,80 @@ class RuleRepository(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
         event: Event,
-    ): RuleEvent {
-        val ruleEvent =
-            RuleEvent(
-                startTime = startTime,
-                endTime = endTime,
-                event = event,
-            )
-        local.eventDao().insertEvents(event.toEventEntity())
-        local.ruleEventDao().insertRuleEvent(ruleEvent.toRuleEventEntity())
-        return ruleEvent
+    ): Either<ApiError, RuleEvent> {
+        val localEvent = local.eventDao().getEventByIdSync(event.eventId, event.calendarId)
+        if (localEvent == null) local.eventDao().insertEvents(event.toEventEntity())
+        if (userInfoRepository.isLocal())
+            {
+                val ruleEvent =
+                    RuleEvent(
+                        startTime = startTime,
+                        endTime = endTime,
+                        event = event,
+                    )
+                local.ruleEventDao().insertRuleEvent(ruleEvent.toRuleEventEntity())
+                return success(ruleEvent)
+            } else {
+            val event =
+                if (event.id != null) {
+                    event
+                } else {
+                    run {
+                        val localEvent =
+                            queryCalendarService.getEvent(event.eventId, event.calendarId)
+                                ?: throw IllegalArgumentException("Event not found in local calendar")
+                        val result =
+                            remote.eventService.insertEvent(
+                                EventInput(
+                                    title = event.title,
+                                    startTime = localEvent.startTime,
+                                    endTime = localEvent.endTime,
+                                ),
+                                getToken(),
+                            )
+                        when (result) {
+                            is Success -> {
+                                local.eventDao().insertEvents(
+                                    result.value.toEvent(event.eventId, event.calendarId).toEventEntity(),
+                                )
+                                local.eventDao().getEventByIdSync(event.eventId, event.calendarId)?.toEvent()
+                                    ?: throw TasaException("Event not found after insertion", null)
+                            }
+                            is Failure -> return failure(result.value)
+                        }
+                    }
+                }
+            return when (
+                val rule =
+                    remote.ruleService.insertRuleEvent(
+                        RuleEvent(
+                            startTime = startTime,
+                            endTime = endTime,
+                            event = event,
+                        ),
+                        getToken(),
+                    )
+            ) {
+                is Success -> {
+                    val ruleEventEntity = rule.value.toRuleEventEntity()
+                    local.ruleEventDao().insertRuleEvent(ruleEventEntity)
+                    success(rule.value)
+                }
+                is Failure -> failure(rule.value)
+            }
+        }
     }
 
     override suspend fun deleteRuleEventById(id: Int) {
         local.ruleEventDao().deleteRuleEventById(id)
+        remote.ruleService.deleteRuleEventById(id, getToken())
     }
 
     override suspend fun deleteRuleEventByCalendarIdAndEventId(
-        calendarId: Long,
         eventId: Long,
+        calendarId: Long,
     ) {
-        local.ruleEventDao().deleteRuleEventByEventIdAndCalendarId(eventId, calendarId)
+        TODO("Not yet implemented")
     }
 
     override suspend fun cleanOldRules(now: LocalDateTime) {
@@ -299,21 +354,61 @@ class RuleRepository(
     }
 
     override suspend fun updateRuleEvent(
-        id: Int?,
+        rule: RuleEvent,
         newStartTime: LocalDateTime,
         newEndTime: LocalDateTime,
         oldStartTime: LocalDateTime,
         oldEndTime: LocalDateTime,
-    ) {
-        if (id != null) {
-            local.ruleEventDao().updateRuleEvent(id, newStartTime, newEndTime)
+    ): Either<ApiError, Unit> {
+        if (userInfoRepository.isLocal())
+            {
+                local.ruleEventDao().updateRuleEventByStartAndEndTime(
+                    newStartTime,
+                    newEndTime,
+                    oldStartTime,
+                    oldEndTime,
+                )
+                return success(Unit)
+            }
+        if (rule.id != null) {
+            val remote =
+                remote.ruleService.updateRuleEvent(
+                    rule,
+                    newStartTime,
+                    newEndTime,
+                    getToken(),
+                )
+            when (remote) {
+                is Success -> {
+                    local.ruleEventDao().updateRuleEvent(
+                        rule.id,
+                        newStartTime,
+                        newEndTime,
+                    )
+                    return success(Unit)
+                }
+                is Failure -> return failure(remote.value)
+            }
         } else {
-            local.ruleEventDao().updateRuleEventByStartAndEndTime(
-                newStartTime,
-                newEndTime,
-                oldStartTime,
-                oldEndTime,
-            )
+            when (
+                val result =
+                    insertRuleEvent(
+                        oldEndTime,
+                        newEndTime,
+                        rule.event,
+                    )
+            ) {
+                is Success -> {
+                    local.ruleEventDao().updateRuleEventByStartAndEndTime(
+                        newStartTime,
+                        newEndTime,
+                        oldStartTime,
+                        oldEndTime,
+                    )
+                    return success(Unit)
+                }
+                is Failure -> return failure(result.value)
+            }
         }
     }
 
@@ -323,6 +418,7 @@ class RuleRepository(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
     ) {
+        //TODO
         local.ruleEventDao().deleteRuleEventByEventIdAndCalendarIdAndStarTimeAndEndTime(
             eventId,
             calendarId,
@@ -336,14 +432,45 @@ class RuleRepository(
             .map { it.toRuleLocationTimeless() }
     }
 
-    override suspend fun insertRuleLocationTimeless(
-        location: Location,
-        geofenceId: Int,
-    ): RuleLocationTimeless {
+    override suspend fun insertRuleLocationTimeless(location: Location): Either<ApiError, RuleLocationTimeless> {
         val ruleLocationTimeless = RuleLocationTimeless(location = location)
-        local.ruleLocationTimelessDao()
-            .insertRuleLocationTimeless(ruleLocationTimeless.toEntity())
-        return ruleLocationTimeless
+        if (userInfoRepository.isLocal()) {
+            local.ruleLocationTimelessDao()
+                .insertRuleLocationTimeless(ruleLocationTimeless.toEntity())
+            return success(ruleLocationTimeless)
+        }
+        val locationID =
+            if (location.id != null) {
+                location
+            } else {
+                run {
+                    val remote = remote.locationService.insertLocation(location, getToken())
+                    when (remote) {
+                        is Success -> {
+                            local.locationDao().insertLocation(remote.value.toEntity())
+                            remote.value
+                        }
+                        is Failure -> {
+                            return failure(remote.value)
+                        }
+                    }
+                }
+            }
+        val remote =
+            remote.ruleService.insertRuleLocation(
+                RuleLocationTimeless(
+                    location = locationID,
+                ),
+                getToken(),
+            )
+        when (remote) {
+            is Success -> {
+                local.ruleLocationTimelessDao()
+                    .insertRuleLocationTimeless(remote.value.toEntity())
+                return success(remote.value)
+            }
+            is Failure -> return failure(remote.value)
+        }
     }
 
     override suspend fun getRuleLocationTimelessById(id: Int): RuleLocationTimeless? {
@@ -351,6 +478,7 @@ class RuleRepository(
     }
 
     override suspend fun deleteRuleLocationTimelessByLocation(location: Location) {
+        //TODO
         local.ruleLocationTimelessDao().deleteRuleLocationByName(location.name)
     }
 

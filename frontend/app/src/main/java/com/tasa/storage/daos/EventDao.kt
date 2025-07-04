@@ -21,6 +21,12 @@ interface EventDao {
         calendarId: Long,
     ): Flow<EventEntity>
 
+    @Query("SELECT * FROM event WHERE calendarId = :calendarId AND eventId = :eventId")
+    fun getEventByIdSync(
+        eventId: Long,
+        calendarId: Long,
+    ): EventEntity?
+
     @Query("UPDATE event SET title = :title WHERE eventId = :eventId AND calendarId = :calendarId")
     suspend fun updateEvent(
         eventId: Long,
