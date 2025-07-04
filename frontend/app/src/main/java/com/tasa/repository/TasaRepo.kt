@@ -1,12 +1,12 @@
 package com.tasa.repository
 
-import android.content.Context
 import com.tasa.alarm.AlarmScheduler
 import com.tasa.domain.UserInfoRepository
 import com.tasa.geofence.GeofenceManager
 import com.tasa.repository.interfaces.TasaRepoInterface
 import com.tasa.service.TasaService
 import com.tasa.storage.TasaDB
+import com.tasa.utils.QueryCalendarService
 
 class TasaRepo(
     local: TasaDB,
@@ -14,11 +14,11 @@ class TasaRepo(
     userInfoRepository: UserInfoRepository,
     geofenceManager: GeofenceManager,
     ruleScheduler: AlarmScheduler,
-    context: Context,
+    queryCalendarService: QueryCalendarService,
 ) : TasaRepoInterface {
     override val userRepo = UserRepository(local, remote, userInfoRepository)
     override val locationRepo = LocationRepository(local, remote, userInfoRepository)
-    override val eventRepo = EventRepository(local, remote, userInfoRepository)
+    override val eventRepo = EventRepository(local, remote, userInfoRepository, queryCalendarService)
     override val alarmRepo = AlarmRepository(local)
     override val ruleRepo =
         RuleRepository(
@@ -27,7 +27,7 @@ class TasaRepo(
             userInfoRepository,
             ruleScheduler,
             geofenceManager = geofenceManager,
-            context = context,
+            queryCalendarService = queryCalendarService,
         )
     override val geofenceRepo = GeofenceRepository(local)
 }

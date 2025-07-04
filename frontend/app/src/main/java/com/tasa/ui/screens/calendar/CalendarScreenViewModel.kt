@@ -1,6 +1,5 @@
 package com.tasa.ui.screens.calendar
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -11,7 +10,7 @@ import com.tasa.domain.Action
 import com.tasa.domain.CalendarEvent
 import com.tasa.domain.toTriggerTime
 import com.tasa.repository.TasaRepo
-import com.tasa.ui.screens.calendar.utils.calendarEventsFlow
+import com.tasa.utils.QueryCalendarService
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -38,6 +37,7 @@ sealed interface CalendarScreenState {
 class CalendarScreenViewModel(
     private val ruleScheduler: AlarmScheduler,
     private val repo: TasaRepo,
+    private val queryCalendarService: QueryCalendarService,
     initialState: CalendarScreenState = CalendarScreenState.Uninitialized,
 ) : ViewModel() {
     private val _state = MutableStateFlow<CalendarScreenState>(initialState)
@@ -46,12 +46,12 @@ class CalendarScreenViewModel(
     private val _events = MutableStateFlow<List<CalendarEvent>>(emptyList())
     val events = _events.asStateFlow()
 
-    fun loadEvents(activityContext: Context): Job? {
+    fun loadEvents(): Job? {
         if (_state.value == CalendarScreenState.Loading) return null
         _state.value = CalendarScreenState.Loading
         return viewModelScope.launch {
             try {
-                activityContext.calendarEventsFlow().collect { it ->
+                queryCalendarService.calendarEventsFlow().collect { it ->
                     _events.value = it
                     if (_state.value is CalendarScreenState.Loading) {
                         _state.value = CalendarScreenState.Success(events)
@@ -68,7 +68,6 @@ class CalendarScreenViewModel(
         event: CalendarEvent,
         startTime: LocalDateTime? = null,
         endTime: LocalDateTime? = null,
-        activityContext: Context,
     ) {
         if (_state.value == CalendarScreenState.Loading) return
         _state.value = CalendarScreenState.Loading
@@ -113,10 +112,6 @@ class CalendarScreenViewModel(
         }
     }
 
-    fun onSuccessScheduleDismiss() {
-        _state.value = CalendarScreenState.Success(events)
-    }
-
     fun onEventSelected(event: CalendarEvent) {
         _state.value = CalendarScreenState.CreatingRuleEvent(event)
     }
@@ -130,11 +125,13 @@ class CalendarScreenViewModel(
 class CalendarViewModelFactory(
     private val ruleScheduler: AlarmScheduler,
     private val repo: TasaRepo,
+    private val queryCalendarService: QueryCalendarService,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return CalendarScreenViewModel(
             ruleScheduler = ruleScheduler,
             repo = repo,
+            queryCalendarService = queryCalendarService,
         ) as T
     }
 }

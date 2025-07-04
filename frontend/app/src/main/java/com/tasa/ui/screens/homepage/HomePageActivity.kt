@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
@@ -13,8 +12,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresPermission
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.tasa.DependenciesContainer
 import com.tasa.location.LocationService
 import com.tasa.silence.LocationStateReceiver
@@ -38,6 +35,10 @@ class HomePageActivity : ComponentActivity() {
         (application as DependenciesContainer).geofenceManager
     }
 
+    private val serviceKiller by lazy {
+        (applicationContext as DependenciesContainer).serviceKiller
+    }
+
     private val viewModel by viewModels<HomePageScreenViewModel>(
         factoryProducer = {
             HomeViewModelFactory(
@@ -45,18 +46,12 @@ class HomePageActivity : ComponentActivity() {
                 repo,
                 alarmScheduler,
                 geofenceManager,
+                serviceKiller,
             )
         },
     )
 
     private val locationStatusReceiver by lazy { LocationStateReceiver() }
-
-    fun checkAndRequestNotificationPolicyPermission(activity: ComponentActivity) {
-        val permission = Manifest.permission.ACCESS_NOTIFICATION_POLICY
-        if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, arrayOf(permission), 1)
-        }
-    }
 
     @RequiresPermission(
         allOf = [
@@ -144,7 +139,7 @@ class HomePageActivity : ComponentActivity() {
                             },
                             onCancelRule = {
                                     rule ->
-                                viewModel.cancelRule(rule, this@HomePageActivity)
+                                viewModel.cancelRule(rule)
                             },
                         )
                     },
@@ -164,7 +159,7 @@ class HomePageActivity : ComponentActivity() {
 
     private fun isLocationEnabled(context: Context): Boolean {
         return try {
-            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val locationManager = context.getSystemService(LOCATION_SERVICE) as LocationManager
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 locationManager.isLocationEnabled
             } else {

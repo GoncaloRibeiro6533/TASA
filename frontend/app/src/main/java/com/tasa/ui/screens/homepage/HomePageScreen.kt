@@ -55,7 +55,12 @@ fun HomePageScreen(
                     is HomeScreenState.Error -> {
                         ErrorAlert(
                             title = stringResource(R.string.error),
-                            message = stringResource(state.error),
+                            message =
+                                if (state.error != null) {
+                                    stringResource(state.error)
+                                } else {
+                                    state.message
+                                },
                             buttonText = stringResource(R.string.Ok),
                             onDismiss = { onFatalError() },
                         )

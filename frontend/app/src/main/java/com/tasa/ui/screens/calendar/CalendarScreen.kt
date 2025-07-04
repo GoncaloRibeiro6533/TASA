@@ -61,7 +61,7 @@ fun CalendarScreen(
                             title = stringResource(R.string.error),
                             message = stringResource(state.message),
                             buttonText = stringResource(R.string.Ok),
-                            onDismiss = { onNavigationBack },
+                            onDismiss = { onNavigationBack() },
                         )
                     }
 

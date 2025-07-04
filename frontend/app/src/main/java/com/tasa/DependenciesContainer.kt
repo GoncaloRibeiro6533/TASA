@@ -10,6 +10,9 @@ import com.tasa.location.LocationUpdatesRepository
 import com.tasa.repository.TasaRepo
 import com.tasa.service.TasaService
 import com.tasa.storage.TasaDB
+import com.tasa.utils.QueryCalendarService
+import com.tasa.utils.SearchPlaceService
+import com.tasa.utils.ServiceKiller
 import io.ktor.client.HttpClient
 
 interface DependenciesContainer {
@@ -23,4 +26,7 @@ interface DependenciesContainer {
     val activityTransitionManager: UserActivityTransitionManager
     val geofenceManager: GeofenceManager
     val locationUpdatesRepository: LocationUpdatesRepository
+    val searchPlaceService: SearchPlaceService
+    val queryCalendarService: QueryCalendarService
+    val serviceKiller: ServiceKiller
 }

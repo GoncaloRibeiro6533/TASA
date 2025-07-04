@@ -1,6 +1,5 @@
 package com.tasa.repository
 
-import android.content.Context
 import com.tasa.domain.ApiError
 import com.tasa.domain.AuthenticationException
 import com.tasa.domain.Event
@@ -9,9 +8,9 @@ import com.tasa.repository.interfaces.EventRepositoryInterface
 import com.tasa.service.TasaService
 import com.tasa.storage.TasaDB
 import com.tasa.storage.entities.EventEntity
-import com.tasa.ui.screens.calendar.utils.toLocalEvent
 import com.tasa.utils.Either
 import com.tasa.utils.Failure
+import com.tasa.utils.QueryCalendarService
 import com.tasa.utils.Success
 import com.tasa.utils.failure
 import com.tasa.utils.success
@@ -22,6 +21,7 @@ class EventRepository(
     private val local: TasaDB,
     private val remote: TasaService,
     private val userInfoRepository: UserInfoRepository,
+    private val queryCalendarService: QueryCalendarService,
 ) : EventRepositoryInterface {
     private suspend fun hasEvents(): Boolean {
         return local.eventDao().hasEvents()
@@ -34,13 +34,13 @@ class EventRepository(
         )
     }
 
-    private suspend fun getFromApi(context: Context): Either<ApiError, List<Event>> {
+    private suspend fun getFromApi(): Either<ApiError, List<Event>> {
         val result = remote.eventService.fetchEventAll(getToken())
         return when (result) {
             is Success -> {
                 success(
                     result.value.mapNotNull { event ->
-                        context.toLocalEvent(
+                        queryCalendarService.toLocalEvent(
                             event.id,
                             event.title,
                             event.startTime,
@@ -53,11 +53,11 @@ class EventRepository(
         }
     }
 
-    override suspend fun fetchEvents(context: Context): Either<ApiError, Flow<List<EventEntity>>> {
+    override suspend fun fetchEvents(): Either<ApiError, Flow<List<EventEntity>>> {
         return if (hasEvents() || userInfoRepository.isLocal()) {
             success(local.eventDao().getAllEvents())
         } else {
-            when (val events = getFromApi(context)) {
+            when (val events = getFromApi()) {
                 is Success -> {
                     local.eventDao().insertEvents(
                         *events.value.map { event ->

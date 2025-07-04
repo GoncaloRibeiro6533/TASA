@@ -20,9 +20,18 @@ class CalendarActivity : ComponentActivity() {
     private val repo by lazy {
         (application as DependenciesContainer).repo
     }
-    private val viewModel by viewModels<CalendarScreenViewModel>(
-        factoryProducer = { CalendarViewModelFactory(ruleScheduler, repo) },
-    )
+
+    private val queryCalendarService by lazy {
+        (application as DependenciesContainer).queryCalendarService
+    }
+
+    private val viewModel by viewModels<CalendarScreenViewModel> {
+        CalendarViewModelFactory(
+            ruleScheduler = ruleScheduler,
+            repo = repo,
+            queryCalendarService = queryCalendarService,
+        )
+    }
 
     fun checkAndRequestCalendarPermission(activity: ComponentActivity) {
         val permission = Manifest.permission.READ_CALENDAR
@@ -34,7 +43,7 @@ class CalendarActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         checkAndRequestCalendarPermission(this)
-        viewModel.loadEvents(this)
+        viewModel.loadEvents()
         setContent {
             TasaTheme {
                 PermissionBox(
@@ -53,7 +62,6 @@ class CalendarActivity : ComponentActivity() {
                                 event,
                                 startTime,
                                 endTime,
-                                this@CalendarActivity,
                             )
                         },
                         viewModel = viewModel,
@@ -62,7 +70,7 @@ class CalendarActivity : ComponentActivity() {
             }
         }
     }
-
+    @Suppress("DEPRECATION")
     override fun onBackPressed() {
         finish()
         super.onBackPressedDispatcher

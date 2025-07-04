@@ -8,15 +8,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
-import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.location.LocationServices
 import com.tasa.DependenciesContainer
-import com.tasa.activity.UserActivityTransitionManager
 import com.tasa.location.LocationService
 import com.tasa.ui.screens.mylocations.MyLocationsActivity
 import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
-import kotlinx.coroutines.launch
 import kotlin.jvm.java
 
 class MapActivity : ComponentActivity() {
@@ -26,24 +23,21 @@ class MapActivity : ComponentActivity() {
 
     private val repo by lazy { (application as DependenciesContainer).repo }
 
-    private val userInfoRepository by lazy { (application as DependenciesContainer).userInfoRepository }
-
-    private val activityRecognitionManager by lazy {
-        UserActivityTransitionManager(application)
-    }
-
     private val locationManager by lazy {
         (application as DependenciesContainer).locationUpdatesRepository
+    }
+
+    private val searchPlaceService by lazy {
+        (application as DependenciesContainer).searchPlaceService
     }
 
     private val viewModel by viewModels<MapScreenViewModel>(
         factoryProducer = {
             MapScreenViewModelFactory(
                 repo = repo,
-                userInfo = userInfoRepository,
                 locationClient = fusedLocationClient,
-                activityRecognitionManager = activityRecognitionManager,
                 locationUpdatesRepository = locationManager,
+                searchPlaceService = searchPlaceService,
             )
         },
     )
@@ -59,9 +53,9 @@ class MapActivity : ComponentActivity() {
     )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        lifecycleScope.launch {
-            viewModel.keepGivenCurrentLocation(this@MapActivity)
-        }
+
+        viewModel.keepGivenCurrentLocation()
+
         setContent {
             TasaTheme {
                 MapScreen(
@@ -73,9 +67,7 @@ class MapActivity : ComponentActivity() {
                         viewModel.updateSelectedPoint(geoPoint)
                     },
                     onSearchQuery = {
-                        viewModel.getLocationFromSearchQuery(
-                            this@MapActivity,
-                        )
+                        viewModel.getLocationFromSearchQuery()
                     },
                     onUpdateRadius = { it ->
                         viewModel.updateRadius(it)

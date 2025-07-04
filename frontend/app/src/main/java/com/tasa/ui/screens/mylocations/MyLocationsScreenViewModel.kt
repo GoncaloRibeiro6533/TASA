@@ -1,8 +1,6 @@
 package com.tasa.ui.screens.mylocations
 
 import android.Manifest
-import android.content.Context
-import android.content.Intent
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
@@ -13,6 +11,7 @@ import com.tasa.domain.Location
 import com.tasa.geofence.GeofenceManager
 import com.tasa.location.LocationService
 import com.tasa.repository.TasaRepo
+import com.tasa.utils.ServiceKiller
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,6 +41,7 @@ sealed interface MyLocationsScreenState {
 class MyLocationsScreenViewModel(
     private val repo: TasaRepo,
     private val geofenceManager: GeofenceManager,
+    private val serviceKiller: ServiceKiller,
     initialState: MyLocationsScreenState = MyLocationsScreenState.Uninitialized,
 ) : ViewModel() {
     private val _state: MutableStateFlow<MyLocationsScreenState> = MutableStateFlow(initialState)
@@ -77,10 +77,7 @@ class MyLocationsScreenViewModel(
         _state.value = MyLocationsScreenState.Success(_locations)
     }
 
-    fun deleteLocation(
-        location: Location,
-        context: Context,
-    ) {
+    fun deleteLocation(location: Location) {
         if (_state.value is MyLocationsScreenState.Loading) return
         _state.value = MyLocationsScreenState.Loading
         viewModelScope.launch {
@@ -93,11 +90,7 @@ class MyLocationsScreenViewModel(
                     repo.ruleRepo.deleteRuleLocationTimelessByLocation(location)
                     repo.geofenceRepo.deleteGeofence(geofences.first())
                     if (LocationService.isRunning && LocationService.locationName == location.name) {
-                        val serviceIntent =
-                            Intent(context, LocationService::class.java).apply {
-                                putExtra("requestId", LocationService.reqId)
-                            }
-                        context.stopService(serviceIntent)
+                        serviceKiller.killServices(LocationService::class)
                     }
                 }
                 repo.locationRepo.deleteLocationByName(location.name)
@@ -160,12 +153,13 @@ class MyLocationsScreenViewModel(
 class MyLocationsScreenViewModelFactory(
     private val repo: TasaRepo,
     private val geofenceManager: GeofenceManager,
+    private val serviceKiller: ServiceKiller,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return MyLocationsScreenViewModel(
             repo = repo,
             geofenceManager = geofenceManager,
-            initialState = MyLocationsScreenState.Uninitialized,
+            serviceKiller = serviceKiller,
         ) as T
     }
 }

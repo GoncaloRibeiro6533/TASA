@@ -1,7 +1,6 @@
 package com.tasa.repository
 
 import android.Manifest
-import android.content.Context
 import androidx.annotation.RequiresPermission
 import com.tasa.alarm.AlarmScheduler
 import com.tasa.domain.Action
@@ -22,9 +21,9 @@ import com.tasa.storage.entities.AlarmEntity
 import com.tasa.storage.entities.GeofenceEntity
 import com.tasa.storage.entities.RuleEventEntity
 import com.tasa.storage.entities.RuleLocationTimelessEntity
-import com.tasa.ui.screens.calendar.utils.toLocalEvent
 import com.tasa.utils.Either
 import com.tasa.utils.Failure
+import com.tasa.utils.QueryCalendarService
 import com.tasa.utils.Success
 import com.tasa.utils.failure
 import com.tasa.utils.success
@@ -41,7 +40,7 @@ class RuleRepository(
     private val userInfoRepository: UserInfoRepository,
     private val ruleScheduler: AlarmScheduler,
     private val geofenceManager: GeofenceManager,
-    private val context: Context,
+    private val queryCalendarService: QueryCalendarService,
 ) : RuleRepositoryInterface {
     private suspend fun getToken(): String {
         return userInfoRepository.getToken() ?: throw AuthenticationException(
@@ -66,7 +65,7 @@ class RuleRepository(
                     val ruleEvents = result.value.eventRules
                     val events =
                         ruleEvents.mapNotNull { it ->
-                            context.toLocalEvent(
+                            queryCalendarService.toLocalEvent(
                                 it.event.id,
                                 it.event.title,
                                 it.event.startTime,

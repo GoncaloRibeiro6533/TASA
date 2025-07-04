@@ -21,7 +21,7 @@ const val TAG = "GeofenceManager"
 const val CUSTOM_REQUEST_CODE_GEOFENCE = 1001
 
 class GeofenceManager(
-    context: Context,
+    private val context: Context,
     private val locationProviderClient: FusedLocationProviderClient,
 ) {
     private val client = LocationServices.getGeofencingClient(context)

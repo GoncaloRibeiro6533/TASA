@@ -18,11 +18,16 @@ class MyLocationsActivity : ComponentActivity() {
         (applicationContext as DependenciesContainer).geofenceManager
     }
 
+    private val serviceKiller by lazy {
+        (applicationContext as DependenciesContainer).serviceKiller
+    }
+
     private val viewModel by viewModels<MyLocationsScreenViewModel>(
         factoryProducer = {
             MyLocationsScreenViewModelFactory(
                 repo = repo,
                 geofenceManager = geofenceManager,
+                serviceKiller = serviceKiller,
             )
         },
     )
@@ -38,7 +43,7 @@ class MyLocationsActivity : ComponentActivity() {
                     onLocationSelected = {},
                     onAddLocation = {},
                     onDeleteLocation = { location ->
-                        viewModel.deleteLocation(location, this)
+                        viewModel.deleteLocation(location)
                     },
                     onEditLocation = {},
                     onNavigateBack = {

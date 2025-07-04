@@ -1,8 +1,6 @@
 package com.tasa.ui.screens.homepage
 
 import android.Manifest
-import android.content.Context
-import android.content.Intent
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
@@ -10,7 +8,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.tasa.R
 import com.tasa.alarm.AlarmScheduler
-import com.tasa.domain.ApiError
 import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
@@ -21,6 +18,7 @@ import com.tasa.geofence.GeofenceManager
 import com.tasa.location.LocationService
 import com.tasa.repository.TasaRepo
 import com.tasa.utils.Failure
+import com.tasa.utils.ServiceKiller
 import com.tasa.utils.Success
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +33,7 @@ sealed interface HomeScreenState {
 
     data class Success(val rules: StateFlow<List<Rule>>) : HomeScreenState
 
-    data class Error(val error: Int) : HomeScreenState
+    data class Error(val error: Int?, val message: String = "") : HomeScreenState
 }
 
 class HomePageScreenViewModel(
@@ -43,6 +41,7 @@ class HomePageScreenViewModel(
     private val userInfo: UserInfoRepository,
     private val alarmScheduler: AlarmScheduler,
     private val geofenceManager: GeofenceManager,
+    private val serviceKiller: ServiceKiller,
     initialState: HomeScreenState = HomeScreenState.Uninitialized,
 ) : ViewModel() {
     private val _state = MutableStateFlow<HomeScreenState>(initialState)
@@ -101,8 +100,7 @@ class HomePageScreenViewModel(
                             _state.value = HomeScreenState.Success(rules)
                         }
                     is Failure -> {
-                        val error: ApiError = result.value
-                        _state.value = HomeScreenState.Error(R.string.unexpected_error)
+                        _state.value = HomeScreenState.Error(null, result.value.message)
                     }
                 }
             } catch (e: Throwable) {
@@ -113,10 +111,7 @@ class HomePageScreenViewModel(
         }
     }
 
-    fun cancelRule(
-        rule: Rule,
-        context: Context,
-    ) {
+    fun cancelRule(rule: Rule) {
         viewModelScope.launch {
             try {
                 when (rule) {
@@ -131,11 +126,11 @@ class HomePageScreenViewModel(
                         val alarmEnd = repo.alarmRepo.getAlarmByTriggerTime(rule.endTime.toTriggerTime().value)
                         if (alarmStart != null) {
                             repo.alarmRepo.deleteAlarm(alarmStart.id)
-                            alarmScheduler.cancelAlarm(alarmStart.id, context)
+                            alarmScheduler.cancelAlarm(alarmStart.id)
                         }
                         if (alarmEnd != null) {
                             repo.alarmRepo.deleteAlarm(alarmEnd.id)
-                            alarmScheduler.cancelAlarm(alarmEnd.id, context)
+                            alarmScheduler.cancelAlarm(alarmEnd.id)
                         }
                     }
                     is RuleLocation -> {}
@@ -154,11 +149,7 @@ class HomePageScreenViewModel(
                         if (LocationService.isRunning && LocationService.locationName ==
                             rule.location.name
                         ) {
-                            val serviceIntent =
-                                Intent(context, LocationService::class.java).apply {
-                                    putExtra("requestId", LocationService.reqId)
-                                }
-                            context.stopService(serviceIntent)
+                            serviceKiller.killServices(LocationService::class)
                         }
                     }
                 }
@@ -176,6 +167,7 @@ class HomeViewModelFactory(
     private val repo: TasaRepo,
     private val alarmScheduler: AlarmScheduler,
     private val geofenceManager: GeofenceManager,
+    private val serviceKiller: ServiceKiller,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return HomePageScreenViewModel(
@@ -183,6 +175,7 @@ class HomeViewModelFactory(
             userInfo = userInfo,
             alarmScheduler = alarmScheduler,
             geofenceManager = geofenceManager,
+            serviceKiller = serviceKiller,
         ) as T
     }
 }

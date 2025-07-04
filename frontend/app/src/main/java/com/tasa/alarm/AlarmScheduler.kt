@@ -89,10 +89,7 @@ class AlarmScheduler(
         )
     }
 
-    fun cancelAlarm(
-        alarmId: Int,
-        context: Context,
-    ) {
+    fun cancelAlarm(alarmId: Int) {
         val intent =
             Intent(context, MuteReceiver::class.java).apply {
                 data = "custom://alarm/$alarmId".toUri()

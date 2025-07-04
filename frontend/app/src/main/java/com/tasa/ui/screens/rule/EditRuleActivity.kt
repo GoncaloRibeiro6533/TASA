@@ -8,10 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import com.tasa.DependenciesContainer
 import com.tasa.domain.Event
-import com.tasa.domain.Location
-import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
-import com.tasa.domain.RuleLocation
 import com.tasa.ui.screens.homepage.HomePageActivity
 import com.tasa.utils.navigateTo
 import kotlinx.parcelize.Parcelize
@@ -24,6 +21,10 @@ class EditRuleActivity : ComponentActivity() {
         (application as DependenciesContainer).ruleScheduler
     }
 
+    private val queryCalendarService by lazy {
+        (application as DependenciesContainer).queryCalendarService
+    }
+
     private lateinit var rule: RuleEvent
 
     private val viewModel by viewModels<EditRuleViewModel>(
@@ -32,6 +33,7 @@ class EditRuleActivity : ComponentActivity() {
                 repo = repo,
                 alarmScheduler = ruleScheduler,
                 rule = rule,
+                queryCalendarService = queryCalendarService,
             )
         },
     )
@@ -46,23 +48,7 @@ class EditRuleActivity : ComponentActivity() {
         val latitude: Double,
         val longitude: Double,
         val radius: Double,
-    ) : Parcelable {
-        fun toRuleLocation(): Rule {
-            return RuleLocation(
-                id = id,
-                startTime = startTime,
-                endTime = endTime,
-                location =
-                    Location(
-                        id = locationId,
-                        name = name,
-                        latitude = latitude,
-                        longitude = longitude,
-                        radius = radius,
-                    ),
-            )
-        }
-    }
+    ) : Parcelable
 
     @Parcelize
     data class RuleParcelableEvent(
@@ -98,14 +84,6 @@ class EditRuleActivity : ComponentActivity() {
                 @Suppress("DEPRECATION")
                 intent.getParcelableExtra("rule_event") as? RuleParcelableEvent
             }
-        val ruleParcelableLocation =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                intent.getParcelableExtra("rule_location", RuleParcelableLocation::class.java)
-            } else {
-                @Suppress("DEPRECATION")
-                intent.getParcelableExtra("rule_location") as? RuleParcelableLocation
-            }
-
         if (ruleParcelableEvent == null) {
             navigateTo(this, HomePageActivity::class.java)
             finish()
@@ -115,7 +93,6 @@ class EditRuleActivity : ComponentActivity() {
             viewModel.setEventTime(
                 eventId = rule.event.eventId,
                 calendarId = rule.event.calendarId,
-                activityContext = this,
             )
         }
         setContent {

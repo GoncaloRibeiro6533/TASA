@@ -22,6 +22,12 @@ import com.tasa.service.http.TasaServiceHttp
 import com.tasa.service.http.models.LocalDateTimeSerializer
 import com.tasa.storage.TasaDB
 import com.tasa.utils.PropertiesConfigLoader
+import com.tasa.utils.QueryCalendarService
+import com.tasa.utils.QueryCalendarServiceImpl
+import com.tasa.utils.SearchPlaceService
+import com.tasa.utils.SearchPlaceServiceImpl
+import com.tasa.utils.ServiceKiller
+import com.tasa.utils.ServiceKillerImpl
 import com.tasa.workers.CoroutineDBCleaner
 import com.tasa.workers.LocationStatusWorker
 import io.ktor.client.HttpClient
@@ -83,15 +89,15 @@ class TasaApplication : Application(), DependenciesContainer {
     }
 
     override val ruleScheduler: AlarmScheduler by lazy {
-        AlarmScheduler(this)
+        AlarmScheduler(applicationContext)
     }
 
     override val activityTransitionManager: UserActivityTransitionManager by lazy {
-        UserActivityTransitionManager(this)
+        UserActivityTransitionManager(applicationContext)
     }
 
     override val geofenceManager: GeofenceManager by lazy {
-        GeofenceManager(this, fusedLocationClient)
+        GeofenceManager(applicationContext, fusedLocationClient)
     }
 
     override val repo: TasaRepo by lazy {
@@ -101,7 +107,7 @@ class TasaApplication : Application(), DependenciesContainer {
             userInfoRepository = userInfoRepository,
             ruleScheduler = ruleScheduler,
             geofenceManager = geofenceManager,
-            context = this,
+            queryCalendarService = queryCalendarService,
         )
     }
 
@@ -113,9 +119,21 @@ class TasaApplication : Application(), DependenciesContainer {
         LocationUpdatesRepository(activityTransitionManager, fusedLocationClient, userInfoRepository)
     }
 
+    override val searchPlaceService: SearchPlaceService by lazy {
+        SearchPlaceServiceImpl(applicationContext)
+    }
+
+    override val queryCalendarService: QueryCalendarService by lazy {
+        QueryCalendarServiceImpl(contentResolver)
+    }
+
+    override val serviceKiller: ServiceKiller by lazy {
+        ServiceKillerImpl(applicationContext)
+    }
+
     override fun onCreate() {
         super.onCreate()
-        val props = PropertiesConfigLoader.load(this@TasaApplication)
+        val props = PropertiesConfigLoader.load(applicationContext)
         apiUrl = props.getProperty("api_url")
         devMode = props.getProperty("developer_mode", "false").toBoolean()
         val port = props.getProperty("port").toIntOrNull()
@@ -132,7 +150,7 @@ class TasaApplication : Application(), DependenciesContainer {
                 repeatInterval = 1,
                 TimeUnit.DAYS,
             ).setConstraints(constraints).build()
-        WorkManager.getInstance(this)
+        WorkManager.getInstance(applicationContext)
             .enqueue(workItem)
         // Schedule the location status worker to check GPS status every 15 minutes
         val constraints2 =
@@ -144,7 +162,7 @@ class TasaApplication : Application(), DependenciesContainer {
                 repeatInterval = 15,
                 TimeUnit.MINUTES,
             ).setConstraints(constraints2).build()
-        WorkManager.getInstance(this)
+        WorkManager.getInstance(applicationContext)
             .enqueue(gpsStatusItem)
     }
 
