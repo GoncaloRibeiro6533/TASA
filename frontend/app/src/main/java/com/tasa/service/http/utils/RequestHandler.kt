@@ -49,17 +49,13 @@ suspend inline fun <reified T : Any> HttpClient.post(
     token: String = "",
     body: Any? = null,
 ): Either<ApiError, T> {
-    return try {
-        post(BASE_URL + url) {
-            if (token.isNotEmpty()) header("Authorization", "$SCHEME $token")
-            header("Content-Type", MEDIA_TYPE)
-            header("Accept", "$MEDIA_TYPE, $ERROR_MEDIA_TYPE")
-            header("Accept-Language", language)
-            if (body != null) setBody(body)
-        }.processResponse()
-    } catch (e: Throwable) {
-        failure(ApiError("Unexpected error: ${e.message ?: e.cause?.message}"))
-    }
+    return post(BASE_URL + url) {
+        if (token.isNotEmpty()) header("Authorization", "$SCHEME $token")
+        header("Content-Type", MEDIA_TYPE)
+        header("Accept", "$MEDIA_TYPE, $ERROR_MEDIA_TYPE")
+        header("Accept-Language", language)
+        if (body != null) setBody(body)
+    }.processResponse()
 }
 
 suspend inline fun <reified T : Any> HttpClient.put(
@@ -67,33 +63,25 @@ suspend inline fun <reified T : Any> HttpClient.put(
     token: String = "",
     body: Any? = null,
 ): Either<ApiError, T> {
-    return try {
-        put(BASE_URL + url) {
-            if (token.isNotEmpty()) header("Authorization", "$SCHEME $token")
-            header("Content-Type", MEDIA_TYPE)
-            header("Accept", "$MEDIA_TYPE, $ERROR_MEDIA_TYPE")
-            header("Accept-Language", language)
-            if (body != null) setBody(body)
-        }.processResponse()
-    } catch (e: Throwable) {
-        failure(ApiError("Unexpected error: ${e.message ?: e.cause?.message}"))
-    }
+    return put(BASE_URL + url) {
+        if (token.isNotEmpty()) header("Authorization", "$SCHEME $token")
+        header("Content-Type", MEDIA_TYPE)
+        header("Accept", "$MEDIA_TYPE, $ERROR_MEDIA_TYPE")
+        header("Accept-Language", language)
+        if (body != null) setBody(body)
+    }.processResponse()
 }
 
 suspend inline fun <reified T : Any> HttpClient.delete(
     url: String,
     token: String = "",
 ): Either<ApiError, T> {
-    return try {
-        delete(BASE_URL + url) {
-            if (token.isNotEmpty()) header("Authorization", "$SCHEME $token")
-            header("Content-Type", MEDIA_TYPE)
-            header("Accept", "$MEDIA_TYPE, $ERROR_MEDIA_TYPE")
-            header("Accept-Language", language)
-        }.processResponse()
-    } catch (e: Throwable) {
-        failure(ApiError("Unexpected error: ${e.message ?: e.cause?.message}"))
-    }
+    return delete(BASE_URL + url) {
+        if (token.isNotEmpty()) header("Authorization", "$SCHEME $token")
+        header("Content-Type", MEDIA_TYPE)
+        header("Accept", "$MEDIA_TYPE, $ERROR_MEDIA_TYPE")
+        header("Accept-Language", language)
+    }.processResponse()
 }
 
 // Function to process the HTTP response

@@ -77,29 +77,42 @@ class MyLocationsScreenViewModel(
         _state.value = MyLocationsScreenState.CreatingRuleLocation(location)
     }
 
-    fun setSuccessState() {
-        _state.value = MyLocationsScreenState.Success(_locations)
-    }
-
     fun deleteLocation(location: Location) {
         if (_state.value is MyLocationsScreenState.Loading) return
         _state.value = MyLocationsScreenState.Loading
         viewModelScope.launch {
             try {
                 val geofences = repo.geofenceRepo.getAllGeofences().filter { it.name == location.name }
-                if (geofences.isNotEmpty()) {
-                    geofences.forEach { geofence ->
-                        geofenceManager.deregisterGeofence(geofence.name)
-                    }
-                    repo.ruleRepo.deleteRuleLocationTimelessByLocation(location)
-                    repo.geofenceRepo.deleteGeofence(geofences.first())
-                    if (LocationService.isRunning && LocationService.locationName == location.name) {
-                        serviceKiller.killServices(LocationService::class)
+                geofences.forEach { geofence ->
+                    geofenceManager.deregisterGeofence(geofence.name)
+                }
+                val rule =
+                    repo.ruleRepo.getTimelessRulesForLocation(location)
+                if (rule.isNotEmpty()) {
+                    rule.forEach {
+                        when (val result = repo.ruleRepo.deleteRuleLocationTimeless(it)) {
+                            is Failure -> {
+                                _state.value = MyLocationsScreenState.Error(result.value.message)
+                                return@forEach
+                            }
+                            is Success -> {
+                                repo.geofenceRepo.deleteGeofence(geofences.first())
+                                if (LocationService.isRunning && LocationService.locationName == location.name) {
+                                    serviceKiller.killServices(LocationService::class)
+                                }
+                                when (val result = repo.locationRepo.deleteLocation(location)) {
+                                    is Success -> {
+                                        _state.value = MyLocationsScreenState.Success(_locations)
+                                        _successMessage.value = R.string.location_deleted
+                                    }
+                                    is Failure -> {
+                                        _state.value = MyLocationsScreenState.Error(result.value.message)
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
-                repo.locationRepo.deleteLocationByName(location.name)
-                _state.value = MyLocationsScreenState.Success(_locations)
-                _successMessage.value = R.string.location_deleted
             } catch (e: Throwable) {
                 Log.d("MyLocationsScreenViewModel", "deleteLocation: ", e)
                 _state.value = MyLocationsScreenState.Error(stringResolver.getString(R.string.unexpected_error))
@@ -135,10 +148,9 @@ class MyLocationsScreenViewModel(
                             location.toLocation(),
                             radius,
                         )
-                        val id =
-                            repo.geofenceRepo.createGeofence(
-                                location,
-                            )
+                        repo.geofenceRepo.createGeofence(
+                            location,
+                        )
                     }
                     is Failure -> {
                         _state.value =

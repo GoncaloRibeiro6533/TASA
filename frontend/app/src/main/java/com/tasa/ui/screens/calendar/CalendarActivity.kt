@@ -48,6 +48,7 @@ class CalendarActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         checkAndRequestCalendarPermission(this)
+        // tODO job is being cancelled when activity is recreated
         viewModel.loadEvents()
         setContent {
             TasaTheme {

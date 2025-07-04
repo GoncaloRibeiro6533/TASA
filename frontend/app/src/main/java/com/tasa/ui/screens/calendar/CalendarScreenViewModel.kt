@@ -14,6 +14,7 @@ import com.tasa.utils.Failure
 import com.tasa.utils.QueryCalendarService
 import com.tasa.utils.StringResourceResolver
 import com.tasa.utils.Success
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -62,10 +63,12 @@ class CalendarScreenViewModel(
                     }
                 }
             } catch (e: Throwable) {
-                _state.value =
-                    CalendarScreenState.Error(
-                        stringResolver.getString(R.string.unexpected_error),
-                    )
+                if (e !is CancellationException) {
+                    _state.value =
+                        CalendarScreenState.Error(
+                            stringResolver.getString(R.string.unexpected_error),
+                        )
+                }
                 Log.e("CalendarViewModel", "Error loading events: ${e.message}")
             }
         }
@@ -92,7 +95,7 @@ class CalendarScreenViewModel(
                         is Failure -> {
                             _state.value =
                                 CalendarScreenState.Error(
-                                    stringResolver.getString(R.string.error_creating_rule),
+                                    rule.value.message,
                                 )
                             return@launch
                         }
@@ -118,7 +121,6 @@ class CalendarScreenViewModel(
                                 Action.UNMUTE,
                             )
                             _state.value = CalendarScreenState.SuccessOnSchedule(events)
-                            Log.d("CalendarViewModel", "Rule created: ${rule.value}")
                         }
                     }
                 } else {

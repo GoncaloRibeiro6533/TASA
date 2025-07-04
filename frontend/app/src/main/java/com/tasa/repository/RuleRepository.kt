@@ -251,17 +251,16 @@ class RuleRepository(
     ): Either<ApiError, RuleEvent> {
         val localEvent = local.eventDao().getEventByIdSync(event.eventId, event.calendarId)
         if (localEvent == null) local.eventDao().insertEvents(event.toEventEntity())
-        if (userInfoRepository.isLocal())
-            {
-                val ruleEvent =
-                    RuleEvent(
-                        startTime = startTime,
-                        endTime = endTime,
-                        event = event,
-                    )
-                local.ruleEventDao().insertRuleEvent(ruleEvent.toRuleEventEntity())
-                return success(ruleEvent)
-            } else {
+        if (userInfoRepository.isLocal()) {
+            val ruleEvent =
+                RuleEvent(
+                    startTime = startTime,
+                    endTime = endTime,
+                    event = event,
+                )
+            local.ruleEventDao().insertRuleEvent(ruleEvent.toRuleEventEntity())
+            return success(ruleEvent)
+        } else {
             val event =
                 if (event.id != null) {
                     event
@@ -317,13 +316,6 @@ class RuleRepository(
         remote.ruleService.deleteRuleEventById(id, getToken())
     }
 
-    override suspend fun deleteRuleEventByCalendarIdAndEventId(
-        eventId: Long,
-        calendarId: Long,
-    ) {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun cleanOldRules(now: LocalDateTime) {
         local.ruleEventDao().getAllRuleEvents().map { it.map { it.toRuleEvent() } }
             .collect { rules ->
@@ -360,16 +352,15 @@ class RuleRepository(
         oldStartTime: LocalDateTime,
         oldEndTime: LocalDateTime,
     ): Either<ApiError, Unit> {
-        if (userInfoRepository.isLocal())
-            {
-                local.ruleEventDao().updateRuleEventByStartAndEndTime(
-                    newStartTime,
-                    newEndTime,
-                    oldStartTime,
-                    oldEndTime,
-                )
-                return success(Unit)
-            }
+        if (userInfoRepository.isLocal()) {
+            local.ruleEventDao().updateRuleEventByStartAndEndTime(
+                newStartTime,
+                newEndTime,
+                oldStartTime,
+                oldEndTime,
+            )
+            return success(Unit)
+        }
         if (rule.id != null) {
             val remote =
                 remote.ruleService.updateRuleEvent(
@@ -412,19 +403,34 @@ class RuleRepository(
         }
     }
 
-    override suspend fun deleteRuleEventByEventIdAndCalendarIdAndStarTimeAndEndtime(
-        eventId: Long,
-        calendarId: Long,
-        startTime: LocalDateTime,
-        endTime: LocalDateTime,
-    ) {
-        //TODO
-        local.ruleEventDao().deleteRuleEventByEventIdAndCalendarIdAndStarTimeAndEndTime(
-            eventId,
-            calendarId,
-            startTime,
-            endTime,
-        )
+    override suspend fun deleteRuleEvent(rule: RuleEvent): Either<ApiError, Unit> {
+        if (userInfoRepository.isLocal()) {
+            local.ruleEventDao().deleteRuleEventByStartAndEndTime(
+                rule.startTime,
+                rule.endTime,
+            )
+            return success(Unit)
+        } else {
+            if (rule.id != null) {
+                val remote = remote.ruleService.deleteRuleEventById(rule.id, getToken())
+                return when (remote) {
+                    is Success -> {
+                        local.ruleEventDao().deleteRuleEventByStartAndEndTime(
+                            rule.startTime,
+                            rule.endTime,
+                        )
+                        success(Unit)
+                    }
+                    is Failure -> failure(remote.value)
+                }
+            } else {
+                local.ruleEventDao().deleteRuleEventByStartAndEndTime(
+                    rule.startTime,
+                    rule.endTime,
+                )
+                return success(Unit)
+            }
+        }
     }
 
     override suspend fun getTimelessRulesForLocation(location: Location): List<RuleLocationTimeless> {
@@ -478,8 +484,25 @@ class RuleRepository(
     }
 
     override suspend fun deleteRuleLocationTimelessByLocation(location: Location) {
-        //TODO
-        local.ruleLocationTimelessDao().deleteRuleLocationByName(location.name)
+        if (userInfoRepository.isLocal()) {
+            local.ruleLocationTimelessDao().deleteRuleLocationByName(location.name)
+            return
+        }
+    }
+
+    override suspend fun deleteRuleLocationTimeless(ruleLocation: RuleLocationTimeless): Either<ApiError, RuleLocationTimeless> {
+        if (userInfoRepository.isLocal() || ruleLocation.id == null) {
+            local.ruleLocationTimelessDao().deleteRuleLocationByName(ruleLocation.location.name)
+            return success(ruleLocation)
+        }
+        val remote = remote.ruleService.deleteRuleLocationById(ruleLocation.id, getToken())
+        return when (remote) {
+            is Success -> {
+                local.ruleLocationTimelessDao().deleteRuleLocationByName(ruleLocation.location.name)
+                success(ruleLocation)
+            }
+            is Failure -> failure(remote.value)
+        }
     }
 
     override suspend fun deleteRuleLocationTimelessById(id: Int) {

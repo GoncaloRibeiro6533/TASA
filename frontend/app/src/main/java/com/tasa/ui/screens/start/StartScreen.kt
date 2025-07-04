@@ -24,17 +24,20 @@ fun StartScreen(
     onContinueWithoutAccount: () -> Unit = { },
 ) {
     TasaTheme {
+        val state = viewModel.state
         Scaffold(
             modifier =
                 Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background),
             topBar = {
-                TopBar(
-                    NavigationHandlers(
-                        onAboutRequested = onAboutRequested,
-                    ),
-                )
+                if (state is StartScreenState.NotLogged) {
+                    TopBar(
+                        NavigationHandlers(
+                            onAboutRequested = onAboutRequested,
+                        ),
+                    )
+                }
             },
         ) { innerPadding ->
             Column(
@@ -45,7 +48,7 @@ fun StartScreen(
                         .fillMaxSize()
                         .padding(innerPadding),
             ) {
-                when (viewModel.state) {
+                when (state) {
                     StartScreenState.Idle -> {
                         HomePopPup()
                     }

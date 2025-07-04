@@ -16,8 +16,10 @@ import com.tasa.domain.Location
 import com.tasa.domain.toLocalDateTime
 import com.tasa.location.LocationUpdatesRepository
 import com.tasa.repository.TasaRepo
+import com.tasa.utils.Failure
 import com.tasa.utils.SearchPlaceService
 import com.tasa.utils.StringResourceResolver
+import com.tasa.utils.Success
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -277,7 +279,7 @@ class MapScreenViewModel(
                             stringResolver.getString(R.string.error_location_name_already_exists))
                         return@launch
                     }
-                    repo.locationRepo.insertLocation(
+                    when(val result = repo.locationRepo.insertLocation(
                         Location(
                             id = null,
                             name = locationName,
@@ -285,7 +287,23 @@ class MapScreenViewModel(
                             longitude = longitude,
                             radius = radius,
                         ),
-                    )
+                    )){
+                        is Failure -> {
+                            _state.value = MapsScreenState.Error(result.value.message)
+                            return@launch
+                        }
+                        is Success -> {
+                            _state.value =
+                                MapsScreenState.Success(
+                                    selectedPoint = _selectedPoint,
+                                    currentLocation = _currentLocation,
+                                    searchQuery = _query,
+                                    userActivity = activityState,
+                                    radius = _radius,
+                                    locationName = _locationName,
+                                )
+                        }
+                    }
                     onSuccess()
                 } catch (ex: Throwable) {
                     _state.value = MapsScreenState.Error(

@@ -130,11 +130,8 @@ class HomePageScreenViewModel(
             try {
                 when (rule) {
                     is RuleEvent -> {
-                        repo.ruleRepo.deleteRuleEventByEventIdAndCalendarIdAndStarTimeAndEndtime(
-                            rule.event.eventId,
-                            rule.event.calendarId,
-                            rule.startTime,
-                            rule.endTime,
+                        repo.ruleRepo.deleteRuleEvent(
+                            rule,
                         )
                         val alarmStart = repo.alarmRepo.getAlarmByTriggerTime(rule.startTime.toTriggerTime().value)
                         val alarmEnd = repo.alarmRepo.getAlarmByTriggerTime(rule.endTime.toTriggerTime().value)
@@ -149,21 +146,30 @@ class HomePageScreenViewModel(
                     }
                     is RuleLocation -> {}
                     is RuleLocationTimeless -> {
-                        val geofences =
-                            repo.geofenceRepo.getAllGeofences()
-                                .filter { it.name == rule.location.name }
-                        if (geofences.isNotEmpty()) {
-                            geofences.forEach { geofence ->
-                                geofenceManager.deregisterGeofence(geofence.name)
+                        when (val result = repo.ruleRepo.deleteRuleLocationTimeless(rule)) {
+                            is Failure -> {
+                                _state.value =
+                                    HomeScreenState.Error(
+                                        result.value.message,
+                                    )
+                                return@launch
                             }
-                        }
-                        repo.ruleRepo.deleteRuleLocationTimelessByLocation(rule.location)
-                        repo.ruleRepo.deleteRuleLocationTimelessByLocation(rule.location)
-                        repo.geofenceRepo.deleteGeofence(geofences.first())
-                        if (LocationService.isRunning && LocationService.locationName ==
-                            rule.location.name
-                        ) {
-                            serviceKiller.killServices(LocationService::class)
+                            is Success -> {
+                                val geofences =
+                                    repo.geofenceRepo.getAllGeofences()
+                                        .filter { it.name == rule.location.name }
+                                if (geofences.isNotEmpty()) {
+                                    geofences.forEach { geofence ->
+                                        geofenceManager.deregisterGeofence(geofence.name)
+                                    }
+                                }
+                                repo.geofenceRepo.deleteGeofence(geofences.first())
+                                if (LocationService.isRunning && LocationService.locationName ==
+                                    rule.location.name
+                                ) {
+                                    serviceKiller.killServices(LocationService::class)
+                                }
+                            }
                         }
                     }
                 }

@@ -331,6 +331,7 @@ fun HomePageViewEmptyPreview() {
 fun HomePageViewHorizontal(
     rules: StateFlow<List<Rule>>,
     onNavigationToMap: () -> Unit,
+    onNavigateToMyLocations: () -> Unit,
     onNavigateToCreateRuleEvent: () -> Unit,
     onNavigationToMyExceptions: () -> Unit,
     onEdit: (EditRuleActivity.RuleParcelableEvent) -> Unit = {},
@@ -377,7 +378,7 @@ fun HomePageViewHorizontal(
             ) {
                 CompactButton(
                     label = stringResource(R.string.my_locations),
-                    onClick = { /* TODO: Add navigation logic for locations */ },
+                    onClick = onNavigateToMyLocations,
                     colors = gray,
                 )
 
@@ -556,6 +557,7 @@ fun HomePageViewHorizontalPreview() {
         onNavigationToMap = {},
         onNavigateToCreateRuleEvent = {},
         onNavigationToMyExceptions = {},
+        onNavigateToMyLocations = {},
     )
 }
 
@@ -567,5 +569,6 @@ fun HomePageViewHorizontalEmptyPreview() {
         onNavigationToMap = {},
         onNavigateToCreateRuleEvent = {},
         onNavigationToMyExceptions = {},
+        onNavigateToMyLocations = {},
     )
 }

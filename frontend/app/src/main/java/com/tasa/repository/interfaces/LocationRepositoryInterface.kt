@@ -12,11 +12,11 @@ interface LocationRepositoryInterface {
 
     suspend fun getLocationByName(name: String): Location?
 
-    suspend fun insertLocation(location: Location)
+    suspend fun insertLocation(location: Location): Either<ApiError, Location>
 
     suspend fun deleteLocationById(id: Int)
 
-    suspend fun deleteLocationByName(name: String): Either<ApiError, Unit>
+    suspend fun deleteLocation(location: Location): Either<ApiError, Unit>
 
     suspend fun clear()
 }

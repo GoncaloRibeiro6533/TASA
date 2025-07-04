@@ -22,7 +22,7 @@ interface EventDao {
     ): Flow<EventEntity>
 
     @Query("SELECT * FROM event WHERE calendarId = :calendarId AND eventId = :eventId")
-    fun getEventByIdSync(
+    suspend fun getEventByIdSync(
         eventId: Long,
         calendarId: Long,
     ): EventEntity?

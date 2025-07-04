@@ -154,6 +154,10 @@ class EventService(
             val user = userRepo.findById(userId) ?: return@run failure(EventError.UserNotFound)
             val event = eventRepo.findById(eventId) ?: return@run failure(EventError.EventNotFound)
             if (event !in eventRepo.findByUserId(user)) return@run failure(EventError.NotAllowed)
+            val rules = ruleRepo.findByUserId(user)
+            if (rules.filterIsInstance<RuleEvent>().any { it.event.id == event.id }) {
+                return@run failure(EventError.NotAllowed)
+            }
             return@run success(eventRepo.delete(user, event))
         }
     }

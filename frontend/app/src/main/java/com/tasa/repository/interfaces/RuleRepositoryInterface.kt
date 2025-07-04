@@ -32,11 +32,6 @@ interface RuleRepositoryInterface {
 
     suspend fun deleteRuleEventById(id: Int)
 
-    suspend fun deleteRuleEventByCalendarIdAndEventId(
-        eventId: Long,
-        calendarId: Long,
-    )
-
     suspend fun isCollision(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
@@ -60,12 +55,7 @@ interface RuleRepositoryInterface {
         oldEndTime: LocalDateTime,
     ): Either<ApiError, Unit>
 
-    suspend fun deleteRuleEventByEventIdAndCalendarIdAndStarTimeAndEndtime(
-        eventId: Long,
-        calendarId: Long,
-        startTime: LocalDateTime,
-        endTime: LocalDateTime,
-    )
+    suspend fun deleteRuleEvent(rule: RuleEvent): Either<ApiError, Unit>
 
     suspend fun getTimelessRulesForLocation(location: Location): List<RuleLocationTimeless>
 
@@ -76,6 +66,8 @@ interface RuleRepositoryInterface {
     suspend fun deleteRuleLocationTimelessByLocation(location: Location)
 
     suspend fun deleteRuleLocationTimelessById(id: Int)
+
+    suspend fun deleteRuleLocationTimeless(ruleLocation: RuleLocationTimeless): Either<ApiError, RuleLocationTimeless>
 
     suspend fun getAllRuleLocationTimeless(): Flow<List<RuleLocationTimeless>>
 }

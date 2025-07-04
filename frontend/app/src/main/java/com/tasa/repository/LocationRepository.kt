@@ -74,18 +74,19 @@ class LocationRepository(
         return local.locationDao().getLocationByNameSync(name)?.toLocation()
     }
 
-    override suspend fun insertLocation(location: Location) {
+    override suspend fun insertLocation(location: Location): Either<ApiError, Location> {
         if (userInfoRepository.isLocal()) {
             local.locationDao().insertLocation(location.toEntity())
-            return
+            return success(location)
         }
         val remote = remote.locationService.insertLocation(location, getToken())
         when (remote) {
             is Success -> {
                 local.locationDao().insertLocation(remote.value.toEntity())
+                return success(location)
             }
             is Failure -> {
-                throw TasaException(remote.value.message, null)
+                return failure(remote.value)
             }
         }
     }
@@ -98,27 +99,24 @@ class LocationRepository(
         }
     }
 
-    override suspend fun deleteLocationByName(name: String): Either<ApiError, Unit> {
+    override suspend fun deleteLocation(location: Location): Either<ApiError, Unit> {
         if (userInfoRepository.isLocal()) {
-            local.locationDao().deleteLocationByName(name)
+            local.locationDao().deleteLocationByName(location.name)
             return success(Unit)
         }
-        val localLocation = local.locationDao().getLocationByNameSync(name)
-        if (localLocation?.id != null)
-            {
-                val remote = remote.locationService.deleteLocationById(localLocation.id, getToken())
-                return when (remote) {
-                    is Success -> {
-                        local.locationDao().deleteLocationByName(name)
-                        success(Unit)
-                    }
-                    is Failure -> failure(remote.value)
+        if (location.id != null) {
+            val remote = remote.locationService.deleteLocationById(location.id, getToken())
+            return when (remote) {
+                is Success -> {
+                    local.locationDao().deleteLocationById(location.id)
+                    success(Unit)
                 }
-            } else
-            {
-                local.locationDao().deleteLocationByName(name)
-                return success(Unit)
+                is Failure -> failure(remote.value)
             }
+        } else {
+            local.locationDao().deleteLocationByName(location.name)
+            return success(Unit)
+        }
     }
 
     override suspend fun clear() {
