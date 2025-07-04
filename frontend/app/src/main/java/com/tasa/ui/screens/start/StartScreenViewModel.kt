@@ -28,13 +28,28 @@ class StartScreenViewModel(
     fun getSession(): Job? {
         return viewModelScope.launch {
             try {
-                val userInfo = repo.getUserInfo()
-                state =
-                    if (userInfo != null) {
-                        StartScreenState.Logged
-                    } else {
-                        StartScreenState.NotLogged
-                    }
+                if (repo.isLocal()) {
+                    state = StartScreenState.Logged
+                    return@launch
+                } else {
+                    val userInfo = repo.getUserInfo()
+                    state =
+                        if (userInfo != null) {
+                            StartScreenState.Logged
+                        } else {
+                            StartScreenState.NotLogged
+                        }
+                }
+            } catch (e: Throwable) {
+                state = StartScreenState.NotLogged
+            }
+        }
+    }
+
+    fun setLocal() {
+        viewModelScope.launch {
+            try {
+                repo.setLocal(true)
             } catch (e: Throwable) {
                 state = StartScreenState.NotLogged
             }

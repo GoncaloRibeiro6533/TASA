@@ -67,4 +67,13 @@
     <string name="delete">Apagar</string>
     <string name="time_based_rules">Temporais</string>
     <string name="location_based_rules">Geográficas</string>
+    <string name="use_local">Continuar sem conta</string>
+    <string name="dont_have_a_account">Ainda não tem conta?</string>
+    <string name="continue_without_account">Continuar sem conta</string>
+    <string name="search">Pesquisar</string>
+    <string name="search_for_a_place">Pesquisar por um lugar</string>
+    <string name="create_location">Inserir informação para a localização:</string>
+    <string name="name">Nome</string>
+    <string name="meters">metros</string>
+    <string name="radius">Raio</string>
 </resources>

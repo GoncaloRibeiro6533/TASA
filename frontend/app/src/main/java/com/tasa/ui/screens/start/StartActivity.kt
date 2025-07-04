@@ -32,6 +32,10 @@ class StartActivity : ComponentActivity() {
                 onRegisterRequested = { navigateTo(this, RegisterActivity::class.java) },
                 onAboutRequested = { navigateTo(this, AboutActivity::class.java) },
                 onLoggedIntent = { navigateTo(this, HomePageActivity::class.java) },
+                onContinueWithoutAccount = {
+                    viewModel.setLocal()
+                    navigateTo(this, HomePageActivity::class.java)
+                },
             )
         }
     }

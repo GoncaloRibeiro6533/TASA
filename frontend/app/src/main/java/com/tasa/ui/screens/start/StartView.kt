@@ -2,10 +2,12 @@ package com.tasa.ui.screens.start
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,7 +24,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,10 +36,10 @@ import com.tasa.R
 
 @Composable
 fun StartView(
+    modifier: Modifier = Modifier,
     onLoginRequested: () -> Unit,
     onRegisterRequested: () -> Unit,
-    onAboutRequested: () -> Unit,
-    modifier: Modifier = Modifier,
+    onContinueWithoutAccount: () -> Unit,
 ) {
     val orientation = LocalConfiguration.current.orientation
 
@@ -85,6 +91,24 @@ fun StartView(
                     ),
             ) {
                 Text(text = stringResource(R.string.register))
+            }
+            val annotatedString =
+                buildAnnotatedString {
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                        append(stringResource(R.string.continue_without_account))
+                    }
+                }
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                Text(
+                    text = annotatedString,
+                    style = TextStyle(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
+                    modifier =
+                        Modifier
+                            .clickable { onContinueWithoutAccount() },
+                )
             }
         }
     } else {
@@ -142,6 +166,20 @@ fun StartView(
                     ) {
                         Text(text = stringResource(R.string.register))
                     }
+                    val annotatedString =
+                        buildAnnotatedString {
+                            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                                append(stringResource(R.string.continue_without_account))
+                            }
+                        }
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Text(
+                        text = annotatedString,
+                        style = TextStyle(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
+                        modifier =
+                            Modifier
+                                .clickable { onContinueWithoutAccount() },
+                    )
                 }
             }
         }
@@ -151,5 +189,9 @@ fun StartView(
 @Preview(showBackground = true)
 @Composable
 fun MainScreenPreview() {
-    StartView({}, {}, {})
+    StartView(
+        onLoginRequested = {},
+        onRegisterRequested = {},
+        onContinueWithoutAccount = {},
+    )
 }

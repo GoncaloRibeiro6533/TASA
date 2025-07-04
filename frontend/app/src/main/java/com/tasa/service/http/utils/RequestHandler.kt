@@ -98,31 +98,35 @@ suspend inline fun <reified T : Any> HttpClient.delete(
 
 // Function to process the HTTP response
 suspend inline fun <reified T : Any> HttpResponse.processResponse(): Either<ApiError, T> {
-    if (
-        this.status.value == 200 &&
-        this.headers[HttpHeaders.ContentLength]?.toInt() == 0
-    ) {
-        return success(Unit as T)
-    }
-    if (this.headers[NAME_WWW_AUTHENTICATE_HEADER] != null && this.status.value == 401) {
-        throw AuthenticationException(
-            "Failed to authenticate",
-            null,
-        )
-    }
-    // TODO check for the utf-8 on server properties
-    val a = this.headers[HttpHeaders.ContentType]?.split(';')?.first()
-    return when (a) {
-        ERROR_MEDIA_TYPE -> {
-            val problem: ProblemResponse = this.body<ProblemResponse>()
-            failure(ApiError(problem.detail))
+    try {
+        if (
+            this.status.value == 200 &&
+            this.headers[HttpHeaders.ContentLength]?.toInt() == 0
+        ) {
+            return success(Unit as T)
         }
-        MEDIA_TYPE -> {
-            val body: T = this.body<T>()
-            success(body)
+        if (this.headers[NAME_WWW_AUTHENTICATE_HEADER] != null && this.status.value == 401) {
+            throw AuthenticationException(
+                "Failed to authenticate",
+                null,
+            )
         }
-        else -> {
-            throw TasaException("Unexpected error", null)
+        // TODO check for the utf-8 on server properties
+        val a = this.headers[HttpHeaders.ContentType]?.split(';')?.first()
+        return when (a) {
+            ERROR_MEDIA_TYPE -> {
+                val problem: ProblemResponse = this.body<ProblemResponse>()
+                failure(ApiError(problem.detail))
+            }
+            MEDIA_TYPE -> {
+                val body: T = this.body<T>()
+                success(body)
+            }
+            else -> {
+                throw TasaException("Unexpected error", null)
+            }
         }
+    } catch (e: Throwable) {
+        return failure(ApiError("Unexpected error: ${e.message ?: e.cause?.message}"))
     }
 }

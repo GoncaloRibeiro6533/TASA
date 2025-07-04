@@ -21,6 +21,7 @@ fun StartScreen(
     onLoginRequested: () -> Unit = { },
     onRegisterRequested: () -> Unit = { },
     onLoggedIntent: () -> Unit = { },
+    onContinueWithoutAccount: () -> Unit = { },
 ) {
     TasaTheme {
         Scaffold(
@@ -55,7 +56,7 @@ fun StartScreen(
                         StartView(
                             onLoginRequested = onLoginRequested,
                             onRegisterRequested = onRegisterRequested,
-                            onAboutRequested = onAboutRequested,
+                            onContinueWithoutAccount = onContinueWithoutAccount,
                         )
                     }
                 }

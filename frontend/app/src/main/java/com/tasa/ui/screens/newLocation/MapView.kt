@@ -33,11 +33,14 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tasa.R
 import com.tasa.ui.screens.newLocation.components.OSMDroidMap2
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.osmdroid.util.GeoPoint
 
@@ -48,52 +51,20 @@ const val REGISTER_ANCHOR = "register_anchor"
 
 @Composable
 fun MapViewRoot(
-    state: StateFlow<MapsScreenState>,
-    // Actions
+    locationV: StateFlow<TasaLocation>,
+    radius: StateFlow<Double>? = null,
+    selectedPoint: StateFlow<GeoPoint?>? = null,
     onLocationSelected: (GeoPoint) -> Unit,
-    onEditSearchBox: (TextFieldValue) -> Unit,
-    onCreateLocation: () -> Unit,
-    onSearch: () -> Unit,
-    onWriteSearchBox: (TextFieldValue) -> Unit,
-    onDismiss: () -> Unit,
-    onChangeLocationName: (String) -> Unit,
-    onChangeRadius: (Double) -> Unit,
-    onConfirm: (String, Double, Double, Double) -> Unit,
-    onTouchSearchBox: () -> Unit,
-    onUnTouchSearchBox: () -> Unit,
-    onRecenterMap: () -> Unit,
+    composable: @Composable () -> Unit,
 ) {
-    val currentState = state.collectAsState().value
-    var locationV: TasaLocation =
-        when (currentState) {
-            is MapsScreenState.Success -> currentState.currentLocation.collectAsState().value
-            is MapsScreenState.EditingLocation -> currentState.currentLocation.collectAsState().value
-            is MapsScreenState.SuccessSearching -> currentState.currentLocation.collectAsState().value
-            else ->
-                TasaLocation(
-                    point = GeoPoint(38.7169, -9.1399),
-                    accuracy = 10f,
-                    updates = 0,
-                )
-        }
-    var radius =
-        when (currentState) {
-            is MapsScreenState.EditingLocation -> currentState.radius.collectAsState().value
-            else -> null // Default radius if not editing
-        }
-    var selectedPoint =
-        when (currentState) {
-            is MapsScreenState.Success -> currentState.selectedPoint.collectAsState().value
-            is MapsScreenState.EditingLocation -> currentState.selectedPoint.collectAsState().value
-            is MapsScreenState.SuccessSearching -> currentState.selectedPoint.collectAsState().value
-            else -> null // Default selected point if not in a valid state
-        }
+    val locationV = locationV.collectAsState().value
+    val radius = radius?.collectAsState()?.value
+    val selectedPoint = selectedPoint?.collectAsState()?.value
     Box(
         modifier =
             Modifier
                 .fillMaxSize(),
     ) {
-        // Map in the background
         OSMDroidMap2(
             modifier = Modifier.fillMaxSize().testTag(OSMDROID_MAP),
             center = locationV.point,
@@ -105,145 +76,28 @@ fun MapViewRoot(
             radius = radius,
             selectedPoint = selectedPoint,
         )
-        when (currentState) {
-            is MapsScreenState.Success -> {
-                MapView(
-                    location = currentState.currentLocation,
-                    onLocationSelected = onLocationSelected,
-                    selectedPoint = currentState.selectedPoint,
-                    activity = currentState.userActivity,
-                    onEditSearchBox = onEditSearchBox,
-                    onCreateLocation = onCreateLocation,
-                    onSearchQuery = onSearch,
-                    query = currentState.searchQuery,
-                    onRecenterMap = onRecenterMap,
-                )
-            }
-
-            is MapsScreenState.SuccessSearching -> {
-                MapViewSearching(
-                    location = currentState.currentLocation,
-                    onLocationSelected = onLocationSelected,
-                    selectedPoint = currentState.selectedPoint,
-                    activity = currentState.userActivity,
-                    query = currentState.searchQuery,
-                    onSearch = onSearch,
-                    onWriteSearchBox = onWriteSearchBox,
-                    onCreateLocation = onCreateLocation,
-                    onTouchSearchBox = onTouchSearchBox,
-                    onUnTouchSearchBox = onUnTouchSearchBox,
-                    state = state,
-                    onRecenterMap = onRecenterMap,
-                )
-            }
-
-            is MapsScreenState.EditingLocation -> {
-                CreatingLocationView(
-                    location = currentState.currentLocation,
-                    onLocationSelected = onLocationSelected,
-                    selectedPoint = currentState.selectedPoint,
-                    onEditSearchBox = onEditSearchBox,
-                    activity = currentState.userActivity,
-                    query = currentState.searchQuery,
-                    locationName = currentState.locationName,
-                    radius = currentState.radius,
-                    onDismiss = onDismiss,
-                    onChangeLocationName = onChangeLocationName,
-                    onChangeRadius = onChangeRadius,
-                    onConfirm = onConfirm,
-                    state = state,
-                )
-            }
-
-            else -> {}
-        }
+        composable()
     }
 }
 
 @Composable
 fun MapView(
-    location: StateFlow<TasaLocation>,
-    onLocationSelected: (GeoPoint) -> Unit,
-    selectedPoint: StateFlow<GeoPoint?>,
-    activity: StateFlow<String?>,
     onEditSearchBox: (TextFieldValue) -> Unit,
     onCreateLocation: () -> Unit,
     onSearchQuery: () -> Unit,
     query: StateFlow<TextFieldValue>,
     onRecenterMap: () -> Unit,
 ) {
-    val location = location.collectAsState().value
-    val activity = activity.collectAsState().value
-
-    /* Box(
-         modifier =
-             Modifier
-                 .fillMaxSize(),
-     ) {
-         // Map in the background
-         OSMDroidMap2(
-             modifier = Modifier.fillMaxSize(),
-             center = location.point,
-             currentLocation = location.point,
-             onCoordinateSelected = { point ->
-                 onLocationSelected(point)
-             },
-             accuracy = location.accuracy,
-             onMapReady = onMapReady,
-             radius = null,
-         )*/
-    Surface(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-        tonalElevation = 4.dp,
-        shadowElevation = 8.dp,
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surface,
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-        ) {
-            OutlinedTextField(
-                value = query.collectAsState().value,
-                onValueChange = { onEditSearchBox(it) },
-                label = { Text("Search for a place") },
-                modifier = Modifier.fillMaxWidth(),
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Button(
-                onClick = {
-                    onSearchQuery()
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text("Search")
-            }
-            Text(
-                text = "Current accuracy: ${location.accuracy?.toInt()} meters",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-            Text(
-                text = "Updates: ${location.updates}",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-            Text(
-                text = "Latitude: ${location.point.latitude}, Longitude:${location.point.longitude}",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-            Text(
-                text = "Atividade: $activity",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-        }
-    }
+    SearchBox(
+        query = query.collectAsState().value,
+        onQueryChange = { newValue ->
+            onEditSearchBox(newValue)
+        },
+        onSearch = {
+            onSearchQuery()
+        },
+        modifier = Modifier.fillMaxWidth(),
+    )
     Column(
         modifier =
             Modifier
@@ -282,82 +136,23 @@ fun MapView(
 
 @Composable
 fun MapViewSearching(
-    state: StateFlow<MapsScreenState>,
-    location: StateFlow<TasaLocation>,
-    onLocationSelected: (GeoPoint) -> Unit,
-    selectedPoint: StateFlow<GeoPoint?>,
-    activity: StateFlow<String?>,
     query: StateFlow<TextFieldValue>,
     onSearch: () -> Unit,
     onWriteSearchBox: (TextFieldValue) -> Unit,
     onCreateLocation: () -> Unit,
-    onTouchSearchBox: () -> Unit,
-    onUnTouchSearchBox: () -> Unit,
     onRecenterMap: () -> Unit,
 ) {
     var searchQuery = query.collectAsState().value
-    val location = location.collectAsState().value
-    val activity = activity.collectAsState().value
-
-    Surface(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-        tonalElevation = 4.dp,
-        shadowElevation = 8.dp,
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surface,
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-        ) {
-            /*OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { onWriteSearchBox(it) },
-                label = { Text("Search for a place") },
-                modifier = Modifier.fillMaxWidth()
-            )*/
-            PersistentFocusOutlinedTextField(
-                value = searchQuery,
-                onValueChange = { newValue ->
-                    onWriteSearchBox(newValue)
-                },
-                label = "Search for a place",
-                state = state,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Button(
-                onClick = {
-                    onSearch()
-                },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text("Search")
-            }
-            Text(
-                text = "Current accuracy: ${location.accuracy.toInt()} meters",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-            Text(
-                text = "Updates: ${location.updates}",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-            Text(
-                text = "Latitude: ${location.point.latitude}, Longitude:${location.point.longitude}",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-            Text(
-                text = "Atividade: $activity",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-        }
-    }
+    SearchBox(
+        query = searchQuery,
+        onQueryChange = { newValue ->
+            onWriteSearchBox(newValue)
+        },
+        onSearch = {
+            onSearch()
+        },
+        modifier = Modifier.fillMaxWidth(),
+    )
     Column(
         modifier =
             Modifier
@@ -391,18 +186,14 @@ fun MapViewSearching(
             )
         }
     }
-    // }
 }
+
+val coral = Color(0xFFFF7F50) // Cor base quente e vibrante
 
 @Composable
 fun CreatingLocationView(
-    state: StateFlow<MapsScreenState>,
     location: StateFlow<TasaLocation>,
-    onLocationSelected: (GeoPoint) -> Unit,
     selectedPoint: StateFlow<GeoPoint?>,
-    onEditSearchBox: (TextFieldValue) -> Unit,
-    activity: StateFlow<String?>,
-    query: StateFlow<TextFieldValue>,
     locationName: StateFlow<String>,
     radius: StateFlow<Double>,
     onDismiss: () -> Unit,
@@ -411,62 +202,9 @@ fun CreatingLocationView(
     onConfirm: (String, Double, Double, Double) -> Unit,
 ) {
     val selectedPoint = selectedPoint.collectAsState().value
-    var searchQuery = query.collectAsState().value
     val location = location.collectAsState().value
     val locationName = locationName.collectAsState().value
     val radius = radius.collectAsState().value
-    Surface(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-        tonalElevation = 4.dp,
-        shadowElevation = 8.dp,
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surface,
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-        ) {
-            PersistentFocusOutlinedTextField(
-                value = searchQuery,
-                onValueChange = { onEditSearchBox(it) },
-                label = "Search for a place",
-                modifier = Modifier.fillMaxWidth(),
-                state = state,
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Button(
-                onClick = {},
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text("Search")
-            }
-            Text(
-                text = "Current accuracy: ${location.accuracy.toInt()} meters",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-            Text(
-                text = "Updates: ${location.updates}",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-            Text(
-                text = "Latitude: ${location.point.latitude}, Longitude:${location.point.longitude}",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-            Text(
-                text = "Atividade: $activity",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 8.dp),
-            )
-        }
-    }
-    // 📝 Dialog with form
     Box(
         modifier =
             Modifier
@@ -483,11 +221,11 @@ fun CreatingLocationView(
             Column(
                 modifier = Modifier.padding(16.dp),
             ) {
-                Text("Enter info for this location:")
+                Text(stringResource(R.string.create_location))
                 OutlinedTextField(
                     value = locationName,
                     onValueChange = { onChangeLocationName(it) },
-                    label = { Text("Name") },
+                    label = { Text(stringResource(R.string.name)) },
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(modifier = Modifier.height(12.dp))
@@ -500,16 +238,16 @@ fun CreatingLocationView(
                     // Number of discrete steps
                     colors =
                         SliderDefaults.colors(
-                            thumbColor = Color(0xFFFF9800),
-                            activeTrackColor = MaterialTheme.colorScheme.primary,
-                            inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-                            activeTickColor = MaterialTheme.colorScheme.onPrimary,
-                            inactiveTickColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                            thumbColor = coral,
+                            activeTrackColor = coral.copy(alpha = 0.4f),
+                            inactiveTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                            activeTickColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                            inactiveTickColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
                         ),
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "Radius: ${radius.toInt()} meters",
+                    text = stringResource(R.string.radius) + ": " + radius.toInt() + " " + stringResource(R.string.meters),
                     style = MaterialTheme.typography.bodySmall,
                 )
                 Row(
@@ -517,10 +255,11 @@ fun CreatingLocationView(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     TextButton(onClick = { onDismiss() }) {
-                        Text("Cancel")
+                        Text(stringResource(R.string.cancel))
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     TextButton(
+                        enabled = locationName.isNotBlank() && radius > 0,
                         onClick = {
                             onConfirm(
                                 locationName,
@@ -530,7 +269,7 @@ fun CreatingLocationView(
                             )
                         },
                     ) {
-                        Text("Create")
+                        Text(stringResource(R.string.create))
                     }
                 }
             }
@@ -565,5 +304,93 @@ fun PersistentFocusOutlinedTextField(
         if (state.value is MapsScreenState.SuccessSearching) {
             focusRequester.requestFocus()
         }
+    }
+}
+
+@Composable
+fun SearchBox(
+    query: TextFieldValue,
+    onQueryChange: (TextFieldValue) -> Unit,
+    onSearch: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+        tonalElevation = 4.dp,
+        shadowElevation = 8.dp,
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surface,
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+        ) {
+            OutlinedTextField(
+                value = query,
+                onValueChange = { newValue ->
+                    onQueryChange(newValue)
+                },
+                label = { Text(stringResource(R.string.search_for_a_place)) },
+                modifier = modifier.fillMaxWidth(),
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = {
+                    onSearch()
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(R.string.search))
+            }
+        }
+    }
+}
+
+/*){
+    PersistentFocusOutlinedTextField(
+        value = searchQuery,
+        onValueChange = { onEditSearchBox(it) },
+        label = "Search for a place",
+        modifier = Modifier.fillMaxWidth(),
+        state = state,
+    )
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    Button(
+        onClick = {},
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Text(stringResource(R.string.search))
+    }
+}*/
+
+@Preview(showBackground = true)
+@Composable
+fun MapRootPreview() {
+    val location =
+        TasaLocation(
+            point = GeoPoint(0.0, 0.0),
+            accuracy = 0.0f,
+            altitude = null,
+        )
+    val radius = MutableStateFlow(20.0)
+    val selectedPoint = MutableStateFlow(GeoPoint(1.0, 1.0))
+    val locationFlow = MutableStateFlow(location)
+    MapViewRoot(
+        locationV = locationFlow,
+        radius = radius,
+        selectedPoint = selectedPoint,
+        onLocationSelected = {},
+    ) {
+        MapView(
+            onEditSearchBox = {},
+            onCreateLocation = {},
+            onSearchQuery = {},
+            query = MutableStateFlow(TextFieldValue("")),
+            onRecenterMap = {},
+        )
     }
 }

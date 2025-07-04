@@ -54,7 +54,7 @@ class EventRepository(
     }
 
     override suspend fun fetchEvents(context: Context): Either<ApiError, Flow<List<EventEntity>>> {
-        return if (hasEvents()) {
+        return if (hasEvents() || userInfoRepository.isLocal()) {
             success(local.eventDao().getAllEvents())
         } else {
             when (val events = getFromApi(context)) {

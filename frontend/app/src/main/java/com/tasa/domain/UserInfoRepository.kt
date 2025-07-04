@@ -54,4 +54,8 @@ interface UserInfoRepository {
     suspend fun getSessionExpiration(): LocalDateTime?
 
     suspend fun setSessionExpiration(expiration: LocalDateTime)
+
+    suspend fun setLocal(local: Boolean)
+
+    suspend fun isLocal(): Boolean
 }

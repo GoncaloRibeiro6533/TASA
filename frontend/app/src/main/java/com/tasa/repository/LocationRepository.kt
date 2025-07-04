@@ -39,7 +39,7 @@ class LocationRepository(
     private suspend fun getFromApi() = remote.locationService.fetchLocations(getToken())
 
     override suspend fun fetchLocations(): Flow<List<Location>> {
-        return if (hasLocations()) {
+        return if (hasLocations() || userInfoRepository.isLocal()) {
             local.locationDao().getAllLocations().map { it.map { it.toLocation() } }
         } else {
             when (val locations = getFromApi()) {
@@ -55,7 +55,7 @@ class LocationRepository(
     }
 
     override suspend fun fetchLocationById(id: Int): Either<ApiError, Flow<Location?>> {
-        return if (hasLocationById(id)) {
+        return if (hasLocationById(id) || userInfoRepository.isLocal()) {
             success(local.locationDao().getLocationById(id).map { it?.toLocation() })
         } else {
             when (val location = remote.locationService.fetchLocationById(id, getToken())) {
@@ -79,6 +79,10 @@ class LocationRepository(
     }
 
     override suspend fun insertLocation(location: Location) {
+        if (userInfoRepository.isLocal()) {
+            local.locationDao().insertLocation(location.toEntity())
+            return
+        }
         val remote = remote.locationService.insertLocation(location, getToken())
         when (remote) {
             is Success -> {

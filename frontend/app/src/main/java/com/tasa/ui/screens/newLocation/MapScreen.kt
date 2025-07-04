@@ -61,26 +61,53 @@ fun MapScreen(
                 is MapsScreenState.SuccessSearching,
                 -> {
                     MapViewRoot(
-                        state = viewModel.state,
+                        locationV = viewModel.currentLocation,
+                        radius =
+                            if (state is MapsScreenState.EditingLocation) {
+                                viewModel.radius
+                            } else {
+                                null
+                            },
+                        selectedPoint = viewModel.selectedPoint,
                         onLocationSelected = onLocationSelected,
-                        onEditSearchBox = { it -> onEditSearchBox(it) },
-                        onCreateLocation = onCreateLocationButton,
-                        onSearch = onSearchQuery,
-                        onWriteSearchBox = { it ->
-                            onEditSearchBox(it)
-                        },
-                        onDismiss = onDismissEditingLocation,
-                        onChangeLocationName = { it ->
-                            onUpdateLocationName(it)
-                        },
-                        onChangeRadius = { radius ->
-                            onUpdateRadius(radius)
-                        },
-                        onConfirm = onConfirmEditingLocation,
-                        onTouchSearchBox = onTouchSearchBox,
-                        onUnTouchSearchBox = onUnTouchSearchBox,
-                        onRecenterMap = onRecenterMap,
-                    )
+                    ) {
+                        when (state) {
+                            is MapsScreenState.Success -> {
+                                MapView(
+                                    onSearchQuery = onSearchQuery,
+                                    onEditSearchBox = onEditSearchBox,
+                                    onCreateLocation = onCreateLocationButton,
+                                    query = state.searchQuery,
+                                    onRecenterMap = onRecenterMap,
+                                )
+                            }
+                            is MapsScreenState.EditingLocation -> {
+                                CreatingLocationView(
+                                    location = state.currentLocation,
+                                    selectedPoint = state.selectedPoint,
+                                    locationName = state.locationName,
+                                    radius = state.radius,
+                                    onDismiss = onDismissEditingLocation,
+                                    onConfirm = onConfirmEditingLocation,
+                                    onChangeRadius = onUpdateRadius,
+                                    onChangeLocationName = onUpdateLocationName,
+                                )
+                            }
+                            is MapsScreenState.SuccessSearching -> {
+                                MapViewSearching(
+                                    query = state.searchQuery,
+                                    onSearch = onSearchQuery,
+                                    onWriteSearchBox = onEditSearchBox,
+                                    onCreateLocation = onCreateLocationButton,
+                                    onRecenterMap = onRecenterMap,
+                                )
+                            }
+
+                            else -> {
+                                // Do nothing, handled in the outer scope
+                            }
+                        }
+                    }
                 }
                 is MapsScreenState.Error -> {
                     ErrorAlert(

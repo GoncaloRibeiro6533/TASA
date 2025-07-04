@@ -62,9 +62,6 @@ class MapActivity : ComponentActivity() {
         lifecycleScope.launch {
             viewModel.keepGivenCurrentLocation(this@MapActivity)
         }
-        lifecycleScope.launch {
-            viewModel.getActivityState()
-        }
         setContent {
             TasaTheme {
                 MapScreen(

@@ -58,7 +58,7 @@ class RuleRepository(
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     override suspend fun fetchAllRules(): Either<ApiError, Flow<List<Rule>>> {
-        return if (hasRules()) {
+        return if (hasRules() || userInfoRepository.isLocal()) {
             success(getFromLocal())
         } else {
             when (val result = getFromApi()) {

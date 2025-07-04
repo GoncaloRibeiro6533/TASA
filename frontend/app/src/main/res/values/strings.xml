@@ -67,5 +67,14 @@
     <string name="delete">Delete</string>
     <string name="time_based_rules">Time based</string>
     <string name="location_based_rules">Location based</string>
-    <string name="login_button_content_description" translatable="false">logint button</string>
+    <string name="login_button_content_description" translatable="false">login button</string>
+    <string name="use_local">Continue without an account</string>
+    <string name="dont_have_a_account">Don\'t have an account?</string>
+    <string name="continue_without_account">Continue without an account</string>
+    <string name="search">Search</string>
+    <string name="search_for_a_place">Search for a place</string>
+    <string name="create_location">Enter info for this location:</string>
+    <string name="name">Name</string>
+    <string name="meters">meters</string>
+    <string name="radius">Radius</string>
 </resources>

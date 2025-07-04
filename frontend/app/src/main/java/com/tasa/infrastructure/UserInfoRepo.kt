@@ -155,6 +155,17 @@ class UserInfoRepo(private val store: DataStore<Preferences>) : UserInfoReposito
         store.data.map { preferences ->
             preferences[TRANSITION_KEY]?.toIntOrNull()
         }
+
+    override suspend fun isLocal(): Boolean {
+        val preferences = store.data.first()
+        return preferences[IS_LOCAL]?.toBoolean() ?: false
+    }
+
+    override suspend fun setLocal(isLocal: Boolean) {
+        store.edit { preferences ->
+            preferences[IS_LOCAL] = isLocal.toString()
+        }
+    }
 }
 
 private val USERNAME_KEY = stringPreferencesKey("username")
@@ -169,6 +180,7 @@ private val LOCATION_STATUS_KEY = stringPreferencesKey("location_status")
 private val TOKEN_KEY = stringPreferencesKey("token")
 private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
 private val SESSION_EXPIRATION_KEY = stringPreferencesKey("session_expiration")
+private val IS_LOCAL = stringPreferencesKey("is_local")
 
 private fun Preferences.toUser(): User? {
     val username = this[USERNAME_KEY] ?: return null

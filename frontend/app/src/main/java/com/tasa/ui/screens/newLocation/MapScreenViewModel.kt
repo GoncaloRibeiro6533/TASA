@@ -175,20 +175,12 @@ class MapScreenViewModel(
         }
     }
 
-    fun editLocationName(string: String) {
-        if (_state.value is MapsScreenState.EditingLocation) {
-            _locationName.value = string
-            _state.value =
-                (_state.value as MapsScreenState.EditingLocation).copy(
-                    locationName = _locationName,
-                )
-        }
-    }
+
 
     fun setSearchingState() {
-        if (state.value is MapsScreenState.Success || state.value is MapsScreenState.EditingLocation) {
+        if (state.value is MapsScreenState.Success) {
             _state.value =
-                MapsScreenState.SuccessSearching(
+                MapsScreenState.Success(
                     selectedPoint = _selectedPoint,
                     currentLocation = _currentLocation,
                     radius = _radius,
@@ -230,10 +222,10 @@ class MapScreenViewModel(
     }
 
     fun updateSearchQuery(query: TextFieldValue) {
-        // if (_state.value is MapsScreenState.SuccessSearching) {
+        if (_state.value is MapsScreenState.Success || _state.value is MapsScreenState.SuccessSearching) {
         _query.value = query
         _state.value =
-            MapsScreenState.SuccessSearching(
+            MapsScreenState.Success(
                 selectedPoint = _selectedPoint,
                 currentLocation = _currentLocation,
                 searchQuery = _query,
@@ -241,7 +233,17 @@ class MapScreenViewModel(
                 radius = _radius,
                 locationName = _locationName,
             )
-        //   }
+        }
+    }
+
+    fun editLocationName(string: String) {
+        if (_state.value is MapsScreenState.EditingLocation) {
+            _locationName.value = string
+            _state.value =
+                (_state.value as MapsScreenState.EditingLocation).copy(
+                    locationName = _locationName,
+                )
+        }
     }
 
     fun onDismissEditingLocation() {
