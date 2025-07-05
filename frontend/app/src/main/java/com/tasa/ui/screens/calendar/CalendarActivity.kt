@@ -71,13 +71,16 @@ class CalendarActivity : ComponentActivity() {
                             )
                         },
                         viewModel = viewModel,
+                        onDateSelected = { day ->
+                            viewModel.onDaySelected(day)
+                        },
                     )
                 }
             }
         }
     }
 
-    @Suppress("DEPRECATION")
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         finish()
         super.onBackPressedDispatcher

@@ -70,4 +70,6 @@ interface RuleRepositoryInterface {
     suspend fun deleteRuleLocationTimeless(ruleLocation: RuleLocationTimeless): Either<ApiError, RuleLocationTimeless>
 
     suspend fun getAllRuleLocationTimeless(): Flow<List<RuleLocationTimeless>>
+
+    suspend fun syncRules(): Either<ApiError, Unit>
 }

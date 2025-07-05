@@ -6,6 +6,7 @@ import com.tasa.geofence.GeofenceManager
 import com.tasa.repository.interfaces.TasaRepoInterface
 import com.tasa.service.TasaService
 import com.tasa.storage.TasaDB
+import com.tasa.utils.NetworkChecker
 import com.tasa.utils.QueryCalendarService
 
 class TasaRepo(
@@ -14,11 +15,12 @@ class TasaRepo(
     userInfoRepository: UserInfoRepository,
     geofenceManager: GeofenceManager,
     ruleScheduler: AlarmScheduler,
+    networkChecker: NetworkChecker,
     queryCalendarService: QueryCalendarService,
 ) : TasaRepoInterface {
-    override val userRepo = UserRepository(local, remote, userInfoRepository)
-    override val locationRepo = LocationRepository(local, remote, userInfoRepository)
-    override val eventRepo = EventRepository(local, remote, userInfoRepository, queryCalendarService)
+    override val userRepo = UserRepository(local, remote, userInfoRepository, networkChecker)
+    override val locationRepo = LocationRepository(local, remote, userInfoRepository, networkChecker)
+    override val eventRepo = EventRepository(local, remote, userInfoRepository, queryCalendarService, networkChecker)
     override val alarmRepo = AlarmRepository(local)
     override val ruleRepo =
         RuleRepository(
@@ -28,6 +30,7 @@ class TasaRepo(
             ruleScheduler,
             geofenceManager = geofenceManager,
             queryCalendarService = queryCalendarService,
+            networkChecker = networkChecker,
         )
     override val geofenceRepo = GeofenceRepository(local)
 }

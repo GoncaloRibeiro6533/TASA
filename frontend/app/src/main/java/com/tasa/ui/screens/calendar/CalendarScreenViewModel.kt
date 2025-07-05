@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 sealed interface CalendarScreenState {
@@ -29,9 +30,10 @@ sealed interface CalendarScreenState {
 
     data class SuccessOnSchedule(
         val events: StateFlow<List<CalendarEvent>>,
+        val selectedDay: StateFlow<LocalDate>,
     ) : CalendarScreenState
 
-    data class Success(val events: StateFlow<List<CalendarEvent>>) : CalendarScreenState
+    data class Success(val events: StateFlow<List<CalendarEvent>>, val selectedDay: StateFlow<LocalDate>) : CalendarScreenState
 
     data class Error(val message: String) : CalendarScreenState
 
@@ -51,6 +53,12 @@ class CalendarScreenViewModel(
     private val _events = MutableStateFlow<List<CalendarEvent>>(emptyList())
     val events = _events.asStateFlow()
 
+    private val _selectedDay = MutableStateFlow<LocalDate>(LocalDate.now())
+    val selectedDay: StateFlow<LocalDate> = _selectedDay.asStateFlow()
+
+    private val _successMessage = MutableStateFlow<Int?>(null)
+    val successMessage: StateFlow<Int?> = _successMessage.asStateFlow()
+
     fun loadEvents(): Job? {
         if (_state.value == CalendarScreenState.Loading) return null
         _state.value = CalendarScreenState.Loading
@@ -59,7 +67,7 @@ class CalendarScreenViewModel(
                 queryCalendarService.calendarEventsFlow().collect { it ->
                     _events.value = it
                     if (_state.value is CalendarScreenState.Loading) {
-                        _state.value = CalendarScreenState.Success(events)
+                        _state.value = CalendarScreenState.Success(events, selectedDay)
                     }
                 }
             } catch (e: Throwable) {
@@ -120,7 +128,8 @@ class CalendarScreenViewModel(
                                 rule.value.endTime.toTriggerTime(),
                                 Action.UNMUTE,
                             )
-                            _state.value = CalendarScreenState.SuccessOnSchedule(events)
+                            _successMessage.value = R.string.rule_created_successfully
+                            _state.value = CalendarScreenState.SuccessOnSchedule(events, selectedDay)
                         }
                     }
                 } else {
@@ -143,7 +152,15 @@ class CalendarScreenViewModel(
     }
 
     fun onCancel() {
-        _state.value = CalendarScreenState.Success(events)
+        _state.value = CalendarScreenState.Success(events, selectedDay)
+    }
+
+    fun onDaySelected(day: LocalDate) {
+        _selectedDay.value = day
+    }
+
+    fun clearMessageOfSuccess() {
+        _successMessage.value = null
     }
 }
 

@@ -78,4 +78,5 @@
     <string name="radius">Raio</string>
     <string name="tasa_is_executing_in_the_backgrund">Tasa está a executar em segundo</string>
     <string name="user_to_found">Utilizador não encontrado</string>
+    <string name="delete_confirmation_text">Apagar a localização?</string>
 </resources>

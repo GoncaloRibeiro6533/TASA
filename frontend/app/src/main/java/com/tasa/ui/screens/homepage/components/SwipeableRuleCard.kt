@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DismissDirection
 import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.Icon
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
@@ -74,6 +75,7 @@ fun <T> SwipeableRuleCard(
     SwipeToDismiss(
         state = dismissState,
         directions = directions,
+        dismissThresholds = { direction -> FractionalThreshold(1f) },
         background = {
             val direction = dismissState.dismissDirection ?: return@SwipeToDismiss
             val meta =

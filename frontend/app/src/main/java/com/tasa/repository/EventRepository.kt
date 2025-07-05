@@ -10,6 +10,7 @@ import com.tasa.storage.TasaDB
 import com.tasa.storage.entities.EventEntity
 import com.tasa.utils.Either
 import com.tasa.utils.Failure
+import com.tasa.utils.NetworkChecker
 import com.tasa.utils.QueryCalendarService
 import com.tasa.utils.Success
 import com.tasa.utils.failure
@@ -22,6 +23,7 @@ class EventRepository(
     private val remote: TasaService,
     private val userInfoRepository: UserInfoRepository,
     private val queryCalendarService: QueryCalendarService,
+    private val networkChecker: NetworkChecker
 ) : EventRepositoryInterface {
     private suspend fun hasEvents(): Boolean {
         return local.eventDao().hasEvents()
@@ -54,7 +56,7 @@ class EventRepository(
     }
 
     override suspend fun fetchEvents(): Either<ApiError, Flow<List<EventEntity>>> {
-        return if (hasEvents() || userInfoRepository.isLocal()) {
+        return if (hasEvents() || userInfoRepository.isLocal() || networkChecker.isInternetAvailable()) {
             success(local.eventDao().getAllEvents())
         } else {
             when (val events = getFromApi()) {
@@ -148,5 +150,21 @@ class EventRepository(
 
     override suspend fun clear() {
         local.eventDao().clear()
+    }
+
+    override suspend fun syncEvents(): Either<ApiError, Unit> {
+        return if (userInfoRepository.isLocal() || !networkChecker.isInternetAvailable()) {
+            success(Unit)
+        } else {
+            when (val result = getFromApi()) {
+                is Success -> {
+                    local.eventDao().insertEvents(
+                        *result.value.map { it.toEventEntity() }.toTypedArray(),
+                    )
+                    success(Unit)
+                }
+                is Failure -> failure(result.value)
+            }
+        }
     }
 }

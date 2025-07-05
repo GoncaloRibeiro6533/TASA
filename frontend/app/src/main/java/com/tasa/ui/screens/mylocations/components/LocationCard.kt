@@ -48,6 +48,7 @@ fun LocationCard(
     val name = location.name
     val address = "${location.latitude}, ${location.longitude}"
     var showMenu by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     Card(
         modifier =
@@ -84,7 +85,10 @@ fun LocationCard(
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     IconButton(
-                        onClick = { onDelete(location) },
+                        onClick = {
+                            showMenu = false
+                            showDeleteDialog = true
+                        },
                         modifier = Modifier.size(36.dp),
                     ) {
                         Icon(
@@ -106,7 +110,10 @@ fun LocationCard(
                     }
                     Box {
                         IconButton(
-                            onClick = { showMenu = !showMenu },
+                            onClick = {
+                                showDeleteDialog = false
+                                showMenu = true
+                            },
                             modifier = Modifier.size(36.dp),
                         ) {
                             Icon(
@@ -125,6 +132,17 @@ fun LocationCard(
                                 onDismiss = { showMenu = false },
                             )
                         }
+                        if (showDeleteDialog) {
+                            LocationDeleteDialog(
+                                locationName = name,
+                                onConfirmSchedule = {
+                                    onDelete(location)
+                                    showDeleteDialog = false
+                                },
+                                onDismiss = { showDeleteDialog = false },
+                            )
+                        }
+
                     }
                 }
             }
@@ -154,6 +172,30 @@ fun LocationConfirmationDialog(
         title = { Text(stringResource(R.string.create_rule_location) + ": " + locationName) },
     )
 }
+
+@Composable
+fun LocationDeleteDialog(
+    locationName: String,
+    onConfirmSchedule: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        confirmButton = {
+            TextButton(onClick = { onConfirmSchedule() }) {
+                Spacer(Modifier.size(8.dp))
+                Text(stringResource(R.string.delete))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { onDismiss() }) {
+                Text(stringResource(R.string.cancel))
+            }
+        },
+        title = { Text(stringResource(R.string.delete_confirmation_text)+ " " + locationName+ "?") },
+    )
+}
+
 
 @Preview(showBackground = true)
 @Composable

@@ -10,6 +10,7 @@ import com.tasa.location.LocationUpdatesRepository
 import com.tasa.repository.TasaRepo
 import com.tasa.service.TasaService
 import com.tasa.storage.TasaDB
+import com.tasa.utils.NetworkChecker
 import com.tasa.utils.QueryCalendarService
 import com.tasa.utils.SearchPlaceService
 import com.tasa.utils.ServiceKiller
@@ -31,4 +32,5 @@ interface DependenciesContainer {
     val queryCalendarService: QueryCalendarService
     val serviceKiller: ServiceKiller
     val stringResourceResolver: StringResourceResolver
+    val networkChecker: NetworkChecker
 }

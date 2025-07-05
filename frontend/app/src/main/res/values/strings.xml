@@ -79,4 +79,5 @@
     <string name="radius">Radius</string>
     <string name="tasa_is_executing_in_the_backgrund">Tasa is monitoring location in the background</string>
     <string name="user_to_found">User not found</string>
+    <string name="delete_confirmation_text">Are you sure you want to delete this location?</string>
 </resources>

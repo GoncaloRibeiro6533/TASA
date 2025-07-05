@@ -58,6 +58,7 @@ class HomePageScreenViewModel(
     fun onFatalError() {
         viewModelScope.launch {
             try {
+                // remove alarms, rules, geofences, and user data TODO
                 repo.userRepo.clear()
                 repo.ruleRepo.clean()
                 repo.alarmRepo.clear()
@@ -136,12 +137,12 @@ class HomePageScreenViewModel(
                         val alarmStart = repo.alarmRepo.getAlarmByTriggerTime(rule.startTime.toTriggerTime().value)
                         val alarmEnd = repo.alarmRepo.getAlarmByTriggerTime(rule.endTime.toTriggerTime().value)
                         if (alarmStart != null) {
-                            repo.alarmRepo.deleteAlarm(alarmStart.id)
                             alarmScheduler.cancelAlarm(alarmStart.id)
+                            repo.alarmRepo.deleteAlarm(alarmStart.id)
                         }
                         if (alarmEnd != null) {
-                            repo.alarmRepo.deleteAlarm(alarmEnd.id)
                             alarmScheduler.cancelAlarm(alarmEnd.id)
+                            repo.alarmRepo.deleteAlarm(alarmEnd.id)
                         }
                     }
                     is RuleLocation -> {}

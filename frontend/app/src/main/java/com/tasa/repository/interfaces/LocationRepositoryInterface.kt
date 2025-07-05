@@ -19,4 +19,6 @@ interface LocationRepositoryInterface {
     suspend fun deleteLocation(location: Location): Either<ApiError, Unit>
 
     suspend fun clear()
+
+    suspend fun syncLocations(): Either<ApiError, Unit>
 }

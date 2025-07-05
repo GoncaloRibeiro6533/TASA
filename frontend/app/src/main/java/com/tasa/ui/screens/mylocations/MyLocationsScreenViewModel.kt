@@ -93,7 +93,7 @@ class MyLocationsScreenViewModel(
                         when (val result = repo.ruleRepo.deleteRuleLocationTimeless(it)) {
                             is Failure -> {
                                 _state.value = MyLocationsScreenState.Error(result.value.message)
-                                return@forEach
+                                return@launch
                             }
                             is Success -> {
                                 repo.geofenceRepo.deleteGeofence(geofences.first())
@@ -104,13 +104,24 @@ class MyLocationsScreenViewModel(
                                     is Success -> {
                                         _state.value = MyLocationsScreenState.Success(_locations)
                                         _successMessage.value = R.string.location_deleted
+                                        return@launch
                                     }
                                     is Failure -> {
                                         _state.value = MyLocationsScreenState.Error(result.value.message)
+                                        return@launch
                                     }
                                 }
                             }
                         }
+                    }
+                }
+                when (val result = repo.locationRepo.deleteLocation(location)) {
+                    is Success -> {
+                        _state.value = MyLocationsScreenState.Success(_locations)
+                        _successMessage.value = R.string.location_deleted
+                    }
+                    is Failure -> {
+                        _state.value = MyLocationsScreenState.Error(result.value.message)
                     }
                 }
             } catch (e: Throwable) {

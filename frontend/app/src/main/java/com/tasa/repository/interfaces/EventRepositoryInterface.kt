@@ -19,4 +19,6 @@ interface EventRepositoryInterface {
     suspend fun deleteEvent(event: Event): Either<ApiError, Unit>
 
     suspend fun clear()
+
+    suspend fun syncEvents(): Either<ApiError, Unit>
 }

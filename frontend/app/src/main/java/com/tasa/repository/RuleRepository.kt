@@ -25,6 +25,7 @@ import com.tasa.storage.entities.RuleEventEntity
 import com.tasa.storage.entities.RuleLocationTimelessEntity
 import com.tasa.utils.Either
 import com.tasa.utils.Failure
+import com.tasa.utils.NetworkChecker
 import com.tasa.utils.QueryCalendarService
 import com.tasa.utils.Success
 import com.tasa.utils.failure
@@ -43,6 +44,7 @@ class RuleRepository(
     private val ruleScheduler: AlarmScheduler,
     private val geofenceManager: GeofenceManager,
     private val queryCalendarService: QueryCalendarService,
+    private val networkChecker: NetworkChecker,
 ) : RuleRepositoryInterface {
     private suspend fun getToken(): String {
         return userInfoRepository.getToken() ?: throw AuthenticationException(
@@ -51,7 +53,117 @@ class RuleRepository(
         )
     }
 
-    private suspend fun getFromApi() = remote.ruleService.fetchRules(getToken())
+
+    // TODO check if exists before inserting so it updates instead of inserting
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    private suspend fun getFromApi(): Either<ApiError, Unit> {
+       return when (val result = remote.ruleService.fetchRules(getToken())) {
+            is Success -> {
+                val ruleEvents = result.value.eventRules
+                val events =
+                    ruleEvents.mapNotNull { it ->
+                        queryCalendarService.toLocalEvent(
+                            it.event.id,
+                            it.event.title,
+                            it.event.startTime,
+                            it.event.endTime,
+                        )
+                    }
+                local.eventDao().insertEvents(
+                    *events.map { event -> event.toEventEntity() }.toTypedArray(),
+                )
+                local.ruleEventDao().insertRuleEvents(
+                    ruleEvents.mapNotNull { ruleEvent ->
+                        val event = events.firstOrNull { e -> e.id == ruleEvent.event.id }
+                        if (event != null) {
+                            RuleEventEntity(
+                                id = ruleEvent.id,
+                                startTime = ruleEvent.startTime,
+                                endTime = ruleEvent.endTime,
+                                eventId = event.eventId,
+                                calendarId = event.calendarId,
+                            )
+                        } else {
+                            null
+                        }
+                    },
+                )
+                ruleEvents.forEach {
+                    val alarmIdStart =
+                        local.alarmDao().insertAlarm(
+                            AlarmEntity(
+                                id = 0,
+                                triggerTime = it.startTime.toTriggerTime().value,
+                                action = Action.MUTE,
+                            ),
+                        ).toInt()
+                    ruleScheduler.scheduleAlarm(
+                        alarmIdStart,
+                        it.startTime
+                            .toTriggerTime(),
+                        Action.MUTE,
+                    )
+                    val alarmIdEnd =
+                        local.alarmDao().insertAlarm(
+                            AlarmEntity(
+                                id = 0,
+                                triggerTime =
+                                    it.endTime
+                                        .toTriggerTime().value,
+                                action = Action.UNMUTE,
+                            ),
+                        ).toInt()
+                    ruleScheduler.scheduleAlarm(
+                        alarmIdEnd,
+                        it.endTime.toTriggerTime(),
+                        Action.UNMUTE,
+                    )
+                }
+                val ruleLocations = result.value.locationRules
+                val locations = ruleLocations.map { it.location }
+                local.locationDao().insertLocations(
+                    locations.map { it.toEntity() },
+                )
+                local.ruleLocationTimelessDao().insertRuleLocations(
+                    ruleLocations.map {
+                        RuleLocationTimelessEntity(
+                            id = it.location.id,
+                            locationName = it.location.name,
+                        )
+                    },
+                )
+                ruleLocations.forEach {
+                    val existing = local.ruleLocationDao().getRuleLocationsByLocationNameResult(
+                        it.location.name
+                    )//TODO
+                    val radius =
+                        if (it.location.radius < 100) {
+                            100f
+                        } else {
+                            it.location.radius.toFloat()
+                        }
+                    geofenceManager.registerGeofence(
+                        key = it.location.name,
+                        location = it.location.toLocation(),
+                        radiusInMeters = radius,
+                    )
+                    local.geofenceDao().insertGeofence(
+                        GeofenceEntity(
+                            id = 0,
+                            // Auto-generated by Room
+                            name = it.location.name,
+                            latitude = it.location.latitude,
+                            longitude = it.location.longitude,
+                            radius = it.location.radius,
+                        ),
+                    )
+                }
+                success(Unit)
+            }
+            is Failure -> failure(result.value)
+        }
+    }
+
 
     private suspend fun hasRules(): Boolean {
         return local.ruleEventDao().hasRules() || local.ruleLocationDao().hasRules()
@@ -62,106 +174,8 @@ class RuleRepository(
         return if (hasRules() || userInfoRepository.isLocal()) {
             success(getFromLocal())
         } else {
-            when (val result = getFromApi()) {
-                is Success -> {
-                    val ruleEvents = result.value.eventRules
-                    val events =
-                        ruleEvents.mapNotNull { it ->
-                            queryCalendarService.toLocalEvent(
-                                it.event.id,
-                                it.event.title,
-                                it.event.startTime,
-                                it.event.endTime,
-                            )
-                        }
-                    local.eventDao().insertEvents(
-                        *events.map { event -> event.toEventEntity() }.toTypedArray(),
-                    )
-                    local.ruleEventDao().insertRuleEvents(
-                        ruleEvents.mapNotNull { ruleEvent ->
-                            val event = events.firstOrNull { e -> e.id == ruleEvent.event.id }
-                            if (event != null) {
-                                RuleEventEntity(
-                                    id = ruleEvent.id,
-                                    startTime = ruleEvent.startTime,
-                                    endTime = ruleEvent.endTime,
-                                    eventId = event.eventId,
-                                    calendarId = event.calendarId,
-                                )
-                            } else {
-                                null
-                            }
-                        },
-                    )
-                    ruleEvents.forEach {
-                        val alarmIdStart =
-                            local.alarmDao().insertAlarm(
-                                AlarmEntity(
-                                    id = 0,
-                                    triggerTime = it.startTime.toTriggerTime().value,
-                                    action = Action.MUTE,
-                                ),
-                            ).toInt()
-                        ruleScheduler.scheduleAlarm(
-                            alarmIdStart,
-                            it.startTime
-                                .toTriggerTime(),
-                            Action.MUTE,
-                        )
-                        val alarmIdEnd =
-                            local.alarmDao().insertAlarm(
-                                AlarmEntity(
-                                    id = 0,
-                                    triggerTime =
-                                        it.endTime
-                                            .toTriggerTime().value,
-                                    action = Action.UNMUTE,
-                                ),
-                            ).toInt()
-                        ruleScheduler.scheduleAlarm(
-                            alarmIdEnd,
-                            it.endTime.toTriggerTime(),
-                            Action.UNMUTE,
-                        )
-                    }
-                    val ruleLocations = result.value.locationRules
-                    val locations = ruleLocations.map { it.location }
-                    local.locationDao().insertLocations(
-                        locations.map { it.toEntity() },
-                    )
-                    local.ruleLocationTimelessDao().insertRuleLocations(
-                        ruleLocations.map {
-                            RuleLocationTimelessEntity(
-                                id = it.location.id,
-                                locationName = it.location.name,
-                            )
-                        },
-                    )
-                    ruleLocations.forEach {
-                        val radius =
-                            if (it.location.radius < 100) {
-                                100f
-                            } else {
-                                it.location.radius.toFloat()
-                            }
-                        geofenceManager.registerGeofence(
-                            key = it.location.name,
-                            location = it.location.toLocation(),
-                            radiusInMeters = radius,
-                        )
-                        local.geofenceDao().insertGeofence(
-                            GeofenceEntity(
-                                id = 0,
-                                // Auto-generated by Room
-                                name = it.location.name,
-                                latitude = it.location.latitude,
-                                longitude = it.location.longitude,
-                                radius = it.location.radius,
-                            ),
-                        )
-                    }
-                    success(getFromLocal())
-                }
+            when(val result = getFromApi()){
+                is Success -> success(getFromLocal())
                 is Failure -> failure(result.value)
             }
         }
@@ -491,7 +505,7 @@ class RuleRepository(
     }
 
     override suspend fun deleteRuleLocationTimeless(ruleLocation: RuleLocationTimeless): Either<ApiError, RuleLocationTimeless> {
-        if (userInfoRepository.isLocal() || ruleLocation.id == null) {
+        if (userInfoRepository.isLocal() || ruleLocation.id == null || !networkChecker.isInternetAvailable()) {
             local.ruleLocationTimelessDao().deleteRuleLocationByName(ruleLocation.location.name)
             return success(ruleLocation)
         }
@@ -512,5 +526,19 @@ class RuleRepository(
     override suspend fun getAllRuleLocationTimeless(): Flow<List<RuleLocationTimeless>> {
         return local.ruleLocationTimelessDao().getAllRuleLocations()
             .map { it.map { it.toRuleLocationTimeless() } }
+    }
+
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    override suspend fun syncRules(): Either<ApiError, Unit> {
+        return if (userInfoRepository.isLocal()) {
+            success(Unit)
+        } else {
+            when (val result = getFromApi()) {
+                is Success -> {
+                    success(Unit)
+                }
+                is Failure -> failure(result.value)
+            }
+        }
     }
 }

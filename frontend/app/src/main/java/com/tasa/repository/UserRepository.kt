@@ -9,6 +9,7 @@ import com.tasa.service.TasaService
 import com.tasa.storage.TasaDB
 import com.tasa.utils.Either
 import com.tasa.utils.Failure
+import com.tasa.utils.NetworkChecker
 import com.tasa.utils.Success
 import com.tasa.utils.failure
 import com.tasa.utils.success
@@ -19,12 +20,19 @@ class UserRepository(
     private val local: TasaDB,
     private val remote: TasaService,
     private val userInfoRepository: UserInfoRepository,
-) : UserRepositoryInterface {
+    private val networkChecker: NetworkChecker,
+    ) : UserRepositoryInterface {
     override suspend fun createUser(
         username: String,
         email: String,
         password: String,
     ): Either<ApiError, User> {
+        if (!networkChecker.isInternetAvailable()) {
+            throw AuthenticationException(
+                "No internet connection. Please check your network settings.",
+                null,
+            )
+        }
         val result =
             remote.userService.register(
                 username = username,
@@ -65,6 +73,12 @@ class UserRepository(
         email: String,
         password: String,
     ): Either<ApiError, User> {
+        if (!networkChecker.isInternetAvailable()) {
+            throw AuthenticationException(
+                "No internet connection. Please check your network settings.",
+                null,
+            )
+        }
         val result = remote.userService.login(email, password)
         return when (result) {
             is Success -> {
@@ -90,6 +104,12 @@ class UserRepository(
     }
 
     override suspend fun logout(): Either<ApiError, Unit> {
+        if (!networkChecker.isInternetAvailable()) {
+            throw AuthenticationException(
+                "No internet connection. Please check your network settings.",
+                null,
+            )
+        }
         val result = remote.userService.logout(getToken())
         return when (result) {
             is Success -> {

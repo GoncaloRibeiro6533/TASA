@@ -10,6 +10,7 @@ import com.tasa.service.TasaService
 import com.tasa.storage.TasaDB
 import com.tasa.utils.Either
 import com.tasa.utils.Failure
+import com.tasa.utils.NetworkChecker
 import com.tasa.utils.Success
 import com.tasa.utils.failure
 import com.tasa.utils.success
@@ -20,6 +21,7 @@ class LocationRepository(
     private val local: TasaDB,
     private val remote: TasaService,
     private val userInfoRepository: UserInfoRepository,
+    private val networkChecker: NetworkChecker,
 ) : LocationRepositoryInterface {
     private suspend fun hasLocations(): Boolean {
         return local.locationDao().hasLocations()
@@ -39,7 +41,7 @@ class LocationRepository(
     private suspend fun getFromApi() = remote.locationService.fetchLocations(getToken())
 
     override suspend fun fetchLocations(): Flow<List<Location>> {
-        return if (hasLocations() || userInfoRepository.isLocal()) {
+        return if (hasLocations() || userInfoRepository.isLocal() || !networkChecker.isInternetAvailable()) {
             local.locationDao().getAllLocations().map { it.map { it.toLocation() } }
         } else {
             when (val locations = getFromApi()) {
@@ -55,7 +57,7 @@ class LocationRepository(
     }
 
     override suspend fun fetchLocationById(id: Int): Either<ApiError, Flow<Location?>> {
-        return if (hasLocationById(id) || userInfoRepository.isLocal()) {
+        return if (hasLocationById(id) || userInfoRepository.isLocal() || !networkChecker.isInternetAvailable()) {
             success(local.locationDao().getLocationById(id).map { it?.toLocation() })
         } else {
             when (val location = remote.locationService.fetchLocationById(id, getToken())) {
@@ -100,7 +102,7 @@ class LocationRepository(
     }
 
     override suspend fun deleteLocation(location: Location): Either<ApiError, Unit> {
-        if (userInfoRepository.isLocal()) {
+        if (userInfoRepository.isLocal() || !networkChecker.isInternetAvailable()) {
             local.locationDao().deleteLocationByName(location.name)
             return success(Unit)
         }
@@ -121,5 +123,18 @@ class LocationRepository(
 
     override suspend fun clear() {
         local.locationDao().clear()
+    }
+
+    override suspend fun syncLocations(): Either<ApiError, Unit> {
+        if (userInfoRepository.isLocal()) return success(Unit)
+        when (val locations = getFromApi()) {
+            is Success -> {
+                local.locationDao().insertLocations(locations.value.map { it.toEntity() })
+            }
+            is Failure -> {
+                return failure(locations.value)
+            }
+        }
+        return success(Unit)
     }
 }

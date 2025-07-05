@@ -22,6 +22,7 @@ import com.tasa.service.http.TasaServiceHttp
 import com.tasa.service.http.models.LocalDateTimeSerializer
 import com.tasa.storage.TasaDB
 import com.tasa.utils.DefaultStringResourceResolver
+import com.tasa.utils.NetworkChecker
 import com.tasa.utils.PropertiesConfigLoader
 import com.tasa.utils.QueryCalendarService
 import com.tasa.utils.QueryCalendarServiceImpl
@@ -32,6 +33,7 @@ import com.tasa.utils.ServiceKillerImpl
 import com.tasa.utils.StringResourceResolver
 import com.tasa.workers.CoroutineDBCleaner
 import com.tasa.workers.LocationStatusWorker
+import com.tasa.workers.Synchronizer
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -110,6 +112,7 @@ class TasaApplication : Application(), DependenciesContainer {
             ruleScheduler = ruleScheduler,
             geofenceManager = geofenceManager,
             queryCalendarService = queryCalendarService,
+            networkChecker = networkChecker,
         )
     }
 
@@ -135,6 +138,10 @@ class TasaApplication : Application(), DependenciesContainer {
 
     override val stringResourceResolver: StringResourceResolver by lazy {
         DefaultStringResourceResolver(applicationContext)
+    }
+
+    override val networkChecker: NetworkChecker by lazy {
+        NetworkChecker(applicationContext)
     }
 
     override fun onCreate() {
@@ -170,6 +177,19 @@ class TasaApplication : Application(), DependenciesContainer {
             ).setConstraints(constraints2).build()
         WorkManager.getInstance(applicationContext)
             .enqueue(gpsStatusItem)
+        val constraintsSync =
+            Constraints.Builder()
+                .setRequiredNetworkType(androidx.work.NetworkType.UNMETERED)
+                .setRequiresBatteryNotLow(true)
+                .setRequiresCharging(false)
+                .build()
+        val syncWorkItem =
+            PeriodicWorkRequestBuilder<Synchronizer>(
+                repeatInterval = 15,
+                TimeUnit.MINUTES,
+            ).setConstraints(constraintsSync).build()
+        WorkManager.getInstance(applicationContext)
+            .enqueue(syncWorkItem)
     }
 
     companion object {
