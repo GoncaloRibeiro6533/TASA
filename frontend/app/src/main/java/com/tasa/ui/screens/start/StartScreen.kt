@@ -8,8 +8,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.tasa.ui.components.LoadingView
 import com.tasa.ui.components.NavigationHandlers
 import com.tasa.ui.components.TopBar
 import com.tasa.ui.theme.TasaTheme
@@ -21,10 +24,12 @@ fun StartScreen(
     onLoginRequested: () -> Unit = { },
     onRegisterRequested: () -> Unit = { },
     onLoggedIntent: () -> Unit = { },
-    onContinueWithoutAccount: () -> Unit = { },
 ) {
+    val state = viewModel.state.collectAsState().value
+    LaunchedEffect(state) {
+        if (state is StartScreenState.Logged) onLoggedIntent()
+    }
     TasaTheme {
-        val state = viewModel.state
         Scaffold(
             modifier =
                 Modifier
@@ -49,17 +54,16 @@ fun StartScreen(
                         .padding(innerPadding),
             ) {
                 when (state) {
-                    StartScreenState.Idle -> {
-                        HomePopPup()
-                    }
-                    StartScreenState.Logged -> {
-                        onLoggedIntent()
+                    StartScreenState.Idle, StartScreenState.Logged -> {
+                        LoadingView()
                     }
                     StartScreenState.NotLogged -> {
                         StartView(
                             onLoginRequested = onLoginRequested,
                             onRegisterRequested = onRegisterRequested,
-                            onContinueWithoutAccount = onContinueWithoutAccount,
+                            onContinueWithoutAccount = {
+                                viewModel.setLocal()
+                            },
                         )
                     }
                 }

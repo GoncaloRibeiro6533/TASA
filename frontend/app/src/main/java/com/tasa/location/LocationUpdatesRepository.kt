@@ -36,6 +36,7 @@ class LocationUpdatesRepository(
 ) {
     data class Area(val center: Location, val radius: Float)
 
+    val isActive get() = active
     private val lastLocations = ArrayList<Location>(MAX_LOCATION_HISTORY)
     private val discardedLocations = ArrayList<Location>(MAX_LOCATION_HISTORY_DISCARDED)
     private val lastZone = ArrayList<Location>(MAX_LOCATION_HISTORY)
@@ -246,6 +247,19 @@ class LocationUpdatesRepository(
         }
     }
 
+    fun forceStop() {
+        active = false
+        locationJob?.cancel()
+        stopLocationUpdates()
+        lastLocations.clear()
+        discardedLocations.clear()
+        possibleArea = null
+        userActivity = null
+        isStable = false
+        locationFlow.value = null
+        _centralLocationFlow.value = null
+    }
+
     @RequiresPermission(
         allOf =
             [
@@ -308,8 +322,9 @@ class LocationUpdatesRepository(
 
     private fun stopLocationUpdates() {
         locationCallback.let {
-            locationClient.removeLocationUpdates(it)
-            Log.d("LocationManagerMine", "Stopped location updates")
+            locationClient.removeLocationUpdates(it).addOnCompleteListener {
+                Log.d("LocationManagerMine", "Location updates stopped")
+            }
         }
     }
 

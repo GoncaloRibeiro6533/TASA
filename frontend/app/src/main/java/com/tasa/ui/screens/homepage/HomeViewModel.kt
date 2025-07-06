@@ -1,7 +1,6 @@
 package com.tasa.ui.screens.homepage
 
 import android.Manifest
-import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -16,6 +15,7 @@ import com.tasa.domain.UserInfoRepository
 import com.tasa.domain.toTriggerTime
 import com.tasa.geofence.GeofenceManager
 import com.tasa.location.LocationService
+import com.tasa.location.LocationUpdatesRepository
 import com.tasa.repository.TasaRepo
 import com.tasa.utils.Failure
 import com.tasa.utils.ServiceKiller
@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
 sealed interface HomeScreenState {
     data object Uninitialized : HomeScreenState
@@ -44,6 +45,7 @@ class HomePageScreenViewModel(
     private val geofenceManager: GeofenceManager,
     private val serviceKiller: ServiceKiller,
     private val stringResolver: StringResourceResolver,
+    private val locationUpdatesRepository: LocationUpdatesRepository,
     initialState: HomeScreenState = HomeScreenState.Uninitialized,
 ) : ViewModel() {
     private val _state = MutableStateFlow<HomeScreenState>(initialState)
@@ -55,20 +57,38 @@ class HomePageScreenViewModel(
     private val _isLocal = MutableStateFlow<Boolean>(false)
     val isLocal: StateFlow<Boolean> = _isLocal.asStateFlow()
 
-    fun onFatalError() {
+    fun onFatalError(): Job? {
+        if (_state.value !is HomeScreenState.Error) return null
+        return clearOnFatalError()
+    }
+
+    fun clearOnFatalError() =
         viewModelScope.launch {
             try {
-                // remove alarms, rules, geofences, and user data TODO
+                userInfo.clearUserInfo()
+                locationUpdatesRepository.forceStop()
+                if (LocationService.isRunning) {
+                    serviceKiller.killServices(LocationService::class)
+                }
+                val alarms = repo.alarmRepo.getAllAlarms()
+                alarms.forEach { alarm ->
+                    alarmScheduler.cancelAlarm(alarm.id)
+                    repo.alarmRepo.deleteAlarm(alarm.id)
+                }
+                val geofences = repo.geofenceRepo.getAllGeofences()
+                geofences.forEach { geofence ->
+                    geofenceManager.deregisterGeofence(geofence.name)
+                    repo.geofenceRepo.deleteGeofence(geofence)
+                }
                 repo.userRepo.clear()
                 repo.ruleRepo.clean()
-                repo.alarmRepo.clear()
                 repo.eventRepo.clear()
                 repo.locationRepo.clear()
-                userInfo.clearUserInfo()
+            } catch (e: CancellationException) {
             } catch (e: Throwable) {
+                userInfo.clearUserInfo()
             }
         }
-    }
 
     @RequiresPermission(
         allOf = [
@@ -109,10 +129,11 @@ class HomePageScreenViewModel(
                         _state.value = HomeScreenState.Error(result.value.message)
                     }
                 }
+            } catch (e: CancellationException) {
+                return@launch
             } catch (e: Throwable) {
                 _state.value =
                     HomeScreenState.Error(stringResolver.getString(R.string.unexpected_error))
-                Log.d("HomePageScreenViewModel", "loadLocalData: ${e.message}")
             }
         }
     }
@@ -121,6 +142,9 @@ class HomePageScreenViewModel(
         viewModelScope.launch {
             try {
                 _isLocal.value = userInfo.isLocal()
+                if (!locationUpdatesRepository.isActive) {
+                    locationUpdatesRepository.forceStop()
+                }
             } catch (e: Throwable) {
             }
         }
@@ -183,6 +207,12 @@ class HomePageScreenViewModel(
             }
         }
     }
+
+    fun setFatalError() {
+        if (_state.value !is HomeScreenState.Error) {
+            _state.value = HomeScreenState.Error(stringResolver.getString(R.string.unexpected_error))
+        }
+    }
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -193,6 +223,7 @@ class HomeViewModelFactory(
     private val geofenceManager: GeofenceManager,
     private val serviceKiller: ServiceKiller,
     private val stringResolver: StringResourceResolver,
+    private val locationUpdatesRepository: LocationUpdatesRepository,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return HomePageScreenViewModel(
@@ -202,6 +233,7 @@ class HomeViewModelFactory(
             geofenceManager = geofenceManager,
             serviceKiller = serviceKiller,
             stringResolver = stringResolver,
+            locationUpdatesRepository = locationUpdatesRepository,
         ) as T
     }
 }

@@ -8,19 +8,23 @@ import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresPermission
+import androidx.core.net.toUri
 import com.tasa.DependenciesContainer
 import com.tasa.location.LocationService
 import com.tasa.silence.LocationStateReceiver
 import com.tasa.ui.components.PermissionBox
+import com.tasa.ui.components.SpecialPermissionsHandler
 import com.tasa.ui.screens.calendar.CalendarActivity
 import com.tasa.ui.screens.menu.MenuActivity
 import com.tasa.ui.screens.mylocations.MyLocationsActivity
 import com.tasa.ui.screens.newLocation.MapActivity
 import com.tasa.ui.screens.rule.EditRuleActivity
+import com.tasa.ui.screens.start.StartActivity
 import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
 
@@ -43,6 +47,10 @@ class HomePageActivity : ComponentActivity() {
         (application as DependenciesContainer).stringResourceResolver
     }
 
+    private val locationUpdatesRepository by lazy {
+        (application as DependenciesContainer).locationUpdatesRepository
+    }
+
     private val viewModel by viewModels<HomePageScreenViewModel>(
         factoryProducer = {
             HomeViewModelFactory(
@@ -52,6 +60,7 @@ class HomePageActivity : ComponentActivity() {
                 geofenceManager,
                 serviceKiller,
                 stringResolver,
+                locationUpdatesRepository,
             )
         },
     )
@@ -99,56 +108,97 @@ class HomePageActivity : ComponentActivity() {
                 PermissionBox(
                     permissions = permissions,
                     requiredPermissions = permissions,
+                    onSentToSettings = {
+                        val intent =
+                            Intent(ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = "package:$packageName".toUri()
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                        startActivity(intent)
+                    },
+                    onDenied = {
+                        viewModel.clearOnFatalError().invokeOnCompletion {
+                            navigateTo(
+                                this@HomePageActivity,
+                                StartActivity::class.java,
+                            )
+                            finish()
+                        }
+                    },
                     onGranted = @RequiresPermission(
                         allOf =
                             [
                                 Manifest.permission.ACCESS_FINE_LOCATION,
                                 Manifest.permission.ACCESS_COARSE_LOCATION,
                                 Manifest.permission.ACTIVITY_RECOGNITION,
+                                Manifest.permission.ACCESS_NOTIFICATION_POLICY,
+                                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
                                 "com.google.android.gms.permission.ACTIVITY_RECOGNITION",
                                 Manifest.permission.READ_CALENDAR,
                                 Manifest.permission.POST_NOTIFICATIONS,
                             ],
                     ) {
-                        HomePageScreen(
-                            viewModel = viewModel,
-                            onNavigateToMyLocations = {
-                                navigateTo(this@HomePageActivity, MyLocationsActivity::class.java)
+                        SpecialPermissionsHandler(
+                            onRejected = {
+                                viewModel.clearOnFatalError().invokeOnCompletion {
+                                    navigateTo(
+                                        this@HomePageActivity,
+                                        StartActivity::class.java,
+                                    )
+                                    finish()
+                                }
                             },
-                            onNavigateToCreateRuleEvent = {
-                                navigateTo(this@HomePageActivity, CalendarActivity::class.java)
-                            },
-                            onNavigationToMap = {
-                                startActivity(Intent(this@HomePageActivity, MapActivity::class.java))
-                            },
-                            onNavigateToMyExceptions = {
-                                val intent =
-                                    Intent(Settings.ACTION_ZEN_MODE_PRIORITY_SETTINGS).apply {
-                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                                            Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                                            Intent.FLAG_ACTIVITY_NO_HISTORY
-                                    }
-                                startActivity(intent)
-                            },
-                            onMenuRequested = { isLocal: Boolean ->
-                                val intent = Intent(this@HomePageActivity, MenuActivity::class.java).putExtra("isLocal", isLocal)
-                                startActivity(intent)
-                                finish()
-                            },
-                            onFatalError = {
-                                viewModel.onFatalError()
-                                finish()
-                            },
-                            onEditRule = { rule: EditRuleActivity.RuleParcelableEvent ->
-                                val intent = Intent(this@HomePageActivity, EditRuleActivity::class.java).putExtra("rule_event", rule)
-                                startActivity(intent)
-                                finish()
-                            },
-                            onCancelRule = {
-                                    rule ->
-                                viewModel.cancelRule(rule)
-                            },
-                        )
+                        ) {
+                            HomePageScreen(
+                                viewModel = viewModel,
+                                onNavigateToMyLocations = {
+                                    navigateTo(
+                                        this@HomePageActivity,
+                                        MyLocationsActivity::class.java,
+                                    )
+                                },
+                                onNavigateToCreateRuleEvent = {
+                                    navigateTo(this@HomePageActivity, CalendarActivity::class.java)
+                                },
+                                onNavigationToMap = {
+                                    navigateTo(this@HomePageActivity, MapActivity::class.java)
+                                },
+                                onNavigateToMyExceptions = {
+                                    val intent =
+                                        Intent(Settings.ACTION_ZEN_MODE_PRIORITY_SETTINGS).apply {
+                                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                                                Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                                                Intent.FLAG_ACTIVITY_NO_HISTORY
+                                        }
+                                    startActivity(intent)
+                                },
+                                onMenuRequested = { isLocal: Boolean ->
+                                    val intent =
+                                        Intent(
+                                            this@HomePageActivity,
+                                            MenuActivity::class.java,
+                                        ).putExtra("isLocal", isLocal)
+                                    startActivity(intent)
+                                    finish()
+                                },
+                                onEditRule = { rule: EditRuleActivity.RuleParcelableEvent ->
+                                    val intent =
+                                        Intent(
+                                            this@HomePageActivity,
+                                            EditRuleActivity::class.java,
+                                        ).putExtra("rule_event", rule)
+                                    startActivity(intent)
+                                    finish()
+                                },
+                                onCancelRule = { rule ->
+                                    viewModel.cancelRule(rule)
+                                },
+                                exitOnFatalError = {
+                                    navigateTo(this@HomePageActivity, StartActivity::class.java)
+                                    finish()
+                                },
+                            )
+                        }
                     },
                 )
             }

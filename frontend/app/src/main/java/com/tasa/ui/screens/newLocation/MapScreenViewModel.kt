@@ -80,6 +80,8 @@ sealed interface MapsScreenState {
     ) : MapsScreenState
 
     data class Error(val error: String) : MapsScreenState
+
+    data object SuccessCreatingLocation : MapsScreenState
 }
 
 class MapScreenViewModel(
@@ -269,7 +271,6 @@ class MapScreenViewModel(
         radius: Double,
         latitude: Double,
         longitude: Double,
-        onSuccess: () -> Unit = {},
     ) {
         if (_state.value is MapsScreenState.EditingLocation) {
             viewModelScope.launch {
@@ -294,17 +295,9 @@ class MapScreenViewModel(
                         }
                         is Success -> {
                             _state.value =
-                                MapsScreenState.Success(
-                                    selectedPoint = _selectedPoint,
-                                    currentLocation = _currentLocation,
-                                    searchQuery = _query,
-                                    userActivity = activityState,
-                                    radius = _radius,
-                                    locationName = _locationName,
-                                )
+                                MapsScreenState.SuccessCreatingLocation
                         }
                     }
-                    onSuccess()
                 } catch (ex: Throwable) {
                     _state.value = MapsScreenState.Error(
                         stringResolver.getString(R.string.unexpected_error))
@@ -357,7 +350,7 @@ class MapScreenViewModel(
 
 
     fun stopLocationUpdates() {
-        locationUpdatesRepository.stop()
+        if (locationUpdatesRepository.isActive) locationUpdatesRepository.stop()
     }
 
     fun recenterMap() {

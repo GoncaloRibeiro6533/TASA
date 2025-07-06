@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -21,6 +22,12 @@ fun LoginScreen(
     onNavigationBack: () -> Unit,
     onRegisterRequested: () -> Unit,
 ) {
+    val currentState = viewModel.state.collectAsState().value
+    LaunchedEffect(currentState) {
+        if (currentState is LoginScreenState.Success) {
+            onLoginSuccess()
+        }
+    }
     Scaffold(
         modifier =
             Modifier
@@ -34,13 +41,11 @@ fun LoginScreen(
                     .fillMaxSize()
                     .padding(innerPadding),
         ) {
-            when (val currentState = viewModel.state.collectAsState().value) {
+            when (currentState) {
                 is LoginScreenState.Loading -> {
                     LoadingView()
                 }
-                is LoginScreenState.Success -> {
-                    onLoginSuccess()
-                }
+                is LoginScreenState.Success -> { }
                 is LoginScreenState.Error -> {
                     ErrorAlert(
                         title = stringResource(R.string.error),

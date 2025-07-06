@@ -23,18 +23,17 @@ class StartActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         viewModel.getSession()
+        enableEdgeToEdge()
         setContent {
             StartScreen(
                 viewModel = viewModel,
                 onLoginRequested = { navigateTo(this, LoginActivity::class.java) },
                 onRegisterRequested = { navigateTo(this, RegisterActivity::class.java) },
                 onAboutRequested = { navigateTo(this, AboutActivity::class.java) },
-                onLoggedIntent = { navigateTo(this, HomePageActivity::class.java) },
-                onContinueWithoutAccount = {
-                    viewModel.setLocal()
+                onLoggedIntent = {
                     navigateTo(this, HomePageActivity::class.java)
+                    finish()
                 },
             )
         }

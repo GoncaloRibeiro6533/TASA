@@ -53,11 +53,10 @@ class RuleRepository(
         )
     }
 
-
     // TODO check if exists before inserting so it updates instead of inserting
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     private suspend fun getFromApi(): Either<ApiError, Unit> {
-       return when (val result = remote.ruleService.fetchRules(getToken())) {
+        return when (val result = remote.ruleService.fetchRules(getToken())) {
             is Success -> {
                 val ruleEvents = result.value.eventRules
                 val events =
@@ -133,9 +132,10 @@ class RuleRepository(
                     },
                 )
                 ruleLocations.forEach {
-                    val existing = local.ruleLocationDao().getRuleLocationsByLocationNameResult(
-                        it.location.name
-                    )//TODO
+                    val existing =
+                        local.ruleLocationDao().getRuleLocationsByLocationNameResult(
+                            it.location.name,
+                        ) // TODO
                     val radius =
                         if (it.location.radius < 100) {
                             100f
@@ -164,7 +164,6 @@ class RuleRepository(
         }
     }
 
-
     private suspend fun hasRules(): Boolean {
         return local.ruleEventDao().hasRules() || local.ruleLocationDao().hasRules()
     }
@@ -174,7 +173,7 @@ class RuleRepository(
         return if (hasRules() || userInfoRepository.isLocal()) {
             success(getFromLocal())
         } else {
-            when(val result = getFromApi()){
+            when (val result = getFromApi()) {
                 is Success -> success(getFromLocal())
                 is Failure -> failure(result.value)
             }

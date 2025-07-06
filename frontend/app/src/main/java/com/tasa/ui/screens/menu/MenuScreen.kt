@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -51,9 +52,9 @@ fun MenuScreen(
     viewModel: MenuViewModel,
     menuItems: List<MenuItem>,
     onNavigateBack: () -> Unit,
-    onLogout: () -> Unit,
+    onLogoutIntent: () -> Unit,
 ) {
-    val state = viewModel.state
+    val state = viewModel.state.collectAsState().value
     TasaTheme {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
@@ -88,7 +89,6 @@ fun MenuScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center,
                             ) {
-                                // Texto de logout
                                 Text(
                                     text = stringResource(R.string.logging_out),
                                     fontSize = 20.sp,
@@ -103,15 +103,17 @@ fun MenuScreen(
                             }
                         }
                     }
-                    is MenuScreenState.LoggedOut -> {
-                        onLogout()
-                    }
+                    is MenuScreenState.LoggedOut -> {}
                     is MenuScreenState.Error -> {
                         ErrorAlert(
                             title = stringResource(R.string.error),
                             message = state.error.message,
                             buttonText = stringResource(R.string.Ok),
-                            onDismiss = { onLogout() },
+                            onDismiss = {
+                                viewModel.logout()?.invokeOnCompletion {
+                                    onLogoutIntent()
+                                }
+                            },
                         )
                     }
                 }

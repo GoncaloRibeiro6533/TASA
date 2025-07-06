@@ -38,44 +38,45 @@ fun CalendarView(
     eventsFlow: StateFlow<List<CalendarEvent>>,
     selectedDay: StateFlow<LocalDate>,
 ) {
-    val selectedDate=  selectedDay.collectAsState().value
-    val events = eventsFlow.collectAsState().value.filter {
-        it.startTime.toLocalDate() == selectedDate
-    }
+    val selectedDate = selectedDay.collectAsState().value
+    val events =
+        eventsFlow.collectAsState().value.filter {
+            it.startTime.toLocalDate() == selectedDate
+        }
     Column(
-            Modifier
-                .fillMaxSize()
-                //.padding(innerPadding)
-                .padding(horizontal = 16.dp)
-                .testTag(CALENDAR_VIEW),
-        ) {
-            DateSelectorBar(
-                selectedDate = selectedDate,
-                onDateSelected = { onDateSelected(it) },
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                stringResource(R.string.events_in) + " ${selectedDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))}",
-                style = MaterialTheme.typography.titleMedium,
-            )
+        Modifier
+            .fillMaxSize()
+            // .padding(innerPadding)
+            .padding(horizontal = 16.dp)
+            .testTag(CALENDAR_VIEW),
+    ) {
+        DateSelectorBar(
+            selectedDate = selectedDate,
+            onDateSelected = { onDateSelected(it) },
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            stringResource(R.string.events_in) + " ${selectedDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))}",
+            style = MaterialTheme.typography.titleMedium,
+        )
 
-            Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-            if (events.isEmpty()) {
-                Text(stringResource(R.string.no_event_found))
-            } else {
-                LazyColumn(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    items(events) { event ->
-                        CalendarEventCard(
-                            event = event,
-                            onSelected = {
-                                onEventSelected(it)
-                            },
-                        )
-                    }
+        if (events.isEmpty()) {
+            Text(stringResource(R.string.no_event_found))
+        } else {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                items(events) { event ->
+                    CalendarEventCard(
+                        event = event,
+                        onSelected = {
+                            onEventSelected(it)
+                        },
+                    )
                 }
             }
         }
+    }
 }
 
 @Preview(showBackground = true)

@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import com.tasa.DependenciesContainer
-import com.tasa.ui.screens.authentication.login.LoginActivity
 import com.tasa.ui.screens.start.StartActivity
 import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
@@ -32,7 +31,7 @@ class RegisterActivity : ComponentActivity() {
                     onSubmit = { email, username, password ->
                         viewModel.registerUser(email, username, password)
                     },
-                    onRegisterSuccessful = { navigateTo(this, LoginActivity::class.java) },
+                    onRegisterSuccessful = { finish() },
                     onNavigationBack = { navigateTo(this, StartActivity::class.java) },
                 )
             }

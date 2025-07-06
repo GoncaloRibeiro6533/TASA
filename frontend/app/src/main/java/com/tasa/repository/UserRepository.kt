@@ -21,7 +21,7 @@ class UserRepository(
     private val remote: TasaService,
     private val userInfoRepository: UserInfoRepository,
     private val networkChecker: NetworkChecker,
-    ) : UserRepositoryInterface {
+) : UserRepositoryInterface {
     override suspend fun createUser(
         username: String,
         email: String,
@@ -104,11 +104,10 @@ class UserRepository(
     }
 
     override suspend fun logout(): Either<ApiError, Unit> {
-        if (!networkChecker.isInternetAvailable()) {
-            throw AuthenticationException(
-                "No internet connection. Please check your network settings.",
-                null,
-            )
+        if (userInfoRepository.isLocal() || !networkChecker.isInternetAvailable()) {
+            userInfoRepository.clearUserInfo()
+            local.userDao().clear()
+            return success(Unit)
         }
         val result = remote.userService.logout(getToken())
         return when (result) {

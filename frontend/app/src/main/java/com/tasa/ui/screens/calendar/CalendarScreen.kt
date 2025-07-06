@@ -60,7 +60,7 @@ fun CalendarScreen(
                 when (state) {
                     is CalendarScreenState.Uninitialized,
                     is CalendarScreenState.Loading,
-                        -> {
+                    -> {
                         LoadingView()
                     }
 
@@ -80,14 +80,14 @@ fun CalendarScreen(
                         )
                     }
                     is CalendarScreenState.SuccessOnSchedule,
-                    is CalendarScreenState.Success -> {
+                    is CalendarScreenState.Success,
+                    -> {
                         CalendarView(
                             onEventSelected = { calendarEvent -> onEventSelected(calendarEvent) },
                             eventsFlow = viewModel.events,
                             onDateSelected = { date -> onDateSelected(date) },
                             selectedDay = viewModel.selectedDay,
-
-                            )
+                        )
                     }
                 }
                 HandleSuccessSnackbar(

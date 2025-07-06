@@ -23,4 +23,4 @@ data class GeofenceEntity(
     val longitude: Double,
     val radius: Double,
 )
- //TODO when replacing locations it affects geofences, so we need to update geofences when locations are updated
+// TODO when replacing locations it affects geofences, so we need to update geofences when locations are updated

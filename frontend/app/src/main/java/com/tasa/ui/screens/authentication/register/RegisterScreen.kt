@@ -7,6 +7,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.tasa.R
 import com.tasa.ui.components.ErrorAlert
 import com.tasa.ui.components.LoadingView
 import com.tasa.ui.components.NavigationHandlers
@@ -45,15 +47,15 @@ fun RegisterScreen(
                 }
                 is RegisterScreenState.Success -> {
                     SuccessView(
-                        message = "User registered successfully",
+                        message = stringResource(R.string.registration_successful),
                         onButtonClick = { onRegisterSuccessful() },
                     )
                 }
                 is RegisterScreenState.Error -> {
                     ErrorAlert(
-                        title = "Error",
+                        title = stringResource(R.string.error),
                         message = currentState.error.message,
-                        buttonText = "Ok",
+                        buttonText = stringResource(R.string.Ok),
                         onDismiss = { viewModel.setIdleState() },
                     )
                 }

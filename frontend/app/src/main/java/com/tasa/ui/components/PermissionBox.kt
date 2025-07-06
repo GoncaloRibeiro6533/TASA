@@ -3,21 +3,20 @@ package com.tasa.ui.components
 import android.Manifest
 import android.app.NotificationManager
 import android.content.Context
-import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,15 +24,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.google.accompanist.permissions.rememberPermissionState
+import com.tasa.R
+import androidx.core.net.toUri
 
 /**
  * A variation of [PermissionBox] that takes a list of permissions and only calls [onGranted] when
@@ -49,25 +52,16 @@ fun PermissionBox(
     requiredPermissions: List<String> = permissions,
     description: String? = null,
     contentAlignment: Alignment = Alignment.Companion.TopStart,
+    onSentToSettings: () -> Unit,
+    onDenied: () -> Unit,
     onGranted: @Composable BoxScope.(List<String>) -> Unit,
 ) {
-    val context = LocalContext.current
     var errorText by remember {
         mutableStateOf("")
     }
-    var showBackgroundLocationDialog by remember {
-        mutableStateOf(true)
-    }
-
     val permissionState =
         rememberMultiplePermissionsState(permissions = permissions) { map ->
             val rejectedPermissions = map.filterValues { !it }.keys
-            errorText =
-                if (rejectedPermissions.none { it in requiredPermissions }) {
-                    ""
-                } else {
-                    "${rejectedPermissions.joinToString()} required for the sample"
-                }
         }
     val allRequiredPermissionsGranted =
         permissionState.revokedPermissions.none { it.permission in requiredPermissions }
@@ -93,44 +87,139 @@ fun PermissionBox(
         } else {
             PermissionScreen(
                 permissionState,
-                description,
-                errorText,
+                onSentToSettings = onSentToSettings,
+                onDenied = {
+                    onDenied()
+                },
             )
         }
-        // FOR DND
-        val notificationManager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        if (!notificationManager.isNotificationPolicyAccessGranted) {
-            val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            context.startActivity(intent)
-        }
-        // FOR BACKGROUND LOCATION
+    }
+}
 
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun SpecialPermissionsHandler(
+    modifier: Modifier = Modifier,
+    onRejected: () -> Unit,
+    onAllGranted: @Composable () -> Unit,
+) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    var showBackgroundLocationDialog by remember { mutableStateOf(false) }
+    var showDndDialog by remember { mutableStateOf(false) }
+    val backgroundPermission =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                )
-                != PackageManager.PERMISSION_GRANTED
-            ) {
+            rememberPermissionState(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        } else {
+            null
+        }
+    val notificationManager =
+        remember {
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        }
+    var isDndGranted by remember { mutableStateOf(notificationManager.isNotificationPolicyAccessGranted) }
+    val checkPermissions = {
+        isDndGranted = notificationManager.isNotificationPolicyAccessGranted
+    }
+    DisposableEffect(lifecycleOwner) {
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    checkPermissions()
+                }
+            }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+    val allSpecialPermissionsGranted =
+        remember(isDndGranted, backgroundPermission?.status) {
+            val backgroundGranted =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    backgroundPermission?.status?.isGranted == true
+                } else {
+                    true
+                }
+
+            backgroundGranted && isDndGranted
+        }
+    val needsBackgroundLocation =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            backgroundPermission?.status?.isGranted != true
+        } else {
+            false
+        }
+    LaunchedEffect(backgroundPermission?.status, isDndGranted) {
+        when {
+            needsBackgroundLocation -> {
+                showBackgroundLocationDialog = true
+                showDndDialog = false
+            }
+            !isDndGranted -> {
+                showBackgroundLocationDialog = false
+                showDndDialog = true
+            }
+            else -> {
+                showBackgroundLocationDialog = false
+                showDndDialog = false
+            }
+        }
+    }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        when {
+            // 1. Diálogo de Background Location
+            showBackgroundLocationDialog -> {
                 BackgroundLocationPermissionDialog(
-                    show = showBackgroundLocationDialog,
+                    onGrant = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            backgroundPermission?.launchPermissionRequest()
+                        }
+                        val intent =
+                            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = "package:${context.packageName}".toUri()
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                        context.startActivity(intent)
+                    },
                     onDismiss = {
                         showBackgroundLocationDialog = false
-                        if (ContextCompat.checkSelfPermission(
-                                context,
-                                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                            ) != PackageManager.PERMISSION_GRANTED
-                        ) {
-                            ActivityCompat.requestPermissions(
-                                context as androidx.activity.ComponentActivity,
-                                arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                                0,
-                            )
-                        }
+                        onRejected()
                     },
-                    context = context,
                 )
+            }
+
+            // 2. Diálogo de DND
+            showDndDialog -> {
+                DndPermissionDialog(
+                    onGrant = {
+                        // Abrir configurações específicas de DND
+                        val intent =
+                            Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS).apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                        context.startActivity(intent)
+                    },
+                    onDismiss = {
+                        showDndDialog = false
+                        // checkPermissions()
+                        onRejected()
+                    },
+                )
+            }
+            allSpecialPermissionsGranted -> {
+                onAllGranted()
+            }
+            else -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
             }
         }
     }
@@ -138,43 +227,30 @@ fun PermissionBox(
 
 @Composable
 fun BackgroundLocationPermissionDialog(
-    show: Boolean,
+    onGrant: () -> Unit,
     onDismiss: () -> Unit,
-    context: Context,
 ) {
-    if (!show) return
-
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { },
         confirmButton = {
-            TextButton(onClick = {
-                val intent =
-                    Intent(ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = Uri.parse("package:${context.packageName}")
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    }
-                context.startActivity(intent)
-                onDismiss()
-            }) {
-                Text("Permitir Sempre")
+            TextButton(onClick = onGrant) {
+                Text(text = stringResource(R.string.allow_always))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+            TextButton(onClick = { onDismiss() }) {
+                Text(text = stringResource(R.string.cancel))
             }
         },
         title = {
             Text(
-                text = "Permissão em Segundo Plano",
+                text = stringResource(R.string.background_permission),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
             )
         },
         text = {
             Text(
-                text =
-                    "Para que a TASA funcione corretamente enquanto está em segundo plano, " +
-                        "é necessário conceder permissão de localização \"Sempre permitir\" nas definições.",
+                text = stringResource(R.string.background_permission_description),
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
             )
         },
@@ -186,40 +262,39 @@ fun BackgroundLocationPermissionDialog(
     )
 }
 
-/**
- * The PermissionBox uses a [Box] to show a simple permission request UI when the provided [permission]
- * is revoked or the provided [onGranted] content if the permission is granted.
- *
- * This composable follows the permission request flow but for a complete example check the samples
- * under privacy/permissions
- */
 @Composable
-fun PermissionBox(
-    modifier: Modifier = Modifier,
-    permission: String,
-    description: String? = null,
-    contentAlignment: Alignment = Alignment.TopStart,
-    onGranted: @Composable BoxScope.() -> Unit,
+fun DndPermissionDialog(
+    onGrant: () -> Unit,
+    onDismiss: () -> Unit,
 ) {
-    PermissionBox(
-        modifier,
-        permissions = listOf(permission),
-        requiredPermissions = listOf(permission),
-        description,
-        contentAlignment,
-    ) { onGranted() }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun PermissionBoxPreview() {
-    PermissionBox(
-        permissions = listOf("android.permission.ACCESS_FINE_LOCATION"),
-        requiredPermissions = listOf("android.permission.ACCESS_FINE_LOCATION"),
-        description = "This is a sample description for the permissions required.",
-    ) {
-        Box(modifier = Modifier.Companion.fillMaxSize()) {
-            // Content to show when permission is granted
-        }
-    }
+    AlertDialog(
+        onDismissRequest = { },
+        confirmButton = {
+            TextButton(onClick = onGrant) {
+                Text(text = stringResource(R.string.allow))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { onDismiss() }) {
+                Text(text = stringResource(R.string.cancel))
+            }
+        },
+        title = {
+            Text(
+                text = stringResource(R.string.allow_access_to_dnd),
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
+            )
+        },
+        text = {
+            Text(
+                text = stringResource(R.string.allow_access_to_dnd_description),
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
+            )
+        },
+        tonalElevation = 6.dp,
+        shape = MaterialTheme.shapes.large,
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
 }

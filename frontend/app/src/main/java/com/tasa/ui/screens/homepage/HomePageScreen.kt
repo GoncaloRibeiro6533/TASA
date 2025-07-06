@@ -18,7 +18,7 @@ import com.tasa.ui.components.ErrorAlert
 import com.tasa.ui.components.LoadingView
 import com.tasa.ui.components.NavigationHandlers
 import com.tasa.ui.components.TopBar
-import com.tasa.ui.screens.rule.EditRuleActivity
+import com.tasa.ui.screens.rule.EditRuleActivity.RuleParcelableEvent
 import com.tasa.ui.theme.TasaTheme
 
 @Composable
@@ -29,9 +29,9 @@ fun HomePageScreen(
     onNavigateToCreateRuleEvent: () -> Unit = {},
     onNavigateToMyExceptions: () -> Unit = {},
     onMenuRequested: (Boolean) -> Unit = { },
-    onFatalError: () -> Unit = { },
-    onEditRule: (EditRuleActivity.RuleParcelableEvent) -> Unit = {},
+    onEditRule: (RuleParcelableEvent) -> Unit = {},
     onCancelRule: (Rule) -> Unit = { },
+    exitOnFatalError: () -> Unit,
 ) {
     TasaTheme {
         val isLocal = viewModel.isLocal.collectAsState().value
@@ -58,7 +58,9 @@ fun HomePageScreen(
                             title = stringResource(R.string.error),
                             message = state.message,
                             buttonText = stringResource(R.string.Ok),
-                            onDismiss = { onFatalError() },
+                            onDismiss = {
+                                viewModel.onFatalError()?.invokeOnCompletion { exitOnFatalError() }
+                            },
                         )
                     }
                     HomeScreenState.Loading -> LoadingView()
@@ -72,7 +74,7 @@ fun HomePageScreen(
                             onEdit = onEditRule,
                             onDelete = onCancelRule,
                         )
-                    HomeScreenState.Uninitialized -> { // Do nothing}
+                    is HomeScreenState.Uninitialized -> { // Do nothing}
                     }
                 }
             }

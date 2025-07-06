@@ -23,7 +23,7 @@ class EventRepository(
     private val remote: TasaService,
     private val userInfoRepository: UserInfoRepository,
     private val queryCalendarService: QueryCalendarService,
-    private val networkChecker: NetworkChecker
+    private val networkChecker: NetworkChecker,
 ) : EventRepositoryInterface {
     private suspend fun hasEvents(): Boolean {
         return local.eventDao().hasEvents()

@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 
-
 class Synchronizer(
     private val context: Context,
     params: WorkerParameters,
@@ -15,7 +14,7 @@ class Synchronizer(
             // events synchronization
             repo.eventRepo.syncEvents()
             repo.locationRepo.syncLocations()
-            //repo.ruleRepo.syncRules()
+            // repo.ruleRepo.syncRules()
             Result.success()
         } catch (e: Exception) {
             Result.retry()

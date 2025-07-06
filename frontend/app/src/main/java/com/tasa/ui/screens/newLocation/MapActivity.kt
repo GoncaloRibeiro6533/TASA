@@ -95,16 +95,17 @@ class MapActivity : ComponentActivity() {
                             radius = radius,
                             latitude = latitude,
                             longitude = longitude,
-                        ) {
-                            navigateTo(
-                                this@MapActivity,
-                                MyLocationsActivity::class.java,
-                            )
-                            finish()
-                        }
+                        )
                     },
                     onRecenterMap = {
                         viewModel.recenterMap()
+                    },
+                    onLocationsIntent = {
+                        navigateTo(
+                            this@MapActivity,
+                            MyLocationsActivity::class.java,
+                        )
+                        finish()
                     },
                 )
             }

@@ -142,7 +142,6 @@ fun LocationCard(
                                 onDismiss = { showDeleteDialog = false },
                             )
                         }
-
                     }
                 }
             }
@@ -192,10 +191,9 @@ fun LocationDeleteDialog(
                 Text(stringResource(R.string.cancel))
             }
         },
-        title = { Text(stringResource(R.string.delete_confirmation_text)+ " " + locationName+ "?") },
+        title = { Text(stringResource(R.string.delete_confirmation_text) + " " + locationName + "?") },
     )
 }
-
 
 @Preview(showBackground = true)
 @Composable

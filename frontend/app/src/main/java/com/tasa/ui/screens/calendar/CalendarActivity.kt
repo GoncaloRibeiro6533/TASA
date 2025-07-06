@@ -9,7 +9,6 @@ import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.tasa.DependenciesContainer
-import com.tasa.ui.components.PermissionBox
 import com.tasa.ui.theme.TasaTheme
 
 class CalendarActivity : ComponentActivity() {
@@ -52,32 +51,32 @@ class CalendarActivity : ComponentActivity() {
         viewModel.loadEvents()
         setContent {
             TasaTheme {
-                PermissionBox(
+                /*PermissionBox(
                     permission = Manifest.permission.READ_CALENDAR,
-                ) {
-                    CalendarScreen(
-                        onEventSelected = { calendarEvent ->
-                            viewModel.onEventSelected(calendarEvent)
-                        },
-                        onNavigationBack = {
-                            finish()
-                        },
-                        onCancel = { viewModel.onCancel() },
-                        onCreateRuleEvent = { event, startTime, endTime ->
-                            viewModel.onCreateRuleEvent(
-                                event,
-                                startTime,
-                                endTime,
-                            )
-                        },
-                        viewModel = viewModel,
-                        onDateSelected = { day ->
-                            viewModel.onDaySelected(day)
-                        },
-                    )
-                }
+                ) {*/
+                CalendarScreen(
+                    onEventSelected = { calendarEvent ->
+                        viewModel.onEventSelected(calendarEvent)
+                    },
+                    onNavigationBack = {
+                        finish()
+                    },
+                    onCancel = { viewModel.onCancel() },
+                    onCreateRuleEvent = { event, startTime, endTime ->
+                        viewModel.onCreateRuleEvent(
+                            event,
+                            startTime,
+                            endTime,
+                        )
+                    },
+                    viewModel = viewModel,
+                    onDateSelected = { day ->
+                        viewModel.onDaySelected(day)
+                    },
+                )
             }
         }
+        // }
     }
 
     @Deprecated("Deprecated in Java")

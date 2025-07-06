@@ -138,6 +138,8 @@ class CalendarScreenViewModel(
                             stringResolver.getString(R.string.rule_already_exists_for_this_time),
                         )
                 }
+            } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+                return@launch
             } catch (ex: Throwable) {
                 _state.value =
                     CalendarScreenState.Error(

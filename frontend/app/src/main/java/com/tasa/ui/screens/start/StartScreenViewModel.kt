@@ -1,19 +1,19 @@
 package com.tasa.ui.screens.start
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.tasa.domain.UserInfoRepository
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 sealed interface StartScreenState {
-    data object Idle : StartScreenState
-
     data object Logged : StartScreenState
+
+    data object Idle : StartScreenState
 
     data object NotLogged : StartScreenState
 }
@@ -22,44 +22,45 @@ class StartScreenViewModel(
     private val repo: UserInfoRepository,
     initialState: StartScreenState = StartScreenState.Idle,
 ) : ViewModel() {
-    var state: StartScreenState by mutableStateOf<StartScreenState>(initialState)
-        private set
+    private val _state = MutableStateFlow<StartScreenState>(initialState)
+    val state: StateFlow<StartScreenState> = _state.asStateFlow()
 
     fun getSession(): Job? {
+        if (_state.value !is StartScreenState.Idle) return null
         return viewModelScope.launch {
             try {
                 if (repo.isLocal()) {
-                    state = StartScreenState.Logged
-                    return@launch
+                    _state.value = StartScreenState.Logged
                 } else {
-                    val userInfo = repo.getUserInfo()
-                    state =
-                        if (userInfo != null) {
-                            StartScreenState.Logged
-                        } else {
-                            StartScreenState.NotLogged
-                        }
+                    if (repo.getUserInfo() != null) {
+                        _state.value = StartScreenState.Logged
+                    } else {
+                        _state.value = StartScreenState.NotLogged
+                    }
                 }
             } catch (e: Throwable) {
-                state = StartScreenState.NotLogged
+                _state.value = StartScreenState.NotLogged
             }
         }
     }
 
-    fun setLocal() {
-        viewModelScope.launch {
+    fun setLocal(): Job? {
+        if (_state.value is StartScreenState.Logged) return null
+        return viewModelScope.launch {
             try {
                 repo.setLocal(true)
+                _state.value = StartScreenState.Logged
             } catch (e: Throwable) {
-                state = StartScreenState.NotLogged
+                _state.value = StartScreenState.NotLogged
             }
         }
     }
 
-    fun logout() {
-        viewModelScope.launch {
+    fun logout(): Job? {
+        if (_state.value !is StartScreenState.Logged) return null
+        return viewModelScope.launch {
             repo.clearUserInfo()
-            state = StartScreenState.NotLogged
+            _state.value = StartScreenState.NotLogged
         }
     }
 }

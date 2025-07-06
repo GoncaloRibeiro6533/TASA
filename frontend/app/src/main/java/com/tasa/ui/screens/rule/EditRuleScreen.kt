@@ -5,13 +5,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.tasa.R
 import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
@@ -30,6 +36,12 @@ fun EditRuleScreen(
     onBackPressed: () -> Unit,
     onError: () -> Unit = { },
 ) {
+    val state = viewModel.state.collectAsState().value
+    LaunchedEffect(state) {
+        if (state is EditRuleState.Success) {
+            onBackPressed()
+        }
+    }
     TasaTheme {
         Scaffold(
             modifier =
@@ -48,7 +60,7 @@ fun EditRuleScreen(
                         .fillMaxSize()
                         .padding(innerPadding),
             ) {
-                when (val state = viewModel.state.collectAsState().value) {
+                when (state) {
                     is EditRuleState.Error -> {
                         ErrorAlert(
                             title = stringResource(R.string.error),
@@ -73,10 +85,37 @@ fun EditRuleScreen(
                         )
                     }
                     is EditRuleState.Success -> {
-                        onBackPressed()
+                        SuccessDialog(
+                            onConfirm = {
+                                onBackPressed()
+                            },
+                        )
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+fun SuccessDialog(onConfirm: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onConfirm,
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(text = stringResource(R.string.Ok))
+            }
+        },
+        text = {
+            Text(
+                text = stringResource(R.string.rule_updated_successfully),
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
+            )
+        },
+        tonalElevation = 6.dp,
+        shape = MaterialTheme.shapes.large,
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
 }

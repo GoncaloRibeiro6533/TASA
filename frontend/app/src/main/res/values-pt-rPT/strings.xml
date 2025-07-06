@@ -79,4 +79,14 @@
     <string name="tasa_is_executing_in_the_backgrund">Tasa está a executar em segundo</string>
     <string name="user_to_found">Utilizador não encontrado</string>
     <string name="delete_confirmation_text">Apagar a localização?</string>
+    <string name="allow_always">Permitir Sempre</string>
+    <string name="background_permission">Permissão em Segundo Plano</string>
+    <string name="background_permission_description">Para que a TASA funcione corretamente enquanto está em segundo plano, é necessário conceder permissão de localização \"Sempre permitir\" nas definições.</string>
+    <string name="allow">Permitir</string>
+    <string name="allow_access_to_dnd">Permitir acesso ao \"Não incomodar\"</string>
+    <string name="allow_access_to_dnd_description">Para que a TASA funcione corretamente, é necessário conceder permissão de acesso ao \"Não incomodar\" nas definições.</string>
+    <string name="necessary_permissions">Permissões necessárias</string>
+    <string name="necessary_permissions_description">Para continuar, é necessário conceder as permissões pedidas</string>
+    <string name="registration_successful">Conta criada com sucesso</string>
+    <string name="rule_updated_successfully">Regra atualizada</string>
 </resources>
