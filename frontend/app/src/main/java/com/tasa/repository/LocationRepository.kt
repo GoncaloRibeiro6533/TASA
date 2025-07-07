@@ -144,12 +144,9 @@ class LocationRepository(
         }
     }
 
+    //TODO
     override suspend fun updateLocation(location: Location){
-
-        if (location.id != null){
-            deleteLocationById(location.id)
-        }
-        insertLocation(location)
+        TODO()
     }
 
     override suspend fun updateLocationFields(
@@ -157,7 +154,7 @@ class LocationRepository(
         radius: Double,
         location: Location)
     {
-        val newLocation = Location(
+        /*val newLocation = Location(
             id = location.id,
             name = name,
             latitude = location.latitude,
@@ -168,7 +165,8 @@ class LocationRepository(
         if (location.id != null){
             deleteLocationById(location.id)
         }
-        insertLocation(newLocation)
+        insertLocation(newLocation)*/
+        TODO()
     }
 
     override suspend fun clear() {
