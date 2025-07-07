@@ -15,7 +15,6 @@ import com.tasa.ui.components.LoadingView
 import com.tasa.ui.components.NavigationHandlers
 import com.tasa.ui.components.TopBar
 import com.tasa.ui.screens.authentication.register.SuccessView
-import com.tasa.ui.screens.calendar.CalendarScreenState
 import com.tasa.ui.theme.TasaTheme
 
 @Composable
@@ -24,31 +23,30 @@ fun EditLocScreen(
     onNewCenter: () -> Unit,
     location: Location,
     viewModel: EditLocScreenViewModel,
-    onNavigationBack: () -> Unit
-
-    ) {
-
+    onNavigationBack: () -> Unit,
+) {
     TasaTheme {
         val currentState = viewModel.state.collectAsState().value
         Scaffold(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier =
+                Modifier
+                    .fillMaxSize(),
             topBar = {
                 TopBar(
                     NavigationHandlers(
                         onBackRequested = {
                             onNavigationBack()
-                        }
+                        },
                     ),
                 )
-            }
+            },
         ) { innerPaddding ->
 
             Column(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .padding(innerPaddding)
+                        .padding(innerPaddding),
             ) {
                 when (currentState) {
                     is EditLocScreenState.Loading -> {
@@ -57,10 +55,10 @@ fun EditLocScreen(
                     is EditLocScreenState.Idle -> {
                         EditLocView(
                             location = location,
-                            onSave = {name, radius, location ->
-                                viewModel.editLocFields(name, radius, location)},
+                            onSave = { name, radius, location ->
+                                viewModel.editLocFields(name, radius, location)
+                            },
                             onNewCenter = onNewCenter,
-
                         )
                     }
                     is EditLocScreenState.Success ->
@@ -68,7 +66,7 @@ fun EditLocScreen(
                             message = stringResource(R.string.loc_update_successful),
                             onButtonClick = {
                                 onUpdateSuccessful()
-                            }
+                            },
                         )
                     is EditLocScreenState.Error -> {
                         ErrorAlert(
@@ -77,14 +75,11 @@ fun EditLocScreen(
                             buttonText = stringResource(R.string.Ok),
                             onDismiss = {
                                 viewModel.setIdleState()
-                            }
+                            },
                         )
                     }
                 }
             }
-
         }
-
     }
-
 }

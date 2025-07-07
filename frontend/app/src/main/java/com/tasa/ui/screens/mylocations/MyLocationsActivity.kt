@@ -7,8 +7,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresPermission
 import com.tasa.DependenciesContainer
-import com.tasa.ui.screens.start.StartActivity
 import com.tasa.ui.screens.editloc.EditLocActivity
+import com.tasa.ui.screens.start.StartActivity
 import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
 

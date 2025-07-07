@@ -1,6 +1,5 @@
 package com.tasa.ui.screens.editloc
 
-import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,18 +23,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tasa.domain.Location
 
-
 @Composable
 fun EditLocView(
     location: Location,
     onSave: (
         name: String,
         radius: Double,
-        location: Location
-            ) -> Unit,
-    onNewCenter: () -> Unit
+        location: Location,
+    ) -> Unit,
+    onNewCenter: () -> Unit,
 ) {
-
     val initialName = location.name
     val initialRadius = location.radius.toString()
     var name by remember { mutableStateOf(initialName) }
@@ -43,16 +40,17 @@ fun EditLocView(
     var radiusError by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier =
+            Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
             label = { Text("Name") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -66,14 +64,14 @@ fun EditLocView(
             label = { Text("Radius (meters)") },
             isError = radiusError,
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
 
         if (radiusError) {
             Text(
                 text = "Please enter a valid number",
                 color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.labelSmall
+                style = MaterialTheme.typography.labelSmall,
             )
         }
 
@@ -81,12 +79,13 @@ fun EditLocView(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Button(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 4.dp),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(end = 4.dp),
                 onClick = {
                     onNewCenter()
                 },
@@ -95,9 +94,10 @@ fun EditLocView(
             }
 
             Button(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 4.dp),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(start = 4.dp),
                 onClick = {
                     onNewCenter()
                 },
@@ -106,12 +106,10 @@ fun EditLocView(
             }
         }
 
-
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             modifier = Modifier,
-
             onClick = {
                 val radius = radiusText.toDoubleOrNull()
                 if (radius != null && !radiusError) {
@@ -120,7 +118,7 @@ fun EditLocView(
                     radiusError = true
                 }
             },
-            enabled = name.isNotBlank() && !radiusError
+            enabled = name.isNotBlank() && !radiusError,
         ) {
             Text("Save")
         }
@@ -130,17 +128,18 @@ fun EditLocView(
 @Preview(showBackground = true)
 @Composable
 fun EditLocPreview() {
-
-    val loc = Location(
-        id = null,
-        name = "loc",
-        latitude = 2.0,
-        longitude = 2.0,
-        radius = 50.0)
+    val loc =
+        Location(
+            id = 1,
+            name = "loc",
+            latitude = 2.0,
+            longitude = 2.0,
+            radius = 50.0,
+        )
 
     EditLocView(
         location = loc,
-        onSave = {_, _, _-> },
-        onNewCenter = {}
+        onSave = { _, _, _ -> },
+        onNewCenter = {},
     )
 }

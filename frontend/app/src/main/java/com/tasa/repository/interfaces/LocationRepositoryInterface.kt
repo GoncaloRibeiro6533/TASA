@@ -23,7 +23,11 @@ interface LocationRepositoryInterface {
 
     suspend fun updateLocation(location: Location)
 
-    suspend fun updateLocationFields(name: String, radius: Double, location: Location)
+    suspend fun updateLocationFields(
+        name: String,
+        radius: Double,
+        location: Location,
+    )
 
     suspend fun clear()
 

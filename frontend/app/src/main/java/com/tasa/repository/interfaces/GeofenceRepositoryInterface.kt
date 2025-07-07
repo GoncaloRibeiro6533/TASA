@@ -17,7 +17,10 @@ interface GeofenceRepositoryInterface {
 
     suspend fun getAllGeofences(): List<Geofence>
 
-    suspend fun createGeofence(location: Location, rule: RuleLocationTimeless): Int
+    suspend fun createGeofence(
+        location: Location,
+        rule: RuleLocationTimeless,
+    ): Int
 
     suspend fun updateGeofence(
         geofence: Geofence,

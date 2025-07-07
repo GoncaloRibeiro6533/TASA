@@ -144,16 +144,16 @@ class LocationRepository(
         }
     }
 
-    //TODO
-    override suspend fun updateLocation(location: Location){
+    // TODO
+    override suspend fun updateLocation(location: Location) {
         TODO()
     }
 
     override suspend fun updateLocationFields(
         name: String,
         radius: Double,
-        location: Location)
-    {
+        location: Location,
+    ) {
         /*val newLocation = Location(
             id = location.id,
             name = name,

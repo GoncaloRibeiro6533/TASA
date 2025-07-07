@@ -30,10 +30,10 @@ fun RegisterScreen(
                 NavigationHandlers(
                     onBackRequested = {
                         onNavigationBack()
-                    }
+                    },
                 ),
             )
-        }
+        },
     ) { innerPadding ->
 
         Column(

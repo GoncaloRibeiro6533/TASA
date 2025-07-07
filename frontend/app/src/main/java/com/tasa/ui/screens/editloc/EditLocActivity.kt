@@ -1,16 +1,18 @@
 package com.tasa.ui.screens.editloc
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import com.tasa.DependenciesContainer
 import com.tasa.domain.Location
 import com.tasa.ui.screens.mylocations.MyLocationsActivity
 import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
 
-class EditLocActivity: ComponentActivity() {
+class EditLocActivity : ComponentActivity() {
     private val repo by lazy {
         (application as DependenciesContainer).repo
     }
@@ -18,11 +20,12 @@ class EditLocActivity: ComponentActivity() {
     private val viewModel by viewModels<EditLocScreenViewModel>(
         factoryProducer = {
             EditLocScreenViewModelFactory(
-                repo = repo
+                repo = repo,
             )
-        }
+        },
     )
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -34,7 +37,7 @@ class EditLocActivity: ComponentActivity() {
         }
 
         setContent {
-            TasaTheme{
+            TasaTheme {
                 EditLocScreen(
                     viewModel = viewModel,
                     onNewCenter = {},
@@ -44,10 +47,9 @@ class EditLocActivity: ComponentActivity() {
                     onUpdateSuccessful = {
                         navigateTo(this, MyLocationsActivity::class.java)
                     },
-                    location = location
+                    location = location,
                 )
             }
-
         }
     }
 }

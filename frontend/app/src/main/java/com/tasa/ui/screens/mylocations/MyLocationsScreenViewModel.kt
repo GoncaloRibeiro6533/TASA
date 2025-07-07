@@ -101,6 +101,9 @@ class MyLocationsScreenViewModel(
             try {
                 val rule =
                     repo.ruleRepo.getTimelessRulesForLocation(location)
+                val geofences =
+                    repo.geofenceRepo.getAllGeofences()
+                        .filter { it.name == location.name }
                 if (rule.isNotEmpty()) {
                     rule.forEach {
                         when (val result = repo.ruleRepo.deleteRuleLocationTimeless(it)) {
@@ -109,9 +112,6 @@ class MyLocationsScreenViewModel(
                                 return@launch
                             }
                             is Success -> {
-                                val geofences =
-                                    repo.geofenceRepo.getAllGeofences()
-                                        .filter { it.name == location.name }
                                 geofences.forEach { geofence ->
                                     geofenceManager.deregisterGeofence(geofence.name)
                                 }

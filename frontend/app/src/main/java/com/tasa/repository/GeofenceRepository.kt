@@ -29,7 +29,10 @@ class GeofenceRepository(
         }
     }
 
-    override suspend fun createGeofence(location: Location, rule: RuleLocationTimeless): Int {
+    override suspend fun createGeofence(
+        location: Location,
+        rule: RuleLocationTimeless,
+    ): Int {
         return if (userInfoRepository.isLocal()) {
             local.localDao().insertGeofenceLocal(
                 GeofenceLocal(

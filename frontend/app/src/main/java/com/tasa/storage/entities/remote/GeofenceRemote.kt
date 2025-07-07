@@ -30,7 +30,7 @@ data class GeofenceRemote(
             latitude = latitude,
             longitude = longitude,
             radius = radius,
-            ruleId = ruleId, // Assuming ruleId is the same as locationId in this context
+            ruleId = ruleId,
             name = name,
         )
     }

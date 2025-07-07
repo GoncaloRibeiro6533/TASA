@@ -65,6 +65,11 @@ class GeofenceManager(
             client.removeGeofences(listOf(requestId)).await()
         }
 
+    suspend fun deregisterAllGeofence() =
+        runCatching {
+            client.removeGeofences(geofencingPendingIntent).await()
+        }
+
     private fun createGeofencingRequest(geofence: Geofence): GeofencingRequest {
         return GeofencingRequest.Builder().apply {
             setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER or GeofencingRequest.INITIAL_TRIGGER_EXIT)

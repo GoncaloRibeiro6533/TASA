@@ -93,6 +93,7 @@ class HomePageScreenViewModel(
                 repo.ruleRepo.clean()
                 repo.eventRepo.clear()
                 repo.locationRepo.clear()
+                geofenceManager.deregisterAllGeofence()
             } catch (e: CancellationException) {
             } catch (e: Throwable) {
                 userInfo.clearUserInfo()
@@ -200,6 +201,9 @@ class HomePageScreenViewModel(
                     }
                     is RuleLocation -> {}
                     is RuleLocationTimeless -> {
+                        val geofences =
+                            repo.geofenceRepo.getAllGeofences()
+                                .filter { it.name == rule.location.name }
                         when (val result = repo.ruleRepo.deleteRuleLocationTimeless(rule)) {
                             is Failure -> {
                                 _state.value =
@@ -209,15 +213,12 @@ class HomePageScreenViewModel(
                                 return@launch
                             }
                             is Success -> {
-                                val geofences =
-                                    repo.geofenceRepo.getAllGeofences()
-                                        .filter { it.name == rule.location.name }
                                 if (geofences.isNotEmpty()) {
                                     geofences.forEach { geofence ->
                                         geofenceManager.deregisterGeofence(geofence.name)
+                                        repo.geofenceRepo.deleteGeofence(geofence)
                                     }
                                 }
-                                repo.geofenceRepo.deleteGeofence(geofences.first())
                                 if (LocationService.isRunning && LocationService.locationName ==
                                     rule.location.name
                                 ) {

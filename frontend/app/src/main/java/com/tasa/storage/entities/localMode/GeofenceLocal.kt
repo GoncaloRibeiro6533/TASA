@@ -9,11 +9,11 @@ import com.tasa.repository.interfaces.Geofence
     tableName = "geofence_local",
     foreignKeys = [
         ForeignKey(
-            entity = LocationLocal::class,
+            entity = RuleLocationLocal::class,
             parentColumns = ["id"],
             childColumns = ["ruleId"],
             onDelete = ForeignKey.CASCADE,
-            ),
+        ),
     ],
 )
 data class GeofenceLocal(
