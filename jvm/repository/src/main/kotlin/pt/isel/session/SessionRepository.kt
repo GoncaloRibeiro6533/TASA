@@ -11,6 +11,11 @@ import pt.isel.User
 interface SessionRepository {
     fun findByToken(tokenValidationInfo: TokenValidationInfo): Session?
 
+    fun findByTokens(
+        tokenValidationInfo: TokenValidationInfo,
+        refreshTokenValidationInfo: TokenValidationInfo,
+    ): Session?
+
     fun findByUser(user: User): List<Session>
 
     fun createSession(

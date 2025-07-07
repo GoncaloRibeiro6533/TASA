@@ -78,11 +78,11 @@ class HomePageActivity : ComponentActivity() {
         viewModel.isLocal()
         viewModel.loadLocalData()
         if (!isLocationEnabled(this)) {
-            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            /*val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                 Intent.FLAG_ACTIVITY_CLEAR_TOP or
                 Intent.FLAG_ACTIVITY_NO_HISTORY
-            startActivity(intent)
+            startActivity(intent)*/
         } else {
             if (!LocationService.isRunning) viewModel.registerGeofences()
         }
@@ -179,7 +179,7 @@ class HomePageActivity : ComponentActivity() {
                                             MenuActivity::class.java,
                                         ).putExtra("isLocal", isLocal)
                                     startActivity(intent)
-                                    finish()
+                                    // finish()
                                 },
                                 onEditRule = { rule: EditRuleActivity.RuleParcelableEvent ->
                                     val intent =

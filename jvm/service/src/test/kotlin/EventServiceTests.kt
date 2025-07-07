@@ -24,6 +24,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
 class EventServiceTests {
@@ -62,6 +63,7 @@ class EventServiceTests {
                     tokenTtl = 30.days,
                     tokenRollingTtl = 30.minutes,
                     maxTokensPerUser = 3,
+                    10.hours,
                 ),
             )
 

@@ -133,8 +133,6 @@ class EventService(
         }
     }
 
-    // TODO add date skip
-
     /**
      * Deletes an event of a user.
      *

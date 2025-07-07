@@ -13,17 +13,6 @@ import java.time.LocalDateTime
 interface RuleRepositoryInterface {
     suspend fun fetchAllRules(): Either<ApiError, Flow<List<Rule>>>
 
-    suspend fun fetchRuleEvents(): Flow<List<RuleEvent>>
-
-    suspend fun fetchRuleLocations(): Flow<List<RuleLocationTimeless>>
-
-    suspend fun fetchRuleLocationsByName(name: String): List<RuleLocationTimeless>
-
-    suspend fun fetchRuleByTime(
-        startTime: LocalDateTime,
-        endTime: LocalDateTime,
-    ): Rule?
-
     suspend fun insertRuleEvent(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
@@ -61,15 +50,7 @@ interface RuleRepositoryInterface {
 
     suspend fun insertRuleLocationTimeless(location: Location): Either<ApiError, RuleLocationTimeless>
 
-    suspend fun getRuleLocationTimelessById(id: Int): RuleLocationTimeless?
-
-    suspend fun deleteRuleLocationTimelessByLocation(location: Location)
-
-    suspend fun deleteRuleLocationTimelessById(id: Int)
-
     suspend fun deleteRuleLocationTimeless(ruleLocation: RuleLocationTimeless): Either<ApiError, RuleLocationTimeless>
-
-    suspend fun getAllRuleLocationTimeless(): Flow<List<RuleLocationTimeless>>
 
     suspend fun syncRules(): Either<ApiError, Unit>
 }

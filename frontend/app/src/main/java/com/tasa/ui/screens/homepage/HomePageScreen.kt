@@ -59,6 +59,16 @@ fun HomePageScreen(
                             message = state.message,
                             buttonText = stringResource(R.string.Ok),
                             onDismiss = {
+                                viewModel.clearError()
+                            },
+                        )
+                    }
+                    is HomeScreenState.FatalError -> {
+                        ErrorAlert(
+                            title = stringResource(R.string.error),
+                            message = state.message,
+                            buttonText = stringResource(R.string.Ok),
+                            onDismiss = {
                                 viewModel.onFatalError()?.invokeOnCompletion { exitOnFatalError() }
                             },
                         )
@@ -75,6 +85,15 @@ fun HomePageScreen(
                             onDelete = onCancelRule,
                         )
                     is HomeScreenState.Uninitialized -> { // Do nothing}
+                    }
+                    is HomeScreenState.SessionExpired -> {
+                        ErrorAlert(
+                            title = stringResource(R.string.error),
+                            message = stringResource(R.string.session_expired),
+                            buttonText = stringResource(R.string.log_in),
+                        ) {
+                            viewModel.onFatalError()?.invokeOnCompletion { exitOnFatalError() }
+                        }
                     }
                 }
             }

@@ -1,16 +1,30 @@
 package com.tasa.domain
 
 import com.tasa.service.http.models.rule.RuleLocationInput
-import com.tasa.storage.entities.RuleLocationTimelessEntity
+import com.tasa.storage.entities.localMode.RuleLocationLocal
+import com.tasa.storage.entities.remote.RuleLocationRemote
 
 data class RuleLocationTimeless(
-    override val id: Int? = null,
+    override val id: Int,
     val location: Location,
 ) : Rule(id), TimelessRule {
-    fun toEntity(): RuleLocationTimelessEntity {
-        return RuleLocationTimelessEntity(
+    fun toEntityRemote(): RuleLocationRemote {
+        return RuleLocationRemote(
             id = id,
-            locationName = location.name,
+            locationId = location.id,
+        )
+    }
+
+    fun toRuleLocationInput(): RuleLocationInput {
+        return RuleLocationInput(
+            locationId = location.id,
+        )
+    }
+
+    fun toEntityLocal(): RuleLocationLocal {
+        return RuleLocationLocal(
+            id = id,
+            locationId = location.id,
         )
     }
 

@@ -87,4 +87,23 @@ class UserServiceFake : UserService {
         tokens.clear()
         return success(Unit)
     }
+
+    override suspend fun refreshToken(
+        token: String,
+        refreshToken: String,
+    ): Either<ApiError, LoginOutput> {
+        val user = users.find { tokens[it.id] == token } ?: return failure(ApiError("Invalid token"))
+        val newToken = "new_token_for_${user.id}"
+        tokens[user.id] = newToken
+        return success(
+            LoginOutput(
+                user,
+                TokenExternalInfo(
+                    token = newToken,
+                    refreshToken = newToken,
+                    expiration = LocalDateTime.now().plusDays(1),
+                ),
+            ),
+        )
+    }
 }

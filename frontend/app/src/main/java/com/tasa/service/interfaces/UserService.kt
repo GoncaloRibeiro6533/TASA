@@ -23,4 +23,9 @@ interface UserService {
     ): Either<ApiError, User>
 
     suspend fun logout(token: String): Either<ApiError, Unit>
+
+    suspend fun refreshToken(
+        token: String,
+        refreshToken: String,
+    ): Either<ApiError, LoginOutput>
 }

@@ -2,17 +2,19 @@ package com.tasa.repository.interfaces
 
 import com.tasa.domain.ApiError
 import com.tasa.domain.Event
-import com.tasa.storage.entities.EventEntity
 import com.tasa.utils.Either
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
 
 interface EventRepositoryInterface {
-    suspend fun fetchEvents(): Either<ApiError, Flow<List<EventEntity>>>
+    suspend fun fetchEvents(): Either<ApiError, Flow<List<Event>>>
 
-    suspend fun fetchEventsByCalendarIdAndEventId(
+    suspend fun getEventById(id: Int): Event?
+
+    suspend fun getByCalendarIdAndEventId(
         calendarId: Long,
         eventId: Long,
-    ): Flow<Event?>
+    ): Event?
 
     suspend fun updateEvent(event: Event): Either<ApiError, Event>
 
@@ -21,4 +23,12 @@ interface EventRepositoryInterface {
     suspend fun clear()
 
     suspend fun syncEvents(): Either<ApiError, Unit>
+
+    suspend fun insertEvent(
+        calendarId: Long,
+        eventId: Long,
+        title: String,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+    ): Either<ApiError, Event>
 }

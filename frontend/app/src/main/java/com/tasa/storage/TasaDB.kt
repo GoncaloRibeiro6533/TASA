@@ -4,51 +4,46 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.tasa.storage.converters.Converters
-import com.tasa.storage.daos.AlarmDao
-import com.tasa.storage.daos.EventDao
-import com.tasa.storage.daos.GeofenceDao
-import com.tasa.storage.daos.LocationDao
-import com.tasa.storage.daos.RuleEventDao
-import com.tasa.storage.daos.RuleLocationDao
-import com.tasa.storage.daos.RuleLocationTimelessDao
+import com.tasa.storage.daos.LocalDao
+import com.tasa.storage.daos.RemoteDao
 import com.tasa.storage.daos.UserDao
-import com.tasa.storage.entities.AlarmEntity
-import com.tasa.storage.entities.EventEntity
-import com.tasa.storage.entities.GeofenceEntity
-import com.tasa.storage.entities.LocationEntity
-import com.tasa.storage.entities.RuleEventEntity
-import com.tasa.storage.entities.RuleLocationEntity
-import com.tasa.storage.entities.RuleLocationTimelessEntity
 import com.tasa.storage.entities.UserEntity
+import com.tasa.storage.entities.localMode.AlarmLocal
+import com.tasa.storage.entities.localMode.EventLocal
+import com.tasa.storage.entities.localMode.GeofenceLocal
+import com.tasa.storage.entities.localMode.LocationLocal
+import com.tasa.storage.entities.localMode.RuleEventLocal
+import com.tasa.storage.entities.localMode.RuleLocationLocal
+import com.tasa.storage.entities.remote.AlarmRemote
+import com.tasa.storage.entities.remote.EventRemote
+import com.tasa.storage.entities.remote.GeofenceRemote
+import com.tasa.storage.entities.remote.LocationRemote
+import com.tasa.storage.entities.remote.RuleEventRemote
+import com.tasa.storage.entities.remote.RuleLocationRemote
 
 @Database(
     entities = [
         UserEntity::class,
-        EventEntity::class,
-        LocationEntity::class,
-        RuleEventEntity::class,
-        RuleLocationEntity::class,
-        AlarmEntity::class,
-        GeofenceEntity::class,
-        RuleLocationTimelessEntity::class,
+        EventLocal::class,
+        EventRemote::class,
+        LocationRemote::class,
+        LocationLocal::class,
+        RuleEventLocal::class,
+        RuleEventRemote::class,
+        RuleLocationLocal::class,
+        RuleLocationRemote::class,
+        GeofenceLocal::class,
+        GeofenceRemote::class,
+        AlarmRemote::class,
+        AlarmLocal::class,
     ],
-    version = 15,
+    version = 19,
 )
 @TypeConverters(Converters::class)
 abstract class TasaDB : RoomDatabase() {
+    abstract fun localDao(): LocalDao
+
+    abstract fun remoteDao(): RemoteDao
+
     abstract fun userDao(): UserDao
-
-    abstract fun eventDao(): EventDao
-
-    abstract fun locationDao(): LocationDao
-
-    abstract fun ruleEventDao(): RuleEventDao
-
-    abstract fun ruleLocationDao(): RuleLocationDao
-
-    abstract fun alarmDao(): AlarmDao
-
-    abstract fun geofenceDao(): GeofenceDao
-
-    abstract fun ruleLocationTimelessDao(): RuleLocationTimelessDao
 }

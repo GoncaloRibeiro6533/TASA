@@ -6,15 +6,18 @@ import com.tasa.utils.Either
 import kotlinx.coroutines.flow.Flow
 
 interface LocationRepositoryInterface {
-    suspend fun fetchLocations(): Flow<List<Location>>
-
-    suspend fun fetchLocationById(id: Int): Either<ApiError, Flow<Location?>>
+    suspend fun fetchLocations(): Either<ApiError, Flow<List<Location>>>
 
     suspend fun getLocationByName(name: String): Location?
 
-    suspend fun insertLocation(location: Location): Either<ApiError, Location>
+    suspend fun insertLocation(
+        name: String,
+        latitude: Double,
+        longitude: Double,
+        radius: Double,
+    ): Either<ApiError, Location>
 
-    suspend fun deleteLocationById(id: Int)
+    suspend fun deleteLocationById(id: Int): Either<ApiError, Unit>
 
     suspend fun deleteLocation(location: Location): Either<ApiError, Unit>
 

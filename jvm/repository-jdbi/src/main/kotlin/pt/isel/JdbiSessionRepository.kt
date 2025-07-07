@@ -9,8 +9,7 @@ import pt.isel.session.SessionRepository
 class JdbiSessionRepository(
     private val handle: Handle,
 ) : SessionRepository {
-    override fun findByToken(token: TokenValidationInfo): Session? {
-        logger.info("findByToken: $token")
+    override fun findByToken(tokenValidationInfo: TokenValidationInfo): Session? {
         return handle.createQuery(
             """
             SELECT
@@ -31,9 +30,40 @@ class JdbiSessionRepository(
                WHERE a.token = :token_value
             """.trimIndent(),
         )
-            .bind("token_value", token.validationInfo)
+            .bind("token_value", tokenValidationInfo.validationInfo)
             .mapTo(Session::class.java)
             // .map<Session>(SessionMapper())
+            .findOne()
+            .orElse(null)
+    }
+
+    override fun findByTokens(
+        tokenValidationInfo: TokenValidationInfo,
+        refreshTokenValidationInfo: TokenValidationInfo,
+    ): Session? {
+        return handle.createQuery(
+            """
+            SELECT
+                   s.id AS session_id,
+                   s.user_id,
+                   a.id AS access_id,
+                   a.token AS access_token,
+                   a.created_at AS access_created_at,
+                   a.last_used_at AS access_last_used_at,
+                   a.expire_at AS access_expire_at,
+                   r.id AS refresh_id,
+                   r.token AS refresh_token,
+                   r.created_at AS refresh_created_at,
+                   r.expire_at AS refresh_expire_at
+               FROM ps.ACCESS_TOKEN a
+               JOIN ps.SESSION s ON a.session_id = s.id
+               LEFT JOIN ps.REFRESH_TOKEN r ON s.id = r.session_id
+               WHERE a.token = :token_value AND r.token = :refresh_token_value
+            """.trimIndent(),
+        )
+            .bind("token_value", tokenValidationInfo.validationInfo)
+            .bind("refresh_token_value", refreshTokenValidationInfo.validationInfo)
+            .mapTo(Session::class.java)
             .findOne()
             .orElse(null)
     }
@@ -75,18 +105,17 @@ class JdbiSessionRepository(
         refreshCreatedAt: Instant,
         refreshExpiresAt: Instant,
     ): Session {
-        val deletions =
-            handle.createUpdate(
-                """
-                Delete from ps.SESSION
-                where user_id = :user_id AND id in (
-                    select id from ps.ACCESS_TOKEN where user_id = :user_id order by last_used_at desc offset :offset
-                )
-                """.trimIndent(),
+        handle.createUpdate(
+            """
+            Delete from ps.SESSION
+            where user_id = :user_id AND id in (
+                select id from ps.ACCESS_TOKEN where user_id = :user_id order by last_used_at desc offset :offset
             )
-                .bind("user_id", user.id)
-                .bind("offset", maxTokens - 1)
-                .execute()
+            """.trimIndent(),
+        )
+            .bind("user_id", user.id)
+            .bind("offset", maxTokens - 1)
+            .execute()
         val session =
             handle.createUpdate(
                 """

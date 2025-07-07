@@ -1,8 +1,9 @@
 package com.tasa.service.http
 
 import com.tasa.domain.ApiError
-import com.tasa.domain.Location
+import com.tasa.service.http.models.location.LocationInput
 import com.tasa.service.http.models.location.LocationList
+import com.tasa.service.http.models.location.LocationOutput
 import com.tasa.service.http.utils.delete
 import com.tasa.service.http.utils.get
 import com.tasa.service.http.utils.post
@@ -15,7 +16,7 @@ import com.tasa.utils.success
 import io.ktor.client.HttpClient
 
 class LocationServiceHttp(private val client: HttpClient) : LocationService {
-    override suspend fun fetchLocations(token: String): Either<ApiError, List<Location>> {
+    override suspend fun fetchLocations(token: String): Either<ApiError, List<LocationOutput>> {
         return when (val response = client.get<LocationList>("/location/all", token = token)) {
             is Success -> success(response.value.locations)
             is Failure -> failure(response.value)
@@ -25,22 +26,31 @@ class LocationServiceHttp(private val client: HttpClient) : LocationService {
     override suspend fun fetchLocationById(
         id: Int,
         token: String,
-    ): Either<ApiError, Location> {
-        return when (val response = client.get<Location>("/location/$id", token = token)) {
+    ): Either<ApiError, LocationOutput> {
+        return when (val response = client.get<LocationOutput>("/location/$id", token = token)) {
             is Success -> success(response.value)
             is Failure -> failure(response.value)
         }
     }
 
     override suspend fun insertLocation(
-        location: Location,
+        name: String,
+        latitude: Double,
+        longitude: Double,
+        radius: Double,
         token: String,
-    ): Either<ApiError, Location> {
+    ): Either<ApiError, LocationOutput> {
         return when (
             val response =
-                client.post<Location>(
+                client.post<LocationOutput>(
                     "/location/create",
-                    body = location.toLocationInput(),
+                    body =
+                        LocationInput(
+                            name = name,
+                            latitude = latitude,
+                            longitude = longitude,
+                            radius = radius,
+                        ),
                     token = token,
                 )
         ) {

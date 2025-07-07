@@ -2,7 +2,8 @@ package com.tasa.domain
 
 import android.location.Location
 import com.tasa.service.http.models.location.LocationInput
-import com.tasa.storage.entities.LocationEntity
+import com.tasa.storage.entities.localMode.LocationLocal
+import com.tasa.storage.entities.remote.LocationRemote
 import kotlinx.serialization.Serializable
 
 /**
@@ -17,7 +18,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Location(
-    val id: Int? = null,
+    val id: Int,
     val name: String,
     val latitude: Double,
     val longitude: Double,
@@ -46,14 +47,25 @@ data class Location(
         const val MIN_LONGITUDE = -180.0
     }
 
-    fun toEntity() =
-        LocationEntity(
+    fun toLocationLocal(): LocationLocal {
+        return LocationLocal(
             id = id,
             name = name,
             latitude = latitude,
             longitude = longitude,
             radius = radius,
         )
+    }
+
+    fun toLocationRemote(): LocationRemote {
+        return LocationRemote(
+            id = id,
+            name = name,
+            latitude = latitude,
+            longitude = longitude,
+            radius = radius,
+        )
+    }
 
     fun toLocation(): Location {
         return Location("").apply {

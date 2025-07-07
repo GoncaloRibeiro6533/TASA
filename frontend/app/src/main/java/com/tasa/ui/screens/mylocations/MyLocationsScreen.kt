@@ -27,6 +27,7 @@ fun MyLocationsScreen(
     onNavigateBack: () -> Unit,
     onCreateRuleLocationTimeless: (Location) -> Unit,
     onSetCreateRuleState: (Location) -> Unit,
+    onSessionExpired: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
@@ -73,6 +74,15 @@ fun MyLocationsScreen(
                             onCreateRuleLocationTimeless(location)
                         },
                     )
+                }
+                is MyLocationsScreenState.SessionExpired -> {
+                    ErrorAlert(
+                        title = stringResource(R.string.error),
+                        message = stringResource(R.string.session_expired),
+                        buttonText = stringResource(R.string.log_in),
+                    ) {
+                        viewModel.onFatalError()?.invokeOnCompletion { onSessionExpired() }
+                    }
                 }
             }
             HandleSuccessSnackbar(

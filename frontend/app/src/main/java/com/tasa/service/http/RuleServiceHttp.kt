@@ -1,11 +1,14 @@
 package com.tasa.service.http
 
 import com.tasa.domain.ApiError
+import com.tasa.domain.Event
+import com.tasa.domain.Location
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocationTimeless
-import com.tasa.service.http.RuleServiceError.LocationIdNull
+import com.tasa.service.http.models.rule.RuleEventInput
 import com.tasa.service.http.models.rule.RuleEventOutput
 import com.tasa.service.http.models.rule.RuleListOutput
+import com.tasa.service.http.models.rule.RuleLocationInput
 import com.tasa.service.http.models.rule.RuleLocationOutput
 import com.tasa.service.http.utils.delete
 import com.tasa.service.http.utils.get
@@ -19,14 +22,6 @@ import com.tasa.utils.failure
 import com.tasa.utils.success
 import io.ktor.client.HttpClient
 import java.time.LocalDateTime
-
-sealed class RuleServiceError(message: String = "") : ApiError(message) {
-    data object LocationIdNull : RuleServiceError()
-
-    data object RuleIdNull : RuleServiceError()
-
-    data object EventIdNull : RuleServiceError()
-}
 
 class RuleServiceHttp(private val client: HttpClient) : RuleService {
     override suspend fun fetchRules(token: String): Either<ApiError, RuleListOutput> {
@@ -57,33 +52,41 @@ class RuleServiceHttp(private val client: HttpClient) : RuleService {
     }
 
     override suspend fun insertRuleEvent(
-        ruleEvent: RuleEvent,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+        event: Event,
         token: String,
     ): Either<ApiError, RuleEvent> {
-        if (ruleEvent.event.id == null) return failure(RuleServiceError.EventIdNull)
         return when (
             val response =
                 client.post<RuleEventOutput>(
                     "/rule/event",
-                    body = ruleEvent.toRuleEventInput(ruleEvent.event.id),
+                    body =
+                        RuleEventInput(
+                            startTime = startTime,
+                            endTime = endTime,
+                            eventId = event.id,
+                        ),
                     token = token,
                 )
         ) {
-            is Success -> success(response.value.toRuleEvent(ruleEvent.event))
+            is Success -> success(response.value.toRuleEvent(event))
             is Failure -> failure(response.value)
         }
     }
 
     override suspend fun insertRuleLocation(
-        ruleLocation: RuleLocationTimeless,
+        location: Location,
         token: String,
     ): Either<ApiError, RuleLocationTimeless> {
-        if (ruleLocation.location.id == null) return failure(LocationIdNull)
         return when (
             val response =
                 client.post<RuleLocationOutput>(
                     "/rule/location",
-                    body = ruleLocation.toRuleLocationTimelessInput(ruleLocation.location.id),
+                    body =
+                        RuleLocationInput(
+                            locationId = location.id,
+                        ),
                     token = token,
                 )
         ) {
@@ -118,7 +121,6 @@ class RuleServiceHttp(private val client: HttpClient) : RuleService {
         newEndTime: LocalDateTime,
         token: String,
     ): Either<ApiError, RuleEvent> {
-        if (ruleEvent.id == null) return failure(RuleServiceError.RuleIdNull)
         return when (
             val response =
                 client.put<RuleEventOutput>(

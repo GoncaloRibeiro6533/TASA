@@ -84,19 +84,31 @@ class RuleServiceFake : RuleService {
     }
 
     override suspend fun insertRuleEvent(
-        ruleEvent: RuleEvent,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+        event: Event,
         token: String,
     ): Either<ApiError, RuleEvent> {
-        val newRuleEvent = ruleEvent.copy(id = ++ruleEventId)
+        val newRuleEvent =
+            RuleEvent(
+                id = ++ruleEventId,
+                startTime = startTime,
+                endTime = endTime,
+                event = event,
+            )
         ruleEvents.add(newRuleEvent)
         return success(newRuleEvent)
     }
 
     override suspend fun insertRuleLocation(
-        ruleLocation: RuleLocationTimeless,
+        location: Location,
         token: String,
     ): Either<ApiError, RuleLocationTimeless> {
-        val newRuleLocation = ruleLocation.copy(id = ++ruleLocationId)
+        val newRuleLocation =
+            RuleLocationTimeless(
+                id = ++ruleLocationId,
+                location = location,
+            )
         ruleLocations.add(newRuleLocation)
         return success(newRuleLocation)
     }

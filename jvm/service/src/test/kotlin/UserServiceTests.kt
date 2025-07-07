@@ -62,6 +62,7 @@ class UserServiceTests {
                     tokenTtl = 30.days,
                     tokenRollingTtl = 30.minutes,
                     maxTokensPerUser = 3,
+                    refreshTime = 40.minutes,
                 ),
             )
 

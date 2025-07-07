@@ -7,6 +7,7 @@ import pt.isel.transaction.TransactionManager
 import pt.isel.transaction.TransactionManagerInMem
 import java.util.stream.Stream
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
 class RuleControllerTests {
@@ -45,6 +46,7 @@ class RuleControllerTests {
                     tokenTtl = 30.days,
                     tokenRollingTtl = 30.minutes,
                     maxTokensPerUser = 3,
+                    1.hours,
                 ),
             )
 

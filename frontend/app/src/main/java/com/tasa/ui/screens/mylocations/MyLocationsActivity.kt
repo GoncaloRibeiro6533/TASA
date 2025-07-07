@@ -7,7 +7,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresPermission
 import com.tasa.DependenciesContainer
+import com.tasa.ui.screens.start.StartActivity
 import com.tasa.ui.theme.TasaTheme
+import com.tasa.utils.navigateTo
 
 class MyLocationsActivity : ComponentActivity() {
     private val repo by lazy {
@@ -26,6 +28,17 @@ class MyLocationsActivity : ComponentActivity() {
         (applicationContext as DependenciesContainer).stringResourceResolver
     }
 
+    private val userInfoRepository by lazy {
+        (applicationContext as DependenciesContainer).userInfoRepository
+    }
+
+    private val alarmScheduler by lazy {
+        (applicationContext as DependenciesContainer).ruleScheduler
+    }
+
+    private val locationUpdatesRepository by lazy {
+        (applicationContext as DependenciesContainer).locationUpdatesRepository
+    }
     private val viewModel by viewModels<MyLocationsScreenViewModel>(
         factoryProducer = {
             MyLocationsScreenViewModelFactory(
@@ -33,6 +46,9 @@ class MyLocationsActivity : ComponentActivity() {
                 geofenceManager = geofenceManager,
                 serviceKiller = serviceKiller,
                 stringResolver = stringResolver,
+                userInfo = userInfoRepository,
+                locationUpdatesRepository = locationUpdatesRepository,
+                alarmScheduler = alarmScheduler,
             )
         },
     )
@@ -58,6 +74,10 @@ class MyLocationsActivity : ComponentActivity() {
                     onSetCreateRuleState = {
                             location ->
                         viewModel.setCreatingRuleLocationState(location)
+                    },
+                    onSessionExpired = {
+                        finishAffinity()
+                        navigateTo(this, StartActivity::class.java)
                     },
                 )
             }

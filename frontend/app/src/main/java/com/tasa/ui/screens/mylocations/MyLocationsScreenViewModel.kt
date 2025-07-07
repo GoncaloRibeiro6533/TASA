@@ -1,15 +1,18 @@
 package com.tasa.ui.screens.mylocations
 
 import android.Manifest
-import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.tasa.R
+import com.tasa.alarm.AlarmScheduler
+import com.tasa.domain.AuthenticationException
 import com.tasa.domain.Location
+import com.tasa.domain.UserInfoRepository
 import com.tasa.geofence.GeofenceManager
 import com.tasa.location.LocationService
+import com.tasa.location.LocationUpdatesRepository
 import com.tasa.repository.TasaRepo
 import com.tasa.utils.Failure
 import com.tasa.utils.ServiceKiller
@@ -21,13 +24,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import kotlin.coroutines.cancellation.CancellationException
 
 sealed interface MyLocationsScreenState {
     data object Uninitialized : MyLocationsScreenState
 
     data object Loading : MyLocationsScreenState
 
-    data class Error(val message: String) : MyLocationsScreenState
+    data class Error(val message: String, val sessionExpired: Boolean = false) : MyLocationsScreenState
 
     data class Success(
         val locations: StateFlow<List<Location>>,
@@ -39,6 +43,8 @@ sealed interface MyLocationsScreenState {
         val startTime: LocalDateTime? = null,
         val endTime: LocalDateTime? = null,
     ) : MyLocationsScreenState
+
+    data object SessionExpired : MyLocationsScreenState
 }
 
 class MyLocationsScreenViewModel(
@@ -46,6 +52,9 @@ class MyLocationsScreenViewModel(
     private val geofenceManager: GeofenceManager,
     private val serviceKiller: ServiceKiller,
     private val stringResolver: StringResourceResolver,
+    private val userInfo: UserInfoRepository,
+    private val alarmScheduler: AlarmScheduler,
+    private val locationUpdatesRepository: LocationUpdatesRepository,
     initialState: MyLocationsScreenState = MyLocationsScreenState.Uninitialized,
 ) : ViewModel() {
     private val _state: MutableStateFlow<MyLocationsScreenState> = MutableStateFlow(initialState)
@@ -62,10 +71,18 @@ class MyLocationsScreenViewModel(
         _state.value = MyLocationsScreenState.Loading
         return viewModelScope.launch {
             try {
-                repo.locationRepo.fetchLocations().collect {
-                        stream ->
-                    _locations.value = stream
-                    _state.value = MyLocationsScreenState.Success(_locations)
+                when (val result = repo.locationRepo.fetchLocations()) {
+                    is Failure -> {
+                        _state.value = MyLocationsScreenState.Error(result.value.message)
+                        return@launch
+                    }
+                    is Success -> {
+                        result.value.collect {
+                                stream ->
+                            _locations.value = stream
+                            _state.value = MyLocationsScreenState.Success(_locations)
+                        }
+                    }
                 }
             } catch (e: Throwable) {
                 _state.value = MyLocationsScreenState.Error(stringResolver.getString(R.string.unexpected_error))
@@ -78,14 +95,10 @@ class MyLocationsScreenViewModel(
     }
 
     fun deleteLocation(location: Location) {
-        if (_state.value is MyLocationsScreenState.Loading) return
+        if (_state.value !is MyLocationsScreenState.Success) return
         _state.value = MyLocationsScreenState.Loading
         viewModelScope.launch {
             try {
-                val geofences = repo.geofenceRepo.getAllGeofences().filter { it.name == location.name }
-                geofences.forEach { geofence ->
-                    geofenceManager.deregisterGeofence(geofence.name)
-                }
                 val rule =
                     repo.ruleRepo.getTimelessRulesForLocation(location)
                 if (rule.isNotEmpty()) {
@@ -96,20 +109,17 @@ class MyLocationsScreenViewModel(
                                 return@launch
                             }
                             is Success -> {
-                                repo.geofenceRepo.deleteGeofence(geofences.first())
-                                if (LocationService.isRunning && LocationService.locationName == location.name) {
-                                    serviceKiller.killServices(LocationService::class)
+                                val geofences =
+                                    repo.geofenceRepo.getAllGeofences()
+                                        .filter { it.name == location.name }
+                                geofences.forEach { geofence ->
+                                    geofenceManager.deregisterGeofence(geofence.name)
                                 }
-                                when (val result = repo.locationRepo.deleteLocation(location)) {
-                                    is Success -> {
-                                        _state.value = MyLocationsScreenState.Success(_locations)
-                                        _successMessage.value = R.string.location_deleted
-                                        return@launch
-                                    }
-                                    is Failure -> {
-                                        _state.value = MyLocationsScreenState.Error(result.value.message)
-                                        return@launch
-                                    }
+                                repo.geofenceRepo.deleteGeofence(geofences.first())
+                                if (LocationService.isRunning &&
+                                    LocationService.locationName == location.name
+                                ) {
+                                    serviceKiller.killServices(LocationService::class)
                                 }
                             }
                         }
@@ -124,8 +134,10 @@ class MyLocationsScreenViewModel(
                         _state.value = MyLocationsScreenState.Error(result.value.message)
                     }
                 }
+            } catch (e: AuthenticationException) {
+                _state.value = MyLocationsScreenState.SessionExpired
+                return@launch
             } catch (e: Throwable) {
-                Log.d("MyLocationsScreenViewModel", "deleteLocation: ", e)
                 _state.value = MyLocationsScreenState.Error(stringResolver.getString(R.string.unexpected_error))
             }
         }
@@ -133,7 +145,7 @@ class MyLocationsScreenViewModel(
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     fun createTimelessRuleLocation(location: Location) {
-        if (_state.value is MyLocationsScreenState.Loading) return
+        if (_state.value !is MyLocationsScreenState.Success) return
         _state.value = MyLocationsScreenState.Loading
         viewModelScope.launch {
             try {
@@ -161,6 +173,7 @@ class MyLocationsScreenViewModel(
                         )
                         repo.geofenceRepo.createGeofence(
                             location,
+                            result.value,
                         )
                     }
                     is Failure -> {
@@ -173,6 +186,9 @@ class MyLocationsScreenViewModel(
                 }
                 _state.value = MyLocationsScreenState.Success(_locations)
                 _successMessage.value = R.string.rule_created_successfully
+            } catch (e: AuthenticationException) {
+                _state.value = MyLocationsScreenState.SessionExpired
+                return@launch
             } catch (e: Throwable) {
                 _state.value =
                     MyLocationsScreenState.Error(
@@ -187,6 +203,39 @@ class MyLocationsScreenViewModel(
     fun clearMessageOfSuccess() {
         _successMessage.value = null
     }
+
+    fun onFatalError(): Job? {
+        if (_state.value !is MyLocationsScreenState.SessionExpired) return null
+        return clearOnFatalError()
+    }
+
+    fun clearOnFatalError() =
+        viewModelScope.launch {
+            try {
+                userInfo.clearUserInfo()
+                locationUpdatesRepository.forceStop()
+                if (LocationService.isRunning) {
+                    serviceKiller.killServices(LocationService::class)
+                }
+                val alarms = repo.alarmRepo.getAllAlarms()
+                alarms.forEach { alarm ->
+                    alarmScheduler.cancelAlarm(alarm.id)
+                    repo.alarmRepo.deleteAlarm(alarm.id)
+                }
+                val geofences = repo.geofenceRepo.getAllGeofences()
+                geofences.forEach { geofence ->
+                    geofenceManager.deregisterGeofence(geofence.name)
+                    repo.geofenceRepo.deleteGeofence(geofence)
+                }
+                repo.userRepo.clear()
+                repo.ruleRepo.clean()
+                repo.eventRepo.clear()
+                repo.locationRepo.clear()
+            } catch (e: CancellationException) {
+            } catch (e: Throwable) {
+                userInfo.clearUserInfo()
+            }
+        }
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -194,7 +243,10 @@ class MyLocationsScreenViewModelFactory(
     private val repo: TasaRepo,
     private val geofenceManager: GeofenceManager,
     private val serviceKiller: ServiceKiller,
+    private val userInfo: UserInfoRepository,
+    private val alarmScheduler: AlarmScheduler,
     private val stringResolver: StringResourceResolver,
+    private val locationUpdatesRepository: LocationUpdatesRepository,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return MyLocationsScreenViewModel(
@@ -202,6 +254,9 @@ class MyLocationsScreenViewModelFactory(
             geofenceManager = geofenceManager,
             serviceKiller = serviceKiller,
             stringResolver = stringResolver,
+            userInfo = userInfo,
+            alarmScheduler = alarmScheduler,
+            locationUpdatesRepository = locationUpdatesRepository,
         ) as T
     }
 }

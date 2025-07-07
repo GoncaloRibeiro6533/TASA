@@ -32,16 +32,12 @@ suspend inline fun <reified T : Any> HttpClient.get(
     url: String,
     token: String = "",
 ): Either<ApiError, T> {
-    return try {
-        get(BASE_URL + url) {
-            if (token.isNotEmpty()) header("Authorization", "$SCHEME $token")
-            header("Content-Type", MEDIA_TYPE)
-            header("Accept", "$MEDIA_TYPE, $ERROR_MEDIA_TYPE")
-            header("Accept-Language", language)
-        }.processResponse()
-    } catch (e: Throwable) {
-        failure(ApiError("Unexpected error: ${e.message ?: e.cause?.message}"))
-    }
+    return get(BASE_URL + url) {
+        if (token.isNotEmpty()) header("Authorization", "$SCHEME $token")
+        header("Content-Type", MEDIA_TYPE)
+        header("Accept", "$MEDIA_TYPE, $ERROR_MEDIA_TYPE")
+        header("Accept-Language", language)
+    }.processResponse()
 }
 
 suspend inline fun <reified T : Any> HttpClient.post(
@@ -93,7 +89,7 @@ suspend inline fun <reified T : Any> HttpResponse.processResponse(): Either<ApiE
         ) {
             return success(Unit as T)
         }
-        if (this.headers[NAME_WWW_AUTHENTICATE_HEADER] != null && this.status.value == 401) {
+        if (this.headers[NAME_WWW_AUTHENTICATE_HEADER] != null || this.status.value == 401) {
             throw AuthenticationException(
                 "Failed to authenticate",
                 null,

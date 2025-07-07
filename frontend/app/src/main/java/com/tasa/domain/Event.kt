@@ -1,6 +1,7 @@
 package com.tasa.domain
 
-import com.tasa.storage.entities.EventEntity
+import com.tasa.storage.entities.localMode.EventLocal
+import com.tasa.storage.entities.remote.EventRemote
 
 /**
  * Represents an event.
@@ -10,7 +11,7 @@ import com.tasa.storage.entities.EventEntity
  * @property title the event's title
  */
 data class Event(
-    val id: Int? = null,
+    val id: Int,
     val eventId: Long,
     val calendarId: Long,
     val title: String,
@@ -26,9 +27,18 @@ data class Event(
         const val MAX_TITLE_LENGTH = 50
     }
 
-    fun toEventEntity(): EventEntity {
-        return EventEntity(
-            externalId = id,
+    fun toEventRemote(): EventRemote {
+        return EventRemote(
+            id = id,
+            eventId = eventId,
+            calendarId = calendarId,
+            title = title,
+        )
+    }
+
+    fun toEventLocal(): EventLocal {
+        return EventLocal(
+            id = id,
             eventId = eventId,
             calendarId = calendarId,
             title = title,

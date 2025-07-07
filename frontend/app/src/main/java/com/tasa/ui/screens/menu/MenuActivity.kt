@@ -100,6 +100,7 @@ class MenuActivity : ComponentActivity() {
             this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
+                    finish()
                     navigateTo(this@MenuActivity, HomePageActivity::class.java)
                 }
             },

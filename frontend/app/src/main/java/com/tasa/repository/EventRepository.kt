@@ -6,8 +6,11 @@ import com.tasa.domain.Event
 import com.tasa.domain.UserInfoRepository
 import com.tasa.repository.interfaces.EventRepositoryInterface
 import com.tasa.service.TasaService
+import com.tasa.service.http.models.event.EventInput
+import com.tasa.service.interfaces.ServiceWithRetry
 import com.tasa.storage.TasaDB
-import com.tasa.storage.entities.EventEntity
+import com.tasa.storage.entities.localMode.EventLocal
+import com.tasa.storage.entities.remote.EventRemote
 import com.tasa.utils.Either
 import com.tasa.utils.Failure
 import com.tasa.utils.NetworkChecker
@@ -17,6 +20,7 @@ import com.tasa.utils.failure
 import com.tasa.utils.success
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.LocalDateTime
 
 class EventRepository(
     private val local: TasaDB,
@@ -24,9 +28,14 @@ class EventRepository(
     private val userInfoRepository: UserInfoRepository,
     private val queryCalendarService: QueryCalendarService,
     private val networkChecker: NetworkChecker,
-) : EventRepositoryInterface {
+    userRepo: UserRepository,
+) : EventRepositoryInterface, ServiceWithRetry(userRepo) {
     private suspend fun hasEvents(): Boolean {
-        return local.eventDao().hasEvents()
+        if (userInfoRepository.isLocal()) {
+            return local.localDao().hasEvents()
+        } else {
+            return local.remoteDao().hasEvents()
+        }
     }
 
     private suspend fun getToken(): String {
@@ -37,7 +46,10 @@ class EventRepository(
     }
 
     suspend fun getFromApi(): Either<ApiError, List<Event>> {
-        val result = remote.eventService.fetchEventAll(getToken())
+        val result =
+            retryOnFailure {
+                remote.eventService.fetchEventAll(getToken())
+            }
         return when (result) {
             is Success -> {
                 success(
@@ -55,49 +67,79 @@ class EventRepository(
         }
     }
 
-    override suspend fun fetchEvents(): Either<ApiError, Flow<List<EventEntity>>> {
-        return if (hasEvents() || userInfoRepository.isLocal() || networkChecker.isInternetAvailable()) {
-            success(local.eventDao().getAllEvents())
+    override suspend fun fetchEvents(): Either<ApiError, Flow<List<Event>>> {
+        if (userInfoRepository.isLocal()) {
+            return success(
+                local.localDao().getEventsFlow().map { eventEntities ->
+                    eventEntities.map { eventEntity -> eventEntity.toEvent() }
+                },
+            )
+        }
+        if (local.remoteDao().hasEvents()) {
+            return success(
+                local.remoteDao().getEventsFlow().map { eventEntities ->
+                    eventEntities.map { eventEntity -> eventEntity.toEvent() }
+                },
+            )
         } else {
             when (val events = getFromApi()) {
                 is Success -> {
-                    local.eventDao().insertEvents(
+                    local.remoteDao().insertEventRemote(
                         *events.value.map { event ->
-                            event.toEventEntity()
+                            event.toEventRemote()
                         }.toTypedArray(),
                     )
-                    success(local.eventDao().getAllEvents())
+                    return success(
+                        local.remoteDao().getEventsFlow().map { eventEntities ->
+                            eventEntities.map { eventEntity -> eventEntity.toEvent() }
+                        },
+                    )
                 }
-                is Failure -> failure(events.value)
+                is Failure -> return failure(events.value)
             }
         }
     }
 
-    override suspend fun fetchEventsByCalendarIdAndEventId(
+    override suspend fun getEventById(id: Int): Event? {
+        return if (userInfoRepository.isLocal()) {
+            local.localDao().getEventById(id.toLong())?.toEvent()
+        } else {
+            local.remoteDao().getEventById(id)?.toEvent()
+        }
+    }
+
+    override suspend fun getByCalendarIdAndEventId(
         calendarId: Long,
         eventId: Long,
-    ): Flow<Event?> {
-        return local.eventDao().getEventById(eventId, calendarId)
-            .map { event ->
-                event.let {
-                    Event(
-                        id = it.externalId,
-                        eventId = it.eventId,
-                        calendarId = it.calendarId,
-                        title = it.title,
-                    )
-                }
-            }
+    ): Event? {
+        return if (userInfoRepository.isLocal()) {
+            local.localDao().getEventByCalendarIdAndEventId(calendarId, eventId)?.toEvent()
+        } else {
+            local.remoteDao().getEventByCalendarIdAndEventId(calendarId, eventId)?.toEvent()
+        }
     }
 
     override suspend fun updateEvent(event: Event): Either<ApiError, Event> {
-        val remoteResult = remote.eventService.updateEventTitle(event, getToken())
+        if (userInfoRepository.isLocal()) {
+            local.localDao().updateEventLocal(
+                id = event.id,
+                eventId = event.eventId,
+                calendarId = event.calendarId,
+                title = event.title,
+            )
+            return success(event)
+        }
+        val remoteResult =
+            retryOnFailure {
+                remote.eventService.updateEventTitle(event, getToken())
+            }
         return when (remoteResult) {
             is Success -> {
-                local.eventDao().updateEvent(
+                local.localDao().updateEventLocal(
+                    id = event.id,
                     eventId = event.eventId,
                     calendarId = event.calendarId,
-                    title = remoteResult.value.title,
+                    title = event.title,
                 )
                 success(remoteResult.value)
             }
@@ -109,38 +151,16 @@ class EventRepository(
 
     override suspend fun deleteEvent(event: Event): Either<ApiError, Unit> {
         if (userInfoRepository.isLocal()) {
-            local.eventDao().deleteEvent(event.eventId, event.calendarId)
+            local.localDao().deleteEventLocalById(event.id)
             return success(Unit)
-        }
-        if (event.id == null) {
-            val events = getFromApi()
-            when (events) {
-                is Success -> {
-                    val foundEvent =
-                        events.value.find {
-                            it.eventId == event.eventId && it.calendarId == event.calendarId
-                        }
-                    if (foundEvent != null && foundEvent.id != null) {
-                        val remoteResult = remote.eventService.deleteEventById(foundEvent.id, getToken())
-                        return when (remoteResult) {
-                            is Success -> {
-                                local.eventDao().deleteEvent(event.eventId, event.calendarId)
-                                return success(Unit)
-                            }
-                            is Failure -> return failure(remoteResult.value)
-                        }
-                    } else {
-                        local.eventDao().deleteEvent(event.eventId, event.calendarId)
-                        return success(Unit)
-                    }
-                }
-                is Failure -> return failure(events.value)
-            }
         } else {
-            val remoteResult = remote.eventService.deleteEventById(event.id, getToken())
+            val remoteResult =
+                retryOnFailure {
+                    remote.eventService.deleteEventById(event.id, getToken())
+                }
             return when (remoteResult) {
                 is Success -> {
-                    local.eventDao().deleteEvent(event.eventId, event.calendarId)
+                    local.remoteDao().deleteEventRemoteById(event.id)
                     success(Unit)
                 }
                 is Failure -> failure(remoteResult.value)
@@ -149,22 +169,62 @@ class EventRepository(
     }
 
     override suspend fun clear() {
-        local.eventDao().clear()
+        local.localDao().clearEvents()
     }
 
     override suspend fun syncEvents(): Either<ApiError, Unit> {
-        return if (userInfoRepository.isLocal() || !networkChecker.isInternetAvailable()) {
-            success(Unit)
-        } else {
-            when (val result = getFromApi()) {
-                is Success -> {
-                    local.eventDao().insertEvents(
-                        *result.value.map { it.toEventEntity() }.toTypedArray(),
-                    )
-                    success(Unit)
-                }
-                is Failure -> failure(result.value)
+        TODO()
+    }
+
+    override suspend fun insertEvent(
+        calendarId: Long,
+        eventId: Long,
+        title: String,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+    ): Either<ApiError, Event> {
+        if (userInfoRepository.isLocal()) {
+            val id =
+                local.localDao().insertEventLocal(
+                    EventLocal(
+                        eventId = eventId,
+                        calendarId = calendarId,
+                        title = title,
+                    ),
+                )
+            return success(
+                Event(
+                    id = id.toInt(),
+                    eventId = eventId,
+                    calendarId = calendarId,
+                    title = title,
+                ),
+            )
+        }
+        val remoteResult =
+            retryOnFailure {
+                remote.eventService.insertEvent(
+                    EventInput(
+                        title = title,
+                        startTime = startTime,
+                        endTime = endTime,
+                    ),
+                    getToken(),
+                )
             }
+        return when (remoteResult) {
+            is Success -> {
+                val entity =
+                    EventRemote(
+                        id = remoteResult.value.id,
+                        eventId = eventId,
+                        calendarId = calendarId,
+                        title = title,
+                    )
+                local.remoteDao().insertEventRemote(entity)
+                success(entity.toEvent())
+            }
+            is Failure -> failure(remoteResult.value)
         }
     }
 }

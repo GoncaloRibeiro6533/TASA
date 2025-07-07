@@ -12,6 +12,7 @@ import com.google.android.gms.location.LocationServices
 import com.tasa.DependenciesContainer
 import com.tasa.location.LocationService
 import com.tasa.ui.screens.mylocations.MyLocationsActivity
+import com.tasa.ui.screens.start.StartActivity
 import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
 import kotlin.jvm.java
@@ -35,6 +36,20 @@ class MapActivity : ComponentActivity() {
         (application as DependenciesContainer).stringResourceResolver
     }
 
+    private val userInfoRepository by lazy {
+        (application as DependenciesContainer).userInfoRepository
+    }
+
+    private val geofenceManager by lazy {
+        (application as DependenciesContainer).geofenceManager
+    }
+
+    private val serviceKiller by lazy {
+        (application as DependenciesContainer).serviceKiller
+    }
+    private val alarmScheduler by lazy {
+        (application as DependenciesContainer).ruleScheduler
+    }
     private val viewModel by viewModels<MapScreenViewModel>(
         factoryProducer = {
             MapScreenViewModelFactory(
@@ -43,6 +58,10 @@ class MapActivity : ComponentActivity() {
                 locationUpdatesRepository = locationManager,
                 searchPlaceService = searchPlaceService,
                 stringResolver = stringResolver,
+                userInfo = userInfoRepository,
+                geofenceManager = geofenceManager,
+                serviceKiller = serviceKiller,
+                alarmScheduler = alarmScheduler,
             )
         },
     )
@@ -106,6 +125,13 @@ class MapActivity : ComponentActivity() {
                             MyLocationsActivity::class.java,
                         )
                         finish()
+                    },
+                    onSessionExpired = {
+                        finishAffinity()
+                        navigateTo(
+                            this@MapActivity,
+                            StartActivity::class.java,
+                        )
                     },
                 )
             }

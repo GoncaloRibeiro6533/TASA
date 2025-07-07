@@ -2,57 +2,103 @@ package com.tasa.repository
 
 import com.tasa.domain.Action
 import com.tasa.domain.Alarm
+import com.tasa.domain.UserInfoRepository
 import com.tasa.repository.interfaces.AlarmRepositoryInterface
 import com.tasa.storage.TasaDB
-import com.tasa.storage.entities.AlarmEntity
+import com.tasa.storage.entities.localMode.AlarmLocal
+import com.tasa.storage.entities.remote.AlarmRemote
 
 class AlarmRepository(
     private val local: TasaDB,
+    private val userInfoRepository: UserInfoRepository,
 ) : AlarmRepositoryInterface {
     override suspend fun createAlarm(
         triggerTime: Long,
         action: Action,
+        ruleId: Int,
     ): Int {
-        return local.alarmDao().insertAlarm(
-            AlarmEntity(
-                id = 0,
-                triggerTime = triggerTime,
-                action = action,
-            ),
-        ).toInt()
+        if (userInfoRepository.isLocal()) {
+            return local.localDao().insertAlarmLocal(
+                AlarmLocal(
+                    triggerTime = triggerTime,
+                    action = action,
+                    ruleId = ruleId,
+                ),
+            ).toInt()
+        } else {
+            return local.remoteDao().insertAlarmRemote(
+                AlarmRemote(
+                    triggerTime = triggerTime,
+                    action = action,
+                    ruleId = ruleId,
+                ),
+            ).toInt()
+        }
     }
 
     override suspend fun getAlarmByTriggerTime(currentTime: Long): Alarm? {
-        val alarmEntity = local.alarmDao().getAlarmsByTriggerTime(currentTime)
-        return alarmEntity?.toAlarm()
+        return if (userInfoRepository.isLocal()) {
+            local.localDao().getAlarmByTriggerTime(currentTime)?.toAlarm()
+        } else {
+            local.remoteDao().getAlarmByTriggerTime(currentTime)?.toAlarm()
+        }
     }
 
     override suspend fun getAlarmById(id: Int): Alarm? {
-        val alarmEntity = local.alarmDao().getAlarmById(id)
-        return alarmEntity?.toAlarm()
+        return if (userInfoRepository.isLocal()) {
+            local.localDao().getAlarmById(id)?.toAlarm()
+        } else {
+            local.remoteDao().getAlarmById(id)?.toAlarm()
+        }
     }
 
     override suspend fun getAllAlarms(): List<Alarm> {
-        return local.alarmDao().getAllAlarms().map { it.toAlarm() }
+        return if (userInfoRepository.isLocal()) {
+            local.localDao().getAllAlarms().map { it.toAlarm() }
+        } else {
+            local.remoteDao().getAllAlarms().map { it.toAlarm() }
+        }
     }
 
     override suspend fun updateAlarm(
         triggerTime: Long,
         action: Action,
         id: Int,
-    ): Int {
-        return local.alarmDao().updateAlarm(triggerTime, action, id)
+    ) {
+        return if (userInfoRepository.isLocal()) {
+            local.localDao().updateAlarmLocal(
+                id = id,
+                time = triggerTime,
+            )
+        } else {
+            local.remoteDao().updateAlarmRemote(
+                id = id,
+                time = triggerTime,
+            )
+        }
     }
 
-    override suspend fun deleteAlarm(id: Int): Int {
-        return local.alarmDao().deleteAlarm(id)
+    override suspend fun deleteAlarm(id: Int) {
+        return if (userInfoRepository.isLocal()) {
+            local.localDao().deleteAlarmLocalById(id)
+        } else {
+            local.remoteDao().deleteAlarmRemoteById(id)
+        }
     }
 
-    override suspend fun clear(): Int {
-        return local.alarmDao().clear()
+    override suspend fun clear() {
+        if (userInfoRepository.isLocal()) {
+            local.localDao().clearAlarms()
+        } else {
+            local.remoteDao().clearAlarms()
+        }
     }
 
     override suspend fun clearOlderAlarms(now: Long) {
-        local.alarmDao().deleteExpiredAlarms(now)
+        if (userInfoRepository.isLocal()) {
+            local.localDao().clearOldAlarms(now)
+        } else {
+            local.remoteDao().clearOldAlarms(now)
+        }
     }
 }

@@ -1,21 +1,24 @@
 package com.tasa.service.interfaces
 
 import com.tasa.domain.ApiError
-import com.tasa.domain.Location
+import com.tasa.service.http.models.location.LocationOutput
 import com.tasa.utils.Either
 
 interface LocationService {
-    suspend fun fetchLocations(token: String): Either<ApiError, List<Location>>
+    suspend fun fetchLocations(token: String): Either<ApiError, List<LocationOutput>>
 
     suspend fun fetchLocationById(
         id: Int,
         token: String,
-    ): Either<ApiError, Location>
+    ): Either<ApiError, LocationOutput>
 
     suspend fun insertLocation(
-        location: Location,
+        name: String,
+        latitude: Double,
+        longitude: Double,
+        radius: Double,
         token: String,
-    ): Either<ApiError, Location>
+    ): Either<ApiError, LocationOutput>
 
     suspend fun deleteLocationById(
         id: Int,

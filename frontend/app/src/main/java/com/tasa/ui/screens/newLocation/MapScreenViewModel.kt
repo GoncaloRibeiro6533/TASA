@@ -12,12 +12,17 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.tasa.R
-import com.tasa.domain.Location
+import com.tasa.alarm.AlarmScheduler
+import com.tasa.domain.AuthenticationException
+import com.tasa.domain.UserInfoRepository
 import com.tasa.domain.toLocalDateTime
+import com.tasa.geofence.GeofenceManager
+import com.tasa.location.LocationService
 import com.tasa.location.LocationUpdatesRepository
 import com.tasa.repository.TasaRepo
 import com.tasa.utils.Failure
 import com.tasa.utils.SearchPlaceService
+import com.tasa.utils.ServiceKiller
 import com.tasa.utils.StringResourceResolver
 import com.tasa.utils.Success
 import kotlinx.coroutines.Job
@@ -28,6 +33,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import org.osmdroid.util.GeoPoint
 import java.time.LocalDateTime
+import kotlin.coroutines.cancellation.CancellationException
 import android.location.Location as AndroidLocation
 
 data class TasaLocation(
@@ -80,6 +86,7 @@ sealed interface MapsScreenState {
     ) : MapsScreenState
 
     data class Error(val error: String) : MapsScreenState
+    data object SessionExpired: MapsScreenState
 
     data object SuccessCreatingLocation : MapsScreenState
 }
@@ -90,6 +97,10 @@ class MapScreenViewModel(
     private val locationUpdatesRepository: LocationUpdatesRepository,
     private val searchPlaceService: SearchPlaceService,
     private val stringResolver: StringResourceResolver,
+    private val userInfo: UserInfoRepository,
+    private val alarmScheduler: AlarmScheduler,
+    private val geofenceManager: GeofenceManager,
+    private val serviceKiller: ServiceKiller,
     initialState: MapsScreenState = MapsScreenState.Uninitialized,
 ) : ViewModel() {
     private val _activityState = MutableStateFlow<String?>(null)
@@ -181,36 +192,6 @@ class MapScreenViewModel(
         }
     }
 
-
-
-    fun setSearchingState() {
-        if (state.value is MapsScreenState.Success) {
-            _state.value =
-                MapsScreenState.Success(
-                    selectedPoint = _selectedPoint,
-                    currentLocation = _currentLocation,
-                    radius = _radius,
-                    locationName = _locationName,
-                    searchQuery = _query,
-                    userActivity = activityState,
-                )
-        }
-    }
-
-    fun setUnSearchingState() {
-        if (_state.value is MapsScreenState.SuccessSearching) {
-            _state.value =
-                MapsScreenState.Success(
-                    selectedPoint = _selectedPoint,
-                    currentLocation = _currentLocation,
-                    radius = _radius,
-                    locationName = _locationName,
-                    searchQuery = _query,
-                    userActivity = activityState,
-                )
-        }
-    }
-
     fun updateRadius(radius: Double) {
         if (_state.value is MapsScreenState.EditingLocation) {
             _radius.value = radius
@@ -281,14 +262,12 @@ class MapScreenViewModel(
                         return@launch
                     }
                     when(val result = repo.locationRepo.insertLocation(
-                        Location(
-                            id = null,
                             name = locationName,
                             latitude = latitude,
                             longitude = longitude,
                             radius = radius,
-                        ),
-                    )){
+                        )
+                    ){
                         is Failure -> {
                             _state.value = MapsScreenState.Error(result.value.message)
                             return@launch
@@ -298,7 +277,12 @@ class MapScreenViewModel(
                                 MapsScreenState.SuccessCreatingLocation
                         }
                     }
-                } catch (ex: Throwable) {
+                }
+                catch (ex: AuthenticationException){
+                    _state.value = MapsScreenState.SessionExpired
+                    return@launch
+                }
+                catch (ex: Throwable) {
                     _state.value = MapsScreenState.Error(
                         stringResolver.getString(R.string.unexpected_error))
                 }
@@ -376,6 +360,39 @@ class MapScreenViewModel(
             )
         }
     }
+
+    fun onFatalError(): Job? {
+        if (_state.value !is MapsScreenState.SessionExpired) return null
+        return clearOnFatalError()
+    }
+
+    fun clearOnFatalError() =
+        viewModelScope.launch {
+            try {
+                userInfo.clearUserInfo()
+                locationUpdatesRepository.forceStop()
+                if (LocationService.isRunning) {
+                    serviceKiller.killServices(LocationService::class)
+                }
+                val alarms = repo.alarmRepo.getAllAlarms()
+                alarms.forEach { alarm ->
+                    alarmScheduler.cancelAlarm(alarm.id)
+                    repo.alarmRepo.deleteAlarm(alarm.id)
+                }
+                val geofences = repo.geofenceRepo.getAllGeofences()
+                geofences.forEach { geofence ->
+                    geofenceManager.deregisterGeofence(geofence.name)
+                    repo.geofenceRepo.deleteGeofence(geofence)
+                }
+                repo.userRepo.clear()
+                repo.ruleRepo.clean()
+                repo.eventRepo.clear()
+                repo.locationRepo.clear()
+            } catch (e: CancellationException) {
+            } catch (e: Throwable) {
+                userInfo.clearUserInfo()
+            }
+        }
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -385,6 +402,10 @@ class MapScreenViewModelFactory(
     private val locationUpdatesRepository: LocationUpdatesRepository,
     private val searchPlaceService: SearchPlaceService,
     private val stringResolver: StringResourceResolver,
+    private val userInfo: UserInfoRepository,
+    private val alarmScheduler: AlarmScheduler,
+    private val geofenceManager: GeofenceManager,
+    private val serviceKiller: ServiceKiller,
     ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return MapScreenViewModel(
@@ -393,6 +414,10 @@ class MapScreenViewModelFactory(
             locationUpdatesRepository = locationUpdatesRepository,
             searchPlaceService = searchPlaceService,
             stringResolver = stringResolver,
+            userInfo = userInfo,
+            alarmScheduler = alarmScheduler,
+            geofenceManager = geofenceManager,
+            serviceKiller = serviceKiller,
             initialState = MapsScreenState.Uninitialized,
         ) as T
     }

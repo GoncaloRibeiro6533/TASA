@@ -9,7 +9,9 @@ import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.tasa.DependenciesContainer
+import com.tasa.ui.screens.start.StartActivity
 import com.tasa.ui.theme.TasaTheme
+import com.tasa.utils.navigateTo
 
 class CalendarActivity : ComponentActivity() {
     private val ruleScheduler by lazy {
@@ -27,6 +29,23 @@ class CalendarActivity : ComponentActivity() {
     private val stringResolver by lazy {
         (application as DependenciesContainer).stringResourceResolver
     }
+    private val userInfoRepository by lazy {
+        (application as DependenciesContainer).userInfoRepository
+    }
+
+    private val geofenceManager by lazy {
+        (application as DependenciesContainer).geofenceManager
+    }
+
+    private val serviceKiller by lazy {
+        (application as DependenciesContainer).serviceKiller
+    }
+    private val alarmScheduler by lazy {
+        (application as DependenciesContainer).ruleScheduler
+    }
+    private val locationUpdatesRepository by lazy {
+        (application as DependenciesContainer).locationUpdatesRepository
+    }
 
     private val viewModel by viewModels<CalendarScreenViewModel> {
         CalendarViewModelFactory(
@@ -34,6 +53,11 @@ class CalendarActivity : ComponentActivity() {
             repo = repo,
             queryCalendarService = queryCalendarService,
             stringResolver = stringResolver,
+            locationUpdatesRepository = locationUpdatesRepository,
+            userInfo = userInfoRepository,
+            alarmScheduler = alarmScheduler,
+            serviceKiller = serviceKiller,
+            geofenceManager = geofenceManager,
         )
     }
 
@@ -47,13 +71,9 @@ class CalendarActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         checkAndRequestCalendarPermission(this)
-        // tODO job is being cancelled when activity is recreated
         viewModel.loadEvents()
         setContent {
             TasaTheme {
-                /*PermissionBox(
-                    permission = Manifest.permission.READ_CALENDAR,
-                ) {*/
                 CalendarScreen(
                     onEventSelected = { calendarEvent ->
                         viewModel.onEventSelected(calendarEvent)
@@ -73,10 +93,13 @@ class CalendarActivity : ComponentActivity() {
                     onDateSelected = { day ->
                         viewModel.onDaySelected(day)
                     },
+                    onSessionExpired = {
+                        finishAffinity()
+                        navigateTo(this, StartActivity::class.java)
+                    },
                 )
             }
         }
-        // }
     }
 
     @Deprecated("Deprecated in Java")

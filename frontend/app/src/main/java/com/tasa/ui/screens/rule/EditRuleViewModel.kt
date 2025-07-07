@@ -7,12 +7,18 @@ import androidx.lifecycle.viewModelScope
 import com.tasa.R
 import com.tasa.alarm.AlarmScheduler
 import com.tasa.domain.Action
+import com.tasa.domain.AuthenticationException
 import com.tasa.domain.CalendarEvent
 import com.tasa.domain.RuleEvent
+import com.tasa.domain.UserInfoRepository
 import com.tasa.domain.toTriggerTime
+import com.tasa.geofence.GeofenceManager
+import com.tasa.location.LocationService
+import com.tasa.location.LocationUpdatesRepository
 import com.tasa.repository.TasaRepo
 import com.tasa.utils.Failure
 import com.tasa.utils.QueryCalendarService
+import com.tasa.utils.ServiceKiller
 import com.tasa.utils.StringResourceResolver
 import com.tasa.utils.Success
 import kotlinx.coroutines.Job
@@ -21,6 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import kotlin.coroutines.cancellation.CancellationException
 
 sealed class EditRuleState {
     data object Loading : EditRuleState()
@@ -35,6 +42,8 @@ sealed class EditRuleState {
     data class Error(val error: String) : EditRuleState()
 
     data object Uninitialized : EditRuleState()
+
+    data object SessionExpired : EditRuleState()
 }
 
 class EditRuleViewModel(
@@ -43,6 +52,10 @@ class EditRuleViewModel(
     private val rule: RuleEvent,
     private val queryCalendarService: QueryCalendarService,
     private val stringResourceResolver: StringResourceResolver,
+    private val userInfo: UserInfoRepository,
+    private val geofenceManager: GeofenceManager,
+    private val locationUpdatesRepository: LocationUpdatesRepository,
+    private val serviceKiller: ServiceKiller,
     initialState: EditRuleState = EditRuleState.Uninitialized,
 ) : ViewModel() {
     private val _state = MutableStateFlow<EditRuleState>(initialState)
@@ -130,6 +143,7 @@ class EditRuleViewModel(
                                     repo.alarmRepo.createAlarm(
                                         newStartTime.toTriggerTime().value,
                                         Action.MUTE,
+                                        rule.id,
                                     )
                                 alarmScheduler.scheduleAlarm(
                                     startAlarmId,
@@ -140,6 +154,7 @@ class EditRuleViewModel(
                                     repo.alarmRepo.createAlarm(
                                         newEndTime.toTriggerTime().value,
                                         Action.UNMUTE,
+                                        rule.id,
                                     )
                                 alarmScheduler.scheduleAlarm(
                                     endAlarmId,
@@ -183,6 +198,9 @@ class EditRuleViewModel(
                             stringResourceResolver.getString(R.string.rule_already_exists_for_this_time),
                         )
                 }
+            } catch (e: AuthenticationException) {
+                _state.value = EditRuleState.SessionExpired
+                return@launch
             } catch (ex: Throwable) {
                 _state.value =
                     EditRuleState.Error(
@@ -192,6 +210,39 @@ class EditRuleViewModel(
             }
         }
     }
+
+    fun onFatalError(): Job? {
+        if (_state.value !is EditRuleState.SessionExpired) return null
+        return clearOnFatalError()
+    }
+
+    fun clearOnFatalError() =
+        viewModelScope.launch {
+            try {
+                userInfo.clearUserInfo()
+                locationUpdatesRepository.forceStop()
+                if (LocationService.isRunning) {
+                    serviceKiller.killServices(LocationService::class)
+                }
+                val alarms = repo.alarmRepo.getAllAlarms()
+                alarms.forEach { alarm ->
+                    alarmScheduler.cancelAlarm(alarm.id)
+                    repo.alarmRepo.deleteAlarm(alarm.id)
+                }
+                val geofences = repo.geofenceRepo.getAllGeofences()
+                geofences.forEach { geofence ->
+                    geofenceManager.deregisterGeofence(geofence.name)
+                    repo.geofenceRepo.deleteGeofence(geofence)
+                }
+                repo.userRepo.clear()
+                repo.ruleRepo.clean()
+                repo.eventRepo.clear()
+                repo.locationRepo.clear()
+            } catch (e: CancellationException) {
+            } catch (e: Throwable) {
+                userInfo.clearUserInfo()
+            }
+        }
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -201,6 +252,10 @@ class EditRuleViewModelFactory(
     private val rule: RuleEvent,
     private val queryCalendarService: QueryCalendarService,
     private val stringResourceResolver: StringResourceResolver,
+    private val userInfo: UserInfoRepository,
+    private val geofenceManager: GeofenceManager,
+    private val locationUpdatesRepository: LocationUpdatesRepository,
+    private val serviceKiller: ServiceKiller,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return EditRuleViewModel(
@@ -209,6 +264,10 @@ class EditRuleViewModelFactory(
             rule = rule,
             queryCalendarService = queryCalendarService,
             stringResourceResolver = stringResourceResolver,
+            userInfo = userInfo,
+            geofenceManager = geofenceManager,
+            locationUpdatesRepository = locationUpdatesRepository,
+            serviceKiller = serviceKiller,
         ) as T
     }
 }

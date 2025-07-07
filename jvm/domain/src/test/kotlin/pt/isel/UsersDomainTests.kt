@@ -14,6 +14,7 @@ class UsersDomainTests {
             tokenTtl = 24.hours,
             tokenRollingTtl = 1.hours,
             maxTokensPerUser = 3,
+            refreshTime = 1.hours,
         )
     private val tokenEncoder = Sha256TokenEncoder()
     private val usersDomain =
@@ -151,8 +152,7 @@ class UsersDomainTests {
                 refreshToken,
                 userId = 0,
             )
-        val result = usersDomain.isSessionTimeValid(clock, session)
-        // TODO assertTrue(result)
+        usersDomain.isSessionTimeValid(clock, session)
     }
 
     @Test

@@ -10,6 +10,7 @@ import com.tasa.DependenciesContainer
 import com.tasa.domain.Event
 import com.tasa.domain.RuleEvent
 import com.tasa.ui.screens.homepage.HomePageActivity
+import com.tasa.ui.screens.start.StartActivity
 import com.tasa.utils.navigateTo
 import kotlinx.parcelize.Parcelize
 import java.time.LocalDateTime
@@ -29,6 +30,22 @@ class EditRuleActivity : ComponentActivity() {
         (application as DependenciesContainer).stringResourceResolver
     }
 
+    private val userInfoRepository by lazy {
+        (application as DependenciesContainer).userInfoRepository
+    }
+
+    private val geofenceManager by lazy {
+        (application as DependenciesContainer).geofenceManager
+    }
+
+    private val serviceKiller by lazy {
+        (application as DependenciesContainer).serviceKiller
+    }
+
+    private val locationUpdatesRepository by lazy {
+        (application as DependenciesContainer).locationUpdatesRepository
+    }
+
     private lateinit var rule: RuleEvent
 
     private val viewModel by viewModels<EditRuleViewModel>(
@@ -39,6 +56,10 @@ class EditRuleActivity : ComponentActivity() {
                 rule = rule,
                 queryCalendarService = queryCalendarService,
                 stringResourceResolver = stringResolver,
+                userInfo = userInfoRepository,
+                serviceKiller = serviceKiller,
+                geofenceManager = geofenceManager,
+                locationUpdatesRepository = locationUpdatesRepository,
             )
         },
     )
@@ -57,7 +78,7 @@ class EditRuleActivity : ComponentActivity() {
 
     @Parcelize
     data class RuleParcelableEvent(
-        val id: Int?,
+        val id: Int,
         val startTime: LocalDateTime,
         val endTime: LocalDateTime,
         val eventTitle: String,
@@ -120,6 +141,13 @@ class EditRuleActivity : ComponentActivity() {
                     finish()
                 },
                 rule = rule,
+                onSessionExpired = {
+                    finishAffinity()
+                    navigateTo(
+                        this,
+                        StartActivity::class.java,
+                    )
+                },
             )
         }
     }

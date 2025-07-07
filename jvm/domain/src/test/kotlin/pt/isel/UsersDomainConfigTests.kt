@@ -12,6 +12,7 @@ class UsersDomainConfigTests {
             2.hours,
             1.hours,
             5,
+            10.hours,
         )
     }
 
@@ -23,6 +24,7 @@ class UsersDomainConfigTests {
                 2.hours,
                 1.hours,
                 5,
+                10.hours,
             )
         }
     }
@@ -35,6 +37,7 @@ class UsersDomainConfigTests {
                 (-2).hours,
                 1.hours,
                 5,
+                10.hours,
             )
         }
     }
@@ -47,6 +50,7 @@ class UsersDomainConfigTests {
                 2.hours,
                 (-1).hours,
                 5,
+                10.hours,
             )
         }
     }
@@ -59,6 +63,7 @@ class UsersDomainConfigTests {
                 2.hours,
                 1.hours,
                 0,
+                10.hours,
             )
         }
     }

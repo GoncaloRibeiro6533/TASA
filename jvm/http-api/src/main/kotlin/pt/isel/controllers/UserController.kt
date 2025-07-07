@@ -18,6 +18,7 @@ import pt.isel.UserError
 import pt.isel.UserService
 import pt.isel.errorHandlers.UserErrorHandler
 import pt.isel.models.user.LoginOutput
+import pt.isel.models.user.TokenInput
 import pt.isel.models.user.UserLoginCredentialsInput
 import pt.isel.models.user.UserRegisterInput
 
@@ -109,6 +110,18 @@ class UserController(
         @PathVariable id: Int,
     ): ResponseEntity<*> {
         return when (val result: Either<UserError, User> = userService.getUserById(id)) {
+            is Success ->
+                ResponseEntity.status(HttpStatus.OK).body(result.value)
+            is Failure ->
+                userErrorHandler.toResponse(result.value)
+        }
+    }
+
+    @PostMapping("/refresh")
+    fun refreshToken(tokenInput: TokenInput): ResponseEntity<*> {
+        val result: Either<UserError, Pair<User, TokenExternalInfo>> =
+            userService.refreshToken(tokenInput.token, tokenInput.refreshToken)
+        return when (result) {
             is Success ->
                 ResponseEntity.status(HttpStatus.OK).body(result.value)
             is Failure ->

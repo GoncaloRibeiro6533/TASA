@@ -1,14 +1,15 @@
-package com.tasa.storage.entities
+package com.tasa.storage.entities.localMode
 
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.tasa.domain.Location
 
 @Entity(
-    tableName = "location",
-    primaryKeys = ["name"],
+    tableName = "location_local",
 )
-data class LocationEntity(
-    val id: Int? = null,
+data class LocationLocal(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val name: String,
     val latitude: Double,
     val longitude: Double,

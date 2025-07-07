@@ -21,6 +21,7 @@ class MockSessionRepositoryTests {
             tokenTtl = 24.hours,
             tokenRollingTtl = 1.hours,
             maxTokensPerUser = 3,
+            refreshTime = 5.hours,
         )
     private val tokenEncoder = Sha256TokenEncoder()
     private val usersDomain =
@@ -214,13 +215,6 @@ class MockSessionRepositoryTests {
                 refreshTokenValidationInfo = tokenEncoder.createValidationInformation("refreshToken"),
                 refreshCreatedAt = "2025-06-01T00:00:00Z".toInstant(),
                 refreshExpiresAt = "2025-06-06T01:00:00Z".toInstant(),
-            )
-        val expected =
-            Session(
-                id = 0,
-                token = session.token,
-                refreshToken = session.refreshToken,
-                userId = user.id,
             )
         repo.clear()
         val sut = repo.findByUser(user)

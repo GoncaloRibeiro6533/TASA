@@ -14,7 +14,6 @@ import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
-import com.tasa.storage.entities.GeofenceEntity
 import kotlinx.coroutines.tasks.await
 
 const val TAG = "GeofenceManager"
@@ -88,7 +87,7 @@ class GeofenceManager(
     }
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-    suspend fun onBootRegisterGeofences(list: List<GeofenceEntity>) {
+    suspend fun onBootRegisterGeofences(list: List<com.tasa.repository.interfaces.Geofence>) {
         val result =
             list.map {
                     geofenceEntity ->

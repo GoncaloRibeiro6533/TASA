@@ -24,12 +24,13 @@ import java.time.LocalDateTime
 
 @Composable
 fun CalendarScreen(
+    viewModel: CalendarScreenViewModel,
     onEventSelected: (CalendarEvent) -> Unit,
     onCreateRuleEvent: (CalendarEvent, LocalDateTime, LocalDateTime) -> Unit = { _, _, _ -> },
     onDateSelected: (LocalDate) -> Unit,
     onCancel: () -> Unit = { },
     onNavigationBack: () -> Unit,
-    viewModel: CalendarScreenViewModel,
+    onSessionExpired: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     TasaTheme {
@@ -69,7 +70,7 @@ fun CalendarScreen(
                             title = stringResource(R.string.error),
                             message = state.message,
                             buttonText = stringResource(R.string.Ok),
-                            onDismiss = { onNavigationBack() },
+                            onDismiss = onNavigationBack,
                         )
                     }
                     is CalendarScreenState.CreatingRuleEvent -> {
@@ -88,6 +89,15 @@ fun CalendarScreen(
                             onDateSelected = { date -> onDateSelected(date) },
                             selectedDay = viewModel.selectedDay,
                         )
+                    }
+                    is CalendarScreenState.SessionExpired -> {
+                        ErrorAlert(
+                            title = stringResource(R.string.error),
+                            message = stringResource(R.string.session_expired),
+                            buttonText = stringResource(R.string.log_in),
+                        ) {
+                            viewModel.onFatalError()?.invokeOnCompletion { onSessionExpired() }
+                        }
                     }
                 }
                 HandleSuccessSnackbar(

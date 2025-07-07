@@ -3,6 +3,7 @@ package com.tasa.service.http
 import com.tasa.domain.ApiError
 import com.tasa.domain.user.User
 import com.tasa.service.http.models.user.LoginOutput
+import com.tasa.service.http.models.user.TokenInput
 import com.tasa.service.http.models.user.UserLoginCredentialsInput
 import com.tasa.service.http.models.user.UserRegisterInput
 import com.tasa.service.http.utils.get
@@ -72,6 +73,22 @@ class UserServiceHttp(private val client: HttpClient) : UserService {
                 )
         ) {
             is Success -> success(Unit)
+            is Failure -> failure(response.value)
+        }
+    }
+
+    override suspend fun refreshToken(
+        token: String,
+        refreshToken: String,
+    ): Either<ApiError, LoginOutput> {
+        return when (
+            val response =
+                client.post<LoginOutput>(
+                    url = "/user/refresh",
+                    body = TokenInput(token = token, refreshToken = refreshToken),
+                )
+        ) {
+            is Success -> success(response.value)
             is Failure -> failure(response.value)
         }
     }

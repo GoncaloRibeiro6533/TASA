@@ -1,6 +1,8 @@
 package com.tasa.service.interfaces
 
 import com.tasa.domain.ApiError
+import com.tasa.domain.Event
+import com.tasa.domain.Location
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocationTimeless
 import com.tasa.service.http.models.rule.RuleEventOutput
@@ -27,12 +29,14 @@ interface RuleService {
     ): Either<ApiError, List<Rule>>
 */
     suspend fun insertRuleEvent(
-        ruleEvent: RuleEvent,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+        event: Event,
         token: String,
     ): Either<ApiError, RuleEvent>
 
     suspend fun insertRuleLocation(
-        ruleLocation: RuleLocationTimeless,
+        location: Location,
         token: String,
     ): Either<ApiError, RuleLocationTimeless>
 

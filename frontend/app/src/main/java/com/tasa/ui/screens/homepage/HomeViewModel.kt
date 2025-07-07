@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.tasa.R
 import com.tasa.alarm.AlarmScheduler
+import com.tasa.domain.AuthenticationException
 import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
@@ -35,7 +36,11 @@ sealed interface HomeScreenState {
 
     data class Success(val rules: StateFlow<List<Rule>>) : HomeScreenState
 
+    data class FatalError(val message: String) : HomeScreenState
+
     data class Error(val message: String) : HomeScreenState
+
+    data object SessionExpired : HomeScreenState
 }
 
 class HomePageScreenViewModel(
@@ -58,7 +63,11 @@ class HomePageScreenViewModel(
     val isLocal: StateFlow<Boolean> = _isLocal.asStateFlow()
 
     fun onFatalError(): Job? {
-        if (_state.value !is HomeScreenState.Error) return null
+        if (_state.value !is HomeScreenState.SessionExpired ||
+            _state.value !is HomeScreenState.FatalError
+        ) {
+            return null
+        }
         return clearOnFatalError()
     }
 
@@ -131,9 +140,12 @@ class HomePageScreenViewModel(
                 }
             } catch (e: CancellationException) {
                 return@launch
+            } catch (e: AuthenticationException) {
+                _state.value = HomeScreenState.SessionExpired
+                return@launch
             } catch (e: Throwable) {
                 _state.value =
-                    HomeScreenState.Error(stringResolver.getString(R.string.unexpected_error))
+                    HomeScreenState.FatalError(stringResolver.getString(R.string.unexpected_error))
             }
         }
     }
@@ -155,18 +167,35 @@ class HomePageScreenViewModel(
             try {
                 when (rule) {
                     is RuleEvent -> {
-                        repo.ruleRepo.deleteRuleEvent(
-                            rule,
-                        )
-                        val alarmStart = repo.alarmRepo.getAlarmByTriggerTime(rule.startTime.toTriggerTime().value)
-                        val alarmEnd = repo.alarmRepo.getAlarmByTriggerTime(rule.endTime.toTriggerTime().value)
-                        if (alarmStart != null) {
-                            alarmScheduler.cancelAlarm(alarmStart.id)
-                            repo.alarmRepo.deleteAlarm(alarmStart.id)
-                        }
-                        if (alarmEnd != null) {
-                            alarmScheduler.cancelAlarm(alarmEnd.id)
-                            repo.alarmRepo.deleteAlarm(alarmEnd.id)
+                        when (
+                            val result =
+                                repo.ruleRepo.deleteRuleEvent(
+                                    rule,
+                                )
+                        ) {
+                            is Failure -> {
+                                _state.value =
+                                    HomeScreenState.Error(
+                                        result.value.message,
+                                    )
+                                return@launch
+                            }
+                            is Success -> {
+                                val alarmStart =
+                                    repo.alarmRepo
+                                        .getAlarmByTriggerTime(rule.startTime.toTriggerTime().value)
+                                val alarmEnd =
+                                    repo.alarmRepo
+                                        .getAlarmByTriggerTime(rule.endTime.toTriggerTime().value)
+                                if (alarmStart != null) {
+                                    alarmScheduler.cancelAlarm(alarmStart.id)
+                                    repo.alarmRepo.deleteAlarm(alarmStart.id)
+                                }
+                                if (alarmEnd != null) {
+                                    alarmScheduler.cancelAlarm(alarmEnd.id)
+                                    repo.alarmRepo.deleteAlarm(alarmEnd.id)
+                                }
+                            }
                         }
                     }
                     is RuleLocation -> {}
@@ -199,18 +228,21 @@ class HomePageScreenViewModel(
                     }
                 }
                 _state.value = HomeScreenState.Success(rules)
+            } catch (e: AuthenticationException) {
+                _state.value = HomeScreenState.SessionExpired
+                return@launch
             } catch (e: Throwable) {
                 _state.value =
-                    HomeScreenState.Error(
+                    HomeScreenState.FatalError(
                         stringResolver.getString(R.string.error_on_cancel_rule),
                     )
             }
         }
     }
 
-    fun setFatalError() {
-        if (_state.value !is HomeScreenState.Error) {
-            _state.value = HomeScreenState.Error(stringResolver.getString(R.string.unexpected_error))
+    fun clearError() {
+        if (_state.value is HomeScreenState.Error) {
+            _state.value = HomeScreenState.Success(_rules)
         }
     }
 }

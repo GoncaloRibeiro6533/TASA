@@ -21,6 +21,17 @@ class MockSessionRepository : SessionRepository {
         }
     }
 
+    override fun findByTokens(
+        tokenValidationInfo: TokenValidationInfo,
+        refreshTokenValidationInfo: TokenValidationInfo,
+    ): Session? {
+        return sessions.values.flatten().find { session ->
+            session.token.tokenValidationInfo.validationInfo == tokenValidationInfo.validationInfo &&
+                session.refreshToken.tokenValidationInfo.validationInfo ==
+                refreshTokenValidationInfo.validationInfo
+        }
+    }
+
     override fun findByUser(user: User): List<Session> {
         return sessions[user.id] ?: emptyList()
     }

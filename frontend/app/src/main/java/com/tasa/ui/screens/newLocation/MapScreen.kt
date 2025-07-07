@@ -34,6 +34,7 @@ fun MapScreen(
     onConfirmEditingLocation: (String, Double, Double, Double) -> Unit,
     onRecenterMap: () -> Unit,
     onLocationsIntent: () -> Unit,
+    onSessionExpired: () -> Unit,
 ) {
     val state = viewModel.state.collectAsState().value
     LaunchedEffect(state) {
@@ -123,6 +124,15 @@ fun MapScreen(
                     }
                 }
                 is MapsScreenState.SuccessCreatingLocation -> {
+                }
+                is MapsScreenState.SessionExpired -> {
+                    ErrorAlert(
+                        title = stringResource(R.string.error),
+                        message = stringResource(R.string.session_expired),
+                        buttonText = stringResource(R.string.log_in),
+                    ) {
+                        viewModel.onFatalError()?.invokeOnCompletion { onSessionExpired() }
+                    }
                 }
             }
         }

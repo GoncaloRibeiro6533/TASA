@@ -237,4 +237,49 @@ class UserService(
             sessionRepo.updateSession(session, clock.now())
             return@run userRepo.findById(session.userId)
         }
+
+    fun refreshToken(
+        token: String,
+        refreshToken: String,
+    ) = trxManager.run {
+        if (token.isBlank() || refreshToken.isBlank()) return@run failure(UserError.InvalidTokenFormat)
+        if (!usersDomain.canBeToken(token) || !usersDomain.canBeToken(refreshToken)) {
+            return@run failure(UserError.InvalidTokenFormat)
+        }
+        val session =
+            sessionRepo.findByTokens(
+                usersDomain.createTokenValidationInformation(token),
+                usersDomain.createTokenValidationInformation(refreshToken),
+            )
+                ?: return@run failure(UserError.SessionExpired)
+        if (!usersDomain.isRefreshTokenTimeValid(clock, session.refreshToken)) {
+            return@run failure(UserError.SessionExpired)
+        }
+        val user =
+            userRepo.findById(session.userId)
+                ?: return@run failure(UserError.UserNotFound)
+        val now = clock.now()
+        val tokenValue = usersDomain.generateTokenValue()
+        val refreshTokenValue = usersDomain.generateTokenValue()
+        val newSession =
+            sessionRepo.createSession(
+                user,
+                accessTokenValidationInfo = usersDomain.createTokenValidationInformation(tokenValue),
+                accessCreatedAt = now,
+                accessLastUsedAt = now,
+                accessExpiresAt = usersDomain.getSessionExpiration(now, now),
+                maxTokens = usersDomain.maxNumberOfTokensPerUser,
+                refreshTokenValidationInfo = usersDomain.createTokenValidationInformation(refreshTokenValue),
+                refreshCreatedAt = now,
+                refreshExpiresAt = usersDomain.getRefreshTokenExpiration(now),
+            )
+        return@run success(
+            user to
+                TokenExternalInfo(
+                    token = tokenValue,
+                    refreshToken = refreshTokenValue,
+                    LocalDateTime.ofInstant(newSession.token.expiresAt.toJavaInstant(), ZoneId.of("UTC")),
+                ),
+        )
+    }
 }

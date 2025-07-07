@@ -8,10 +8,15 @@ import com.tasa.R
 import com.tasa.alarm.AlarmScheduler
 import com.tasa.domain.Action
 import com.tasa.domain.CalendarEvent
+import com.tasa.domain.UserInfoRepository
 import com.tasa.domain.toTriggerTime
+import com.tasa.geofence.GeofenceManager
+import com.tasa.location.LocationService
+import com.tasa.location.LocationUpdatesRepository
 import com.tasa.repository.TasaRepo
 import com.tasa.utils.Failure
 import com.tasa.utils.QueryCalendarService
+import com.tasa.utils.ServiceKiller
 import com.tasa.utils.StringResourceResolver
 import com.tasa.utils.Success
 import kotlinx.coroutines.CancellationException
@@ -38,6 +43,8 @@ sealed interface CalendarScreenState {
     data class Error(val message: String) : CalendarScreenState
 
     data class CreatingRuleEvent(val event: CalendarEvent) : CalendarScreenState
+
+    data object SessionExpired : CalendarScreenState
 }
 
 class CalendarScreenViewModel(
@@ -45,6 +52,11 @@ class CalendarScreenViewModel(
     private val repo: TasaRepo,
     private val queryCalendarService: QueryCalendarService,
     private val stringResolver: StringResourceResolver,
+    private val userInfo: UserInfoRepository,
+    private val alarmScheduler: AlarmScheduler,
+    private val geofenceManager: GeofenceManager,
+    private val serviceKiller: ServiceKiller,
+    private val locationUpdatesRepository: LocationUpdatesRepository,
     initialState: CalendarScreenState = CalendarScreenState.Uninitialized,
 ) : ViewModel() {
     private val _state = MutableStateFlow<CalendarScreenState>(initialState)
@@ -93,11 +105,41 @@ class CalendarScreenViewModel(
             try {
                 val collides = repo.ruleRepo.isCollision(event.startTime, event.endTime)
                 if (!collides) {
+                    val eventLocal =
+                        repo.eventRepo.getByCalendarIdAndEventId(
+                            event.calendarId,
+                            event.eventId,
+                        )
+                    val eventResult =
+                        if (eventLocal == null) {
+                            val result =
+                                repo.eventRepo.insertEvent(
+                                    calendarId = event.calendarId,
+                                    eventId = event.eventId,
+                                    title = event.title,
+                                    startTime = startTime ?: event.startTime,
+                                    endTime = endTime ?: event.endTime,
+                                )
+                            when (result) {
+                                is Failure -> {
+                                    _state.value =
+                                        CalendarScreenState.Error(
+                                            result.value.message,
+                                        )
+                                    return@launch
+                                }
+                                is Success -> {
+                                    result.value
+                                }
+                            }
+                        } else {
+                            eventLocal
+                        }
                     val rule =
                         repo.ruleRepo.insertRuleEvent(
                             startTime = startTime ?: event.startTime,
                             endTime = endTime ?: event.endTime,
-                            event = event.event,
+                            event = eventResult,
                         )
                     when (rule) {
                         is Failure -> {
@@ -112,6 +154,7 @@ class CalendarScreenViewModel(
                                 repo.alarmRepo.createAlarm(
                                     rule.value.startTime.toTriggerTime().value,
                                     Action.MUTE,
+                                    rule.value.id,
                                 )
                             ruleScheduler.scheduleAlarm(
                                 alarmIdStart,
@@ -122,6 +165,7 @@ class CalendarScreenViewModel(
                                 repo.alarmRepo.createAlarm(
                                     rule.value.endTime.toTriggerTime().value,
                                     Action.UNMUTE,
+                                    rule.value.id,
                                 )
                             ruleScheduler.scheduleAlarm(
                                 alarmIdEnd,
@@ -164,6 +208,39 @@ class CalendarScreenViewModel(
     fun clearMessageOfSuccess() {
         _successMessage.value = null
     }
+
+    fun onFatalError(): Job? {
+        if (_state.value !is CalendarScreenState.SessionExpired) return null
+        return clearOnFatalError()
+    }
+
+    fun clearOnFatalError() =
+        viewModelScope.launch {
+            try {
+                userInfo.clearUserInfo()
+                locationUpdatesRepository.forceStop()
+                if (LocationService.isRunning) {
+                    serviceKiller.killServices(LocationService::class)
+                }
+                val alarms = repo.alarmRepo.getAllAlarms()
+                alarms.forEach { alarm ->
+                    alarmScheduler.cancelAlarm(alarm.id)
+                    repo.alarmRepo.deleteAlarm(alarm.id)
+                }
+                val geofences = repo.geofenceRepo.getAllGeofences()
+                geofences.forEach { geofence ->
+                    geofenceManager.deregisterGeofence(geofence.name)
+                    repo.geofenceRepo.deleteGeofence(geofence)
+                }
+                repo.userRepo.clear()
+                repo.ruleRepo.clean()
+                repo.eventRepo.clear()
+                repo.locationRepo.clear()
+            } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+            } catch (e: Throwable) {
+                userInfo.clearUserInfo()
+            }
+        }
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -172,6 +249,11 @@ class CalendarViewModelFactory(
     private val repo: TasaRepo,
     private val queryCalendarService: QueryCalendarService,
     private val stringResolver: StringResourceResolver,
+    private val locationUpdatesRepository: LocationUpdatesRepository,
+    private val userInfo: UserInfoRepository,
+    private val alarmScheduler: AlarmScheduler,
+    private val geofenceManager: GeofenceManager,
+    private val serviceKiller: ServiceKiller,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return CalendarScreenViewModel(
@@ -179,6 +261,12 @@ class CalendarViewModelFactory(
             repo = repo,
             queryCalendarService = queryCalendarService,
             stringResolver = stringResolver,
+            userInfo = userInfo,
+            alarmScheduler = alarmScheduler,
+            geofenceManager = geofenceManager,
+            serviceKiller = serviceKiller,
+            initialState = CalendarScreenState.Uninitialized,
+            locationUpdatesRepository = locationUpdatesRepository,
         ) as T
     }
 }

@@ -327,18 +327,17 @@ class JdbiSessionRepositoryTests {
                     "user@example.com",
                     "Tasa2025",
                 )
-            val session =
-                sessionRepo.createSession(
-                    user = user,
-                    accessTokenValidationInfo = TokenValidationInfo(newTokenValidationData()),
-                    refreshTokenValidationInfo = TokenValidationInfo(newTokenValidationData()),
-                    accessCreatedAt = testClock.now(),
-                    accessLastUsedAt = testClock.now(),
-                    accessExpiresAt = testClock.now().plus(2.days),
-                    maxTokens = 5,
-                    refreshCreatedAt = testClock.now(),
-                    refreshExpiresAt = testClock.now().plus(30.days),
-                )
+            sessionRepo.createSession(
+                user = user,
+                accessTokenValidationInfo = TokenValidationInfo(newTokenValidationData()),
+                refreshTokenValidationInfo = TokenValidationInfo(newTokenValidationData()),
+                accessCreatedAt = testClock.now(),
+                accessLastUsedAt = testClock.now(),
+                accessExpiresAt = testClock.now().plus(2.days),
+                maxTokens = 5,
+                refreshCreatedAt = testClock.now(),
+                refreshExpiresAt = testClock.now().plus(30.days),
+            )
             val invalidToken = TokenValidationInfo("invalid-token")
             val sut = sessionRepo.findByToken(invalidToken)
             assertNull(sut)
@@ -358,54 +357,50 @@ class JdbiSessionRepositoryTests {
                     "Tasa2025",
                 )
             val maxTokens = 3
-            val session1 =
-                sessionRepo.createSession(
-                    user = user,
-                    accessTokenValidationInfo = TokenValidationInfo(newTokenValidationData()),
-                    refreshTokenValidationInfo = TokenValidationInfo(newTokenValidationData()),
-                    accessCreatedAt = testClock.now(),
-                    accessLastUsedAt = testClock.now(),
-                    accessExpiresAt = testClock.now().plus(2.days),
-                    maxTokens = maxTokens,
-                    refreshCreatedAt = testClock.now(),
-                    refreshExpiresAt = testClock.now().plus(30.days),
-                )
-            val session2 =
-                sessionRepo.createSession(
-                    user = user,
-                    accessTokenValidationInfo = TokenValidationInfo(newTokenValidationData()),
-                    refreshTokenValidationInfo = TokenValidationInfo(newTokenValidationData()),
-                    accessCreatedAt = testClock.now(),
-                    accessLastUsedAt = testClock.now(),
-                    accessExpiresAt = testClock.now().plus(2.days),
-                    maxTokens = maxTokens,
-                    refreshCreatedAt = testClock.now(),
-                    refreshExpiresAt = testClock.now().plus(30.days),
-                )
-            val session3 =
-                sessionRepo.createSession(
-                    user = user,
-                    accessTokenValidationInfo = TokenValidationInfo(newTokenValidationData()),
-                    refreshTokenValidationInfo = TokenValidationInfo(newTokenValidationData()),
-                    accessCreatedAt = testClock.now(),
-                    accessLastUsedAt = testClock.now(),
-                    accessExpiresAt = testClock.now().plus(2.days),
-                    maxTokens = maxTokens,
-                    refreshCreatedAt = testClock.now(),
-                    refreshExpiresAt = testClock.now().plus(30.days),
-                )
-            val session4 =
-                sessionRepo.createSession(
-                    user = user,
-                    accessTokenValidationInfo = TokenValidationInfo(newTokenValidationData()),
-                    refreshTokenValidationInfo = TokenValidationInfo(newTokenValidationData()),
-                    accessCreatedAt = testClock.now(),
-                    accessLastUsedAt = testClock.now(),
-                    accessExpiresAt = testClock.now().plus(2.days),
-                    maxTokens = maxTokens,
-                    refreshCreatedAt = testClock.now(),
-                    refreshExpiresAt = testClock.now().plus(30.days),
-                )
+            sessionRepo.createSession(
+                user = user,
+                accessTokenValidationInfo = TokenValidationInfo(newTokenValidationData()),
+                refreshTokenValidationInfo = TokenValidationInfo(newTokenValidationData()),
+                accessCreatedAt = testClock.now(),
+                accessLastUsedAt = testClock.now(),
+                accessExpiresAt = testClock.now().plus(2.days),
+                maxTokens = maxTokens,
+                refreshCreatedAt = testClock.now(),
+                refreshExpiresAt = testClock.now().plus(30.days),
+            )
+            sessionRepo.createSession(
+                user = user,
+                accessTokenValidationInfo = TokenValidationInfo(newTokenValidationData()),
+                refreshTokenValidationInfo = TokenValidationInfo(newTokenValidationData()),
+                accessCreatedAt = testClock.now(),
+                accessLastUsedAt = testClock.now(),
+                accessExpiresAt = testClock.now().plus(2.days),
+                maxTokens = maxTokens,
+                refreshCreatedAt = testClock.now(),
+                refreshExpiresAt = testClock.now().plus(30.days),
+            )
+            sessionRepo.createSession(
+                user = user,
+                accessTokenValidationInfo = TokenValidationInfo(newTokenValidationData()),
+                refreshTokenValidationInfo = TokenValidationInfo(newTokenValidationData()),
+                accessCreatedAt = testClock.now(),
+                accessLastUsedAt = testClock.now(),
+                accessExpiresAt = testClock.now().plus(2.days),
+                maxTokens = maxTokens,
+                refreshCreatedAt = testClock.now(),
+                refreshExpiresAt = testClock.now().plus(30.days),
+            )
+            sessionRepo.createSession(
+                user = user,
+                accessTokenValidationInfo = TokenValidationInfo(newTokenValidationData()),
+                refreshTokenValidationInfo = TokenValidationInfo(newTokenValidationData()),
+                accessCreatedAt = testClock.now(),
+                accessLastUsedAt = testClock.now(),
+                accessExpiresAt = testClock.now().plus(2.days),
+                maxTokens = maxTokens,
+                refreshCreatedAt = testClock.now(),
+                refreshExpiresAt = testClock.now().plus(30.days),
+            )
             val sessions = sessionRepo.findByUser(user)
             assertEquals(maxTokens, sessions.size)
         }

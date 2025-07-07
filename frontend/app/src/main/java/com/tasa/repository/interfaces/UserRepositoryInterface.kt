@@ -24,4 +24,6 @@ interface UserRepositoryInterface {
     ): Either<ApiError, User>
 
     suspend fun logout(): Either<ApiError, Unit>
+
+    suspend fun refreshSession(): Either<ApiError, User>
 }

@@ -33,17 +33,21 @@ class UserRepository(
                 null,
             )
         }
-        val result =
-            remote.userService.register(
-                username = username,
-                password = password,
-                email = email,
-            )
-        return when (result) {
-            is Success -> {
-                success(result.value)
+        if (userInfoRepository.isLocal()) {
+            return failure(ApiError("Local mode is enabled. Cannot create user."))
+        } else {
+            val result =
+                remote.userService.register(
+                    username = username,
+                    password = password,
+                    email = email,
+                )
+            return when (result) {
+                is Success -> {
+                    success(result.value)
+                }
+                is Failure -> failure(result.value)
             }
-            is Failure -> failure(result.value)
         }
     }
 
@@ -79,11 +83,47 @@ class UserRepository(
                 null,
             )
         }
-        val result = remote.userService.login(email, password)
+        if (userInfoRepository.isLocal()) {
+            return failure(ApiError("Local mode is enabled. Cannot create session."))
+        } else {
+            val result = remote.userService.login(email, password)
+            return when (result) {
+                is Success -> {
+                    val userEntity = result.value.user.toUserEntity()
+                    local.userDao().insertUser(userEntity)
+                    userInfoRepository.setToken(result.value.session.token)
+                    userInfoRepository.saveRefreshToken(result.value.session.refreshToken)
+                    userInfoRepository.setSessionExpiration(
+                        result.value.session.expiration,
+                    )
+                    userInfoRepository.updateUserInfo(result.value.user)
+                    success(result.value.user)
+                }
+                is Failure -> failure(result.value)
+            }
+        }
+    }
+
+    override suspend fun refreshSession(): Either<ApiError, User> {
+        if (!networkChecker.isInternetAvailable()) {
+            throw AuthenticationException(
+                "No internet connection. Please check your network settings.",
+                null,
+            )
+        }
+        if (userInfoRepository.isLocal()) {
+            return failure(ApiError("Local mode is enabled. Cannot refresh session."))
+        }
+
+        val token = getToken()
+        val refreshToken =
+            userInfoRepository.getRefreshToken() ?: return failure(
+                ApiError("No refresh token available. Please log in again."),
+            )
+
+        val result = remote.userService.refreshToken(token, refreshToken)
         return when (result) {
             is Success -> {
-                val userEntity = result.value.user.toUserEntity()
-                local.userDao().insertUser(userEntity)
                 userInfoRepository.setToken(result.value.session.token)
                 userInfoRepository.saveRefreshToken(result.value.session.refreshToken)
                 userInfoRepository.setSessionExpiration(
@@ -92,7 +132,10 @@ class UserRepository(
                 userInfoRepository.updateUserInfo(result.value.user)
                 success(result.value.user)
             }
-            is Failure -> failure(result.value)
+            is Failure -> throw AuthenticationException(
+                "Failed to refresh session: ${result.value.message}",
+                null,
+            )
         }
     }
 

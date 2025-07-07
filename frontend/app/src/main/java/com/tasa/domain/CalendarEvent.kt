@@ -14,15 +14,6 @@ data class CalendarEvent(
     val startTime: LocalDateTime,
     val endTime: LocalDateTime,
 ) {
-    val event: Event
-        get() {
-            return Event(
-                eventId = eventId,
-                calendarId = calendarId,
-                title = title,
-            )
-        }
-
     fun getFormattedStartTime(): String = startTime.toFormattedDate()
 
     fun getFormattedStartTime(pattern: String): String = startTime.toFormattedDate(pattern)

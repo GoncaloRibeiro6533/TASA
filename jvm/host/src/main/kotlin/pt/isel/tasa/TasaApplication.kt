@@ -109,6 +109,7 @@ class TasaApplication {
             tokenTtl = 24.hours * 7,
             tokenRollingTtl = 24.hours,
             maxTokensPerUser = 3,
+            refreshTime = 48.hours,
         )
 
     @Bean

@@ -97,9 +97,8 @@ class UsersDomain(
         }
     }
 
-    // TODO improve
     fun getRefreshTokenExpiration(createdAt: Instant): Instant {
-        return createdAt + config.tokenTtl * 2
+        return createdAt + config.refreshTime
     }
 
     fun createTokenValidationInformation(token: String) = tokenEncoder.createValidationInformation(token)
@@ -110,8 +109,16 @@ class UsersDomain(
     ): Boolean {
         val now = clock.now()
         return session.token.createdAt <= now &&
-            (now - session.token.createdAt) <= config.tokenTtl &&
-            (now - session.token.lastUsedAt) <= config.tokenRollingTtl
+            (now - session.token.createdAt) <= config.tokenTtl
+    }
+
+    fun isRefreshTokenTimeValid(
+        clock: Clock,
+        refreshToken: RefreshToken,
+    ): Boolean {
+        val now = clock.now()
+        return refreshToken.createdAt <= now &&
+            (now - refreshToken.createdAt) <= config.refreshTime
     }
 
     val maxNumberOfTokensPerUser = config.maxTokensPerUser
