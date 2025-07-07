@@ -89,9 +89,10 @@ class AlarmScheduler(
         )
     }
 
-    fun cancelAlarm(alarmId: Int) {
+    fun cancelAlarm(alarmId: Int, action: Action) {
         val intent =
             Intent(context, MuteReceiver::class.java).apply {
+                putExtra("action", action as Parcelable)
                 data = "custom://alarm/$alarmId".toUri()
             }
 

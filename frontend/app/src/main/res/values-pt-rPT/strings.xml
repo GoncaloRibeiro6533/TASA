@@ -91,5 +91,6 @@
     <string name="rule_updated_successfully">Regra atualizada</string>
     <string name="session_expired">A sessão expirou</string>
     <string name="loc_update_successful">Localização atualizada com sucesso</string>
+    <string name="event_title_required">Evento não tem título</string>
 
 </resources>

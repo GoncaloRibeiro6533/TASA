@@ -103,6 +103,13 @@ class CalendarScreenViewModel(
         _state.value = CalendarScreenState.Loading
         viewModelScope.launch {
             try {
+                if (event.title.isBlank()) {
+                    _state.value =
+                        CalendarScreenState.Error(
+                            stringResolver.getString(R.string.event_title_required),
+                        )
+                    return@launch
+                }
                 val collides = repo.ruleRepo.isCollision(event.startTime, event.endTime)
                 if (!collides) {
                     val eventLocal =
@@ -224,7 +231,7 @@ class CalendarScreenViewModel(
                 }
                 val alarms = repo.alarmRepo.getAllAlarms()
                 alarms.forEach { alarm ->
-                    alarmScheduler.cancelAlarm(alarm.id)
+                    alarmScheduler.cancelAlarm(alarm.id, alarm.action)
                     repo.alarmRepo.deleteAlarm(alarm.id)
                 }
                 val geofences = repo.geofenceRepo.getAllGeofences()

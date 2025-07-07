@@ -219,7 +219,7 @@ class MyLocationsScreenViewModel(
                 }
                 val alarms = repo.alarmRepo.getAllAlarms()
                 alarms.forEach { alarm ->
-                    alarmScheduler.cancelAlarm(alarm.id)
+                    alarmScheduler.cancelAlarm(alarm.id, alarm.action)
                     repo.alarmRepo.deleteAlarm(alarm.id)
                 }
                 val geofences = repo.geofenceRepo.getAllGeofences()

@@ -81,7 +81,7 @@ class HomePageScreenViewModel(
                 }
                 val alarms = repo.alarmRepo.getAllAlarms()
                 alarms.forEach { alarm ->
-                    alarmScheduler.cancelAlarm(alarm.id)
+                    alarmScheduler.cancelAlarm(alarm.id, alarm.action)
                     repo.alarmRepo.deleteAlarm(alarm.id)
                 }
                 val geofences = repo.geofenceRepo.getAllGeofences()
@@ -113,6 +113,7 @@ class HomePageScreenViewModel(
                 if (list.isNotEmpty()) {
                     geofenceManager.onBootRegisterGeofences(list)
                 }
+                // geofenceManager.deregisterAllGeofence()
             } catch (e: Throwable) {
             }
         }
@@ -189,11 +190,11 @@ class HomePageScreenViewModel(
                                     repo.alarmRepo
                                         .getAlarmByTriggerTime(rule.endTime.toTriggerTime().value)
                                 if (alarmStart != null) {
-                                    alarmScheduler.cancelAlarm(alarmStart.id)
+                                    alarmScheduler.cancelAlarm(alarmStart.id, alarmStart.action)
                                     repo.alarmRepo.deleteAlarm(alarmStart.id)
                                 }
                                 if (alarmEnd != null) {
-                                    alarmScheduler.cancelAlarm(alarmEnd.id)
+                                    alarmScheduler.cancelAlarm(alarmEnd.id, alarmEnd.action)
                                     repo.alarmRepo.deleteAlarm(alarmEnd.id)
                                 }
                             }

@@ -74,9 +74,9 @@ fun HomePageView(
     LaunchedEffect(10000, ruleList) {
         ruleList =
             ruleList.filter {
-                (it is RuleEvent && it.endTime.isBefore(LocalDateTime.now())) ||
-                    (it is RuleLocation && it.endTime.isBefore(LocalDateTime.now()))
+                (it is RuleEvent && it.endTime.isBefore(LocalDateTime.now()))
             }
+        // TODO order
     }
     val gray =
         ButtonDefaults.buttonColors(

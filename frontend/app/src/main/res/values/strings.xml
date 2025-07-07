@@ -92,6 +92,7 @@
     <string name="rule_updated_successfully">Rule updated</string>
     <string name="session_expired">Session expired</string>
     <string name="loc_update_successful">Location update successful</string>
+    <string name="event_title_required">Event must have a title</string>
 
 
 </resources>
