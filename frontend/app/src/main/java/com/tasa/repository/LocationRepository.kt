@@ -121,6 +121,33 @@ class LocationRepository(
         }
     }
 
+    override suspend fun updateLocation(location: Location){
+
+        if (location.id != null){
+            deleteLocationById(location.id)
+        }
+        insertLocation(location)
+    }
+
+    override suspend fun updateLocationFields(
+        name: String,
+        radius: Double,
+        location: Location)
+    {
+        val newLocation = Location(
+            id = location.id,
+            name = name,
+            latitude = location.latitude,
+            longitude = location.longitude,
+            radius = radius
+        )
+
+        if (location.id != null){
+            deleteLocationById(location.id)
+        }
+        insertLocation(newLocation)
+    }
+
     override suspend fun clear() {
         local.locationDao().clear()
     }

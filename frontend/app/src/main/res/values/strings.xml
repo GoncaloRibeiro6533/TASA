@@ -90,4 +90,7 @@
     <string name="necessary_permissions_description">To continue is necessary to allow the requested permissões</string>
     <string name="registration_successful">Registration successful</string>
     <string name="rule_updated_successfully">Rule updated</string>
+    <string name="loc_update_successful">Location update successful</string>
+
+
 </resources>

@@ -25,7 +25,15 @@ fun RegisterScreen(
         modifier =
             Modifier
                 .fillMaxSize(),
-        topBar = { TopBar(NavigationHandlers(onBackRequested = onNavigationBack)) },
+        topBar = {
+            TopBar(
+                NavigationHandlers(
+                    onBackRequested = {
+                        onNavigationBack()
+                    }
+                ),
+            )
+        }
     ) { innerPadding ->
 
         Column(

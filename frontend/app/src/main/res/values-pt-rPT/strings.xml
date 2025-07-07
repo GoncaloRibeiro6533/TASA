@@ -89,4 +89,6 @@
     <string name="necessary_permissions_description">Para continuar, é necessário conceder as permissões pedidas</string>
     <string name="registration_successful">Conta criada com sucesso</string>
     <string name="rule_updated_successfully">Regra atualizada</string>
+    <string name="loc_update_successful">Localização atualizada com sucesso</string>
+
 </resources>
