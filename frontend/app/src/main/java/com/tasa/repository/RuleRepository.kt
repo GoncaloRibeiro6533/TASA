@@ -524,7 +524,7 @@ class RuleRepository(
 
     override suspend fun deleteRuleLocationTimeless(ruleLocation: RuleLocationTimeless): Either<ApiError, RuleLocationTimeless> {
         if (userInfoRepository.isLocal()) {
-            local.localDao().deleteLocationLocalById(ruleLocation.id)
+            local.localDao().deleteRuleLocationLocalById(ruleLocation.id)
             return success(ruleLocation)
         }
         val remote = retryOnFailure { remote.ruleService.deleteRuleLocationById(ruleLocation.id, getToken()) }
