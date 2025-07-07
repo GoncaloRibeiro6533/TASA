@@ -91,4 +91,7 @@
     <string name="registration_successful">Registration successful</string>
     <string name="rule_updated_successfully">Rule updated</string>
     <string name="session_expired">Session expired</string>
+    <string name="loc_update_successful">Location update successful</string>
+
+
 </resources>

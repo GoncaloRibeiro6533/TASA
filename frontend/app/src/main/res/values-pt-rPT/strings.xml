@@ -90,4 +90,6 @@
     <string name="registration_successful">Conta criada com sucesso</string>
     <string name="rule_updated_successfully">Regra atualizada</string>
     <string name="session_expired">A sessão expirou</string>
+    <string name="loc_update_successful">Localização atualizada com sucesso</string>
+
 </resources>
