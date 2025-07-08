@@ -1,9 +1,11 @@
 package com.tasa.domain
 
 import android.location.Location
+import android.os.Parcelable
 import com.tasa.service.http.models.location.LocationInput
 import com.tasa.storage.entities.localMode.LocationLocal
 import com.tasa.storage.entities.remote.LocationRemote
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
 /**
@@ -17,13 +19,14 @@ import kotlinx.serialization.Serializable
  */
 
 @Serializable
+@Parcelize
 data class Location(
     val id: Int,
     val name: String,
     val latitude: Double,
     val longitude: Double,
     val radius: Double,
-) {
+): Parcelable {
     init {
 
         require(name.isNotBlank()) { "name must not be blank" }

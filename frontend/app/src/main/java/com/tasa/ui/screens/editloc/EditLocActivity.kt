@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.compose.material.Text
 import com.tasa.DependenciesContainer
 import com.tasa.domain.Location
 import com.tasa.ui.screens.mylocations.MyLocationsActivity
@@ -27,8 +28,15 @@ class EditLocActivity : ComponentActivity() {
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
 
+        super.onCreate(savedInstanceState)
+/*
+        val location = intent.getParcelableExtra("location", Location::class.java)
+        if (location == null) {
+            navigateTo(this, MyLocationsActivity::class.java)
+            finish()
+            return
+        }*/
         val location = intent.getParcelableExtra("location", Location::class.java)
         if (location == null) {
             navigateTo(this, MyLocationsActivity::class.java)
@@ -37,6 +45,12 @@ class EditLocActivity : ComponentActivity() {
         }
 
         setContent {
+
+            //Text("Editing: ${location?.name}")
+
+
+
+
             TasaTheme {
                 EditLocScreen(
                     viewModel = viewModel,
@@ -50,6 +64,7 @@ class EditLocActivity : ComponentActivity() {
                     location = location,
                 )
             }
+
         }
     }
 }
