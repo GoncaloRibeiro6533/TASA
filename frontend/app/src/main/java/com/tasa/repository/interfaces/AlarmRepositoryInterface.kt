@@ -38,6 +38,13 @@ interface AlarmRepositoryInterface {
     suspend fun getAllAlarms(): List<Alarm>
 
     /**
+     * Retrieves all alarms associated with a specific rule ID.
+     * @param ruleId The ID of the rule for which alarms are to be retrieved.
+     * @return A list of Alarm objects associated with the specified rule ID.
+     */
+    suspend fun getAlarmsByRuleId(ruleId: Int): List<Alarm>
+
+    /**
      * Updates an existing alarm with a new trigger time and action.
      * @param triggerTime The new trigger time for the alarm.
      * @param action The new action to be performed when the alarm is triggered.

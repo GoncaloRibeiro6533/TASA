@@ -173,7 +173,7 @@ class EventRepository(
     }
 
     override suspend fun syncEvents(): Either<ApiError, Unit> {
-        TODO()
+        return success(Unit)
     }
 
     override suspend fun insertEvent(

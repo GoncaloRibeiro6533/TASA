@@ -1,5 +1,6 @@
 package com.tasa.ui.components
 
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -12,6 +13,7 @@ fun HandleSuccessSnackbar(
     snackbarHostState: SnackbarHostState,
     messageFlow: StateFlow<Int?>,
     onMessageConsumed: () -> Unit,
+    duration: SnackbarDuration = SnackbarDuration.Short,
 ) {
     val successMessage = messageFlow.collectAsState().value
 
@@ -21,6 +23,7 @@ fun HandleSuccessSnackbar(
         LaunchedEffect(messageText) {
             snackbarHostState.showSnackbar(
                 message = messageText,
+                duration = duration,
             )
             onMessageConsumed()
         }

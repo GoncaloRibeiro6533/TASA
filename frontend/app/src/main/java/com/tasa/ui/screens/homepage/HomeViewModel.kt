@@ -1,19 +1,20 @@
 package com.tasa.ui.screens.homepage
 
 import android.Manifest
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.tasa.R
 import com.tasa.alarm.AlarmScheduler
+import com.tasa.domain.Action
 import com.tasa.domain.AuthenticationException
 import com.tasa.domain.Rule
 import com.tasa.domain.RuleEvent
 import com.tasa.domain.RuleLocation
 import com.tasa.domain.RuleLocationTimeless
 import com.tasa.domain.UserInfoRepository
-import com.tasa.domain.toTriggerTime
 import com.tasa.geofence.GeofenceManager
 import com.tasa.location.LocationService
 import com.tasa.location.LocationUpdatesRepository
@@ -134,7 +135,9 @@ class HomePageScreenViewModel(
                     is Success ->
                         result.value.collect { stream ->
                             _rules.value = stream
-                            _state.value = HomeScreenState.Success(rules)
+                            if (_state.value is HomeScreenState.Loading) {
+                                _state.value = HomeScreenState.Success(_rules)
+                            }
                         }
                     is Failure -> {
                         _state.value = HomeScreenState.Error(result.value.message)
@@ -169,6 +172,8 @@ class HomePageScreenViewModel(
             try {
                 when (rule) {
                     is RuleEvent -> {
+                        val alarms =
+                            repo.alarmRepo.getAlarmsByRuleId(rule.id)
                         when (
                             val result =
                                 repo.ruleRepo.deleteRuleEvent(
@@ -183,12 +188,9 @@ class HomePageScreenViewModel(
                                 return@launch
                             }
                             is Success -> {
-                                val alarmStart =
-                                    repo.alarmRepo
-                                        .getAlarmByTriggerTime(rule.startTime.toTriggerTime().value)
+                                val alarmStart = alarms.firstOrNull { it.action == Action.MUTE }
                                 val alarmEnd =
-                                    repo.alarmRepo
-                                        .getAlarmByTriggerTime(rule.endTime.toTriggerTime().value)
+                                    alarms.firstOrNull { it.action == Action.UNMUTE }
                                 if (alarmStart != null) {
                                     alarmScheduler.cancelAlarm(alarmStart.id, alarmStart.action)
                                     repo.alarmRepo.deleteAlarm(alarmStart.id)
@@ -234,6 +236,7 @@ class HomePageScreenViewModel(
                 _state.value = HomeScreenState.SessionExpired
                 return@launch
             } catch (e: Throwable) {
+                Log.d("AlarmDebug", e.message ?: "")
                 _state.value =
                     HomeScreenState.FatalError(
                         stringResolver.getString(R.string.error_on_cancel_rule),

@@ -34,6 +34,7 @@ import com.tasa.utils.failure
 import com.tasa.utils.success
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import java.time.LocalDateTime
 import kotlin.collections.filter
@@ -80,7 +81,7 @@ class RuleRepository(
                     events.filter { (_, outEvent) ->
                         localEvents.any { localEvent ->
                             localEvent.eventId == outEvent.eventId &&
-                                    localEvent.calendarId == outEvent.calendarId
+                                localEvent.calendarId == outEvent.calendarId
                         }
                     }
                 toUpdate.forEach {
@@ -96,7 +97,7 @@ class RuleRepository(
                     events.filter { (_, outEvent) ->
                         localEvents.none { localEvent ->
                             localEvent.eventId == outEvent.eventId &&
-                                    localEvent.calendarId == outEvent.calendarId
+                                localEvent.calendarId == outEvent.calendarId
                         }
                     }
                 // Insert new events
@@ -135,7 +136,6 @@ class RuleRepository(
                             key.id,
                             key.startTime,
                             key.endTime,
-                            value.event.id,
                         )
                     }
                 }
@@ -277,12 +277,12 @@ class RuleRepository(
     }
 
     private suspend fun getFromLocal(): Flow<List<Rule>> {
-        val now = LocalDateTime.now()
         return if (userInfoRepository.isLocal()) {
-            val ruleEventFlow = local.localDao().getAllRuleEventsWithEventLocalFlow()
-                .map { it.map { it.toRuleEvent() } }.map {
-                    it.sortedBy { it.startTime }
-                }
+            val ruleEventFlow =
+                local.localDao().getAllRuleEventsWithEventLocalFlow()
+                    .map { it.map { it.toRuleEvent() } }.map {
+                        it.sortedBy { it.startTime }
+                    }.map { it.filter { rule -> rule.endTime.isAfter(LocalDateTime.now()) } }
             val ruleLocationFlow =
                 local.localDao().getAllRuleLocationsWithLocationFlow().map { it.map { it.toRuleLocationTimeless() } }
             combine(
@@ -292,10 +292,11 @@ class RuleRepository(
                 (events + locations)
             }
         } else {
-            val ruleEventFlow = local.remoteDao().getAllRuleEventsWithEventRemoteFlow().map { it.map { it.toRuleEvent() }}
-                .map {
-                    it.sortedBy { it.startTime }
-                }
+            val ruleEventFlow =
+                local.remoteDao().getAllRuleEventsWithEventRemoteFlow().map { it.map { it.toRuleEvent() } }
+                    .map {
+                        it.sortedBy { it.startTime } 
+                    }.map { it.filter { rule -> rule.endTime.isAfter(LocalDateTime.now()) } }
             val ruleLocationFlow =
                 local.remoteDao().getAllRuleLocationsWithLocationFlow().map { it.map { it.toRuleLocationTimeless() } }
             combine(
@@ -430,7 +431,6 @@ class RuleRepository(
                 id = rule.id,
                 startTime = newStartTime,
                 endTime = newEndTime,
-                externalId = rule.event.id,
             )
             return success(Unit)
         }
@@ -449,7 +449,6 @@ class RuleRepository(
                     rule.id,
                     newStartTime,
                     newEndTime,
-                    remote.value.event.id,
                 )
                 return success(Unit)
             }
@@ -492,9 +491,9 @@ class RuleRepository(
     override suspend fun insertRuleLocationTimeless(
         location: Location,
     ): Either<
-            ApiError,
-            RuleLocationTimeless,
-            > {
+        ApiError,
+        RuleLocationTimeless,
+        > {
         if (userInfoRepository.isLocal()) {
             val entity =
                 RuleLocationLocal(

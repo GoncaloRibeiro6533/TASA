@@ -178,6 +178,6 @@ class LocationRepository(
     }
 
     override suspend fun syncLocations(): Either<ApiError, Unit> {
-        TODO()
+        return success(Unit)
     }
 }

@@ -115,7 +115,7 @@ fun OSMDroidMap2(
                 setTileSource(TileSourceFactory.MAPNIK)
                 setMultiTouchControls(true)
                 zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
-                controller.setZoom(15.0)
+                controller.setZoom(19.0)
                 controller.setCenter(center)
                 val accuracyCircle =
                     Polygon().apply {

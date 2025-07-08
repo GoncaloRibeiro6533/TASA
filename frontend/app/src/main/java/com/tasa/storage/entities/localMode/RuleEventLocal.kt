@@ -16,6 +16,7 @@ import java.time.LocalDateTime
             parentColumns = ["id"],
             childColumns = ["externalId"],
             onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE,
         ),
     ],
 )

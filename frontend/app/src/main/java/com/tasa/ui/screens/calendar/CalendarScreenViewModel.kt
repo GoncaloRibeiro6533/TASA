@@ -192,6 +192,7 @@ class CalendarScreenViewModel(
             } catch (e: kotlin.coroutines.cancellation.CancellationException) {
                 return@launch
             } catch (ex: Throwable) {
+                Log.e("CalendarViewModel", "Error creating rule: ${ex.message}")
                 _state.value =
                     CalendarScreenState.Error(
                         stringResolver.getString(R.string.error_creating_rule),

@@ -14,6 +14,7 @@ import com.tasa.domain.Alarm
             parentColumns = ["id"],
             childColumns = ["ruleId"],
             onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE,
         ),
     ],
 )

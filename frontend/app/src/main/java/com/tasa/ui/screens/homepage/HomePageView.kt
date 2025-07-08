@@ -20,8 +20,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -48,6 +50,7 @@ import com.tasa.ui.screens.homepage.components.SwipeableRuleCardEvent
 import com.tasa.ui.screens.homepage.components.SwipeableRuleCardLocation
 import com.tasa.ui.screens.homepage.components.SwipeableRuleCardLocationTimeless
 import com.tasa.ui.screens.rule.EditRuleActivity
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.time.LocalDateTime
@@ -71,13 +74,25 @@ fun HomePageView(
 ) {
     var list by rememberSaveable { mutableStateOf(true) } // true = Timed, false = Location
     var ruleList = rules.collectAsState().value
-    LaunchedEffect(10000, ruleList) {
-        ruleList =
-            ruleList.filter {
-                (it is RuleEvent && it.endTime.isBefore(LocalDateTime.now()))
-            }
-        // TODO order
+    var currentTime by remember { mutableStateOf(LocalDateTime.now()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(10000) // 10 segundos
+            currentTime = LocalDateTime.now()
+        }
     }
+
+    val filteredRules by remember(ruleList, currentTime) {
+        derivedStateOf {
+            ruleList.filter { rule ->
+                when (rule) {
+                    is RuleEvent -> rule.endTime.isAfter(currentTime)
+                    else -> true // Mantém outras regras que não são eventos
+                }
+            }
+        }
+    }
+
     val gray =
         ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -96,7 +111,7 @@ fun HomePageView(
         Text(
             text = stringResource(R.string.my_rules),
             style =
-                MaterialTheme.typography.headlineLarge.copy(
+                MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 24.sp,
                 ),
@@ -119,7 +134,7 @@ fun HomePageView(
             contentAlignment = Alignment.Center,
         ) {
             val filteredRules =
-                ruleList.filter {
+                filteredRules.filter {
                     (it is TimelessRule && !list) || (it is TimedRule && list)
                 }
 

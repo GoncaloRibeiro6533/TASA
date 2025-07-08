@@ -134,6 +134,9 @@ interface LocalDao {
     @Query("SELECT * from alarm_local WHERE triggerTime = :currentTime")
     suspend fun getAlarmByTriggerTime(currentTime: Long): AlarmLocal?
 
+    @Query("SELECT * from alarm_local WHERE ruleId = :ruleId")
+    suspend fun getAlarmsByRuleId(ruleId: Int): List<AlarmLocal>
+
     // UPDATE
 
     @Query("UPDATE location_local SET name = :name, latitude = :latitude, longitude = :longitude WHERE id = :id")
@@ -158,12 +161,11 @@ interface LocalDao {
         locationId: Long,
     )
 
-    @Query("UPDATE rule_event_local SET startTime = :startTime, endTime = :endTime, externalId = :externalId WHERE id = :id")
+    @Query("UPDATE rule_event_local SET startTime = :startTime, endTime = :endTime WHERE id = :id")
     suspend fun updateRuleEventLocal(
         id: Int,
         startTime: LocalDateTime,
         endTime: LocalDateTime,
-        externalId: Int,
     )
 
     @Query("UPDATE alarm_local SET triggerTime = :time WHERE id = :id")

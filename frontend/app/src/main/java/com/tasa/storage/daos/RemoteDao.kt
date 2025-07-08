@@ -132,6 +132,9 @@ interface RemoteDao {
     @Query("SELECT * from alarm_remote WHERE triggerTime = :currentTime")
     suspend fun getAlarmByTriggerTime(currentTime: Long): AlarmRemote?
 
+    @Query("SELECT * from alarm_remote WHERE ruleId = :ruleId")
+    suspend fun getAlarmsByRuleId(ruleId: Int): List<AlarmRemote>
+
     // UPDATE
 
     @Query("UPDATE location_remote SET name = :name, latitude = :latitude, longitude = :longitude, radius= :radius  WHERE id = :id")
@@ -157,12 +160,11 @@ interface RemoteDao {
         locationId: Int,
     )
 
-    @Query("UPDATE rule_event_remote SET startTime = :startTime, endTime = :endTime, eventId = :externalId WHERE id = :id")
+    @Query("UPDATE rule_event_remote SET startTime = :startTime, endTime = :endTime WHERE id = :id")
     suspend fun updateRuleEventRemote(
         id: Int,
         startTime: LocalDateTime,
         endTime: LocalDateTime,
-        externalId: Int,
     )
 
     @Query("UPDATE alarm_remote SET triggerTime = :time WHERE id = :id")

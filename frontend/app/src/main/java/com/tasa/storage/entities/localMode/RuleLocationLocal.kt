@@ -15,6 +15,7 @@ import com.tasa.domain.RuleLocationTimeless
             parentColumns = ["id"],
             childColumns = ["locationId"],
             onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE,
         ),
     ],
 )

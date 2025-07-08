@@ -11,7 +11,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,11 +37,6 @@ fun EditRuleScreen(
     onSessionExpired: () -> Unit,
 ) {
     val state = viewModel.state.collectAsState().value
-    LaunchedEffect(state) {
-        if (state is EditRuleState.Success) {
-            onBackPressed()
-        }
-    }
     TasaTheme {
         Scaffold(
             modifier =
@@ -110,7 +104,7 @@ fun EditRuleScreen(
 @Composable
 fun SuccessDialog(onConfirm: () -> Unit) {
     AlertDialog(
-        onDismissRequest = onConfirm,
+        onDismissRequest = { },
         confirmButton = {
             TextButton(onClick = onConfirm) {
                 Text(text = stringResource(R.string.Ok))

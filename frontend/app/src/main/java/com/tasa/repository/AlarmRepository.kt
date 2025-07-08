@@ -86,6 +86,14 @@ class AlarmRepository(
         }
     }
 
+    override suspend fun getAlarmsByRuleId(ruleId: Int): List<Alarm> {
+        return if (userInfoRepository.isLocal()) {
+            local.localDao().getAlarmsByRuleId(ruleId).map { it.toAlarm() }
+        } else {
+            local.remoteDao().getAlarmsByRuleId(ruleId).map { it.toAlarm() }
+        }
+    }
+
     override suspend fun clear() {
         if (userInfoRepository.isLocal()) {
             local.localDao().clearAlarms()

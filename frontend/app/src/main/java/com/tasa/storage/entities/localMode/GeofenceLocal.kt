@@ -13,6 +13,7 @@ import com.tasa.repository.interfaces.Geofence
             parentColumns = ["id"],
             childColumns = ["ruleId"],
             onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE,
         ),
     ],
 )

@@ -61,7 +61,7 @@ class EditRuleViewModel(
     private val _state = MutableStateFlow<EditRuleState>(initialState)
     val state: StateFlow<EditRuleState> = _state.asStateFlow()
 
-    var event: CalendarEvent? = null
+    lateinit var event: CalendarEvent
 
     fun setEventTime(
         eventId: Long,
@@ -131,13 +131,9 @@ class EditRuleViewModel(
                         }
                         is Success -> {
                             val alarmStart =
-                                repo.alarmRepo.getAlarmByTriggerTime(
-                                    rule.startTime.toTriggerTime().value,
-                                )
+                                repo.alarmRepo.getAlarmsByRuleId(rule.id).firstOrNull()
                             val alarmEnd =
-                                repo.alarmRepo.getAlarmByTriggerTime(
-                                    rule.endTime.toTriggerTime().value,
-                                )
+                                repo.alarmRepo.getAlarmsByRuleId(rule.id).lastOrNull()
                             if (alarmStart == null || alarmEnd == null) {
                                 val startAlarmId =
                                     repo.alarmRepo.createAlarm(
@@ -162,26 +158,30 @@ class EditRuleViewModel(
                                     Action.UNMUTE,
                                 )
                             } else {
-                                alarmScheduler.updateAlarm(
-                                    alarmStart.id,
-                                    newStartTime.toTriggerTime(),
-                                    alarmStart.action,
-                                )
-                                repo.alarmRepo.updateAlarm(
-                                    triggerTime = newStartTime.toTriggerTime().value,
-                                    action = alarmStart.action,
-                                    id = alarmStart.id,
-                                )
-                                alarmScheduler.updateAlarm(
-                                    alarmEnd.id,
-                                    newEndTime.toTriggerTime(),
-                                    alarmEnd.action,
-                                )
-                                repo.alarmRepo.updateAlarm(
-                                    triggerTime = newEndTime.toTriggerTime().value,
-                                    action = alarmEnd.action,
-                                    id = alarmEnd.id,
-                                )
+                                if (newStartTime != rule.startTime) {
+                                    alarmScheduler.updateAlarm(
+                                        alarmStart.id,
+                                        newStartTime.toTriggerTime(),
+                                        alarmStart.action,
+                                    )
+                                    repo.alarmRepo.updateAlarm(
+                                        triggerTime = newStartTime.toTriggerTime().value,
+                                        action = alarmStart.action,
+                                        id = alarmStart.id,
+                                    )
+                                }
+                                if (newEndTime != rule.endTime) {
+                                    alarmScheduler.updateAlarm(
+                                        alarmEnd.id,
+                                        newEndTime.toTriggerTime(),
+                                        alarmEnd.action,
+                                    )
+                                    repo.alarmRepo.updateAlarm(
+                                        triggerTime = newEndTime.toTriggerTime().value,
+                                        action = alarmEnd.action,
+                                        id = alarmEnd.id,
+                                    )
+                                }
                             }
                             _state.value =
                                 EditRuleState.Success(
@@ -202,6 +202,7 @@ class EditRuleViewModel(
                 _state.value = EditRuleState.SessionExpired
                 return@launch
             } catch (ex: Throwable) {
+                Log.d("EditRuleViewModel", "Error updating rule", ex)
                 _state.value =
                     EditRuleState.Error(
                         stringResourceResolver.getString(R.string.error_on_editing_rule),

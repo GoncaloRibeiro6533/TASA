@@ -12,6 +12,8 @@ import com.tasa.repository.interfaces.Geofence
             entity = RuleLocationRemote::class,
             parentColumns = ["id"],
             childColumns = ["ruleId"],
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE,
         ),
     ],
 )

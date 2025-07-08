@@ -20,6 +20,10 @@ class MuteReceiver : BroadcastReceiver() {
             context.startActivity(intent)
         }
         try {
+           /* val uri = intent.data
+            val actionName = uri?.lastPathSegment
+            val action = Action.valueOf(actionName ?: return)
+            Log.d("Alarm", "Ação recebida: $action")*/
             when (intent.getParcelableExtra<Action>("action")) {
                 Action.MUTE -> {
                     DndManager.mute(notificationManager)
@@ -28,7 +32,7 @@ class MuteReceiver : BroadcastReceiver() {
                     DndManager.unmute(notificationManager)
                 }
 
-                null -> {}
+                null -> return
             }
             Log.d("Alarm", "Alarme disparado")
         } catch (ex: Throwable) {

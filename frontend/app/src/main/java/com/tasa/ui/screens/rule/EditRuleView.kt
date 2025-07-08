@@ -55,7 +55,7 @@ fun toInterval(
 @Composable
 fun EditRuleEventView(
     rule: RuleEvent,
-    event: CalendarEvent? = null,
+    event: CalendarEvent,
     onUpdate: (LocalDateTime, LocalDateTime) -> Unit = { _, _ -> },
     onCancel: () -> Unit = {},
 ) {
@@ -70,9 +70,7 @@ fun EditRuleEventView(
 
     val valid =
         !startTime.isAfter(endTime) &&
-            toInterval(startTime, endTime).isWithin(toInterval(rule.startTime, rule.endTime)) &&
-            startTime.isAfter(LocalDateTime.now().plusMinutes(5)) &&
-            endTime.isAfter(LocalDateTime.now().plusMinutes(5))
+            toInterval(startTime, endTime).isWithin(toInterval(event.startTime, event.endTime))
 
     Column(
         modifier =
@@ -213,5 +211,13 @@ fun PreviewEditRuleEventView() {
                     eventId = 22,
                 ),
         )
-    EditRuleEventView(rule = rule)
+    val event =
+        CalendarEvent(
+            eventId = 42,
+            calendarId = 10,
+            title = "Workshop Android Jetpack",
+            startTime = now,
+            endTime = now.plusHours(3),
+        )
+    EditRuleEventView(rule = rule, event = event)
 }
