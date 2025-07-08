@@ -1,6 +1,7 @@
 package com.tasa.ui.screens.mylocations
 
 import android.Manifest
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -65,8 +66,11 @@ class MyLocationsActivity : ComponentActivity() {
                     onDeleteLocation = { location ->
                         viewModel.deleteLocation(location)
                     },
-                    onEditLocation = {
-                        navigateTo(this, EditLocActivity::class.java)
+                    onEditLocation = { location ->
+                        val intent = Intent(this, EditLocActivity::class.java).apply {
+                            putExtra("location", location)
+                        }
+                        startActivity(intent)
                     },
                     onNavigateBack = {
                         finish()

@@ -145,6 +145,13 @@
             android:theme="@style/Theme.Tasa"
             android:layoutDirection="ltr"
             />
+        <activity
+            android:name=".ui.screens.editloc.EditLocActivity"
+            android:exported="true"
+            android:label="EditLocActivity"
+            android:theme="@style/Theme.Tasa"
+            android:layoutDirection="ltr"
+            />
 
 
         <service
