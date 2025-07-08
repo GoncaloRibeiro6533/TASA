@@ -1,5 +1,6 @@
 package com.tasa.ui.screens.menu
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -14,7 +15,6 @@ import com.tasa.utils.Failure
 import com.tasa.utils.ServiceKiller
 import com.tasa.utils.Success
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -46,47 +46,49 @@ class MenuViewModel(
         if (_state.value is MenuScreenState.LoggingOut) return null
         _state.value = MenuScreenState.LoggingOut
         return viewModelScope.launch {
-            _state.value =
-                try {
-                    when (repo.userRepo.logout()) {
-                        is Success -> {
-                            clear()
-                            delay(500)
-                            MenuScreenState.LoggedOut
-                        }
-                        is Failure -> {
-                            clear()
-                            MenuScreenState.LoggedOut
-                        }
+            try {
+                when (repo.userRepo.logout()) {
+                    is Success -> {
+                        clear()
+                        userInfo.clearUserInfo()
+                        _state.value = MenuScreenState.LoggedOut
                     }
-                } catch (e: Throwable) {
-                    clear()
-                    MenuScreenState.LoggedOut
+                    is Failure -> {
+                        clear()
+                        userInfo.clearUserInfo()
+                        _state.value = MenuScreenState.LoggedOut
+                    }
                 }
+            } catch (e: Throwable) {
+                Log.e("MenuViewModel", "Error logging out", e)
+                repo.ruleRepo.clean()
+                repo.eventRepo.clear()
+                repo.locationRepo.clear()
+                repo.userRepo.clear()
+                userInfo.clearUserInfo()
+                _state.value = MenuScreenState.LoggedOut
+            }
         }
     }
 
-    fun clear() {
-        viewModelScope.launch {
-            if (LocationService.isRunning) {
-                serviceKiller.killServices(LocationService::class)
-            }
-            locationUpdatesRepository.forceStop()
-            val alarms = repo.alarmRepo.getAllAlarms()
-            alarms.forEach { alarm ->
-                alarmScheduler.cancelAlarm(alarm.id, alarm.action)
-                repo.alarmRepo.deleteAlarm(alarm.id)
-            }
-            val geofences = repo.geofenceRepo.getAllGeofences()
-            geofences.forEach { geofence ->
-                geofenceManager.deregisterGeofence(geofence.name)
-                repo.geofenceRepo.deleteGeofence(geofence)
-            }
-            repo.ruleRepo.clean()
-            repo.eventRepo.clear()
-            repo.locationRepo.clear()
-            repo.userRepo.clear()
-            userInfo.clearUserInfo()
+    suspend fun clear() {
+        if (LocationService.isRunning) {
+            serviceKiller.killServices(LocationService::class)
+        }
+        locationUpdatesRepository.forceStop()
+        repo.ruleRepo.clean()
+        repo.eventRepo.clear()
+        repo.locationRepo.clear()
+        repo.userRepo.clear()
+        val alarms = repo.alarmRepo.getAllAlarms()
+        alarms.forEach { alarm ->
+            alarmScheduler.cancelAlarm(alarm.id, alarm.action)
+            repo.alarmRepo.deleteAlarm(alarm.id)
+        }
+        val geofences = repo.geofenceRepo.getAllGeofences()
+        geofences.forEach { geofence ->
+            geofenceManager.deregisterGeofence(geofence.name)
+            repo.geofenceRepo.deleteGeofence(geofence)
         }
     }
 }
