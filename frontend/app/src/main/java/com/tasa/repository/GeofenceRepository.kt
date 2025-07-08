@@ -66,6 +66,7 @@ class GeofenceRepository(
                 latitude = geofenceEntity.latitude,
                 longitude = geofenceEntity.longitude,
                 radius = geofenceEntity.radius,
+                name = geofenceEntity.name,
             )
         } else {
             local.remoteDao().updateGeofenceRemote(
@@ -73,6 +74,7 @@ class GeofenceRepository(
                 latitude = geofenceEntity.latitude,
                 longitude = geofenceEntity.longitude,
                 radius = geofenceEntity.radius,
+                name = geofenceEntity.name,
             )
         }
     }

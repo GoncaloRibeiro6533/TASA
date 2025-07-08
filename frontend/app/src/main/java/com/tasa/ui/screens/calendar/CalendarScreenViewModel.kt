@@ -189,7 +189,7 @@ class CalendarScreenViewModel(
                             stringResolver.getString(R.string.rule_already_exists_for_this_time),
                         )
                 }
-            } catch (e: kotlin.coroutines.cancellation.CancellationException) {
+            } catch (e: CancellationException) {
                 return@launch
             } catch (ex: Throwable) {
                 Log.e("CalendarViewModel", "Error creating rule: ${ex.message}")

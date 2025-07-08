@@ -6,14 +6,13 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 import com.tasa.domain.RuleEvent
-import com.tasa.storage.entities.localMode.EventLocal
 import java.time.LocalDateTime
 
 @Entity(
     tableName = "rule_event_remote",
     foreignKeys = [
         ForeignKey(
-            entity = EventLocal::class,
+            entity = EventRemote::class,
             parentColumns = ["id"],
             childColumns = ["eventId"],
             onDelete = ForeignKey.CASCADE,

@@ -9,7 +9,6 @@ import androidx.activity.viewModels
 import com.tasa.DependenciesContainer
 import com.tasa.domain.Event
 import com.tasa.domain.RuleEvent
-import com.tasa.ui.screens.homepage.HomePageActivity
 import com.tasa.ui.screens.start.StartActivity
 import com.tasa.utils.navigateTo
 import kotlinx.parcelize.Parcelize
@@ -111,7 +110,6 @@ class EditRuleActivity : ComponentActivity() {
                 intent.getParcelableExtra("rule_event") as? RuleParcelableEvent
             }
         if (ruleParcelableEvent == null) {
-            navigateTo(this, HomePageActivity::class.java)
             finish()
             return
         } else {
@@ -125,7 +123,6 @@ class EditRuleActivity : ComponentActivity() {
             EditRuleScreen(
                 viewModel = viewModel,
                 onBackPressed = {
-                    navigateTo(this, HomePageActivity::class.java)
                     finish()
                 },
                 onRuleUpdate = {
@@ -137,7 +134,6 @@ class EditRuleActivity : ComponentActivity() {
                     )
                 },
                 onError = {
-                    navigateTo(this, HomePageActivity::class.java)
                     finish()
                 },
                 rule = rule,

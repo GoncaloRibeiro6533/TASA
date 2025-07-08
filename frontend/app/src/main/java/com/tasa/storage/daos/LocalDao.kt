@@ -174,12 +174,13 @@ interface LocalDao {
         time: Long,
     )
 
-    @Query("UPDATE geofence_local SET latitude = :latitude, longitude = :longitude, radius = :radius WHERE id = :id")
+    @Query("UPDATE geofence_local SET latitude = :latitude, longitude = :longitude, radius = :radius, name = :name WHERE id = :id")
     suspend fun updateGeofenceLocal(
         id: Int,
         latitude: Double,
         longitude: Double,
         radius: Double,
+        name: String,
     )
 
     // DELETE

@@ -118,12 +118,15 @@ class UserController(
     }
 
     @PostMapping("/refresh")
-    fun refreshToken(tokenInput: TokenInput): ResponseEntity<*> {
+    fun refreshToken(
+        @RequestBody tokenInput: TokenInput): ResponseEntity<*> {
         val result: Either<UserError, Pair<User, TokenExternalInfo>> =
             userService.refreshToken(tokenInput.token, tokenInput.refreshToken)
         return when (result) {
             is Success ->
-                ResponseEntity.status(HttpStatus.OK).body(result.value)
+                ResponseEntity.status(HttpStatus.OK).body(
+                    LoginOutput(result.value.first, result.value.second),
+                )
             is Failure ->
                 userErrorHandler.toResponse(result.value)
         }

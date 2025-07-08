@@ -173,12 +173,13 @@ interface RemoteDao {
         time: Long,
     )
 
-    @Query("UPDATE geofence_remote SET latitude = :latitude, longitude = :longitude, radius = :radius WHERE id = :id")
+    @Query("UPDATE geofence_remote SET latitude = :latitude, longitude = :longitude, radius = :radius, name = :name WHERE id = :id")
     suspend fun updateGeofenceRemote(
         id: Int,
         latitude: Double,
         longitude: Double,
         radius: Double,
+        name: String,
     )
 
     // DELETE

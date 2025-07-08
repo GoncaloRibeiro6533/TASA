@@ -1,5 +1,6 @@
 package com.tasa.ui.screens.start
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -16,6 +17,8 @@ sealed interface StartScreenState {
     data object Idle : StartScreenState
 
     data object NotLogged : StartScreenState
+
+    data object Saving : StartScreenState
 }
 
 class StartScreenViewModel(
@@ -49,11 +52,18 @@ class StartScreenViewModel(
         return viewModelScope.launch {
             try {
                 repo.setLocal(true)
-                _state.value = StartScreenState.Logged
+                _state.value = StartScreenState.Saving
+                val userInfo = repo.isLocal()
+                Log.d("StartScreenViewModel", "setLocal: $userInfo")
             } catch (e: Throwable) {
                 _state.value = StartScreenState.NotLogged
             }
         }
+    }
+
+    fun setLoggedState() {
+        if (_state.value is StartScreenState.Logged) return
+        _state.value = StartScreenState.Logged
     }
 
     fun logout(): Job? {

@@ -88,7 +88,9 @@ class UserServiceHttp(private val client: HttpClient) : UserService {
                     body = TokenInput(token = token, refreshToken = refreshToken),
                 )
         ) {
-            is Success -> success(response.value)
+            is Success -> {
+                success(response.value)
+            }
             is Failure -> failure(response.value)
         }
     }

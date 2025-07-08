@@ -67,9 +67,10 @@ class MyLocationsActivity : ComponentActivity() {
                         viewModel.deleteLocation(location)
                     },
                     onEditLocation = { location ->
-                        val intent = Intent(this, EditLocActivity::class.java).apply {
-                            putExtra("location", location)
-                        }
+                        val intent =
+                            Intent(this, EditLocActivity::class.java).apply {
+                                putExtra("location", location)
+                            }
                         startActivity(intent)
                     },
                     onNavigateBack = {

@@ -31,6 +31,7 @@ import pt.isel.pipeline.AuthenticationInterceptor
 import pt.isel.transaction.TransactionManagerInMem
 import java.util.Locale
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 
 @Configuration
 @ComponentScan("pt.isel")
@@ -106,7 +107,7 @@ class TasaApplication {
     fun usersDomainConfig() =
         UsersDomainConfig(
             tokenSizeInBytes = 256 / 8,
-            tokenTtl = 24.hours * 7,
+            tokenTtl = 24.hours,
             tokenRollingTtl = 24.hours,
             maxTokensPerUser = 3,
             refreshTime = 48.hours,

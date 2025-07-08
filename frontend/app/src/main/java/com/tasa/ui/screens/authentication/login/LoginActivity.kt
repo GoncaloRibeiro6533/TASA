@@ -32,8 +32,14 @@ class LoginActivity : ComponentActivity() {
                         navigateTo(this, HomePageActivity::class.java)
                         finish()
                     },
-                    onNavigationBack = { navigateTo(this, StartActivity::class.java) },
-                    onRegisterRequested = { navigateTo(this, RegisterActivity::class.java) },
+                    onNavigationBack = {
+                        finish()
+                        navigateTo(this, StartActivity::class.java)
+                    },
+                    onRegisterRequested = {
+                        finish()
+                        navigateTo(this, RegisterActivity::class.java)
+                    },
                 )
             }
         }

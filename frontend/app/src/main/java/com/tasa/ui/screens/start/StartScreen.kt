@@ -54,7 +54,7 @@ fun StartScreen(
                         .padding(innerPadding),
             ) {
                 when (state) {
-                    StartScreenState.Idle, StartScreenState.Logged -> {
+                    StartScreenState.Idle, StartScreenState.Logged, StartScreenState.Saving -> {
                         LoadingView()
                     }
                     StartScreenState.NotLogged -> {
@@ -62,7 +62,9 @@ fun StartScreen(
                             onLoginRequested = onLoginRequested,
                             onRegisterRequested = onRegisterRequested,
                             onContinueWithoutAccount = {
-                                viewModel.setLocal()
+                                viewModel.setLocal()?.invokeOnCompletion {
+                                    viewModel.setLoggedState()
+                                }
                             },
                         )
                     }

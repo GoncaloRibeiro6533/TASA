@@ -33,7 +33,6 @@ import com.tasa.utils.ServiceKillerImpl
 import com.tasa.utils.StringResourceResolver
 import com.tasa.workers.CoroutineDBCleaner
 import com.tasa.workers.LocationStatusWorker
-import com.tasa.workers.Synchronizer
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -113,6 +112,7 @@ class TasaApplication : Application(), DependenciesContainer {
             geofenceManager = geofenceManager,
             queryCalendarService = queryCalendarService,
             networkChecker = networkChecker,
+            serviceKiller = serviceKiller,
         )
     }
 
@@ -177,7 +177,7 @@ class TasaApplication : Application(), DependenciesContainer {
             ).setConstraints(constraints2).build()
         WorkManager.getInstance(applicationContext)
             .enqueue(gpsStatusItem)
-        val constraintsSync =
+        /*val constraintsSync =
             Constraints.Builder()
                 .setRequiredNetworkType(androidx.work.NetworkType.UNMETERED)
                 .setRequiresBatteryNotLow(true)
@@ -189,7 +189,7 @@ class TasaApplication : Application(), DependenciesContainer {
                 TimeUnit.MINUTES,
             ).setConstraints(constraintsSync).build()
         WorkManager.getInstance(applicationContext)
-            .enqueue(syncWorkItem)
+            .enqueue(syncWorkItem)*/
     }
 
     companion object {

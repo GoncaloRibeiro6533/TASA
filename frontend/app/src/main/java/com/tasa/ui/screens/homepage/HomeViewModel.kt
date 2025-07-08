@@ -64,7 +64,9 @@ class HomePageScreenViewModel(
     val isLocal: StateFlow<Boolean> = _isLocal.asStateFlow()
 
     fun onFatalError(): Job? {
-        if (_state.value !is HomeScreenState.SessionExpired ||
+        Log.d("HomePageScreenViewModel", "Job on fatal error")
+
+        if (_state.value !is HomeScreenState.SessionExpired &&
             _state.value !is HomeScreenState.FatalError
         ) {
             return null
@@ -97,6 +99,11 @@ class HomePageScreenViewModel(
                 geofenceManager.deregisterAllGeofence()
             } catch (e: CancellationException) {
             } catch (e: Throwable) {
+                Log.e(
+                    "HomePageScreenViewModel",
+                    "Error on clear on fatal error: ${e.message}",
+                    e,
+                )
                 userInfo.clearUserInfo()
             }
         }
@@ -147,8 +154,14 @@ class HomePageScreenViewModel(
                 return@launch
             } catch (e: AuthenticationException) {
                 _state.value = HomeScreenState.SessionExpired
+                Log.d("HomePageScreenViewModel", "Session expired: ${e.message}")
                 return@launch
             } catch (e: Throwable) {
+                Log.e(
+                    "HomePageScreenViewModel",
+                    "Error on load local data: ${e.message}",
+                    e,
+                )
                 _state.value =
                     HomeScreenState.FatalError(stringResolver.getString(R.string.unexpected_error))
             }
@@ -236,7 +249,6 @@ class HomePageScreenViewModel(
                 _state.value = HomeScreenState.SessionExpired
                 return@launch
             } catch (e: Throwable) {
-                Log.d("AlarmDebug", e.message ?: "")
                 _state.value =
                     HomeScreenState.FatalError(
                         stringResolver.getString(R.string.error_on_cancel_rule),

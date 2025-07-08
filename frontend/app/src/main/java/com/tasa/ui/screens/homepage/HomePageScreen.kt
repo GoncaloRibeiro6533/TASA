@@ -21,6 +21,9 @@ import com.tasa.ui.components.TopBar
 import com.tasa.ui.screens.rule.EditRuleActivity.RuleParcelableEvent
 import com.tasa.ui.theme.TasaTheme
 
+@androidx.annotation.RequiresPermission(
+    allOf = [android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION],
+)
 @Composable
 fun HomePageScreen(
     viewModel: HomePageScreenViewModel,
@@ -85,6 +88,7 @@ fun HomePageScreen(
                             onDelete = onCancelRule,
                         )
                     is HomeScreenState.Uninitialized -> { // Do nothing}
+                        viewModel.loadLocalData()
                     }
                     is HomeScreenState.SessionExpired -> {
                         ErrorAlert(

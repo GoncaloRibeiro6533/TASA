@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
@@ -13,6 +14,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresPermission
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import com.tasa.DependenciesContainer
 import com.tasa.location.LocationService
@@ -76,7 +79,6 @@ class HomePageActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.isLocal()
-        viewModel.loadLocalData()
         if (!isLocationEnabled(this)) {
             /*val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
@@ -99,9 +101,21 @@ class HomePageActivity : ComponentActivity() {
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 activityPermission,
                 Manifest.permission.READ_CALENDAR,
+                Manifest.permission.WRITE_CALENDAR,
             )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissions += Manifest.permission.POST_NOTIFICATIONS
+        }
+        val permissions1 =
+            arrayOf(
+                Manifest.permission.WRITE_CALENDAR,
+                Manifest.permission.READ_CALENDAR,
+            )
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(this, permissions1, 9999)
         }
         setContent {
             TasaTheme {
@@ -136,6 +150,7 @@ class HomePageActivity : ComponentActivity() {
                                 "com.google.android.gms.permission.ACTIVITY_RECOGNITION",
                                 Manifest.permission.READ_CALENDAR,
                                 Manifest.permission.POST_NOTIFICATIONS,
+                                Manifest.permission.WRITE_CALENDAR,
                             ],
                     ) {
                         SpecialPermissionsHandler(
@@ -179,7 +194,6 @@ class HomePageActivity : ComponentActivity() {
                                             MenuActivity::class.java,
                                         ).putExtra("isLocal", isLocal)
                                     startActivity(intent)
-                                    // finish()
                                 },
                                 onEditRule = { rule: EditRuleActivity.RuleParcelableEvent ->
                                     val intent =
@@ -188,7 +202,6 @@ class HomePageActivity : ComponentActivity() {
                                             EditRuleActivity::class.java,
                                         ).putExtra("rule_event", rule)
                                     startActivity(intent)
-                                    finish()
                                 },
                                 onCancelRule = { rule ->
                                     viewModel.cancelRule(rule)

@@ -1,5 +1,6 @@
 package com.tasa.repository
 
+import android.util.Log
 import com.tasa.domain.ApiError
 import com.tasa.domain.AuthenticationException
 import com.tasa.domain.UserInfoRepository
@@ -104,7 +105,7 @@ class UserRepository(
         }
     }
 
-    override suspend fun refreshSession(): Either<ApiError, User> {
+    override suspend fun refreshSession(): Either<ApiError, String> {
         if (!networkChecker.isInternetAvailable()) {
             throw AuthenticationException(
                 "No internet connection. Please check your network settings.",
@@ -114,13 +115,12 @@ class UserRepository(
         if (userInfoRepository.isLocal()) {
             return failure(ApiError("Local mode is enabled. Cannot refresh session."))
         }
-
         val token = getToken()
+        Log.e("ServiceWithRetry", "Token: $token")
         val refreshToken =
             userInfoRepository.getRefreshToken() ?: return failure(
                 ApiError("No refresh token available. Please log in again."),
             )
-
         val result = remote.userService.refreshToken(token, refreshToken)
         return when (result) {
             is Success -> {
@@ -130,16 +130,15 @@ class UserRepository(
                     result.value.session.expiration,
                 )
                 userInfoRepository.updateUserInfo(result.value.user)
-                success(result.value.user)
+                success(result.value.session.token)
             }
-            is Failure -> throw AuthenticationException(
-                "Failed to refresh session: ${result.value.message}",
-                null,
-            )
+            is Failure -> {
+                failure(result.value)
+            }
         }
     }
 
-    private suspend fun getToken(): String {
+    suspend fun getToken(): String {
         return userInfoRepository.getToken() ?: throw AuthenticationException(
             "User is not authenticated. Please log in again.",
             null,
@@ -147,8 +146,7 @@ class UserRepository(
     }
 
     override suspend fun logout(): Either<ApiError, Unit> {
-        if (userInfoRepository.isLocal() || !networkChecker.isInternetAvailable()) {
-            userInfoRepository.clearUserInfo()
+        if (userInfoRepository.isLocal()) {
             local.userDao().clear()
             return success(Unit)
         }

@@ -37,7 +37,7 @@ import com.tasa.storage.entities.remote.RuleLocationRemote
         AlarmRemote::class,
         AlarmLocal::class,
     ],
-    version = 21,
+    version = 23,
 )
 @TypeConverters(Converters::class)
 abstract class TasaDB : RoomDatabase() {

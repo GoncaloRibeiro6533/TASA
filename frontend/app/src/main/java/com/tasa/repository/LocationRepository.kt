@@ -47,12 +47,19 @@ class LocationRepository(
         )
     }
 
-    private suspend fun getFromApi() = retryOnFailure { remote.locationService.fetchLocations(getToken()) }
+    private suspend fun getFromApi() =
+        retryOnFailure {
+                token ->
+            remote.locationService.fetchLocations(token)
+        }
 
     override suspend fun fetchLocations(): Either<ApiError, Flow<List<Location>>> {
-        return if (hasLocations() || userInfoRepository.isLocal()) {
+        return if (userInfoRepository.isLocal()) {
             success(local.localDao().getLocationsFlow().map { it.map { it.toLocation() } })
         } else {
+            if (hasLocations()) {
+                return success(local.remoteDao().getLocationsFlow().map { it.map { it.toLocation() } })
+            }
             when (val locations = getFromApi()) {
                 is Success -> {
                     local.remoteDao().insertLocationRemote(
@@ -94,13 +101,13 @@ class LocationRepository(
             return success(location.copy(id = id.toInt()))
         }
         val remote =
-            retryOnFailure {
+            retryOnFailure { token ->
                 remote.locationService.insertLocation(
                     name = name,
                     latitude = latitude,
                     longitude = longitude,
                     radius = radius,
-                    getToken(),
+                    token,
                 )
             }
         when (remote) {
@@ -119,7 +126,11 @@ class LocationRepository(
             local.localDao().deleteLocationLocalById(id)
             return success(Unit)
         }
-        val remote = retryOnFailure { remote.locationService.deleteLocationById(id, getToken()) }
+        val remote =
+            retryOnFailure {
+                    token ->
+                remote.locationService.deleteLocationById(id, token)
+            }
         return when (remote) {
             is Success -> {
                 local.remoteDao().deleteLocationRemoteById(id)
@@ -134,7 +145,11 @@ class LocationRepository(
             local.localDao().deleteLocationLocalById(location.id)
             return success(Unit)
         }
-        val remote = retryOnFailure { remote.locationService.deleteLocationById(location.id, getToken()) }
+        val remote =
+            retryOnFailure {
+                    token ->
+                remote.locationService.deleteLocationById(location.id, token)
+            }
         return when (remote) {
             is Success -> {
                 local.remoteDao().deleteLocationRemoteById(location.id)

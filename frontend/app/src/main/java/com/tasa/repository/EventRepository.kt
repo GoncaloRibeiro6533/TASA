@@ -47,8 +47,8 @@ class EventRepository(
 
     suspend fun getFromApi(): Either<ApiError, List<Event>> {
         val result =
-            retryOnFailure {
-                remote.eventService.fetchEventAll(getToken())
+            retryOnFailure { token ->
+                remote.eventService.fetchEventAll(token)
             }
         return when (result) {
             is Success -> {
@@ -130,8 +130,8 @@ class EventRepository(
             return success(event)
         }
         val remoteResult =
-            retryOnFailure {
-                remote.eventService.updateEventTitle(event, getToken())
+            retryOnFailure { token ->
+                remote.eventService.updateEventTitle(event, token)
             }
         return when (remoteResult) {
             is Success -> {
@@ -155,8 +155,8 @@ class EventRepository(
             return success(Unit)
         } else {
             val remoteResult =
-                retryOnFailure {
-                    remote.eventService.deleteEventById(event.id, getToken())
+                retryOnFailure { token ->
+                    remote.eventService.deleteEventById(event.id, token)
                 }
             return when (remoteResult) {
                 is Success -> {
@@ -169,7 +169,11 @@ class EventRepository(
     }
 
     override suspend fun clear() {
-        local.localDao().clearEvents()
+        if (userInfoRepository.isLocal()) {
+            local.localDao().clearEvents()
+        } else {
+            local.remoteDao().clearEvents()
+        }
     }
 
     override suspend fun syncEvents(): Either<ApiError, Unit> {
@@ -202,14 +206,14 @@ class EventRepository(
             )
         }
         val remoteResult =
-            retryOnFailure {
+            retryOnFailure { token ->
                 remote.eventService.insertEvent(
                     EventInput(
                         title = title,
                         startTime = startTime,
                         endTime = endTime,
                     ),
-                    getToken(),
+                    token,
                 )
             }
         return when (remoteResult) {

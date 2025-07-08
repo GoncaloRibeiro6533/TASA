@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import kotlin.collections.firstOrNull
 import kotlin.coroutines.cancellation.CancellationException
 
 sealed class EditRuleState {
@@ -131,9 +132,11 @@ class EditRuleViewModel(
                         }
                         is Success -> {
                             val alarmStart =
-                                repo.alarmRepo.getAlarmsByRuleId(rule.id).firstOrNull()
+                                repo.alarmRepo.getAlarmsByRuleId(rule.id)
+                                    .firstOrNull { it.action == Action.MUTE }
                             val alarmEnd =
-                                repo.alarmRepo.getAlarmsByRuleId(rule.id).lastOrNull()
+                                repo.alarmRepo.getAlarmsByRuleId(rule.id)
+                                    .firstOrNull { it.action == Action.UNMUTE }
                             if (alarmStart == null || alarmEnd == null) {
                                 val startAlarmId =
                                     repo.alarmRepo.createAlarm(

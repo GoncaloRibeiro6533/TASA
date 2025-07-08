@@ -1,6 +1,7 @@
 package com.tasa.utils
 
 import android.content.ContentResolver
+import android.content.ContentValues
 import android.database.ContentObserver
 import android.net.Uri
 import android.os.Handler
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.Locale
 
@@ -75,8 +77,8 @@ class QueryCalendarServiceImpl(
 
         val selectionArgs =
             arrayOf(
-                startTime.toEpochSecond(ZoneOffset.UTC).toString(),
-                endTime.toEpochSecond(ZoneOffset.UTC).toString(),
+                startTime.toInstant(ZoneOffset.UTC).toEpochMilli().toString(),
+                endTime.toInstant(ZoneOffset.UTC).toEpochMilli().toString(),
                 title,
             )
 
@@ -138,7 +140,87 @@ class QueryCalendarServiceImpl(
                 )
             }
         }
-        return null
+
+        return insertEvent(
+            title = title,
+            description = "",
+            startTime = startTime,
+            endTime = endTime,
+        )?.let {
+            Event(
+                id = externalId,
+                eventId = it.first,
+                calendarId = it.second,
+                title = title,
+            )
+        }
+    }
+
+    fun insertEvent(
+        title: String,
+        description: String,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+    ): Pair<Long, Long>? {
+        val calendarId =
+            getPrimaryCalendarId() ?: run {
+                return null
+            }
+        val startMillis = startTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val endMillis = endTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
+        val values =
+            ContentValues().apply {
+                put(CalendarContract.Events.CALENDAR_ID, calendarId)
+                put(CalendarContract.Events.TITLE, title)
+                put(CalendarContract.Events.DESCRIPTION, description)
+                put(CalendarContract.Events.DTSTART, startMillis)
+                put(CalendarContract.Events.DTEND, endMillis)
+                put(CalendarContract.Events.EVENT_TIMEZONE, java.util.TimeZone.getDefault().id)
+                put(CalendarContract.Events.EVENT_END_TIMEZONE, java.util.TimeZone.getDefault().id)
+                put(CalendarContract.Events.HAS_ALARM, 0)
+
+                put(CalendarContract.Events.VISIBLE, 1)
+                put(CalendarContract.Events.AVAILABILITY, CalendarContract.Events.AVAILABILITY_FREE)
+            }
+
+        return try {
+            val uri: Uri? = contentResolver.insert(CalendarContract.Events.CONTENT_URI, values)
+            val eventId = uri?.lastPathSegment?.toLongOrNull()
+
+            if (eventId != null) {
+                eventId to calendarId
+            } else {
+                null
+            }
+        } catch (e: SecurityException) {
+            null
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun getPrimaryCalendarId(): Long? {
+        val projection =
+            arrayOf(
+                CalendarContract.Calendars._ID,
+            )
+
+        val selection = "${CalendarContract.Calendars.IS_PRIMARY} = 1"
+
+        return contentResolver.query(
+            CalendarContract.Calendars.CONTENT_URI,
+            projection,
+            selection,
+            null,
+            null,
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                cursor.getLong(cursor.getColumnIndexOrThrow(CalendarContract.Calendars._ID))
+            } else {
+                null
+            }
+        }
     }
 
     override fun calendarEventsFlow(): Flow<List<CalendarEvent>> =

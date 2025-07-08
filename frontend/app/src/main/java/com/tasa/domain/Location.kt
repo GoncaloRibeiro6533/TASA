@@ -26,7 +26,7 @@ data class Location(
     val latitude: Double,
     val longitude: Double,
     val radius: Double,
-): Parcelable {
+) : Parcelable {
     init {
 
         require(name.isNotBlank()) { "name must not be blank" }

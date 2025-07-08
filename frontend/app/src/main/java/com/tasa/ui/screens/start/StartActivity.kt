@@ -28,8 +28,14 @@ class StartActivity : ComponentActivity() {
         setContent {
             StartScreen(
                 viewModel = viewModel,
-                onLoginRequested = { navigateTo(this, LoginActivity::class.java) },
-                onRegisterRequested = { navigateTo(this, RegisterActivity::class.java) },
+                onLoginRequested = {
+                    finish()
+                    navigateTo(this, LoginActivity::class.java)
+                },
+                onRegisterRequested = {
+                    finish()
+                    navigateTo(this, RegisterActivity::class.java)
+                },
                 onAboutRequested = { navigateTo(this, AboutActivity::class.java) },
                 onLoggedIntent = {
                     navigateTo(this, HomePageActivity::class.java)

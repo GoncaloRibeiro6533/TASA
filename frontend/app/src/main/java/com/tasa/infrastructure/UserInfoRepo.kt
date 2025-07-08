@@ -1,5 +1,6 @@
 package com.tasa.infrastructure
 
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
@@ -151,17 +152,18 @@ class UserInfoRepo(private val store: DataStore<Preferences>) : UserInfoReposito
         }
     }
 
-    override val lastActivityTransition: Flow<Int?> =
-        store.data.map { preferences ->
-            preferences[TRANSITION_KEY]?.toIntOrNull()
-        }
-
     override suspend fun isLocal(): Boolean {
         val preferences = store.data.first()
         return preferences[IS_LOCAL]?.toBoolean() ?: false
     }
 
+    override val lastActivityTransition: Flow<Int?> =
+        store.data.map { preferences ->
+            preferences[TRANSITION_KEY]?.toIntOrNull()
+        }
+
     override suspend fun setLocal(isLocal: Boolean) {
+        Log.d("UserInfoRepo", "Setting user info to local: $isLocal")
         store.edit { preferences ->
             preferences[IS_LOCAL] = isLocal.toString()
         }

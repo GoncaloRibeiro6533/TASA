@@ -55,9 +55,8 @@ class EventService(
                 return@run failure(EventError.EventNameCannotBeBlank)
             }
             val user = userRepo.findById(userId) ?: return@run failure(EventError.UserNotFound)
-            if (eventRepo.findByUserId(user)
-                    .any { it.title == title && it.startTime == startTime && it.endTime == endTime }
-            ) {
+            val events = eventRepo.findByUserId(user)
+            if (events.any { it.title == title && it.startTime == startTime && it.endTime == endTime }) {
                 return@run failure(EventError.AlreadyExists)
             }
             return@run success(

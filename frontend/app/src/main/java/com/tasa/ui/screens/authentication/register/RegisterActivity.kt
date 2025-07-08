@@ -31,8 +31,14 @@ class RegisterActivity : ComponentActivity() {
                     onSubmit = { email, username, password ->
                         viewModel.registerUser(email, username, password)
                     },
-                    onRegisterSuccessful = { finish() },
-                    onNavigationBack = { navigateTo(this, StartActivity::class.java) },
+                    onRegisterSuccessful = {
+                        finish()
+                        navigateTo(this, StartActivity::class.java)
+                    },
+                    onNavigationBack = {
+                        finish()
+                        navigateTo(this, StartActivity::class.java)
+                    },
                 )
             }
         }

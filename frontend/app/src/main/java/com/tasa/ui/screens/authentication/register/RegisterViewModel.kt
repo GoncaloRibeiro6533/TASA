@@ -43,7 +43,7 @@ class RegisterScreenViewModel(
                         when (user) {
                             is Success -> {
                                 // RegisterScreenState.Success(user.value)
-                                val session = userRepository.createToken(email, password)
+                                val session = userRepository.createToken(username, password)
                                 when (session) {
                                     is Success -> {
                                         RegisterScreenState.Success(session.value)
