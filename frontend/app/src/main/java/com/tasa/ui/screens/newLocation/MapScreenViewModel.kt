@@ -3,6 +3,7 @@
 package com.tasa.ui.screens.newLocation
 
 import android.Manifest
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel

@@ -1,5 +1,6 @@
 package com.tasa.repository
 
+import android.util.Log
 import com.tasa.domain.ApiError
 import com.tasa.domain.AuthenticationException
 import com.tasa.domain.Location
@@ -186,8 +187,10 @@ class LocationRepository(
 
     override suspend fun clear() {
         if (userInfoRepository.isLocal()) {
+            Log.d("LocationRepository", "Clearing local locations")
             local.localDao().clearLocations()
         } else {
+            Log.d("LocationRepository", "Clearing remote locations")
             local.remoteDao().clearLocations()
         }
     }

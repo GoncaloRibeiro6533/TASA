@@ -75,17 +75,17 @@ class MenuViewModel(
         if (LocationService.isRunning) {
             serviceKiller.killServices(LocationService::class)
         }
+        val alarms = repo.alarmRepo.getAllAlarms()
+        val geofences = repo.geofenceRepo.getAllGeofences()
         locationUpdatesRepository.forceStop()
         repo.ruleRepo.clean()
         repo.eventRepo.clear()
         repo.locationRepo.clear()
         repo.userRepo.clear()
-        val alarms = repo.alarmRepo.getAllAlarms()
         alarms.forEach { alarm ->
             alarmScheduler.cancelAlarm(alarm.id, alarm.action)
             repo.alarmRepo.deleteAlarm(alarm.id)
         }
-        val geofences = repo.geofenceRepo.getAllGeofences()
         geofences.forEach { geofence ->
             geofenceManager.deregisterGeofence(geofence.name)
             repo.geofenceRepo.deleteGeofence(geofence)

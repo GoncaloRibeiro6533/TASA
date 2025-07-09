@@ -131,13 +131,6 @@ class QueryCalendarServiceImpl(
                 if (keywords.any { description.contains(it) }) {
                     continue
                 }
-
-                val a = it.getString(titleIndex)
-                /*if (it.getLong(dtStartIndex) < startTime.toInstant(ZoneOffset.UTC).toEpochMilli() ||
-                    it.getLong(dtEndIndex) > endTime.toInstant(ZoneOffset.UTC).toEpochMilli()
-                ) {
-                    continue
-                }*/
                 return Event(
                     id = externalId,
                     eventId = it.getLong(idIndex),
@@ -168,7 +161,6 @@ class QueryCalendarServiceImpl(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
     ): Pair<Long, Long>? {
-        Log.d("QueryCalendarServiceImpl", "insertEvent: $title")
         val calendarId =
             getPrimaryCalendarId() ?: run {
                 return null

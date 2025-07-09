@@ -153,7 +153,6 @@ class UserRepository(
         val result = remote.userService.logout(getToken())
         return when (result) {
             is Success -> {
-                userInfoRepository.clearUserInfo()
                 local.userDao().clear()
                 success(Unit)
             }
