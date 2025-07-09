@@ -50,12 +50,10 @@ class MenuViewModel(
                 when (repo.userRepo.logout()) {
                     is Success -> {
                         clear()
-                        userInfo.clearUserInfo()
                         _state.value = MenuScreenState.LoggedOut
                     }
                     is Failure -> {
                         clear()
-                        userInfo.clearUserInfo()
                         _state.value = MenuScreenState.LoggedOut
                     }
                 }
@@ -72,23 +70,29 @@ class MenuViewModel(
     }
 
     suspend fun clear() {
-        if (LocationService.isRunning) {
-            serviceKiller.killServices(LocationService::class)
+        try {
+            if (LocationService.isRunning) {
+                serviceKiller.killServices(LocationService::class)
+            }
+            val alarms = repo.alarmRepo.getAllAlarms()
+            val geofences = repo.geofenceRepo.getAllGeofences()
+            locationUpdatesRepository.forceStop()
+            repo.ruleRepo.clean()
+            repo.eventRepo.clear()
+            repo.locationRepo.clear()
+            repo.userRepo.clear()
+            alarms.forEach { alarm ->
+                alarmScheduler.cancelAlarm(alarm.id, alarm.action)
+                repo.alarmRepo.deleteAlarm(alarm.id)
+            }
+            geofences.forEach { geofence ->
+                geofenceManager.deregisterGeofence(geofence.name)
+                repo.geofenceRepo.deleteGeofence(geofence)
+            }
+        } catch (e: Throwable) {
         }
-        val alarms = repo.alarmRepo.getAllAlarms()
-        val geofences = repo.geofenceRepo.getAllGeofences()
-        locationUpdatesRepository.forceStop()
-        repo.ruleRepo.clean()
-        repo.eventRepo.clear()
-        repo.locationRepo.clear()
-        repo.userRepo.clear()
-        alarms.forEach { alarm ->
-            alarmScheduler.cancelAlarm(alarm.id, alarm.action)
-            repo.alarmRepo.deleteAlarm(alarm.id)
-        }
-        geofences.forEach { geofence ->
-            geofenceManager.deregisterGeofence(geofence.name)
-            repo.geofenceRepo.deleteGeofence(geofence)
+        finally {
+            userInfo.clearUserInfo()
         }
     }
 }

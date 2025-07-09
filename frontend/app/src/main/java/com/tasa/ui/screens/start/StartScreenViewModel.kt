@@ -66,13 +66,6 @@ class StartScreenViewModel(
         _state.value = StartScreenState.Logged
     }
 
-    fun logout(): Job? {
-        if (_state.value !is StartScreenState.Logged) return null
-        return viewModelScope.launch {
-            repo.clearUserInfo()
-            _state.value = StartScreenState.NotLogged
-        }
-    }
 }
 
 @Suppress("UNCHECKED_CAST")

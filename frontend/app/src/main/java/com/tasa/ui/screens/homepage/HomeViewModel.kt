@@ -64,20 +64,26 @@ class HomePageScreenViewModel(
     val isLocal: StateFlow<Boolean> = _isLocal.asStateFlow()
 
     fun onFatalError(): Job? {
-        Log.d("HomePageScreenViewModel", "Job on fatal error")
 
         if (_state.value !is HomeScreenState.SessionExpired &&
             _state.value !is HomeScreenState.FatalError
         ) {
             return null
         }
-        return clearOnFatalError()
+        return viewModelScope.launch {
+            try {
+                val job = clearOnFatalError()
+                job.join()
+            } catch (e: Throwable) {
+            } finally {
+                userInfo.clearUserInfo()
+            }
+        }
     }
 
     fun clearOnFatalError() =
         viewModelScope.launch {
             try {
-                userInfo.clearUserInfo()
                 locationUpdatesRepository.forceStop()
                 if (LocationService.isRunning) {
                     serviceKiller.killServices(LocationService::class)
@@ -92,18 +98,12 @@ class HomePageScreenViewModel(
                     geofenceManager.deregisterGeofence(geofence.name)
                     repo.geofenceRepo.deleteGeofence(geofence)
                 }
-                repo.userRepo.clear()
                 repo.ruleRepo.clean()
                 repo.eventRepo.clear()
                 repo.locationRepo.clear()
-                geofenceManager.deregisterAllGeofence()
+                repo.userRepo.clear()
             } catch (e: CancellationException) {
             } catch (e: Throwable) {
-                Log.e(
-                    "HomePageScreenViewModel",
-                    "Error on clear on fatal error: ${e.message}",
-                    e,
-                )
                 userInfo.clearUserInfo()
             }
         }

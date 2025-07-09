@@ -217,13 +217,20 @@ class EditRuleViewModel(
 
     fun onFatalError(): Job? {
         if (_state.value !is EditRuleState.SessionExpired) return null
-        return clearOnFatalError()
+        return viewModelScope.launch {
+            try {
+                val job = clearOnFatalError()
+                job.join()
+            } catch (e: Throwable) {
+            } finally {
+                userInfo.clearUserInfo()
+            }
+        }
     }
 
     fun clearOnFatalError() =
         viewModelScope.launch {
             try {
-                userInfo.clearUserInfo()
                 locationUpdatesRepository.forceStop()
                 if (LocationService.isRunning) {
                     serviceKiller.killServices(LocationService::class)
@@ -238,10 +245,10 @@ class EditRuleViewModel(
                     geofenceManager.deregisterGeofence(geofence.name)
                     repo.geofenceRepo.deleteGeofence(geofence)
                 }
-                repo.userRepo.clear()
                 repo.ruleRepo.clean()
                 repo.eventRepo.clear()
                 repo.locationRepo.clear()
+                repo.userRepo.clear()
             } catch (e: CancellationException) {
             } catch (e: Throwable) {
                 userInfo.clearUserInfo()

@@ -3,7 +3,6 @@
 package com.tasa.ui.screens.newLocation
 
 import android.Manifest
-import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
@@ -364,13 +363,19 @@ class MapScreenViewModel(
 
     fun onFatalError(): Job? {
         if (_state.value !is MapsScreenState.SessionExpired) return null
-        return clearOnFatalError()
+        return viewModelScope.launch {
+            try {
+                val job = clearOnFatalError()
+                job.join()
+                userInfo.clearUserInfo()
+            } catch (e: Throwable) {
+            }
+        }
     }
 
     fun clearOnFatalError() =
         viewModelScope.launch {
             try {
-                userInfo.clearUserInfo()
                 locationUpdatesRepository.forceStop()
                 if (LocationService.isRunning) {
                     serviceKiller.killServices(LocationService::class)
@@ -385,10 +390,10 @@ class MapScreenViewModel(
                     geofenceManager.deregisterGeofence(geofence.name)
                     repo.geofenceRepo.deleteGeofence(geofence)
                 }
-                repo.userRepo.clear()
                 repo.ruleRepo.clean()
                 repo.eventRepo.clear()
                 repo.locationRepo.clear()
+                repo.userRepo.clear()
             } catch (e: CancellationException) {
             } catch (e: Throwable) {
                 userInfo.clearUserInfo()
