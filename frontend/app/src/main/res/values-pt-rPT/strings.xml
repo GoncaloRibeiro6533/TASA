@@ -92,5 +92,11 @@
     <string name="session_expired">A sessão expirou</string>
     <string name="loc_update_successful">Localização atualizada com sucesso</string>
     <string name="event_title_required">Evento não tem título</string>
+    <string name="save_changes">Guardar alterações</string>
+    <string name="edit_rule">Editar Regra</string>
+    <string name="radius_meters">Raio (metros)</string>
+    <string name="valid_number">Por favor introduza um número valido</string>
+    <string name="change_center">Alterar Centro</string>
+
 
 </resources>

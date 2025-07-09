@@ -93,6 +93,12 @@
     <string name="session_expired">Session expired</string>
     <string name="loc_update_successful">Location update successful</string>
     <string name="event_title_required">Event must have a title</string>
+    <string name="save_changes">Save changes</string>
+    <string name="edit_rule">Edit Rule</string>
+    <string name="radius_meters">Radius (meters)</string>
+    <string name="valid_number">Please enter a valid number</string>
+    <string name="change_center">Change Center</string>
+
 
 
 </resources>
