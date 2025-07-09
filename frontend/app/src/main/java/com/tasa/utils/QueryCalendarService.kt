@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.provider.CalendarContract
+import android.util.Log
 import com.tasa.domain.CalendarEvent
 import com.tasa.domain.Event
 import com.tasa.domain.toLocalDateTime
@@ -70,15 +71,11 @@ class QueryCalendarServiceImpl(
 
         val selection =
             """
-            ${CalendarContract.Events.DTSTART} = ? AND
-            ${CalendarContract.Events.DTEND} = ? AND
             ${CalendarContract.Events.TITLE} = ?
             """.trimIndent()
 
         val selectionArgs =
             arrayOf(
-                startTime.toInstant(ZoneOffset.UTC).toEpochMilli().toString(),
-                endTime.toInstant(ZoneOffset.UTC).toEpochMilli().toString(),
                 title,
             )
 
@@ -96,6 +93,8 @@ class QueryCalendarServiceImpl(
             val calendarIdIndex = it.getColumnIndex(CalendarContract.Events.CALENDAR_ID)
             val titleIndex = it.getColumnIndex(CalendarContract.Events.TITLE)
             val descriptionIndex = it.getColumnIndex(CalendarContract.Events.DESCRIPTION)
+            val dtStartIndex = it.getColumnIndex(CalendarContract.Events.DTSTART)
+            val dtEndIndex = it.getColumnIndex(CalendarContract.Events.DTEND)
 
             while (it.moveToNext()) {
                 val description = it.getString(descriptionIndex)?.lowercase() ?: ""
@@ -132,6 +131,13 @@ class QueryCalendarServiceImpl(
                 if (keywords.any { description.contains(it) }) {
                     continue
                 }
+
+                val a = it.getString(titleIndex)
+                /*if (it.getLong(dtStartIndex) < startTime.toInstant(ZoneOffset.UTC).toEpochMilli() ||
+                    it.getLong(dtEndIndex) > endTime.toInstant(ZoneOffset.UTC).toEpochMilli()
+                ) {
+                    continue
+                }*/
                 return Event(
                     id = externalId,
                     eventId = it.getLong(idIndex),
@@ -146,11 +152,11 @@ class QueryCalendarServiceImpl(
             description = "",
             startTime = startTime,
             endTime = endTime,
-        )?.let {
+        )?.let { (eventId, calendarId) ->
             Event(
                 id = externalId,
-                eventId = it.first,
-                calendarId = it.second,
+                eventId = eventId,
+                calendarId = calendarId,
                 title = title,
             )
         }
@@ -162,6 +168,7 @@ class QueryCalendarServiceImpl(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
     ): Pair<Long, Long>? {
+        Log.d("QueryCalendarServiceImpl", "insertEvent: $title")
         val calendarId =
             getPrimaryCalendarId() ?: run {
                 return null
@@ -179,8 +186,6 @@ class QueryCalendarServiceImpl(
                 put(CalendarContract.Events.EVENT_TIMEZONE, java.util.TimeZone.getDefault().id)
                 put(CalendarContract.Events.EVENT_END_TIMEZONE, java.util.TimeZone.getDefault().id)
                 put(CalendarContract.Events.HAS_ALARM, 0)
-
-                put(CalendarContract.Events.VISIBLE, 1)
                 put(CalendarContract.Events.AVAILABILITY, CalendarContract.Events.AVAILABILITY_FREE)
             }
 

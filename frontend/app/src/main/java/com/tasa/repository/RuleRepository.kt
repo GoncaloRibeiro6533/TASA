@@ -409,9 +409,7 @@ class RuleRepository(
     ): Map<EventOutput, Event> =
         events.filter { (_, outEvent) ->
             localEvents.none { localEvent ->
-                localEvent.id == outEvent.id &&
-                    localEvent.eventId == outEvent.eventId &&
-                    localEvent.calendarId == outEvent.calendarId
+                localEvent.id == outEvent.id
             }
         }
 
@@ -421,8 +419,8 @@ class RuleRepository(
     ): Map<EventOutput, Event> =
         events.filter { (_, outEvent) ->
             localEvents.any { localEvent ->
-                localEvent.eventId == outEvent.eventId &&
-                    localEvent.calendarId == outEvent.calendarId
+                localEvent.id == outEvent.id &&
+                    localEvent.title != outEvent.title
             }
         }
 
