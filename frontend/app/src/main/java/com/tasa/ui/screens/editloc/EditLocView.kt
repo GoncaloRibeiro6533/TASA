@@ -18,10 +18,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tasa.domain.Location
+import com.tasa.R
+
 
 @Composable
 fun EditLocView(
@@ -49,7 +52,11 @@ fun EditLocView(
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
-            label = { Text("Name") },
+            label = {
+                Text(
+                    text = stringResource(R.string.name)
+                )
+                    },
             modifier = Modifier.fillMaxWidth(),
         )
 
@@ -61,7 +68,11 @@ fun EditLocView(
                 radiusText = it
                 radiusError = it.toDoubleOrNull() == null
             },
-            label = { Text("Radius (meters)") },
+            label = {
+                Text(
+                    text = stringResource(R.string.radius_meters)
+                )
+                    },
             isError = radiusError,
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
@@ -69,7 +80,7 @@ fun EditLocView(
 
         if (radiusError) {
             Text(
-                text = "Please enter a valid number",
+                text = stringResource(R.string.valid_number),
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.labelSmall,
             )
@@ -90,7 +101,9 @@ fun EditLocView(
                     onNewCenter()
                 },
             ) {
-                Text("Change Center")
+                Text(
+                    text = stringResource(R.string.change_center)
+                )
             }
 
             Button(
@@ -102,7 +115,9 @@ fun EditLocView(
                     onNewCenter()
                 },
             ) {
-                Text("Edit Rule")
+                Text(
+                    text = stringResource(R.string.edit_rule)
+                )
             }
         }
 
@@ -120,7 +135,9 @@ fun EditLocView(
             },
             enabled = name.isNotBlank() && !radiusError,
         ) {
-            Text("Save")
+            Text(
+                text = stringResource(R.string.save_changes)
+            )
         }
     }
 }
