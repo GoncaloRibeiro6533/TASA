@@ -1,5 +1,6 @@
 package com.tasa.ui.screens.editloc
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -9,6 +10,7 @@ import androidx.annotation.RequiresApi
 import com.tasa.DependenciesContainer
 import com.tasa.domain.Location
 import com.tasa.ui.screens.mylocations.MyLocationsActivity
+import com.tasa.ui.screens.newLocation.MapActivity
 import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
 
@@ -48,7 +50,14 @@ class EditLocActivity : ComponentActivity() {
             TasaTheme {
                 EditLocScreen(
                     viewModel = viewModel,
-                    onNewCenter = {},
+                    onNewCenter = {
+                            location ->
+                        val intent =
+                            Intent(this, MapActivity::class.java).apply {
+                                putExtra("location", location)
+                            }
+                        startActivity(intent)
+                    },
                     onNavigationBack = {
                         finish()
                     },

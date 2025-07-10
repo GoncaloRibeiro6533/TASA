@@ -14,6 +14,7 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import com.tasa.R
 import com.tasa.alarm.AlarmScheduler
 import com.tasa.domain.AuthenticationException
+import com.tasa.domain.Location
 import com.tasa.domain.UserInfoRepository
 import com.tasa.domain.toLocalDateTime
 import com.tasa.geofence.GeofenceManager
@@ -77,6 +78,16 @@ sealed interface MapsScreenState {
     ) : MapsScreenState
 
     data class EditingLocation(
+        val selectedPoint: StateFlow<GeoPoint?>,
+        val currentLocation: StateFlow<TasaLocation>,
+        val searchQuery: StateFlow<TextFieldValue>,
+        val userActivity: StateFlow<String?>,
+        val radius: StateFlow<Double>,
+        val locationName: StateFlow<String>,
+    ) : MapsScreenState
+
+    data class ChangingCenter(
+        val previousLocation: StateFlow<Location>,
         val selectedPoint: StateFlow<GeoPoint?>,
         val currentLocation: StateFlow<TasaLocation>,
         val searchQuery: StateFlow<TextFieldValue>,
@@ -245,6 +256,10 @@ class MapScreenViewModel(
                     locationName = _locationName,
                 )
         }
+    }
+
+    fun onChangeCenter() {
+        TODO()
     }
 
     fun onCreateLocation(
