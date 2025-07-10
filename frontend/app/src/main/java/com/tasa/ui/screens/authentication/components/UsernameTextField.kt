@@ -3,6 +3,8 @@ package com.tasa.ui.screens.authentication.components
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.tasa.R
 
 @Composable
 fun UsernameTextField(
@@ -10,11 +12,11 @@ fun UsernameTextField(
     onUsernameChangeCallback: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val invalidUsernameMessage = "Username shoudl have atleast 3 characters."
+    val invalidUsernameMessage = stringResource(R.string.invalid_username)
     val invalidUsername = username.isNotEmpty() && !validateUsername(username)
 
     AuthenticationTextField(
-        label = "Username",
+        label = stringResource(R.string.username_label),
         value = username,
         onValueChange = onUsernameChangeCallback,
         modifier = Modifier.fillMaxWidth().then(modifier),

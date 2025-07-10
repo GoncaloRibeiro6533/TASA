@@ -70,7 +70,7 @@
     <string name="login_button_content_description" translatable="false">login button</string>
     <string name="use_local">Continue without an account</string>
     <string name="dont_have_a_account">Don\'t have an account?</string>
-    <string name="continue_without_account">Continue without an account</string>
+    <string name="continue_without_account">Continue without an account (Locally)</string>
     <string name="search">Search</string>
     <string name="search_for_a_place">Search for a place</string>
     <string name="create_location">Enter info for this location:</string>
@@ -98,7 +98,10 @@
     <string name="radius_meters">Radius (meters)</string>
     <string name="valid_number">Please enter a valid number</string>
     <string name="change_center">Change Center</string>
-
+    <string name="invalid_email">Invalid email</string>
+    <string name="invalid_username">Username shoudl have atleast 3 characters.</string>
+    <string name="invalid_password">Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one digit, and one special character.</string>
+    <string name="password_label">Password</string>
 
 
 </resources>

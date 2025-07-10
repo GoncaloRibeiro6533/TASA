@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -216,7 +217,7 @@ fun CreatingLocationView(
             shape = MaterialTheme.shapes.medium,
             tonalElevation = 8.dp,
             shadowElevation = 12.dp,
-            modifier = Modifier.width(280.dp),
+            modifier = Modifier.width(280.dp).imePadding(),
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),

@@ -65,7 +65,6 @@ class StartScreenViewModel(
         if (_state.value is StartScreenState.Logged) return
         _state.value = StartScreenState.Logged
     }
-
 }
 
 @Suppress("UNCHECKED_CAST")

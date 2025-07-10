@@ -15,8 +15,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.tasa.R
 import com.tasa.ui.screens.authentication.components.validateEmail
 import com.tasa.ui.screens.authentication.components.validatePassword
 import com.tasa.ui.screens.authentication.components.validateUsername
@@ -137,7 +139,7 @@ fun LandscapeRegisterLayout(
             modifier = Modifier.weight(1f),
         ) {
             Text(
-                text = "Register",
+                text = stringResource(R.string.register),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(bottom = 16.dp),
             )

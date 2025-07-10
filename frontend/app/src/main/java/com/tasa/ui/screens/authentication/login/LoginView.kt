@@ -63,7 +63,7 @@ fun LoginView(
             horizontalArrangement = Arrangement.Center,
         ) {
             Text(
-                text = "Login",
+                text = stringResource(R.string.log_in),
                 style = MaterialTheme.typography.titleLarge,
             )
         }
@@ -91,7 +91,7 @@ fun LoginView(
         Row(
             horizontalArrangement = Arrangement.Center,
         ) {
-            Text(text = stringResource(R.string.dont_have_a_account), style = TextStyle(fontSize = 18.sp))
+            Text(text = stringResource(R.string.dont_have_a_account) + " ", style = TextStyle(fontSize = 18.sp))
             Text(
                 text = annotatedString,
                 style = TextStyle(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),

@@ -22,9 +22,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.tasa.domain.Location
 import com.tasa.R
-
+import com.tasa.domain.Location
 
 @Composable
 fun EditLocView(
@@ -54,9 +53,9 @@ fun EditLocView(
             onValueChange = { name = it },
             label = {
                 Text(
-                    text = stringResource(R.string.name)
+                    text = stringResource(R.string.name),
                 )
-                    },
+            },
             modifier = Modifier.fillMaxWidth(),
         )
 
@@ -70,9 +69,9 @@ fun EditLocView(
             },
             label = {
                 Text(
-                    text = stringResource(R.string.radius_meters)
+                    text = stringResource(R.string.radius_meters),
                 )
-                    },
+            },
             isError = radiusError,
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
@@ -102,7 +101,7 @@ fun EditLocView(
                 },
             ) {
                 Text(
-                    text = stringResource(R.string.change_center)
+                    text = stringResource(R.string.change_center),
                 )
             }
 
@@ -116,7 +115,7 @@ fun EditLocView(
                 },
             ) {
                 Text(
-                    text = stringResource(R.string.edit_rule)
+                    text = stringResource(R.string.edit_rule),
                 )
             }
         }
@@ -136,7 +135,7 @@ fun EditLocView(
             enabled = name.isNotBlank() && !radiusError,
         ) {
             Text(
-                text = stringResource(R.string.save_changes)
+                text = stringResource(R.string.save_changes),
             )
         }
     }

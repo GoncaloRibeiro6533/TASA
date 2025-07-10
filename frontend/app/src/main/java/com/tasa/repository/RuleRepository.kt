@@ -365,12 +365,15 @@ class RuleRepository(
     private fun getRulesEventToInsert(
         ruleEventsFiltered: List<RuleEventOutput>,
         events: Map<EventOutput, Event>,
-    ): Map<RuleEventOutput, Event> =
-        ruleEventsFiltered.filter { ruleEvent ->
+    ): Map<RuleEventOutput, Event> {
+        val now = LocalDateTime.now()
+        return ruleEventsFiltered.filter { ruleEvent ->
             events.any { it.key.id == ruleEvent.event.id }
         }.associateWith { ruleEvent ->
             events.getValue(ruleEvent.event)
         }
+            .filter { it.key.startTime.isAfter(now) }
+    }
 
     private suspend fun endAlarmsToUpdate(localRuleEvents: List<RuleEvent>): Map<Alarm, RuleEvent> =
         localRuleEvents.mapNotNull { ruleEvent ->
@@ -425,17 +428,19 @@ class RuleRepository(
         }
 
     private fun mapToLocalEvent(ruleEvents: List<RuleEventOutput>): Map<EventOutput, Event> {
+        val now = LocalDateTime.now()
         val events: Map<EventOutput, Event> =
-            ruleEvents.mapNotNull { it ->
-                val localEvent =
-                    queryCalendarService.toLocalEvent(
-                        it.event.id,
-                        it.event.title,
-                        it.event.startTime,
-                        it.event.endTime,
-                    )
-                if (localEvent != null) it.event to localEvent else null
-            }.toMap()
+            ruleEvents.filter { it.startTime.isAfter(now) || it.event.startTime.isAfter(now) }
+                .mapNotNull { it ->
+                    val localEvent =
+                        queryCalendarService.toLocalEvent(
+                            it.event.id,
+                            it.event.title,
+                            it.event.startTime,
+                            it.event.endTime,
+                        )
+                    if (localEvent != null) it.event to localEvent else null
+                }.toMap()
         return events
     }
 

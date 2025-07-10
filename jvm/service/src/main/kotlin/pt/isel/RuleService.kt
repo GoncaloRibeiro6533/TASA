@@ -78,7 +78,8 @@ class RuleService(
                 return@run failure(RuleError.StartTimeMustBeBeforeEndTime)
             }
             val user = userRepo.findById(userId) ?: return@run failure(RuleError.UserNotFound)
-            if (ruleRepo.findByUserId(user).filterIsInstance<RuleEvent>().any {
+            val rules = ruleRepo.findByUserId(user)
+            if (rules.filterIsInstance<RuleEvent>().any {
                     checkCollisionTime(
                         it.startTime,
                         it.endTime,

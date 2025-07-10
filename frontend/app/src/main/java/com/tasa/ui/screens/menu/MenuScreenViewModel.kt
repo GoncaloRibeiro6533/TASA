@@ -90,8 +90,7 @@ class MenuViewModel(
                 repo.geofenceRepo.deleteGeofence(geofence)
             }
         } catch (e: Throwable) {
-        }
-        finally {
+        } finally {
             userInfo.clearUserInfo()
         }
     }

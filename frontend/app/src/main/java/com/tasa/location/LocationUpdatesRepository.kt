@@ -174,18 +174,11 @@ class LocationUpdatesRepository(
                         lastLocations.clear()
                         lastLocations.addAll(discardedLocations)
                         discardedLocations.clear()
-                        isStable = true
-                        possibleArea =
-                            Area(
-                                center = discardedLocationsCentralPoint,
-                                radius = MAX_DRIFTED_METERS,
-                            )
                         // decrease the update interval
                         stopLocationUpdates()
                         startLocationUpdates(
                             createLocationRequest(5000.milliseconds.inWholeMilliseconds, Priority.PRIORITY_BALANCED_POWER_ACCURACY),
                         )
-                        Log.d("LocationManagerMine", "Locations stabilized")
                         true
                     } else {
                         false
@@ -243,7 +236,6 @@ class LocationUpdatesRepository(
             discardedLocations.clear()
             possibleArea = null
             userActivity = null
-            isStable = false
         }
     }
 
@@ -255,7 +247,6 @@ class LocationUpdatesRepository(
         discardedLocations.clear()
         possibleArea = null
         userActivity = null
-        isStable = false
         locationFlow.value = null
         _centralLocationFlow.value = null
     }

@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.provider.CalendarContract
-import android.util.Log
 import com.tasa.domain.CalendarEvent
 import com.tasa.domain.Event
 import com.tasa.domain.toLocalDateTime
@@ -17,7 +16,6 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.util.Locale
 
 interface QueryCalendarService {

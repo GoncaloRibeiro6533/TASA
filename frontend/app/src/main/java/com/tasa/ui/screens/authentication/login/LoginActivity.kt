@@ -2,6 +2,7 @@ package com.tasa.ui.screens.authentication.login
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import com.tasa.DependenciesContainer
@@ -43,5 +44,14 @@ class LoginActivity : ComponentActivity() {
                 )
             }
         }
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    finish()
+                    navigateTo(this@LoginActivity, StartActivity::class.java)
+                }
+            },
+        )
     }
 }

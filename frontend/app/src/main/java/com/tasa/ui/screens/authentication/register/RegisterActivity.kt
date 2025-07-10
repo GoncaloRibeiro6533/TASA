@@ -42,5 +42,14 @@ class RegisterActivity : ComponentActivity() {
                 )
             }
         }
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : androidx.activity.OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    finish()
+                    navigateTo(this@RegisterActivity, StartActivity::class.java)
+                }
+            },
+        )
     }
 }

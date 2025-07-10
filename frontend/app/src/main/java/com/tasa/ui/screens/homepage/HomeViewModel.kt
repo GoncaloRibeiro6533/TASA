@@ -64,7 +64,6 @@ class HomePageScreenViewModel(
     val isLocal: StateFlow<Boolean> = _isLocal.asStateFlow()
 
     fun onFatalError(): Job? {
-
         if (_state.value !is HomeScreenState.SessionExpired &&
             _state.value !is HomeScreenState.FatalError
         ) {
