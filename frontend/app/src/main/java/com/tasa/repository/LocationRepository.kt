@@ -159,10 +159,45 @@ class LocationRepository(
         }
     }
 
-    // TODO
-    override suspend fun updateLocation(location: Location) {
-        TODO()
+    override suspend fun updateLocation(location: Location)/*: Either<ApiError, Unit>*/ {
+        /*return if (userInfoRepository.isLocal()) {
+            local.localDao().updateLocationLocal(
+                id = location.id,
+                name = location.name,
+                latitude = location.latitude,
+                longitude = location.longitude,
+            )
+            success(Unit)
+        } else {
+            val result = retryOnFailure { token ->
+                remote.locationService.updateLocation(
+                    id = location.id,
+                    name = location.name,
+                    latitude = location.latitude,
+                    longitude = location.longitude,
+                    radius = location.radius,
+                    token = token
+                )
+            }
+            when (result) {
+                is Success -> {
+                    local.remoteDao().updateLocationRemote(
+                        location.id,
+                        location.name,
+                        location.latitude,
+                        location.longitude,
+                        location.radius
+                    )
+                    success(Unit)
+                }
+                is Failure -> failure(result.value)
+            }
+        }
+
+         */
     }
+
+
 
     override suspend fun updateLocationFields(
         name: String,

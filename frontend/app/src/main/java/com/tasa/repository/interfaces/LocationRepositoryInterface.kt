@@ -21,7 +21,7 @@ interface LocationRepositoryInterface {
 
     suspend fun deleteLocation(location: Location): Either<ApiError, Unit>
 
-    suspend fun updateLocation(location: Location)
+    suspend fun updateLocation(location: Location)//: Either<ApiError, Unit>
 
     suspend fun updateLocationFields(
         name: String,

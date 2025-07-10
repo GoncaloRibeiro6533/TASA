@@ -20,7 +20,7 @@ import com.tasa.ui.theme.TasaTheme
 @Composable
 fun EditLocScreen(
     onUpdateSuccessful: () -> Unit,
-    onNewCenter: () -> Unit,
+    onNewCenter: (Location) -> Unit,
     location: Location,
     viewModel: EditLocScreenViewModel,
     onNavigationBack: () -> Unit,
@@ -58,7 +58,9 @@ fun EditLocScreen(
                             onSave = { name, radius, location ->
                                 viewModel.editLocFields(name, radius, location)
                             },
-                            onNewCenter = onNewCenter,
+                            onNewCenter = {
+                                onNewCenter(location)
+                            },
                         )
                     }
                     is EditLocScreenState.Success ->

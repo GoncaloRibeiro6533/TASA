@@ -10,6 +10,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import com.google.android.gms.location.LocationServices
 import com.tasa.DependenciesContainer
+import com.tasa.domain.Location
 import com.tasa.location.LocationService
 import com.tasa.ui.screens.mylocations.MyLocationsActivity
 import com.tasa.ui.screens.start.StartActivity
@@ -66,7 +67,7 @@ class MapActivity : ComponentActivity() {
         },
     )
 
-    @RequiresApi(Build.VERSION_CODES.Q)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @RequiresPermission(
         anyOf = [
             Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -75,8 +76,18 @@ class MapActivity : ComponentActivity() {
             "com.google.android.gms.permission.ACTIVITY_RECOGNITION",
         ],
     )
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val location = intent.getParcelableExtra("location", Location::class.java)
+        if (location == null) {
+            navigateTo(this, MyLocationsActivity::class.java)
+            finish()
+            return
+        }
 
         viewModel.keepGivenCurrentLocation()
 
@@ -133,6 +144,8 @@ class MapActivity : ComponentActivity() {
                             StartActivity::class.java,
                         )
                     },
+                    onEditCenterButton = {},
+                    previousLocation = location
                 )
             }
         }
