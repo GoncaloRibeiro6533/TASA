@@ -39,7 +39,6 @@ class LocationUpdatesRepository(
     val isActive get() = active
     private val lastLocations = ArrayList<Location>(MAX_LOCATION_HISTORY)
     private val discardedLocations = ArrayList<Location>(MAX_LOCATION_HISTORY_DISCARDED)
-    private val lastZone = ArrayList<Location>(MAX_LOCATION_HISTORY)
 
     private var possibleArea: Area? = null
 
@@ -49,9 +48,6 @@ class LocationUpdatesRepository(
             if (lastLocations.isEmpty()) return 0f
             return lastLocations.map { it.accuracy }.average().toFloat()
         }
-
-    private val precision: Float
-        get() = lastLocations.calculatePrecision()
 
     private var userActivity: String? = null
 
@@ -289,8 +285,6 @@ class LocationUpdatesRepository(
             userActivity =
                 UserActivityTransitionManager.Companion.getActivityType(activity)
             if (userActivity != "STILL" && userActivity != "TILTING") {
-                isStable = false
-                Log.d("LocationManagerMine", "Not stable")
                 // increase updates interval
                 stopLocationUpdates()
                 startLocationUpdates(createLocationRequest(100.milliseconds.inWholeMilliseconds, Priority.PRIORITY_HIGH_ACCURACY))

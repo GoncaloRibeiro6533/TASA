@@ -8,19 +8,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.DismissDirection
-import androidx.compose.material.DismissValue
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.FractionalThreshold
-import androidx.compose.material.Icon
-import androidx.compose.material.SwipeToDismiss
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.rememberDismissState
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,89 +42,94 @@ data class SwipeMeta(
     val label: String,
 )
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T> SwipeableRuleCard(
     rule: T,
+    modifier: Modifier = Modifier,
     onEdit: ((T) -> Unit)? = null,
     onDelete: (T) -> Unit,
     dismissContent: @Composable (T) -> Unit,
-    modifier: Modifier = Modifier,
-    directions: Set<DismissDirection> = setOf(DismissDirection.StartToEnd, DismissDirection.EndToStart),
+    enableEdit: Boolean = true,
+    enableDelete: Boolean = true,
 ) {
-    val dismissState =
-        rememberDismissState(
-            confirmStateChange = { dismissValue ->
-                when (dismissValue) {
-                    DismissValue.DismissedToStart -> {
-                        onDelete(rule)
-                        true
-                    }
-
-                    DismissValue.DismissedToEnd -> {
-                        onEdit?.invoke(rule)
-                        true
-                    }
-
-                    else -> false
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = { dismissValue ->
+            when (dismissValue) {
+                SwipeToDismissBoxValue.EndToStart -> {
+                    onDelete(rule)
+                    false // Não confirma o dismiss, apenas executa a ação
                 }
-            },
-        )
+                SwipeToDismissBoxValue.StartToEnd -> {
+                    onEdit?.invoke(rule)
+                    false // Não confirma o dismiss, apenas executa a ação
+                }
+                else -> false
+            }
+        }
+    )
 
-    SwipeToDismiss(
+    // Alternativa: resetar o estado após a ação
+    LaunchedEffect(dismissState.currentValue) {
+        if (dismissState.currentValue != SwipeToDismissBoxValue.Settled) {
+            dismissState.reset()
+        }
+    }
+
+    SwipeToDismissBox(
         state = dismissState,
-        directions = directions,
-        dismissThresholds = { direction -> FractionalThreshold(1f) },
-        background = {
-            val direction = dismissState.dismissDirection ?: return@SwipeToDismiss
-            val meta =
-                when (direction) {
-                    DismissDirection.StartToEnd ->
-                        SwipeMeta(
-                            backgroundColor = MaterialTheme.colorScheme.primary,
-                            icon = Icons.Default.Edit,
-                            alignment = Alignment.CenterStart,
-                            label = stringResource(R.string.edit),
-                        )
-
-                    DismissDirection.EndToStart ->
-                        SwipeMeta(
-                            backgroundColor = MaterialTheme.colorScheme.error,
-                            icon = Icons.Default.Delete,
-                            alignment = Alignment.CenterEnd,
-                            label = stringResource(R.string.delete),
-                        )
-                }
+        enableDismissFromStartToEnd = enableEdit && onEdit != null,
+        enableDismissFromEndToStart = enableDelete,
+        backgroundContent = {
+            val direction = dismissState.dismissDirection
+            val meta = when (direction) {
+                SwipeToDismissBoxValue.StartToEnd -> SwipeMeta(
+                    backgroundColor = MaterialTheme.colorScheme.primary,
+                    icon = Icons.Default.Edit,
+                    alignment = Alignment.CenterStart,
+                    label = stringResource(R.string.edit),
+                )
+                SwipeToDismissBoxValue.EndToStart -> SwipeMeta(
+                    backgroundColor = MaterialTheme.colorScheme.error,
+                    icon = Icons.Default.Delete,
+                    alignment = Alignment.CenterEnd,
+                    label = stringResource(R.string.delete),
+                )
+                else -> return@SwipeToDismissBox
+            }
 
             Box(
-                modifier =
-                    modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(meta.backgroundColor)
-                        .padding(horizontal = 20.dp),
+                modifier = modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(meta.backgroundColor)
+                    .padding(horizontal = 20.dp),
                 contentAlignment = meta.alignment,
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (meta.alignment == Alignment.CenterEnd) Spacer(modifier = modifier.weight(1f))
+                    if (meta.alignment == Alignment.CenterEnd) {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
                     Icon(
                         imageVector = meta.icon,
                         contentDescription = meta.label,
                         tint = MaterialTheme.colorScheme.onPrimary,
                     )
-                    Spacer(modifier = modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = meta.label,
                         color = MaterialTheme.colorScheme.onPrimary,
                         style = MaterialTheme.typography.bodyLarge,
                     )
-                    if (meta.alignment == Alignment.CenterStart) Spacer(modifier = modifier.weight(1f))
+                    if (meta.alignment == Alignment.CenterStart) {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
                 }
             }
         },
-        dismissContent = {
+        content = {
             dismissContent(rule)
-        },
+        }
     )
 }
 
@@ -173,7 +177,8 @@ fun SwipeableRuleCardLocationTimeless(
         onDelete = onDelete,
         dismissContent = { RuleCardLocationTimeless(rule = it) },
         modifier = modifier,
-        directions = setOf(DismissDirection.EndToStart),
+        enableEdit = false,  // Desabilita o swipe para editar
+        enableDelete = true, // Apenas permite deletar
     )
 }
 

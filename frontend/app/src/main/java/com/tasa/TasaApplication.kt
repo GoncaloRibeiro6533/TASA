@@ -149,8 +149,6 @@ class TasaApplication : Application(), DependenciesContainer {
         val props = PropertiesConfigLoader.load(applicationContext)
         apiUrl = props.getProperty("api_url")
         devMode = props.getProperty("developer_mode", "false").toBoolean()
-        val port = props.getProperty("port").toIntOrNull()
-        if (port != null) apiUrl = "$apiUrl:$port"
         val constraints =
             Constraints.Builder()
                 .setRequiredNetworkType(androidx.work.NetworkType.UNMETERED)

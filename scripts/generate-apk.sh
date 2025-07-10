@@ -2,25 +2,6 @@
 
 
 NGINX_EXTERNAL_PORT="${1:-8080}"
-
-export NGINX_EXTERNAL_PORT
-
-set -e
-
-cd ..
-cd jvm
-
-./gradlew startAll
-
-# Wait for the services to start
-while ! curl -s "http://localhost:${NGINX_EXTERNAL_PORT}" > /dev/null; do
-    sleep 1
-done
-
-echo "All services started successfully."
-
-sleep 2
-
 # Start the frontend
 
 #ask for URL to give to the frontend
@@ -30,7 +11,7 @@ FRONTEND_URL="${FRONTEND_URL:-http://localhost:${NGINX_EXTERNAL_PORT}}"
 
 cd ..
 
-cd frontend/app/src/main/assets
+cd frontend/app/src/main/assets || exit
 
 sed -i "s|^api_url=.*|api_url=${FRONTEND_URL}|g" config.properties
 
