@@ -29,9 +29,9 @@ import com.tasa.domain.Location
 fun EditLocView(
     location: Location,
     onSave: (
+        location: Location,
         name: String,
         radius: Double,
-        location: Location,
     ) -> Unit,
     onNewCenter: () -> Unit,
 ) {
@@ -127,7 +127,7 @@ fun EditLocView(
             onClick = {
                 val radius = radiusText.toDoubleOrNull()
                 if (radius != null && !radiusError) {
-                    onSave(name, radius, location)
+                    onSave(location, name, radius, )
                 } else {
                     radiusError = true
                 }

@@ -41,7 +41,13 @@ fun MapViewEditLocationView(
     onDismiss: () -> Unit,
     onChangeLocationName: (String) -> Unit,
     onChangeRadius: (Double) -> Unit,
-    onConfirm: (String, Double, Double, Double) -> Unit,
+    onConfirm: (
+        Location,
+        String,
+        Double,
+        Double,
+        Double
+    ) -> Unit,
 ) {
     val selectedPoint = selectedPoint.collectAsState().value
     val location = location.collectAsState().value
@@ -104,6 +110,7 @@ fun MapViewEditLocationView(
                         enabled = locationName.isNotBlank() && radius > 0,
                         onClick = {
                             onConfirm(
+                                previousLocation,
                                 locationName,
                                 radius,
                                 selectedPoint?.latitude ?: location.point.latitude,
