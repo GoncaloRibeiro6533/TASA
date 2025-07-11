@@ -1,6 +1,7 @@
 #! /bin/bash
 
 
-cd ../jvm/host || exit
+cd ..
+cd jvm || exit
 
-gradlew allDown
+./gradlew allDown
