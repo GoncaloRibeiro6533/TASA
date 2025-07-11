@@ -3,6 +3,7 @@ package com.tasa.ui.screens.newLocation
 import android.Manifest
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -67,6 +68,14 @@ class MapActivity : ComponentActivity() {
         },
     )
 
+    val fakeLoc = Location(
+        id = 0,
+        name = "loc",
+        latitude = 0.0,
+        longitude = 0.0,
+        radius = 1.0
+    )
+
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @RequiresPermission(
         anyOf = [
@@ -78,16 +87,28 @@ class MapActivity : ComponentActivity() {
     )
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val location = intent.getParcelableExtra("location", Location::class.java)
-        if (location == null) {
+        Log.e("MapActivity", "Activity started")
+
+        val origin = intent.getStringExtra("origin")
+        Log.e("MapActivity", "Origin: $origin")
+
+        val location = try {
+            intent.getParcelableExtra("location", Location::class.java)
+        } catch (e: Exception) {
+            Log.e("MapActivity", "Failed to get location: ${e.message}")
+            null
+        }
+        if (location == null && origin == "FromMyLocations") {
             navigateTo(this, MyLocationsActivity::class.java)
             finish()
             return
         }
+
+
+
 
         viewModel.keepGivenCurrentLocation()
 
@@ -144,8 +165,16 @@ class MapActivity : ComponentActivity() {
                             StartActivity::class.java,
                         )
                     },
-                    onEditCenterButton = {},
-                    previousLocation = location
+                    onEditCenterButton = { _, name, radius, latitude, longitude ->
+                        viewModel.onChangeCenter(
+                            location = location?:fakeLoc,
+                            locationName = name,
+                            radius = radius,
+                            latitude = latitude,
+                            longitude = longitude,
+                        )
+                    },
+                    previousLocation = location?:fakeLoc
                 )
             }
         }

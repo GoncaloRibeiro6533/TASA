@@ -36,13 +36,24 @@ fun MapScreen(
     onUpdateLocationName: (String) -> Unit,
     onEditSearchBox: (TextFieldValue) -> Unit,
     onCreateLocationButton: () -> Unit,
-    onEditCenterButton: (Location) -> Unit,
     onDismissEditingLocation: () -> Unit,
-    onConfirmEditingLocation: (String, Double, Double, Double) -> Unit,
     onRecenterMap: () -> Unit,
     onLocationsIntent: () -> Unit,
     onSessionExpired: () -> Unit,
     previousLocation: Location,
+    onEditCenterButton: (
+        Location,
+        String,
+        Double,
+        Double,
+        Double
+    ) -> Unit,
+    onConfirmEditingLocation: (
+        String,
+        Double,
+        Double,
+        Double
+    ) -> Unit,
 ) {
     val state = viewModel.state.collectAsState().value
     LaunchedEffect(state) {
@@ -124,7 +135,7 @@ fun MapScreen(
                                     locationName = state.locationName,
                                     radius = state.radius,
                                     onDismiss = onDismissEditingLocation,
-                                    onConfirm = onConfirmEditingLocation,
+                                    onConfirm = onEditCenterButton,
                                     onChangeRadius = onUpdateRadius,
                                     onChangeLocationName = onUpdateLocationName,
                                 )
@@ -157,7 +168,7 @@ fun MapScreen(
                     }
                 }
 
-                is MapsScreenState.ChangingCenter -> TODO()
+
             }
         }
     }
