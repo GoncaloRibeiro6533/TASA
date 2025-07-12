@@ -16,6 +16,7 @@ import pt.isel.Failure
 import pt.isel.Success
 import pt.isel.errorHandlers.EventErrorHandler
 import pt.isel.models.event.EventInput
+import pt.isel.models.event.EventUpdateInput
 
 @RestController
 @RequestMapping("api/event")
@@ -27,7 +28,7 @@ class EventController(
     fun createEvent(
         authUser: AuthenticatedUser,
         @RequestBody eventIn: EventInput,
-    ): ResponseEntity<*> {
+    ): ResponseEntity<Any> {
         val result =
             eventService.createEvent(
                 title = eventIn.title,
@@ -49,7 +50,7 @@ class EventController(
     fun getEvent(
         authUser: AuthenticatedUser,
         @PathVariable id: Int,
-    ): ResponseEntity<*> {
+    ): ResponseEntity<Any> {
         val result =
             eventService.getEvent(
                 eventId = id,
@@ -62,7 +63,7 @@ class EventController(
     }
 
     @GetMapping("/all")
-    fun getAllEvents(authUser: AuthenticatedUser): ResponseEntity<*> {
+    fun getAllEvents(authUser: AuthenticatedUser): ResponseEntity<Any> {
         val result =
             eventService.getEventsOfUser(
                 userId = authUser.user.id,
@@ -76,18 +77,18 @@ class EventController(
     @PutMapping("{id}/update/title")
     fun updateEvent(
         authUser: AuthenticatedUser,
-        @RequestBody eventIn: EventInput,
+        @RequestBody eventIn: EventUpdateInput,
         @PathVariable id: Int,
-    ): ResponseEntity<*> {
+    ): ResponseEntity<Any> {
         val result =
             eventService.updateEvent(
                 eventId = id,
-                newTitle = eventIn.title,
+                newTitle = eventIn.newTitle,
                 userId = authUser.user.id,
             )
         return when (result) {
             is Success -> ResponseEntity.ok(result.value)
-            is Failure -> eventErrorHandler.toResponse(result.value, eventIn.title)
+            is Failure -> eventErrorHandler.toResponse(result.value, eventIn.newTitle)
         }
     }
 
@@ -95,7 +96,7 @@ class EventController(
     fun deleteEvent(
         authUser: AuthenticatedUser,
         @PathVariable id: Int,
-    ): ResponseEntity<*> {
+    ): ResponseEntity<Any> {
         val result =
             eventService.deleteEvent(
                 eventId = id,

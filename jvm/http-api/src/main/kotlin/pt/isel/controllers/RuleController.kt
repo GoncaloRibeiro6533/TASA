@@ -49,7 +49,7 @@ class RuleController(
     fun createRuleLocation(
         authUser: AuthenticatedUser,
         @RequestBody rule: RuleLocationInput,
-    ): ResponseEntity<*> {
+    ): ResponseEntity<Any> {
         val result: Either<RuleError, RuleLocation> =
             ruleService.createLocationRule(
                 userId = authUser.user.id,
@@ -73,7 +73,7 @@ class RuleController(
     fun createRuleEvent(
         authUser: AuthenticatedUser,
         @RequestBody rule: RuleEventInput,
-    ): ResponseEntity<*> {
+    ): ResponseEntity<Any> {
         val result: Either<RuleError, RuleEvent> =
             ruleService.createRuleEvent(
                 userId = authUser.user.id,
@@ -103,7 +103,7 @@ class RuleController(
         authUser: AuthenticatedUser,
         @PathVariable id: Int,
         @RequestBody rule: RuleEventUpdateInput,
-    ): ResponseEntity<*> {
+    ): ResponseEntity<Any> {
         val result: Either<RuleError, RuleEvent> =
             ruleService.updateEventRule(
                 userId = authUser.user.id,
@@ -140,7 +140,7 @@ class RuleController(
     fun getRuleLocation(
         authUser: AuthenticatedUser,
         @PathVariable id: Int,
-    ): ResponseEntity<*> {
+    ): ResponseEntity<Any> {
         val result: Either<RuleError, RuleLocation> =
             ruleService.getLocationRuleById(
                 userId = authUser.user.id,
@@ -173,7 +173,7 @@ class RuleController(
     fun getRuleEvent(
         authUser: AuthenticatedUser,
         @PathVariable id: Int,
-    ): ResponseEntity<*> {
+    ): ResponseEntity<Any> {
         val result: Either<RuleError, RuleEvent> =
             ruleService.getEventRuleById(
                 userId = authUser.user.id,
@@ -204,7 +204,7 @@ class RuleController(
      * @return the response entity with the list of rules
      */
     @GetMapping("/all")
-    fun getAllRulesFromUser(authUser: AuthenticatedUser): ResponseEntity<*> {
+    fun getAllRulesFromUser(authUser: AuthenticatedUser): ResponseEntity<Any> {
         val result = ruleService.getRulesByUser(authUser.user.id)
         return when (result) {
             is Success -> {
@@ -235,7 +235,7 @@ class RuleController(
     }
 
     @GetMapping("event/all")
-    fun getAllRuleEventFromUser(authUser: AuthenticatedUser): ResponseEntity<*> {
+    fun getAllRuleEventFromUser(authUser: AuthenticatedUser): ResponseEntity<Any> {
         val result = ruleService.getRulesByUser(authUser.user.id)
         return when (result) {
             is Success -> {
@@ -270,7 +270,7 @@ class RuleController(
     fun deleteRuleEvent(
         authUser: AuthenticatedUser,
         @PathVariable id: Int,
-    ): ResponseEntity<*> {
+    ): ResponseEntity<Any> {
         val result: Either<RuleError, Unit> =
             ruleService.deleteRuleEvent(
                 userId = authUser.user.id,
@@ -294,7 +294,7 @@ class RuleController(
     fun deleteRuleLocation(
         authUser: AuthenticatedUser,
         @PathVariable id: Int,
-    ): ResponseEntity<*> {
+    ): ResponseEntity<Any> {
         val result: Either<RuleError, Unit> =
             ruleService.deleteLocationRule(
                 userId = authUser.user.id,

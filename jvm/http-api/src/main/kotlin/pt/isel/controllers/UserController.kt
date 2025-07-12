@@ -119,7 +119,8 @@ class UserController(
 
     @PostMapping("/refresh")
     fun refreshToken(
-        @RequestBody tokenInput: TokenInput): ResponseEntity<*> {
+        @RequestBody tokenInput: TokenInput,
+    ): ResponseEntity<*> {
         val result: Either<UserError, Pair<User, TokenExternalInfo>> =
             userService.refreshToken(tokenInput.token, tokenInput.refreshToken)
         return when (result) {

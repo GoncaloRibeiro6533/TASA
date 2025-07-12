@@ -31,7 +31,7 @@ class LocationController(
     fun createLocation(
         authUser: AuthenticatedUser,
         @RequestBody locationInput: LocationInput,
-    ): ResponseEntity<*> {
+    ): ResponseEntity<Any> {
         val result: Either<LocationError, Location> =
             locationService.createLocation(
                 userId = authUser.user.id,
@@ -50,7 +50,7 @@ class LocationController(
     fun getLocation(
         authUser: AuthenticatedUser,
         @PathVariable id: Int,
-    ): ResponseEntity<*> {
+    ): ResponseEntity<Any> {
         val result: Either<LocationError, Location> =
             locationService.getLocationById(
                 userId = authUser.user.id,
@@ -63,7 +63,7 @@ class LocationController(
     }
 
     @GetMapping("/all")
-    fun getUserLocations(authUser: AuthenticatedUser): ResponseEntity<*> {
+    fun getUserLocations(authUser: AuthenticatedUser): ResponseEntity<Any> {
         val result: Either<LocationError, List<Location>> =
             locationService.getAllLocations(
                 userId = authUser.user.id,
@@ -87,7 +87,7 @@ class LocationController(
         authUser: AuthenticatedUser,
         @PathVariable id: Int,
         @PathVariable name: String,
-    ): ResponseEntity<*> {
+    ): ResponseEntity<Any> {
         val result: Either<LocationError, Location> =
             locationService.updateLocationName(
                 userId = authUser.user.id,
@@ -107,7 +107,7 @@ class LocationController(
         authUser: AuthenticatedUser,
         @PathVariable id: Int,
         @PathVariable radius: Double,
-    ): ResponseEntity<*> {
+    ): ResponseEntity<Any> {
         val result: Either<LocationError, Location> =
             locationService.updateLocationRadius(
                 userId = authUser.user.id,
@@ -126,7 +126,7 @@ class LocationController(
     fun deleteLocation(
         authUser: AuthenticatedUser,
         @PathVariable id: Int,
-    ): ResponseEntity<*> {
+    ): ResponseEntity<Any> {
         val result: Either<LocationError, Boolean> =
             locationService.deleteLocation(
                 userId = authUser.user.id,

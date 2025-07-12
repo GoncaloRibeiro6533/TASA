@@ -19,7 +19,7 @@ class EventErrorHandler(
     fun toResponse(
         eventError: EventError,
         input: String = "",
-    ): ResponseEntity<*> {
+    ): ResponseEntity<Any> {
         val msg = { key: String -> messageSource.getMessage(key, arrayOf(input), locale) }
 
         return when (eventError) {

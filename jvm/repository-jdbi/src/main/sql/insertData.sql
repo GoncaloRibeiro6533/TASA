@@ -11,9 +11,9 @@ INSERT INTO ps.EVENT (title, user_id, start_time, end_time) VALUES
                                                                 ('Meeting', (SELECT id FROM ps.USER WHERE username='bob'), '2025-05-10 09:00', '2025-05-10 10:00'),
                                                                 ('Briefing', (SELECT id FROM ps.USER WHERE username='alice'), '2025-05-10 09:00', '2025-05-10 10:00');
 -- 4. One location (ISEL) each
-INSERT INTO ps.LOCATION (name, latitude, longitude, user_id) VALUES
-    ('ISEL Campus', 38.7569, -9.1165, (SELECT id FROM ps.USER WHERE username='bob')),
-    ('ISEL Campus', 38.7569, -9.1165, (SELECT id FROM ps.USER WHERE username='alice'));
+INSERT INTO ps.LOCATION (name, latitude, longitude, radius, user_id) VALUES
+    ('ISEL Campus', 38.7569, -9.1165, 50.0, (SELECT id FROM ps.USER WHERE username='bob')),
+    ('ISEL Campus', 38.7569, -9.1165, 100.0,(SELECT id FROM ps.USER WHERE username='alice'));
 
 -- 5. Rules: one event rule, one location rule per user
 INSERT INTO ps.RULE_EVENT (start_time,end_time, event_id,user_id) VALUES

@@ -27,7 +27,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"eventId\": \"1588962\",\r\n    \"calendarId\": \"4862558\",\r\n    \"title\": \"Project meet\"\r\n}",
+							"raw": "{\r\n\r\n    \"title\": \"Project meet\",\r\n    \"startTime\": \"2025-09-13T14:00:00\",\r\n    \"endTime\": \"2025-09-13T14:30:00\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -45,7 +45,114 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Create event",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\r\n    \"title\": \"Project meet\",\r\n    \"startTime\": \"2025-09-13T14:00:00\",\r\n    \"endTime\": \"2025-09-13T14:30:00\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/create",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"create"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.29.0"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 12 Jul 2025 14:31:49 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 3,\n    \"title\": \"Project meet\",\n    \"startTime\": \"2025-09-13T14:00:00\",\n    \"endTime\": \"2025-09-13T14:30:00\"\n}"
+						},
+						{
+							"name": "Create event",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\r\n    \"title\": \"Project meet\",\r\n    \"startTime\": \"2025-09-13T14:00:00\",\r\n    \"endTime\": \"2025-09-13T14:30:00\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/event/create",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"create"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.29.0"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 12 Jul 2025 14:52:32 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 4,\n    \"title\": \"Project meet\",\n    \"startTime\": \"2025-09-13T14:00:00\",\n    \"endTime\": \"2025-09-13T14:30:00\"\n}"
+						}
+					]
 				},
 				{
 					"name": "Get Event",
@@ -63,19 +170,62 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/event/1588962/calendar/4862558",
+							"raw": "{{baseUrl}}/event/4",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"event",
-								"1588962",
-								"calendar",
-								"4862558"
+								"4"
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Get Event",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/4",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"4"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.29.0"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 12 Jul 2025 14:53:16 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 4,\n    \"title\": \"Project meet\",\n    \"startTime\": \"2025-09-13T14:00:00\",\n    \"endTime\": \"2025-09-13T14:30:00\"\n}"
+						}
+					]
 				},
 				{
 					"name": "Get all events",
@@ -103,7 +253,52 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Get all events",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/all",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"all"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.29.0"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 12 Jul 2025 14:53:51 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": 4,\n        \"title\": \"Project meet\",\n        \"startTime\": \"2025-09-13T14:00:00\",\n        \"endTime\": \"2025-09-13T14:30:00\"\n    }\n]"
+						}
+					]
 				},
 				{
 					"name": "Update event",
@@ -122,7 +317,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "\r\n{\r\n    \"eventId\": \"1588962\",\r\n    \"calendarId\": \"4862558\",\r\n    \"title\": \"Project updated\"\r\n}",
+							"raw": "\r\n{\r\n    \"title\": \"Project updated\"\r\n\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -130,12 +325,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/event/update/title",
+							"raw": "{{baseUrl}}/event/3/update/title",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"event",
+								"3",
 								"update",
 								"title"
 							]
@@ -172,7 +368,49 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Delete a event",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/event/remove/3",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"event",
+										"remove",
+										"3"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.29.0"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 12 Jul 2025 14:40:26 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "0"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						}
+					]
 				}
 			]
 		},
@@ -193,10 +431,16 @@
 							]
 						},
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Accept-Language",
+								"value": "pt",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"ISEL\",\r\n    \"latitude\": \"38.0\",\r\n    \"longitude\":\"-9.0\",\r\n    \"radius\": \"100.0\"\r\n}",
+							"raw": "{\r\n    \"name\": \"ISEL\",\r\n    \"latitude\": 38.0,\r\n    \"longitude\":-9.0,\r\n    \"radius\": 100.0\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -214,7 +458,67 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Create a Location",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept-Language",
+										"value": "pt",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"ISEL\",\r\n    \"latitude\": 38.0,\r\n    \"longitude\":-9.0,\r\n    \"radius\": 100.0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/location/create",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"location",
+										"create"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.29.0"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 12 Jul 2025 14:40:42 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 3,\n    \"name\": \"ISEL\",\n    \"latitude\": 38,\n    \"longitude\": -9,\n    \"radius\": 100\n}"
+						}
+					]
 				},
 				{
 					"name": "Get Location by id",
@@ -242,7 +546,52 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Get Location by id",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/location/3",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"location",
+										"3"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.29.0"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 12 Jul 2025 14:41:05 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 3,\n    \"name\": \"ISEL\",\n    \"latitude\": 38,\n    \"longitude\": -9,\n    \"radius\": 100\n}"
+						}
+					]
 				},
 				{
 					"name": "Get all locations of user",
@@ -270,7 +619,52 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Get all locations of user",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/location/all",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"location",
+										"all"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.29.0"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 12 Jul 2025 14:41:19 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"locations\": [\n        {\n            \"id\": 3,\n            \"name\": \"ISEL\",\n            \"latitude\": 38,\n            \"longitude\": -9,\n            \"radius\": 100\n        }\n    ],\n    \"nlocations\": 1\n}"
+						}
+					]
 				},
 				{
 					"name": "Update Location name",
@@ -288,16 +682,16 @@
 						"method": "PUT",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/location/1/update/name/ISEL-IPL",
+							"raw": "{{baseUrl}}/location/3/update/name/ISEL-UPDATED",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"location",
-								"1",
+								"3",
 								"update",
 								"name",
-								"ISEL-IPL"
+								"ISEL-UPDATED"
 							]
 						}
 					},
@@ -318,29 +712,144 @@
 						},
 						"method": "PUT",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"radius\": \"200.0\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
-							"raw": "{{baseUrl}}/location/1/update/radius",
+							"raw": "{{baseUrl}}/location/3/update/radius/200.0",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"location",
-								"1",
+								"3",
 								"update",
-								"radius"
+								"radius",
+								"200.0"
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Update Location radius",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/location/3/update/radius/200.0",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"location",
+										"3",
+										"update",
+										"radius",
+										"200.0"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.29.0"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 12 Jul 2025 14:47:34 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Content-Disposition",
+									"value": "inline;filename=f.txt"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 3,\n    \"name\": \"ISEL-UPDATED\",\n    \"latitude\": 38,\n    \"longitude\": -9,\n    \"radius\": 200\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete location",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/location/remove/3",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"location",
+								"remove",
+								"3"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "New Request",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/location/remove/3",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"location",
+										"remove",
+										"3"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.29.0"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 12 Jul 2025 15:02:23 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "0"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						}
+					]
 				}
 			]
 		},
@@ -364,7 +873,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"startTime\":\"2025-06-01T10:00:00\",\r\n    \"endTime\": \"2025-06-01T11:30:00\",\r\n    \"locationId\": \"1\"\r\n}",
+							"raw": "{\r\n    \"locationId\": \"3\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -382,46 +891,61 @@
 							]
 						}
 					},
-					"response": []
-				},
-				{
-					"name": "Update Rule With location",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
+					"response": [
+						{
+							"name": "Create Rule With location",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"locationId\": \"3\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/rule/location",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rule",
+										"location"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
 								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
+									"key": "Server",
+									"value": "nginx/1.29.0"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 12 Jul 2025 14:48:12 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
 								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"startTime\":\"2025-06-01T10:00:00\",\r\n    \"endTime\": \"2025-06-01T11:30:00\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/rule/location/0/update",
-							"host": [
-								"{{baseUrl}}"
 							],
-							"path": [
-								"rule",
-								"location",
-								"0",
-								"update"
-							]
+							"cookie": [],
+							"body": "{\n    \"id\": 3,\n    \"creator\": {\n        \"id\": 4,\n        \"username\": \"John\",\n        \"email\": \"john@example.com\"\n    },\n    \"location\": {\n        \"id\": 3,\n        \"name\": \"ISEL-UPDATED\",\n        \"latitude\": 38,\n        \"longitude\": -9,\n        \"radius\": 200\n    }\n}"
 						}
-					},
-					"response": []
+					]
 				},
 				{
 					"name": "Create Rule with event",
@@ -440,7 +964,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{    \r\n    \"startTime\":\"2025-06-01T11:31:00\",\r\n    \"endTime\": \"2025-06-01T12:30:00\",\r\n    \"eventId\": \"1588962\",\r\n    \"calendarId\": \"4862558\"\r\n\r\n}",
+							"raw": "{    \r\n    \"eventId\": \"4\",\r\n    \"startTime\":\"2025-07-01T11:31:00\",\r\n    \"endTime\": \"2025-07-01T12:30:00\"\r\n\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -458,7 +982,61 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Create Rule with event",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{    \r\n    \"eventId\": \"4\",\r\n    \"startTime\":\"2025-07-01T11:31:00\",\r\n    \"endTime\": \"2025-07-01T12:30:00\"\r\n\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/rule/event",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rule",
+										"event"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.29.0"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 12 Jul 2025 14:55:40 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 3,\n    \"startTime\": \"2025-07-01T11:31:00\",\n    \"endTime\": \"2025-07-01T12:30:00\",\n    \"creator\": {\n        \"id\": 4,\n        \"username\": \"John\",\n        \"email\": \"john@example.com\"\n    },\n    \"event\": {\n        \"id\": 4,\n        \"title\": \"Project meet\",\n        \"startTime\": \"2025-09-13T14:00:00\",\n        \"endTime\": \"2025-09-13T14:30:00\"\n    }\n}"
+						}
+					]
 				},
 				{
 					"name": "Update Rule with event",
@@ -498,7 +1076,64 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Update Rule with event",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{    \r\n    \"startTime\":\"2025-06-01T13:31:00\",\r\n    \"endTime\": \"2025-06-01T14:31:00\"\r\n\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/rule/event/3/update/time",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rule",
+										"event",
+										"3",
+										"update",
+										"time"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.29.0"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 12 Jul 2025 14:56:10 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 3,\n    \"startTime\": \"2025-06-01T13:31:00\",\n    \"endTime\": \"2025-06-01T14:31:00\",\n    \"event\": {\n        \"id\": 4,\n        \"title\": \"Project meet\",\n        \"startTime\": \"2025-09-13T14:00:00\",\n        \"endTime\": \"2025-09-13T14:30:00\"\n    }\n}"
+						}
+					]
 				},
 				{
 					"name": "Get all rules from user",
@@ -526,67 +1161,20 @@
 							]
 						}
 					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "User",
-			"item": [
-				{
-					"name": "Get authenticated user",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"Bob\",\r\n    \"email\": \"bob@example.com\",\r\n    \"password\": \"Tasa_2025\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/user/register",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"user",
-								"register"
-							]
-						},
-						"description": "Gets information about the authenticated user."
-					},
 					"response": [
 						{
-							"name": "Successful Response",
+							"name": "Get all rules from user",
 							"originalRequest": {
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://api.getpostman.com/me",
-									"protocol": "https",
+									"raw": "{{baseUrl}}/rule/all",
 									"host": [
-										"api",
-										"getpostman",
-										"com"
+										"{{baseUrl}}"
 									],
 									"path": [
-										"me"
+										"rule",
+										"all"
 									]
 								}
 							},
@@ -595,54 +1183,178 @@
 							"_postman_previewlanguage": "json",
 							"header": [
 								{
-									"key": "Content-Type",
-									"value": "application/json",
-									"name": "Content-Type",
-									"description": {
-										"content": "",
-										"type": "text/plain"
-									}
-								}
-							],
-							"cookie": [],
-							"body": "{\n    \"user\": {\n        \"id\": 12345678,\n        \"username\": \"taylor-lee\",\n        \"email\": \"taylor.lee@example.com\",\n        \"fullName\": \"Taylor Lee\",\n        \"avatar\": \"https://example.com/user/r5u9qpvmujfjf6lbqmga.jpg\",\n        \"isPublic\": true\n    },\n    \"operations\": [\n        {\n            \"name\": \"mock_usage\",\n            \"limit\": 1000000,\n            \"usage\": 110276,\n            \"overage\": 0\n        },\n        {\n            \"name\": \"monitor_request_runs\",\n            \"limit\": 10000000,\n            \"usage\": 1141750,\n            \"overage\": 0\n        },\n        {\n            \"name\": \"api_usage\",\n            \"limit\": 1000000,\n            \"usage\": 16240,\n            \"overage\": 0\n        },\n        {\n            \"name\": \"custom_domains\",\n            \"limit\": 25,\n            \"usage\": 25,\n            \"overage\": 0\n        },\n        {\n            \"name\": \"serverless_requests\",\n            \"limit\": 10000,\n            \"usage\": 0,\n            \"overage\": 0\n        },\n        {\n            \"name\": \"integrations\",\n            \"limit\": 5000,\n            \"usage\": 1018,\n            \"overage\": 0\n        },\n        {\n            \"name\": \"cloud_agent_requests\",\n            \"limit\": 1000000,\n            \"usage\": 1615,\n            \"overage\": 0\n        }\n    ]\n}"
-						},
-						{
-							"name": "Rate Limit Exceeded",
-							"originalRequest": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "https://api.getpostman.com/me",
-									"protocol": "https",
-									"host": [
-										"api",
-										"getpostman",
-										"com"
-									],
-									"path": [
-										"me"
-									]
-								}
-							},
-							"status": "Too Many Requests",
-							"code": 429,
-							"_postman_previewlanguage": "json",
-							"header": [
+									"key": "Server",
+									"value": "nginx/1.29.0"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 12 Jul 2025 14:57:32 GMT"
+								},
 								{
 									"key": "Content-Type",
-									"value": "application/json",
-									"description": {
-										"content": "",
-										"type": "text/plain"
-									}
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
 								}
 							],
 							"cookie": [],
-							"body": "{\n    \"error\": \"rateLimited\",\n    \"message\": \"Rate limit exceeded. Please retry after 1669048687\"\n}"
+							"body": "{\n    \"eventRulesN\": 1,\n    \"eventRules\": [\n        {\n            \"id\": 3,\n            \"startTime\": \"2025-07-01T11:31:00\",\n            \"endTime\": \"2025-07-01T12:30:00\",\n            \"event\": {\n                \"id\": 4,\n                \"title\": \"Project meet\",\n                \"startTime\": \"2025-09-13T14:00:00\",\n                \"endTime\": \"2025-09-13T14:30:00\"\n            }\n        }\n    ],\n    \"locationRulesN\": 1,\n    \"locationRules\": [\n        {\n            \"id\": 3,\n            \"location\": {\n                \"id\": 3,\n                \"name\": \"ISEL-UPDATED\",\n                \"latitude\": 38,\n                \"longitude\": -9,\n                \"radius\": 200\n            }\n        }\n    ]\n}"
 						}
 					]
 				},
+				{
+					"name": "Delete rule event",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/rule/event/3",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"rule",
+								"event",
+								"3"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Delete rule event",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/rule/event/3",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rule",
+										"event",
+										"3"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.29.0"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 12 Jul 2025 14:59:16 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "0"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Delete rule location",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/rule/location/3",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"rule",
+								"location",
+								"3"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "New Request",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/rule/location/3",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"rule",
+										"location",
+										"3"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.29.0"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 12 Jul 2025 15:00:40 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "0"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
 				{
 					"name": "Register a user",
 					"request": {
@@ -650,7 +1362,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"Bob\",\r\n    \"email\": \"bob@example.com\",\r\n    \"password\": \"Tasa_2025\"\r\n}",
+							"raw": "{\r\n    \"username\": \"Gonçalo\",\r\n    \"email\": \"goncalo@example.com\",\r\n    \"password\": \"Tasa_2025\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -788,6 +1500,59 @@
 							"header": null,
 							"cookie": [],
 							"body": null
+						},
+						{
+							"name": "Register a user",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\": \"John\",\r\n    \"email\": \"john@example.com\",\r\n    \"password\": \"Tasa_2025\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/user/register",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"user",
+										"register"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.29.0"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 12 Jul 2025 14:19:44 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 4,\n    \"username\": \"John\",\n    \"email\": \"john@example.com\"\n}"
 						}
 					]
 				},
@@ -798,7 +1563,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"Bob\",\r\n    \"password\":\"Tasa_2025\"\r\n}",
+							"raw": "{\r\n    \"username\": \"Gonçalo\",\r\n    \"password\":\"Tasa_2025\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -816,16 +1581,70 @@
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Get Token",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\": \"John\",\r\n    \"password\":\"Tasa_2025\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/user/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"user",
+										"login"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.29.0"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 12 Jul 2025 14:19:54 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"user\": {\n        \"id\": 4,\n        \"username\": \"John\",\n        \"email\": \"john@example.com\"\n    },\n    \"session\": {\n        \"token\": \"vrz5roQAw-VWf1HicuzUBqTxRSdPRIsn7gNBsdlxXhA=\",\n        \"refreshToken\": \"613aT2qWPtlkTXUPQMAYyt_fYsEcAp5PZf3Upeh7Np4=\",\n        \"expiration\": \"2025-07-13T14:19:54.010455417\"\n    }\n}"
+						}
+					]
 				},
 				{
-					"name": "{{baseUrl}}/user/register",
+					"name": "Refresh session",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"\",\r\n    \"email:\": \"bob@example.com\",\r\n    \"password\": \"Tasa_2025\"\r\n}",
+							"raw": "{\r\n    \"token\": \"{{token}}\",\r\n    \"refreshToken\": \"{{refreshToken}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -833,15 +1652,77 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/user/register",
+							"raw": "{{baseUrl}}/user/refresh",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"user",
-								"register"
+								"refresh"
 							]
 						}
+					},
+					"response": [
+						{
+							"name": "Refresh session",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"token\": \"{{token}}\",\r\n    \"refreshToken\": \"{{refreshToken}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/user/refresh",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"user",
+										"refresh"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.29.0"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 12 Jul 2025 14:27:21 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"user\": {\n        \"id\": 4,\n        \"username\": \"John\",\n        \"email\": \"john@example.com\"\n    },\n    \"session\": {\n        \"token\": \"_AuvrjQwQu7YfVY4LJMjvSjXWDfp_QbKur5F4-gTzqI=\",\n        \"refreshToken\": \"fWF26AFfiDNQ8Kbtz7UuWK2reYrJWc95OgcSKSP0O0I=\",\n        \"expiration\": \"2025-07-13T14:27:21.034913725\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "GET",
+						"header": []
 					},
 					"response": []
 				}
@@ -1982,10 +2863,15 @@
 	"variable": [
 		{
 			"key": "baseUrl",
-			"value": "https://farming-simulator.pstmn.io"
+			"value": ""
 		},
 		{
 			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
 			"value": "",
 			"type": "string"
 		}

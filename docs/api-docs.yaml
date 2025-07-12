@@ -235,7 +235,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/EventInput"
+              $ref: "#/components/schemas/EventUpdateInput"
         required: true
       responses:
         '200':
@@ -1120,6 +1120,16 @@ components:
           type: string
           description: Event title
           example: Meeting.
+
+    EventUpdateInput:
+      type: object
+      required:
+       - newTitle
+      properties:
+        newTitle:
+          type: string
+          description: Event title
+          example: Meeting.      
     
     EventOutput:
       type: object

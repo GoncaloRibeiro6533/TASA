@@ -19,7 +19,7 @@ class RuleErrorHandler(
     fun toResponse(
         ruleError: RuleError,
         input: String = "",
-    ): ResponseEntity<*> {
+    ): ResponseEntity<Any> {
         val msg = { key: String -> messageSource.getMessage(key, arrayOf(input), locale) }
 
         return when (ruleError) {

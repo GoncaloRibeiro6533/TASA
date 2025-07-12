@@ -19,7 +19,7 @@ class LocationErrorHandler(
     fun toResponse(
         error: LocationError,
         input: String = "",
-    ): ResponseEntity<*> {
+    ): ResponseEntity<Any> {
         val msg = { key: String -> messageSource.getMessage(key, arrayOf(input), locale) }
 
         return when (error) {

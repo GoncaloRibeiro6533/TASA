@@ -31,7 +31,6 @@ import pt.isel.pipeline.AuthenticationInterceptor
 import pt.isel.transaction.TransactionManagerInMem
 import java.util.Locale
 import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
 
 @Configuration
 @ComponentScan("pt.isel")
