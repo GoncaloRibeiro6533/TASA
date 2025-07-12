@@ -5,8 +5,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.tasa.domain.user.User
 import com.tasa.repository.UserRepository
+import com.tasa.repository.interfaces.UserRepositoryInterface
 import com.tasa.utils.Failure
 import com.tasa.utils.Success
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -22,18 +24,19 @@ sealed interface LoginScreenState {
 }
 
 class LoginScreenViewModel(
-    private val userRepository: UserRepository,
+    private val userRepository: UserRepositoryInterface,
+    initialState: LoginScreenState = LoginScreenState.Idle,
 ) : ViewModel() {
-    private val _state = MutableStateFlow<LoginScreenState>(LoginScreenState.Idle)
+    private val _state = MutableStateFlow<LoginScreenState>(initialState)
     val state = _state.asStateFlow()
 
     fun login(
         email: String,
         password: String,
-    ) {
-        if (_state.value == LoginScreenState.Loading) return
+    ): Job? {
+        if (_state.value == LoginScreenState.Loading) return null
         _state.value = LoginScreenState.Loading
-        viewModelScope.launch {
+        return viewModelScope.launch {
             try {
                 val authenticatedUser = userRepository.createToken(email, password)
                 when (authenticatedUser) {

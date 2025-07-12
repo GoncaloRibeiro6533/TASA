@@ -9,7 +9,6 @@ import com.tasa.service.interfaces.ServiceWithRetry
 import com.tasa.storage.TasaDB
 import com.tasa.utils.Either
 import com.tasa.utils.Failure
-import com.tasa.utils.NetworkChecker
 import com.tasa.utils.Success
 import com.tasa.utils.failure
 import com.tasa.utils.success
@@ -20,7 +19,6 @@ class LocationRepository(
     private val local: TasaDB,
     private val remote: TasaService,
     private val userInfoRepository: UserInfoRepository,
-    private val networkChecker: NetworkChecker,
     userRepo: UserRepository,
 ) : LocationRepositoryInterface, ServiceWithRetry(userRepo) {
     private suspend fun hasLocations(): Boolean {
@@ -28,14 +26,6 @@ class LocationRepository(
             local.localDao().hasLocations()
         } else {
             local.remoteDao().hasLocations()
-        }
-    }
-
-    private suspend fun hasLocationById(id: Int): Boolean {
-        return if (userInfoRepository.isLocal()) {
-            local.localDao().hasLocationById(id)
-        } else {
-            local.remoteDao().hasLocationById(id)
         }
     }
 

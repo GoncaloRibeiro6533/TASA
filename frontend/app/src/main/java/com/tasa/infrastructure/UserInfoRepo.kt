@@ -43,30 +43,6 @@ class UserInfoRepo(private val store: DataStore<Preferences>) : UserInfoReposito
         store.edit { it.clear() }
     }
 
-    override suspend fun writeLastMode(mode: Mode) {
-        store.edit { preferences ->
-            mode.writeToPreferences(preferences)
-        }
-    }
-
-    override suspend fun lastMode(): Mode? {
-        val preferences = store.data.first()
-        val modeValue = preferences[MODE_KEY]
-        return Mode.entries.firstOrNull { it.value == modeValue }
-    }
-
-    override suspend fun writeLanguage(language: Language) {
-        store.edit { preferences ->
-            language.writeToPreferences(preferences)
-        }
-    }
-
-    override suspend fun getLanguage(): Language? {
-        val preferences = store.data.first()
-        val languageCode = preferences[LANGUAGE_KEY] ?: return null
-        return Language.ALL_LANGUAGES.firstOrNull { it.code == languageCode }
-    }
-
     override suspend fun writeLastActivity(activity: Int) {
         store.edit { preferences ->
             preferences[ACTIVITY_KEY] = activity.toString()
@@ -82,17 +58,6 @@ class UserInfoRepo(private val store: DataStore<Preferences>) : UserInfoReposito
         store.data.map { preferences ->
             preferences[ACTIVITY_KEY]?.toIntOrNull()
         }
-
-    override suspend fun writeLastActivityTransition(transitionType: Int) {
-        store.edit { preferences ->
-            preferences[TRANSITION_KEY] = transitionType.toString()
-        }
-    }
-
-    override suspend fun getLastActivityTransition(): Int? {
-        val preferences = store.data.first()
-        return preferences[TRANSITION_KEY]?.toIntOrNull()
-    }
 
     override val notifiedOfNoLocation: Flow<Boolean>
         get() {

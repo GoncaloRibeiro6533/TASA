@@ -5,9 +5,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.tasa.domain.ApiError
 import com.tasa.domain.user.User
-import com.tasa.repository.UserRepository
+import com.tasa.repository.interfaces.UserRepositoryInterface
 import com.tasa.utils.Failure
 import com.tasa.utils.Success
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -23,7 +24,7 @@ sealed interface RegisterScreenState {
 }
 
 class RegisterScreenViewModel(
-    private val userRepository: UserRepository,
+    private val userRepository: UserRepositoryInterface,
     initialState: RegisterScreenState = RegisterScreenState.Idle,
 ) : ViewModel() {
     private val _state = MutableStateFlow<RegisterScreenState>(initialState)
@@ -33,30 +34,29 @@ class RegisterScreenViewModel(
         username: String,
         password: String,
         email: String,
-    ) {
-        if (_state.value != RegisterScreenState.Loading) {
-            _state.value = RegisterScreenState.Loading
-            viewModelScope.launch {
-                _state.value =
-                    try {
-                        val user = userRepository.createUser(username, email, password)
-                        when (user) {
-                            is Success -> {
-                                // RegisterScreenState.Success(user.value)
-                                val session = userRepository.createToken(username, password)
-                                when (session) {
-                                    is Success -> {
-                                        RegisterScreenState.Success(session.value)
-                                    }
-                                    is Failure -> RegisterScreenState.Error(session.value)
+    ): Job? {
+        if (_state.value == RegisterScreenState.Loading) return null
+        _state.value = RegisterScreenState.Loading
+        return viewModelScope.launch {
+            _state.value =
+                try {
+                    val user = userRepository.createUser(username, email, password)
+                    when (user) {
+                        is Success -> {
+                            // RegisterScreenState.Success(user.value)
+                            val session = userRepository.createToken(username, password)
+                            when (session) {
+                                is Success -> {
+                                    RegisterScreenState.Success(session.value)
                                 }
+                                is Failure -> RegisterScreenState.Error(session.value)
                             }
-                            is Failure -> RegisterScreenState.Error(user.value)
                         }
-                    } catch (e: Throwable) {
-                        RegisterScreenState.Error(ApiError("Error registering user"))
+                        is Failure -> RegisterScreenState.Error(user.value)
                     }
-            }
+                } catch (e: Throwable) {
+                    RegisterScreenState.Error(ApiError("Error registering user"))
+                }
         }
     }
 
@@ -66,7 +66,7 @@ class RegisterScreenViewModel(
 }
 
 @Suppress("UNCHECKED_CAST")
-class RegisterScreenViewModelFactory(private val userRepository: UserRepository) : ViewModelProvider.Factory {
+class RegisterScreenViewModelFactory(private val userRepository: UserRepositoryInterface) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return RegisterScreenViewModel(userRepository) as T
     }

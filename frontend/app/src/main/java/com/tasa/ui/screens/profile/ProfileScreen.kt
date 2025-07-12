@@ -19,7 +19,7 @@ import com.tasa.ui.theme.TasaTheme
 fun ProfileScreen(
     viewModel: ProfileScreenViewModel,
     onEditAction: (Profile) -> Unit = { },
-    onNavigateBack: () -> Unit,
+    onNavigateBack: () -> Unit = { },
 ) {
     TasaTheme {
         Scaffold(

@@ -21,8 +21,8 @@ class TasaRepo(
     serviceKiller: ServiceKiller,
 ) : TasaRepoInterface {
     override val userRepo = UserRepository(local, remote, userInfoRepository, networkChecker)
-    override val locationRepo = LocationRepository(local, remote, userInfoRepository, networkChecker, userRepo)
-    override val eventRepo = EventRepository(local, remote, userInfoRepository, queryCalendarService, networkChecker, userRepo)
+    override val locationRepo = LocationRepository(local, remote, userInfoRepository, userRepo)
+    override val eventRepo = EventRepository(local, remote, userInfoRepository, queryCalendarService, userRepo)
     override val alarmRepo = AlarmRepository(local, userInfoRepository)
     override val ruleRepo =
         RuleRepository(

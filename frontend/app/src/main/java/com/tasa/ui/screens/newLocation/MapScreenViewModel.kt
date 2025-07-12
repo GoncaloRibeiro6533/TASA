@@ -221,16 +221,16 @@ class MapScreenViewModel(
 
     fun updateSearchQuery(query: TextFieldValue) {
         if (_state.value is MapsScreenState.Success || _state.value is MapsScreenState.SuccessSearching) {
-        _query.value = query
-        _state.value =
-            MapsScreenState.Success(
-                selectedPoint = _selectedPoint,
-                currentLocation = _currentLocation,
-                searchQuery = _query,
-                userActivity = activityState,
-                radius = _radius,
-                locationName = _locationName,
-            )
+            _query.value = query
+            _state.value =
+                MapsScreenState.Success(
+                    selectedPoint = _selectedPoint,
+                    currentLocation = _currentLocation,
+                    searchQuery = _query,
+                    userActivity = activityState,
+                    radius = _radius,
+                    locationName = _locationName,
+                )
         }
     }
 
@@ -290,12 +290,12 @@ class MapScreenViewModel(
                                 )
                             ){
                                 is Failure -> {
-                                _state.value = MapsScreenState.Error(result1.value.message)
-                                return@launch
+                                    _state.value = MapsScreenState.Error(result1.value.message)
+                                    return@launch
                                 }
                                 is Success -> {
-                                _state.value =
-                                    MapsScreenState.SuccessCreatingLocation
+                                    _state.value =
+                                        MapsScreenState.SuccessCreatingLocation
                                 }
                             }
                         }
@@ -334,11 +334,11 @@ class MapScreenViewModel(
                         return@launch
                     }
                     when(val result = repo.locationRepo.insertLocation(
-                            name = locationName,
-                            latitude = latitude,
-                            longitude = longitude,
-                            radius = radius,
-                        )
+                        name = locationName,
+                        latitude = latitude,
+                        longitude = longitude,
+                        radius = radius,
+                    )
                     ){
                         is Failure -> {
                             _state.value = MapsScreenState.Error(result.value.message)
@@ -374,25 +374,27 @@ class MapScreenViewModel(
         _state.value = MapsScreenState.Loading
         return viewModelScope.launch {
             try {
-                getCurrentLocation().let { location ->
-                    if (location == null) {
-                        _state.value = 
-                            MapsScreenState.Error(stringResolver.getString(R.string.location_disabled_warning))
-                        return@launch
+                if (!locationUpdatesRepository.isActive) {
+                    getCurrentLocation().let { location ->
+                        if (location == null) {
+                            _state.value =
+                                MapsScreenState.Error(stringResolver.getString(R.string.location_disabled_warning))
+                            return@launch
+                        }
+                        _currentLocation.value = location
+                        _selectedPoint.value = location.point
+                        _state.value =
+                            MapsScreenState.Success(
+                                selectedPoint = _selectedPoint,
+                                currentLocation = _currentLocation,
+                                searchQuery = _query,
+                                userActivity = activityState,
+                                radius = _radius,
+                                locationName = _locationName,
+                            )
                     }
-                    _currentLocation.value = location
-                    _selectedPoint.value = location.point
-                    _state.value =
-                        MapsScreenState.Success(
-                            selectedPoint = _selectedPoint,
-                            currentLocation = _currentLocation,
-                            searchQuery = _query,
-                            userActivity = activityState,
-                            radius = _radius,
-                            locationName = _locationName,
-                        )
+                    locationUpdatesRepository.startUp()
                 }
-                locationUpdatesRepository.startUp()
                 locationUpdatesRepository.centralLocationFlow.collect { location ->
                     if (location != null){
                         _currentLocation.value = location
@@ -403,7 +405,6 @@ class MapScreenViewModel(
             }
         }
     }
-
 
     fun stopLocationUpdates() {
         if (locationUpdatesRepository.isActive) locationUpdatesRepository.stop()
@@ -484,7 +485,7 @@ class MapScreenViewModelFactory(
     private val alarmScheduler: AlarmScheduler,
     private val geofenceManager: GeofenceManager,
     private val serviceKiller: ServiceKiller,
-    ) : ViewModelProvider.Factory {
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return MapScreenViewModel(
             repo = repo,

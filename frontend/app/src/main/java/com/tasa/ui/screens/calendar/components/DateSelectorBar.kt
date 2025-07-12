@@ -2,10 +2,14 @@ package com.tasa.ui.screens.calendar.components
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.DatePicker
@@ -40,6 +44,8 @@ fun DateSelectorBar(
     selectedDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit,
 ) {
+    val scrollState = rememberScrollState()
+
     val openDatePicker = rememberSaveable { mutableStateOf(false) }
     val todayInMillis =
         LocalDate.now()
@@ -59,6 +65,12 @@ fun DateSelectorBar(
         )
     if (openDatePicker.value) {
         DatePickerDialog(
+            modifier =
+                Modifier
+                    .wrapContentHeight()
+                    .height(450.dp)
+                    .padding(horizontal = 16.dp)
+                    .testTag(DATE_BAR),
             onDismissRequest = { openDatePicker.value = false },
             confirmButton = {
                 TextButton(onClick = {
@@ -82,7 +94,14 @@ fun DateSelectorBar(
                 }
             },
         ) {
-            DatePicker(state = datePickerState, showModeToggle = false)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(scrollState)
+                    .padding(vertical = 8.dp)
+            ) {
+                DatePicker(state = datePickerState, showModeToggle = false)
+            }
         }
     }
 

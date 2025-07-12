@@ -12,10 +12,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import com.tasa.ui.components.LoadingView
 import com.tasa.ui.components.NavigationHandlers
 import com.tasa.ui.components.TopBar
 import com.tasa.ui.theme.TasaTheme
+
+const val START_SCREEN = "start_screen"
 
 @Composable
 fun StartScreen(
@@ -34,7 +37,7 @@ fun StartScreen(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background),
+                    .background(MaterialTheme.colorScheme.background).testTag(START_SCREEN),
             topBar = {
                 if (state is StartScreenState.NotLogged) {
                     TopBar(

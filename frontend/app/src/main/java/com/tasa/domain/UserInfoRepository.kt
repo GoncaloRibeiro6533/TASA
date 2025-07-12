@@ -13,14 +13,6 @@ interface UserInfoRepository {
 
     suspend fun clearUserInfo()
 
-    suspend fun writeLastMode(mode: Mode)
-
-    suspend fun lastMode(): Mode?
-
-    suspend fun writeLanguage(language: Language)
-
-    suspend fun getLanguage(): Language?
-
     val lastActivity: Flow<Int?>
 
     suspend fun writeLastActivity(activity: Int)
@@ -28,10 +20,6 @@ interface UserInfoRepository {
     suspend fun getLastActivity(): Int?
 
     val lastActivityTransition: Flow<Int?>
-
-    suspend fun writeLastActivityTransition(transitionType: Int)
-
-    suspend fun getLastActivityTransition(): Int?
 
     val notifiedOfNoLocation: Flow<Boolean>
 

@@ -1,33 +1,16 @@
 package com.tasa.ui.screens.homepage
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -35,26 +18,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tasa.R
-import com.tasa.domain.Event
-import com.tasa.domain.Location
-import com.tasa.domain.Rule
-import com.tasa.domain.RuleEvent
-import com.tasa.domain.RuleLocation
-import com.tasa.domain.RuleLocationTimeless
-import com.tasa.domain.TimedRule
-import com.tasa.domain.TimelessRule
-import com.tasa.ui.screens.homepage.components.CompactButton
-import com.tasa.ui.screens.homepage.components.RulesToggleBar
-import com.tasa.ui.screens.homepage.components.SquareButton
-import com.tasa.ui.screens.homepage.components.SwipeableRuleCardEvent
-import com.tasa.ui.screens.homepage.components.SwipeableRuleCardLocation
-import com.tasa.ui.screens.homepage.components.SwipeableRuleCardLocationTimeless
+import com.tasa.domain.*
+import com.tasa.ui.screens.homepage.components.*
 import com.tasa.ui.screens.rule.EditRuleActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.time.LocalDateTime
-import kotlin.collections.filter
 
 const val EVENTS_BUTTON = "events_button"
 const val EXCEPTIONS_BUTTON = "exceptions_button"
@@ -64,6 +34,42 @@ const val MAP_BUTTON = "map_button"
 
 @Composable
 fun HomePageView(
+    rules: StateFlow<List<Rule>>,
+    onNavigateToMyLocations: () -> Unit,
+    onNavigationToMap: () -> Unit,
+    onNavigateToCreateRuleEvent: () -> Unit,
+    onNavigationToMyExceptions: () -> Unit,
+    onEdit: (EditRuleActivity.RuleParcelableEvent) -> Unit = {},
+    onDelete: (Rule) -> Unit = {},
+) {
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    if (isLandscape) {
+        HomePageViewHorizontal(
+            rules = rules,
+            onNavigateToMyLocations = onNavigateToMyLocations,
+            onNavigationToMap = onNavigationToMap,
+            onNavigateToCreateRuleEvent = onNavigateToCreateRuleEvent,
+            onNavigationToMyExceptions = onNavigationToMyExceptions,
+            onEdit = onEdit,
+            onDelete = onDelete,
+        )
+    } else {
+        HomePageViewPortrait(
+            rules = rules,
+            onNavigateToMyLocations = onNavigateToMyLocations,
+            onNavigationToMap = onNavigationToMap,
+            onNavigateToCreateRuleEvent = onNavigateToCreateRuleEvent,
+            onNavigationToMyExceptions = onNavigationToMyExceptions,
+            onEdit = onEdit,
+            onDelete = onDelete,
+        )
+    }
+}
+
+@Composable
+fun HomePageViewPortrait(
     rules: StateFlow<List<Rule>>,
     onNavigateToMyLocations: () -> Unit,
     onNavigationToMap: () -> Unit,
@@ -230,118 +236,6 @@ fun HomePageView(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun HomePageViewPreview() {
-    val dummyRules: List<Rule> =
-        listOf(
-            RuleEvent(
-                id = 1,
-                startTime = LocalDateTime.now(),
-                endTime = LocalDateTime.now().plusHours(1),
-                event =
-                    Event(
-                        title = "Reunião de equipa",
-                        id = 1,
-                        eventId = 1,
-                        calendarId = 1,
-                    ),
-            ),
-            RuleEvent(
-                id = 2,
-                startTime = LocalDateTime.now().plusDays(1),
-                endTime = LocalDateTime.now().plusDays(1).plusHours(2),
-                event =
-                    Event(
-                        title = "Almoço de negócios",
-                        id = 2,
-                        eventId = 2,
-                        calendarId = 1,
-                    ),
-            ),
-            RuleEvent(
-                id = 3,
-                startTime = LocalDateTime.now().plusDays(2),
-                endTime = LocalDateTime.now().plusDays(2).plusHours(3),
-                event =
-                    Event(
-                        title = "Reunião com cliente",
-                        id = 3,
-                        eventId = 3,
-                        calendarId = 1,
-                    ),
-            ),
-            RuleEvent(
-                id = 4,
-                startTime = LocalDateTime.now().plusDays(3),
-                endTime = LocalDateTime.now().plusDays(3).plusHours(4),
-                event =
-                    Event(
-                        title = "Reunião de projeto",
-                        id = 4,
-                        eventId = 4,
-                        calendarId = 1,
-                    ),
-            ),
-            RuleEvent(
-                id = 5,
-                startTime = LocalDateTime.now().plusDays(4),
-                endTime = LocalDateTime.now().plusDays(4).plusHours(5),
-                event =
-                    Event(
-                        title = "Reunião de revisão",
-                        id = 5,
-                        eventId = 5,
-                        calendarId = 1,
-                    ),
-            ),
-            RuleEvent(
-                id = 6,
-                startTime = LocalDateTime.now().plusDays(5),
-                endTime = LocalDateTime.now().plusDays(5).plusHours(6),
-                event =
-                    Event(
-                        title = "Reunião de feedback",
-                        id = 6,
-                        eventId = 6,
-                        calendarId = 1,
-                    ),
-            ),
-            RuleLocation(
-                id = 7,
-                startTime = LocalDateTime.now().plusDays(6),
-                endTime = LocalDateTime.now().plusDays(6).plusHours(2),
-                location =
-                    Location(
-                        id = 1,
-                        name = "Escritório",
-                        latitude = 38.7169,
-                        longitude = -9.1399,
-                        radius = 100.0,
-                    ),
-            ),
-        )
-    HomePageView(
-        rules = MutableStateFlow(dummyRules),
-        onNavigationToMap = {},
-        onNavigateToCreateRuleEvent = {},
-        onNavigationToMyExceptions = {},
-        onNavigateToMyLocations = {},
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomePageViewEmptyPreview() {
-    HomePageView(
-        rules = MutableStateFlow(emptyList()),
-        onNavigationToMap = {},
-        onNavigateToCreateRuleEvent = {},
-        onNavigationToMyExceptions = {},
-        onNavigateToMyLocations = {},
-    )
-}
-
 @Composable
 fun HomePageViewHorizontal(
     rules: StateFlow<List<Rule>>,
@@ -352,122 +246,139 @@ fun HomePageViewHorizontal(
     onEdit: (EditRuleActivity.RuleParcelableEvent) -> Unit = {},
     onDelete: (Rule) -> Unit = {},
 ) {
+    var list by rememberSaveable { mutableStateOf(true) }
     val ruleList = rules.collectAsState().value
-    val gray =
-        ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-        )
+    var currentTime by remember { mutableStateOf(LocalDateTime.now()) }
 
-    Row(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(horizontal = 12.dp, vertical = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        // Left Column for Header and Buttons
-        Column(
-            modifier =
-                Modifier
-                    .width(180.dp)
-                    .fillMaxHeight(),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            // Compact Header
-            Text(
-                text = stringResource(R.string.my_rules),
-                style =
-                    MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 20.sp,
-                    ),
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(10000)
+            currentTime = LocalDateTime.now()
+        }
+    }
 
-            // Smaller Buttons
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                CompactButton(
-                    label = stringResource(R.string.my_locations),
-                    onClick = onNavigateToMyLocations,
-                    colors = gray,
-                )
-
-                CompactButton(
-                    label = stringResource(R.string.my_events),
-                    onClick = onNavigateToCreateRuleEvent,
-                    colors = gray,
-                )
-
-                CompactButton(
-                    label = stringResource(R.string.add_new_location),
-                    onClick = onNavigationToMap,
-                    colors = gray,
-                )
-
-                CompactButton(
-                    label = stringResource(R.string.my_exceptions),
-                    onClick = onNavigationToMyExceptions,
-                    colors = gray,
-                )
+    val filteredRules by remember(ruleList, currentTime) {
+        derivedStateOf {
+            ruleList.filter { rule ->
+                when (rule) {
+                    is RuleEvent -> rule.endTime.isAfter(currentTime)
+                    else -> true
+                }
             }
         }
+    }
 
-        // Rules List
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxHeight()
-                    .weight(1f),
-            contentAlignment = Alignment.Center,
+    val rulesToShow = remember(filteredRules, list) {
+        filteredRules.filter {
+            (it is TimelessRule && !list) || (it is TimedRule && list)
+        }
+    }
+
+    val gray = ButtonDefaults.buttonColors(
+        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+    )
+
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 12.dp, vertical = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(0.dp), // separação manual
+    ) {
+        // 🔹 Menu lateral
+        Column(
+            modifier = Modifier
+                .width(180.dp).padding(top = 20.dp)
+                .fillMaxHeight(),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            if (ruleList.isEmpty()) {
-                Text(
-                    text = stringResource(R.string.no_rule_found),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(16.dp),
-                )
-            } else {
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 8.dp),
-                ) {
-                    items(ruleList) { rule ->
-                        if (rule is RuleEvent) {
-                            SwipeableRuleCardEvent(
-                                rule = rule,
-                                onEdit = { editedRule ->
-                                    onEdit(editedRule.toRuleEventParcelable())
-                                },
-                                onDelete = { deletedRule ->
-                                    onDelete(deletedRule)
-                                },
-                                modifier =
-                                    Modifier
-                                        .width(280.dp)
-                                        .fillMaxHeight(0.9f),
-                            )
-                        }
-                        if (rule is RuleLocation) {
-                            SwipeableRuleCardLocation(
-                                rule = rule,
-                                onEdit = { editedRule ->
-                                    // onEdit(editedRule.toRuleEventParcelable())
-                                },
-                                onDelete = { deletedRule ->
-                                    onDelete(deletedRule)
-                                },
-                                modifier =
-                                    Modifier
-                                        .width(280.dp)
-                                        .fillMaxHeight(0.9f),
-                            )
+            CompactButton(
+                label = stringResource(R.string.my_locations),
+                onClick = onNavigateToMyLocations,
+                colors = gray,
+                modifier = Modifier.height(65.dp),
+            )
+            CompactButton(
+                label = stringResource(R.string.my_events),
+                onClick = onNavigateToCreateRuleEvent,
+                colors = gray,
+                modifier = Modifier.height(65.dp),
+            )
+            CompactButton(
+                label = stringResource(R.string.add_new_location),
+                onClick = onNavigationToMap,
+                colors = gray,
+                modifier = Modifier.height(65.dp),
+            )
+            CompactButton(
+                label = stringResource(R.string.my_exceptions),
+                onClick = onNavigationToMyExceptions,
+                colors = gray,
+                modifier = Modifier.height(65.dp),
+            )
+        }
+
+        // 🔸 Espaço entre menu e conteúdo
+        Spacer(modifier = Modifier.width(24.dp))
+
+        // 🔸 Conteúdo principal
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.my_rules),
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 20.sp,
+                ),
+                color = MaterialTheme.colorScheme.primary,
+            )
+
+            RulesToggleBar(
+                isTimedSelected = list,
+                onSelectTimed = { list = true },
+                onSelectLocation = { list = false },
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(end = 8.dp),
+                contentAlignment = Alignment.TopStart,
+            ) {
+                if (rulesToShow.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.no_rule_found),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                } else {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        items(rulesToShow, key = { it.toString() }) { rule ->
+                            when (rule) {
+                                is RuleEvent -> SwipeableRuleCardEvent(
+                                    rule = rule,
+                                    onEdit = { onEdit(it.toRuleEventParcelable()) },
+                                    onDelete = onDelete,
+                                )
+
+                                is RuleLocation -> SwipeableRuleCardLocation(
+                                    rule = rule,
+                                    onEdit = {},
+                                    onDelete = onDelete,
+                                )
+
+                                is RuleLocationTimeless -> SwipeableRuleCardLocationTimeless(
+                                    rule,
+                                    onDelete = onDelete,
+                                )
+                            }
                         }
                     }
                 }
@@ -476,114 +387,82 @@ fun HomePageViewHorizontal(
     }
 }
 
+
 @Preview(showBackground = true)
 @Composable
-fun HomePageViewHorizontalPreview() {
-    val dummyRules: List<Rule> =
-        listOf(
-            RuleEvent(
-                id = 1,
-                startTime = LocalDateTime.now(),
-                endTime = LocalDateTime.now().plusHours(1),
-                event =
-                    Event(
-                        title = "Reunião de equipa",
-                        id = 1,
-                        eventId = 1,
-                        calendarId = 1,
-                    ),
-            ),
-            RuleEvent(
-                id = 2,
-                startTime = LocalDateTime.now().plusDays(1),
-                endTime = LocalDateTime.now().plusDays(1).plusHours(2),
-                event =
-                    Event(
-                        title = "Almoço de negócios",
-                        id = 2,
-                        eventId = 2,
-                        calendarId = 1,
-                    ),
-            ),
-            RuleEvent(
-                id = 3,
-                startTime = LocalDateTime.now().plusDays(2),
-                endTime = LocalDateTime.now().plusDays(2).plusHours(3),
-                event =
-                    Event(
-                        title = "Reunião com cliente",
-                        id = 3,
-                        eventId = 3,
-                        calendarId = 1,
-                    ),
-            ),
-            RuleEvent(
-                id = 4,
-                startTime = LocalDateTime.now().plusDays(3),
-                endTime = LocalDateTime.now().plusDays(3).plusHours(4),
-                event =
-                    Event(
-                        title = "Reunião de projeto",
-                        id = 4,
-                        eventId = 4,
-                        calendarId = 1,
-                    ),
-            ),
-            RuleEvent(
-                id = 5,
-                startTime = LocalDateTime.now().plusDays(4),
-                endTime = LocalDateTime.now().plusDays(4).plusHours(5),
-                event =
-                    Event(
-                        title = "Reunião de revisão",
-                        id = 5,
-                        eventId = 5,
-                        calendarId = 1,
-                    ),
-            ),
-            RuleEvent(
-                id = 6,
-                startTime = LocalDateTime.now().plusDays(5),
-                endTime = LocalDateTime.now().plusDays(5).plusHours(6),
-                event =
-                    Event(
-                        title = "Reunião de feedback",
-                        id = 6,
-                        eventId = 6,
-                        calendarId = 1,
-                    ),
-            ),
-            RuleLocation(
-                id = 7,
-                startTime = LocalDateTime.now().plusDays(6),
-                endTime = LocalDateTime.now().plusDays(6).plusHours(2),
-                location =
-                    Location(
-                        id = 1,
-                        name = "Escritório",
-                        latitude = 38.7169,
-                        longitude = -9.1399,
-                        radius = 100.0,
-                    ),
-            ),
-        )
-    HomePageViewHorizontal(
-        rules = MutableStateFlow(dummyRules),
+fun PreviewResponsiveHomePagePortrait() {
+    HomePageView(
+        rules = MutableStateFlow(sampleRules()),
+        onNavigateToMyLocations = {},
         onNavigationToMap = {},
         onNavigateToCreateRuleEvent = {},
         onNavigationToMyExceptions = {},
-        onNavigateToMyLocations = {},
     )
 }
 
-@Preview(showBackground = true, uiMode = Configuration.ORIENTATION_LANDSCAPE)
+@Preview(showBackground = true, widthDp = 800, heightDp = 400)
 @Composable
-fun HomePageViewHorizontalEmptyPreview() {
-    HomePageViewHorizontal(
-        rules = MutableStateFlow(emptyList()),
+fun PreviewResponsiveHomePageLandscape() {
+    HomePageView(
+        rules = MutableStateFlow(sampleRules()),
+        onNavigateToMyLocations = {},
         onNavigationToMap = {},
         onNavigateToCreateRuleEvent = {},
         onNavigationToMyExceptions = {},
-        onNavigateToMyLocations = {},
     )
 }
+
+fun sampleRules(): List<Rule> = listOf(
+    RuleEvent(
+        id = 1,
+        startTime = LocalDateTime.now(),
+        endTime = LocalDateTime.now().plusHours(1),
+        event = Event(1,1, 1, "Reunião")
+    ),
+    RuleEvent(
+        id = 1,
+        startTime = LocalDateTime.now(),
+        endTime = LocalDateTime.now().plusHours(1),
+        event = Event(1,1, 1, "Reunião")
+    ),
+    RuleEvent(
+        id = 1,
+        startTime = LocalDateTime.now(),
+        endTime = LocalDateTime.now().plusHours(1),
+        event = Event(1,1, 1, "Reunião")
+    ),
+    RuleEvent(
+        id = 1,
+        startTime = LocalDateTime.now(),
+        endTime = LocalDateTime.now().plusHours(1),
+        event = Event(1,1, 1, "Reunião")
+    ),
+    RuleEvent(
+        id = 1,
+        startTime = LocalDateTime.now(),
+        endTime = LocalDateTime.now().plusHours(1),
+        event = Event(1,1, 1, "Reunião")
+    ),
+    RuleEvent(
+        id = 1,
+        startTime = LocalDateTime.now(),
+        endTime = LocalDateTime.now().plusHours(1),
+        event = Event(1,1, 1, "Reunião")
+    ),
+    RuleEvent(
+        id = 1,
+        startTime = LocalDateTime.now(),
+        endTime = LocalDateTime.now().plusHours(1),
+        event = Event(1,1, 1, "Reunião")
+    ),
+    RuleEvent(
+        id = 1,
+        startTime = LocalDateTime.now(),
+        endTime = LocalDateTime.now().plusHours(1),
+        event = Event(1,1, 1, "Reunião")
+    ),
+    RuleLocationTimeless(
+        id = 2,
+        location = Location(1, "Escritório", 38.7169, -9.1399, 100.0)
+    )
+)

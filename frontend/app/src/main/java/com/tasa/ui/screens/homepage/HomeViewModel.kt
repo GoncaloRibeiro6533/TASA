@@ -133,7 +133,7 @@ class HomePageScreenViewModel(
         ],
     )
     fun loadLocalData(): Job? {
-        if (_state.value is HomeScreenState.Loading) return null
+        if (_state.value !is HomeScreenState.Uninitialized) return null
         _state.value = HomeScreenState.Loading
         return viewModelScope.launch {
             try {

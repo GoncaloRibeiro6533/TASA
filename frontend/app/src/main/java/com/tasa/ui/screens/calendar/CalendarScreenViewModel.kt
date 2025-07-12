@@ -72,7 +72,7 @@ class CalendarScreenViewModel(
     val successMessage: StateFlow<Int?> = _successMessage.asStateFlow()
 
     fun loadEvents(): Job? {
-        if (_state.value == CalendarScreenState.Loading) return null
+        if (_state.value !is CalendarScreenState.Uninitialized) return null
         _state.value = CalendarScreenState.Loading
         return viewModelScope.launch {
             try {

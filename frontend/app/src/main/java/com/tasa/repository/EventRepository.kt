@@ -12,7 +12,6 @@ import com.tasa.storage.entities.localMode.EventLocal
 import com.tasa.storage.entities.remote.EventRemote
 import com.tasa.utils.Either
 import com.tasa.utils.Failure
-import com.tasa.utils.NetworkChecker
 import com.tasa.utils.QueryCalendarService
 import com.tasa.utils.Success
 import com.tasa.utils.failure
@@ -26,17 +25,8 @@ class EventRepository(
     private val remote: TasaService,
     private val userInfoRepository: UserInfoRepository,
     private val queryCalendarService: QueryCalendarService,
-    private val networkChecker: NetworkChecker,
     userRepo: UserRepository,
 ) : EventRepositoryInterface, ServiceWithRetry(userRepo) {
-    private suspend fun hasEvents(): Boolean {
-        if (userInfoRepository.isLocal()) {
-            return local.localDao().hasEvents()
-        } else {
-            return local.remoteDao().hasEvents()
-        }
-    }
-
     suspend fun getFromApi(): Either<ApiError, List<Event>> {
         val result =
             retryOnFailure { token ->

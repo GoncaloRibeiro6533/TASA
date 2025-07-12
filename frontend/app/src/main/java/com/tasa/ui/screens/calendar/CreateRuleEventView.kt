@@ -1,29 +1,12 @@
 package com.tasa.ui.screens.calendar
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import android.content.res.Configuration
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,128 +15,83 @@ import com.tasa.domain.CalendarEvent
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateRuleEventView(
     event: CalendarEvent,
     onCreate: (CalendarEvent, LocalDateTime, LocalDateTime) -> Unit = { _, _, _ -> },
     onCancel: () -> Unit = {},
 ) {
-    val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-    val fullFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    // Gera intervalos de 30 minutos entre o start e o end
-    val timeSlots =
-        remember(event) {
-            val slots = mutableListOf<LocalDateTime>()
-            var time = event.startTime
-            while (time <= event.endTime) {
-                slots.add(time)
-                time = time.plusMinutes(30)
-            }
-            slots
-        }
+    if (isLandscape) {
+        CreateRuleEventHorizontalView(event, onCreate, onCancel)
+    } else {
+        CreateRuleEventVerticalView(event, onCreate, onCancel)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CreateRuleEventVerticalView(
+    event: CalendarEvent,
+    onCreate: (CalendarEvent, LocalDateTime, LocalDateTime) -> Unit,
+    onCancel: () -> Unit,
+) {
+    val timeFormatter = remember { DateTimeFormatter.ofPattern("HH:mm") }
+    val fullFormatter = remember { DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm") }
+
+    val timeSlots = remember(event) {
+        generateSequence(event.startTime) { it.plusMinutes(30) }
+            .takeWhile { it <= event.endTime }
+            .toList()
+    }
 
     var startTime by remember { mutableStateOf(event.startTime) }
     var endTime by remember { mutableStateOf(event.endTime) }
-
     var expandedStart by remember { mutableStateOf(false) }
     var expandedEnd by remember { mutableStateOf(false) }
 
     val valid = !startTime.isAfter(endTime)
 
     Column(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(stringResource(R.string.create_rule_for_event), style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(16.dp))
-
         Text(event.title, style = MaterialTheme.typography.bodyLarge)
-
         Spacer(modifier = Modifier.height(8.dp))
-        Text(stringResource(R.string.current_start_time) + ": ${event.startTime.format(fullFormatter)}")
-        Text(stringResource(R.string.current_end_time) + ": ${event.endTime.format(fullFormatter)}")
-
+        Text("${stringResource(R.string.current_start_time)}: ${event.startTime.format(fullFormatter)}")
+        Text("${stringResource(R.string.current_end_time)}: ${event.endTime.format(fullFormatter)}")
         Spacer(modifier = Modifier.height(24.dp))
 
-        Text(stringResource(R.string.rule_start_time), style = MaterialTheme.typography.bodyLarge)
-        Spacer(modifier = Modifier.height(8.dp))
-
-        ExposedDropdownMenuBox(
+        DropdownField(
+            label = stringResource(R.string.rule_start_time),
+            value = startTime,
+            onValueSelected = {
+                startTime = it
+                if (endTime.isBefore(it)) endTime = it
+            },
+            timeFormatter = timeFormatter,
+            timeSlots = timeSlots,
             expanded = expandedStart,
-            onExpandedChange = { expandedStart = !expandedStart },
-        ) {
-            OutlinedTextField(
-                value = startTime.format(timeFormatter),
-                onValueChange = {},
-                readOnly = true,
-                label = { Text(stringResource(R.string.current_start_time)) },
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedStart)
-                },
-                modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable, true).fillMaxWidth(),
-            )
-
-            ExposedDropdownMenu(
-                expanded = expandedStart,
-                onDismissRequest = { expandedStart = false },
-            ) {
-                timeSlots.forEach { time ->
-                    DropdownMenuItem(
-                        text = { Text(time.format(timeFormatter)) },
-                        onClick = {
-                            startTime = time
-                            if (endTime.isBefore(time)) {
-                                endTime = time
-                            }
-                            expandedStart = false
-                        },
-                    )
-                }
-            }
-        }
+            onExpandedChange = { expandedStart = it }
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(stringResource(R.string.rule_end_time), style = MaterialTheme.typography.bodyLarge)
-        Spacer(modifier = Modifier.height(8.dp))
-
-        ExposedDropdownMenuBox(
+        DropdownField(
+            label = stringResource(R.string.rule_end_time),
+            value = endTime,
+            onValueSelected = { endTime = it },
+            timeFormatter = timeFormatter,
+            timeSlots = timeSlots.filter { !it.isBefore(startTime) },
             expanded = expandedEnd,
-            onExpandedChange = { expandedEnd = !expandedEnd },
-        ) {
-            OutlinedTextField(
-                value = endTime.format(timeFormatter),
-                onValueChange = {},
-                readOnly = true,
-                label = { Text(stringResource(R.string.current_end_time)) },
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedEnd)
-                },
-                modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable, true).fillMaxWidth(),
-            )
-
-            ExposedDropdownMenu(
-                expanded = expandedEnd,
-                onDismissRequest = { expandedEnd = false },
-            ) {
-                timeSlots
-                    .filter { !it.isBefore(startTime) }
-                    .forEach { time ->
-                        DropdownMenuItem(
-                            text = { Text(time.format(timeFormatter)) },
-                            onClick = {
-                                endTime = time
-                                expandedEnd = false
-                            },
-                        )
-                    }
-            }
-        }
+            onExpandedChange = { expandedEnd = it }
+        )
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -161,13 +99,11 @@ fun CreateRuleEventView(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            OutlinedButton(onClick = { onCancel() }) {
+            OutlinedButton(onClick = onCancel) {
                 Text(stringResource(R.string.cancel))
             }
             Button(
-                onClick = {
-                    onCreate(event, startTime, endTime)
-                },
+                onClick = { onCreate(event, startTime, endTime) },
                 enabled = valid,
             ) {
                 Text(stringResource(R.string.create))
@@ -176,17 +112,150 @@ fun CreateRuleEventView(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CreateRuleEventHorizontalView(
+    event: CalendarEvent,
+    onCreate: (CalendarEvent, LocalDateTime, LocalDateTime) -> Unit,
+    onCancel: () -> Unit,
+) {
+    val timeFormatter = remember { DateTimeFormatter.ofPattern("HH:mm") }
+    val fullFormatter = remember { DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm") }
+
+    val timeSlots = remember(event) {
+        generateSequence(event.startTime) { it.plusMinutes(30) }
+            .takeWhile { it <= event.endTime }
+            .toList()
+    }
+
+    var startTime by remember { mutableStateOf(event.startTime) }
+    var endTime by remember { mutableStateOf(event.endTime) }
+    var expandedStart by remember { mutableStateOf(false) }
+    var expandedEnd by remember { mutableStateOf(false) }
+
+    val valid = !startTime.isAfter(endTime)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        horizontalArrangement = Arrangement.spacedBy(32.dp)
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+            Text(stringResource(R.string.create_rule_for_event), style = MaterialTheme.typography.headlineSmall)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(event.title, style = MaterialTheme.typography.bodyLarge)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("${stringResource(R.string.current_start_time)}: ${event.startTime.format(fullFormatter)}")
+            Text("${stringResource(R.string.current_end_time)}: ${event.endTime.format(fullFormatter)}")
+        }
+
+        Column(modifier = Modifier.weight(1f)) {
+            DropdownField(
+                label = stringResource(R.string.rule_start_time),
+                value = startTime,
+                onValueSelected = {
+                    startTime = it
+                    if (endTime.isBefore(it)) endTime = it
+                },
+                timeFormatter = timeFormatter,
+                timeSlots = timeSlots,
+                expanded = expandedStart,
+                onExpandedChange = { expandedStart = it }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            DropdownField(
+                label = stringResource(R.string.rule_end_time),
+                value = endTime,
+                onValueSelected = { endTime = it },
+                timeFormatter = timeFormatter,
+                timeSlots = timeSlots.filter { !it.isBefore(startTime) },
+                expanded = expandedEnd,
+                onExpandedChange = { expandedEnd = it }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                OutlinedButton(onClick = onCancel) {
+                    Text(stringResource(R.string.cancel))
+                }
+                Button(
+                    onClick = { onCreate(event, startTime, endTime) },
+                    enabled = valid
+                ) {
+                    Text(stringResource(R.string.create))
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DropdownField(
+    label: String,
+    value: LocalDateTime,
+    onValueSelected: (LocalDateTime) -> Unit,
+    timeFormatter: DateTimeFormatter,
+    timeSlots: List<LocalDateTime>,
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit
+) {
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { onExpandedChange(!expanded) },
+    ) {
+        OutlinedTextField(
+            value = value.format(timeFormatter),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(label) },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
+            modifier = Modifier
+                .menuAnchor(MenuAnchorType.PrimaryEditable, true)
+                .fillMaxWidth()
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { onExpandedChange(false) }
+        ) {
+            timeSlots.forEach { time ->
+                DropdownMenuItem(
+                    text = { Text(time.format(timeFormatter)) },
+                    onClick = {
+                        onValueSelected(time)
+                        onExpandedChange(false)
+                    },
+                )
+            }
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
-fun PreviewCreateRulEventView() {
+fun PreviewCreateRuleEvent_Portrait() {
     val now = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0)
-    val event =
-        CalendarEvent(
-            eventId = 42,
-            calendarId = 10,
-            title = "Workshop Android Jetpack",
-            startTime = now.plusMinutes(30),
-            endTime = now.plusHours(2),
-        )
-    CreateRuleEventView(event = event)
+    val event = CalendarEvent(1, 2, "Preview Portrait", now.plusHours(1), now.plusHours(3))
+    CreateRuleEventView(event)
+}
+
+@Preview(showBackground = true, widthDp = 720, heightDp = 400)
+@Composable
+fun PreviewCreateRuleEvent_Landscape() {
+    val now = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0)
+    val event = CalendarEvent(1, 2, "Preview Landscape", now.plusHours(1), now.plusHours(3))
+    CreateRuleEventView(event)
 }

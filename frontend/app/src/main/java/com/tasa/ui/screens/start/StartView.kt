@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -33,6 +34,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tasa.R
+
+const val START_VIEW = "start_view"
+const val LOGIN_BUTTON = "login_button"
+const val REGISTER_BUTTON = "register_button"
+const val CONTINUE_WITHOUT_ACCOUNT = "continue_without_account"
 
 @Composable
 fun StartView(
@@ -48,7 +54,7 @@ fun StartView(
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize().testTag(START_VIEW),
         ) {
             Image(
                 modifier = Modifier.padding(10.dp).size(250.dp),
@@ -64,7 +70,7 @@ fun StartView(
             )
             Button(
                 onClick = onLoginRequested,
-                modifier = Modifier.width(150.dp).padding(5.dp),
+                modifier = Modifier.width(150.dp).padding(5.dp).testTag(LOGIN_BUTTON),
                 colors =
                     ButtonDefaults.buttonColors(
                         containerColor =
@@ -79,7 +85,7 @@ fun StartView(
             }
             Button(
                 onClick = onRegisterRequested,
-                modifier = Modifier.width(150.dp).padding(5.dp),
+                modifier = Modifier.width(150.dp).padding(5.dp).testTag(REGISTER_BUTTON),
                 colors =
                     ButtonDefaults.buttonColors(
                         containerColor =
@@ -107,7 +113,7 @@ fun StartView(
                     style = TextStyle(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
                     modifier =
                         Modifier
-                            .clickable { onContinueWithoutAccount() },
+                            .clickable { onContinueWithoutAccount() }.testTag(CONTINUE_WITHOUT_ACCOUNT),
                 )
             }
         }
@@ -118,7 +124,7 @@ fun StartView(
             modifier = modifier.fillMaxSize(),
         ) {
             Image(
-                modifier = Modifier.size(170.dp),
+                modifier = Modifier.size(140.dp),
                 painter = painterResource(id = R.drawable.tasa_logo),
                 contentDescription = "Tasa logo",
             )
@@ -165,7 +171,9 @@ fun StartView(
                             ),
                     ) {
                         Text(text = stringResource(R.string.register))
-                    }
+                    }}
+                Spacer(modifier = Modifier.height(20.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp),){
                     val annotatedString =
                         buildAnnotatedString {
                             withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {

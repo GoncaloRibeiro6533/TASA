@@ -4,6 +4,7 @@ import com.tasa.domain.ApiError
 import com.tasa.domain.Event
 import com.tasa.service.http.models.event.EventInput
 import com.tasa.service.http.models.event.EventOutput
+import com.tasa.service.http.models.event.EventUpdateInput
 import com.tasa.service.http.utils.delete
 import com.tasa.service.http.utils.get
 import com.tasa.service.http.utils.post
@@ -48,7 +49,17 @@ class EventServiceHttp(private val client: HttpClient) : EventService {
         event: Event,
         token: String,
     ): Either<ApiError, Event> {
-        return when (val response = client.put<EventOutput>("/event/update/title", body = event, token = token)) {
+        return when (
+            val response =
+                client.put<EventOutput>(
+                    "/event/update/title",
+                    body =
+                        EventUpdateInput(
+                            newTitle = event.title,
+                        ),
+                    token = token,
+                )
+        ) {
             is Success -> success(response.value.toEvent(event.eventId, event.calendarId))
             is Failure -> failure(response.value)
         }

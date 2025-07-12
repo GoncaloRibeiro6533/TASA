@@ -6,6 +6,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.res.ResourcesCompat
 import com.tasa.R
@@ -96,7 +97,6 @@ fun OSMDroidMap2(
                 map.overlays.add(marker)
             }
         }
-
         map.invalidate()
     }
 
@@ -117,26 +117,29 @@ fun OSMDroidMap2(
                 zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
                 controller.setZoom(19.0)
                 controller.setCenter(center)
-                val accuracyCircle =
-                    Polygon().apply {
-                        fillPaint.color = 0x22007AFF // azul claro transparente
-                        outlinePaint.color = 0xFF007AFF.toInt() // azul forte
-                        strokeWidth = 2f
-                        isEnabled = true
-                        setPoints(Polygon.pointsAsCircle(currentLocation ?: center, accuracy?.toDouble() ?: 30.0))
-                    }
-                overlays.add(accuracyCircle)
-                accuracyCircleRef.value = accuracyCircle
-                val currentLocationMarker =
-                    Marker(this).apply {
-                        position = currentLocation ?: center
-                        title = "Current Location"
-                        icon = ResourcesCompat.getDrawable(ctx.resources, R.drawable.ic_gps_blue_dot, ctx.theme)
-                        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-                        isDraggable = false
-                    }
-                overlays.add(currentLocationMarker)
-                currentLocationMarkerRef.value = currentLocationMarker
+                if(currentLocation != null) {
+                    val accuracyCircle =
+                        Polygon().apply {
+                            fillPaint.color = 0x22007AFF // azul claro transparente
+                            outlinePaint.color = 0xFF007AFF.toInt() // azul forte
+                            strokeWidth = 2f
+                            isEnabled = true
+                            setPoints(Polygon.pointsAsCircle(currentLocation, accuracy?.toDouble() ?: 30.0))
+                        }
+                    overlays.add(accuracyCircle)
+                    accuracyCircleRef.value = accuracyCircle
+
+                    val currentLocationMarker =
+                        Marker(this).apply {
+                            position = currentLocation
+                            title = "Current Location"
+                            icon = ResourcesCompat.getDrawable(ctx.resources, R.drawable.ic_gps_blue_dot, ctx.theme)
+                            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+                            isDraggable = false
+                        }
+                    overlays.add(currentLocationMarker)
+                    currentLocationMarkerRef.value = currentLocationMarker
+                }
                 val userSelectedMarker =
                     Marker(this).apply {
                         position = center
@@ -191,10 +194,24 @@ fun drawCircle(
         points.add(geoPoint)
     }
 
+
     return Polygon().apply {
         this.points = points
         fillPaint.color = 0x22FF7F50 // orange semi-transparente
         outlinePaint.color = 0xFFFF7F50.toInt() // orange forte
         outlinePaint.strokeWidth = 3f
     }
+}
+
+@Composable
+@Preview
+fun OSMDroidMap2Preview() {
+    val center = GeoPoint(38.7169, -9.1399) // Lisbon
+    OSMDroidMap2(
+        modifier = Modifier,
+        center = center,
+        currentLocation = null,
+        selectedPoint = center,
+        radius = 100.0,
+    )
 }
