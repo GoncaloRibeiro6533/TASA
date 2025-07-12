@@ -15,6 +15,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.time.LocalDateTime
 
+/**
+ * UserInfoRepo is a repository that manages user information and preferences using DataStore.
+ * It provides methods to get, update, and clear user information, as well as manage application modes,
+ * languages, and other user-related settings.
+ *
+ * @param store The DataStore instance used to persist user preferences.
+ */
 class UserInfoRepo(private val store: DataStore<Preferences>) : UserInfoRepository {
     override val userInfo: Flow<User?> =
         store.data.map { preferences ->

@@ -24,8 +24,20 @@ enum class Activity(val type: Int) {
     RUNNING(8),
 }
 
+/**
+ * Manages user activity transitions using Google Play Services Activity Recognition API.
+ * It registers and unregisters activity transitions and provides utility methods to interpret
+ * activity types and transition types.
+ */
+
 class UserActivityTransitionManager(private val context: Context) {
     companion object {
+        /**
+         * Converts an integer representing a detected activity type to a string.
+         *
+         * @param int The integer representing the activity type.
+         * @return A string representation of the activity type.
+         */
         fun getActivityType(int: Int?): String {
             return when (int) {
                 0 -> "IN_VEHICLE"
@@ -40,6 +52,12 @@ class UserActivityTransitionManager(private val context: Context) {
             }
         }
 
+        /**
+         * Converts an integer representing a transition type to a string.
+         *
+         * @param int The integer representing the transition type.
+         * @return A string representation of the transition type.
+         */
         fun getTransitionType(int: Int): String {
             return when (int) {
                 0 -> "STARTED"
@@ -95,6 +113,9 @@ class UserActivityTransitionManager(private val context: Context) {
         )
     }
 
+    /** Google Play Services Activity Recognition client for managing activity transitions.
+     * It provides methods to register and deregister activity updates.
+     */
     private val activityClient = ActivityRecognition.getClient(context)
 
     val intent =
@@ -118,6 +139,12 @@ class UserActivityTransitionManager(private val context: Context) {
             .setActivityTransition(transitionType).build()
     }
 
+    /**
+     * Registers activity transitions with the Google Play Services Activity Recognition API.
+     * It requires the ACTIVITY_RECOGNITION permission.
+     *
+     * @throws SecurityException if the ACTIVITY_RECOGNITION permission is not granted.
+     */
     @RequiresPermission(
         anyOf = [
             Manifest.permission.ACTIVITY_RECOGNITION,

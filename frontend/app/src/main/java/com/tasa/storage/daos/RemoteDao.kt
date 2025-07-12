@@ -15,6 +15,12 @@ import com.tasa.storage.entities.remote.RuleLocationRemoteWithLocation
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 
+/**
+ * RemoteDao provides methods to the local database when not using the local mode.
+ * It includes methods for inserting, updating, deleting, and querying data related to locations,
+ * events, rules, alarms, and geofences.
+ */
+
 @Dao
 interface RemoteDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)

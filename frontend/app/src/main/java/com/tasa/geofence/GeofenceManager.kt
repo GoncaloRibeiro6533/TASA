@@ -19,6 +19,13 @@ import kotlinx.coroutines.tasks.await
 const val TAG = "GeofenceManager"
 const val CUSTOM_REQUEST_CODE_GEOFENCE = 1001
 
+/**
+ * Manages geofences using Google Play Services Location API.
+ * It allows registering and unregistering geofences, and handles geofence transitions.
+ *
+ * @param context The application context used to access system services.
+ * @param locationProviderClient The FusedLocationProviderClient for location services.
+ */
 class GeofenceManager(
     private val context: Context,
     private val locationProviderClient: FusedLocationProviderClient,

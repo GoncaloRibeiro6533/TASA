@@ -15,6 +15,11 @@ import com.tasa.storage.entities.localMode.RuleLocationLocalWithLocation
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 
+/**
+ * LocalDao defines the Data Access Object (DAO) for local mode.
+ * It provides methods to insert, update, delete, and query various local entities such as locations,
+ * events, rules, alarms, and geofences.
+ */
 @Dao
 interface LocalDao {
     // CREATE

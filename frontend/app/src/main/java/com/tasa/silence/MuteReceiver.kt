@@ -8,6 +8,12 @@ import android.provider.Settings
 import android.util.Log
 import com.tasa.domain.Action
 
+/**
+ *  MuteReceiver is a BroadcastReceiver that listens for alarms to trigger so
+ *  that it can mute or unmute the device.
+ * It checks if the app has notification policy access and performs the corresponding action.
+ * If access is not granted, it redirects the user to the settings page.
+ */
 class MuteReceiver : BroadcastReceiver() {
     override fun onReceive(
         context: Context,
@@ -20,10 +26,6 @@ class MuteReceiver : BroadcastReceiver() {
             context.startActivity(intent)
         }
         try {
-           /* val uri = intent.data
-            val actionName = uri?.lastPathSegment
-            val action = Action.valueOf(actionName ?: return)
-            Log.d("Alarm", "Ação recebida: $action")*/
             when (intent.getParcelableExtra<Action>("action")) {
                 Action.MUTE -> {
                     DndManager.mute(notificationManager)

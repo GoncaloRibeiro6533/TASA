@@ -100,7 +100,7 @@ suspend inline fun <reified T : Any> HttpResponse.processResponse(): Either<ApiE
         return when (a) {
             ERROR_MEDIA_TYPE -> {
                 val problem: ProblemResponse = this.body<ProblemResponse>()
-                failure(ApiError(problem.detail))
+                failure(ApiError(problem.title))
             }
             MEDIA_TYPE -> {
                 val body: T = this.body<T>()

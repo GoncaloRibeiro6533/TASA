@@ -21,6 +21,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
+/**
+ * LocationService is a foreground service that listens for location updates
+ * and manages Do Not Disturb (DND) mode based on the user's location.
+ * It checks if the user is within a specified radius of a predefined location
+ * and mutes or unmutes the device accordingly.
+ */
 class LocationService : Service() {
     companion object {
         const val CHANNEL_ID = "location_channel"
@@ -57,16 +63,24 @@ class LocationService : Service() {
             "android. permission. ACCESS_FINE_LOCATION",
         ],
     )
+
+    /**
+     * Called when the service is started. It retrieves the location by requestId,
+     * starts listening for location updates, and manages DND mode based on the user's location.
+     *
+     * @param intent The Intent that started the service, containing the requestId.
+     * @param flags Additional flags about how the service is started.
+     * @param startId A unique integer representing this specific request to start.
+     * @return An integer indicating how the system should continue the service if it is killed.
+     */
     override fun onStartCommand(
         intent: Intent?,
         flags: Int,
         startId: Int,
     ): Int {
-        Log.d("GeofenceBroadcastReceiver", "onStartCommand:")
         isRunning = true
         val notification = buildNotification()
         startForeground(NOTIFICATION_ID, notification)
-        Log.d("LocationService", "Service started in foreground")
         val requestId = intent?.getStringExtra("requestId").toString()
         reqId = requestId
         locationName = requestId
@@ -85,6 +99,11 @@ class LocationService : Service() {
         return START_STICKY // Ensures the system restarts the service if it's killed
     }
 
+    /**
+     * Listens for location updates and manages DND mode based on the user's location.
+     * If the user is within the specified radius of the predefined location,
+     * it mutes the device; otherwise, it unmutes the device.
+     */
     @RequiresPermission(
         allOf = [
             "android. permission. ACCESS_FINE_LOCATION",
@@ -111,13 +130,11 @@ class LocationService : Service() {
         locationUpdates.centralLocationFlow.collect { location ->
             Log.d("LocationService", "Location: $location")
             if (location != null) {
-                // check if the location TODO
                 if (location.toLocation().distanceTo(locationOfSilence) - location.accuracy <= radius) {
                     if (!DndManager.isMuted(notificationManager)) {
                         DndManager.mute(notificationManager)
                     }
                 } else {
-                    Log.d("LocationService", "Location outside of radius")
                     if (DndManager.isMuted(notificationManager)) {
                         DndManager.unmute(notificationManager)
                     }
@@ -126,10 +143,13 @@ class LocationService : Service() {
         }
     }
 
+    /**
+     * Called when the service is destroyed. It stops location updates,
+     * unmutes the device, and cancels the coroutine scope.
+     */
     override fun onDestroy() {
         super.onDestroy()
         isRunning = false
-        Log.d("LocationService", "Service destroyed")
         DndManager.unmute(notificationManager)
         locationUpdates.stop()
         scope.cancel()
@@ -137,6 +157,12 @@ class LocationService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
+    /**
+     * Builds a notification for the foreground service.
+     * It sets the content title, small icon, and priority.
+     *
+     * @return A Notification object for the foreground service.
+     */
     private fun buildNotification(): Notification {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.tasa_is_executing_in_the_backgrund))
@@ -145,6 +171,10 @@ class LocationService : Service() {
             .build()
     }
 
+    /**
+     * Creates a notification channel for the foreground service.
+     * This is required for Android O and above to display notifications.
+     */
     private fun createNotificationChannel() {
         val serviceChannel =
             NotificationChannel(

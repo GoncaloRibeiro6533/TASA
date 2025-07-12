@@ -21,7 +21,6 @@ import com.tasa.R
 import com.tasa.ui.screens.newLocation.components.SearchBox
 import kotlinx.coroutines.flow.StateFlow
 
-
 @Composable
 fun MapView(
     onEditSearchBox: (TextFieldValue) -> Unit,

@@ -11,7 +11,6 @@ data class ProblemResponse(
     val type: String,
     val title: String,
     val status: Int,
-    val detail: String,
 )
 
 sealed class Problem(
@@ -19,11 +18,10 @@ sealed class Problem(
 ) {
     @Suppress("unused")
     val type = typeUri.toString()
-    val title = typeUri.toString().split("/").last()
 
     fun response(
         status: HttpStatus,
-        detail: String,
+        title: String,
     ): ResponseEntity<Any> =
         ResponseEntity
             .status(status)
@@ -33,7 +31,6 @@ sealed class Problem(
                     type = type,
                     title = title,
                     status = status.value(),
-                    detail = detail,
                 ),
             )
 

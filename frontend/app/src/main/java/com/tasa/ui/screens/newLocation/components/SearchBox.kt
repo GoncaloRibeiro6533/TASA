@@ -17,7 +17,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.tasa.R
 
-
 @Composable
 fun SearchBox(
     query: TextFieldValue,

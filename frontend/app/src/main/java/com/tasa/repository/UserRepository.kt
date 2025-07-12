@@ -1,6 +1,5 @@
 package com.tasa.repository
 
-import android.util.Log
 import com.tasa.domain.ApiError
 import com.tasa.domain.AuthenticationException
 import com.tasa.domain.UserInfoRepository
@@ -14,8 +13,6 @@ import com.tasa.utils.NetworkChecker
 import com.tasa.utils.Success
 import com.tasa.utils.failure
 import com.tasa.utils.success
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 class UserRepository(
     private val local: TasaDB,
@@ -48,24 +45,6 @@ class UserRepository(
                     success(result.value)
                 }
                 is Failure -> failure(result.value)
-            }
-        }
-    }
-
-    override suspend fun insertUser(user: User) {
-        local.userDao().insertUser(
-            user.toUserEntity(),
-        )
-    }
-
-    override fun getUsers(): Flow<List<User>> {
-        return local.userDao().getAllUsers().map { user ->
-            user.map {
-                User(
-                    it.id,
-                    it.username,
-                    it.email,
-                )
             }
         }
     }
@@ -116,7 +95,6 @@ class UserRepository(
             return failure(ApiError("Local mode is enabled. Cannot refresh session."))
         }
         val token = getToken()
-        Log.e("ServiceWithRetry", "Token: $token")
         val refreshToken =
             userInfoRepository.getRefreshToken() ?: return failure(
                 ApiError("No refresh token available. Please log in again."),

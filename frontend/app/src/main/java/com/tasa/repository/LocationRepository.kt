@@ -1,7 +1,6 @@
 package com.tasa.repository
 
 import com.tasa.domain.ApiError
-import com.tasa.domain.AuthenticationException
 import com.tasa.domain.Location
 import com.tasa.domain.UserInfoRepository
 import com.tasa.repository.interfaces.LocationRepositoryInterface
@@ -38,13 +37,6 @@ class LocationRepository(
         } else {
             local.remoteDao().hasLocationById(id)
         }
-    }
-
-    private suspend fun getToken(): String {
-        return userInfoRepository.getToken() ?: throw AuthenticationException(
-            "User is not authenticated. Please log in again.",
-            null,
-        )
     }
 
     private suspend fun getFromApi() =
@@ -197,8 +189,6 @@ class LocationRepository(
          */
     }
 
-
-
     override suspend fun updateLocationFields(
         name: String,
         radius: Double,
@@ -225,9 +215,5 @@ class LocationRepository(
         } else {
             local.remoteDao().clearLocations()
         }
-    }
-
-    override suspend fun syncLocations(): Either<ApiError, Unit> {
-        return success(Unit)
     }
 }

@@ -1403,8 +1403,6 @@ components:
           format: uri
         status:
           type: integer
-        detail:
-          type: string
 
 
 

@@ -8,16 +8,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -53,23 +53,23 @@ fun <T> SwipeableRuleCard(
     enableEdit: Boolean = true,
     enableDelete: Boolean = true,
 ) {
-    val dismissState = rememberSwipeToDismissBoxState(
-        confirmValueChange = { dismissValue ->
-            when (dismissValue) {
-                SwipeToDismissBoxValue.EndToStart -> {
-                    onDelete(rule)
-                    false // Não confirma o dismiss, apenas executa a ação
+    val dismissState =
+        rememberSwipeToDismissBoxState(
+            confirmValueChange = { dismissValue ->
+                when (dismissValue) {
+                    SwipeToDismissBoxValue.EndToStart -> {
+                        onDelete(rule)
+                        false
+                    }
+                    SwipeToDismissBoxValue.StartToEnd -> {
+                        onEdit?.invoke(rule)
+                        false
+                    }
+                    else -> false
                 }
-                SwipeToDismissBoxValue.StartToEnd -> {
-                    onEdit?.invoke(rule)
-                    false // Não confirma o dismiss, apenas executa a ação
-                }
-                else -> false
-            }
-        }
-    )
+            },
+        )
 
-    // Alternativa: resetar o estado após a ação
     LaunchedEffect(dismissState.currentValue) {
         if (dismissState.currentValue != SwipeToDismissBoxValue.Settled) {
             dismissState.reset()
@@ -82,28 +82,32 @@ fun <T> SwipeableRuleCard(
         enableDismissFromEndToStart = enableDelete,
         backgroundContent = {
             val direction = dismissState.dismissDirection
-            val meta = when (direction) {
-                SwipeToDismissBoxValue.StartToEnd -> SwipeMeta(
-                    backgroundColor = MaterialTheme.colorScheme.primary,
-                    icon = Icons.Default.Edit,
-                    alignment = Alignment.CenterStart,
-                    label = stringResource(R.string.edit),
-                )
-                SwipeToDismissBoxValue.EndToStart -> SwipeMeta(
-                    backgroundColor = MaterialTheme.colorScheme.error,
-                    icon = Icons.Default.Delete,
-                    alignment = Alignment.CenterEnd,
-                    label = stringResource(R.string.delete),
-                )
-                else -> return@SwipeToDismissBox
-            }
+            val meta =
+                when (direction) {
+                    SwipeToDismissBoxValue.StartToEnd ->
+                        SwipeMeta(
+                            backgroundColor = MaterialTheme.colorScheme.primary,
+                            icon = Icons.Default.Edit,
+                            alignment = Alignment.CenterStart,
+                            label = stringResource(R.string.edit),
+                        )
+                    SwipeToDismissBoxValue.EndToStart ->
+                        SwipeMeta(
+                            backgroundColor = MaterialTheme.colorScheme.error,
+                            icon = Icons.Default.Delete,
+                            alignment = Alignment.CenterEnd,
+                            label = stringResource(R.string.delete),
+                        )
+                    else -> return@SwipeToDismissBox
+                }
 
             Box(
-                modifier = modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(meta.backgroundColor)
-                    .padding(horizontal = 20.dp),
+                modifier =
+                    modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(meta.backgroundColor)
+                        .padding(horizontal = 20.dp),
                 contentAlignment = meta.alignment,
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -129,7 +133,7 @@ fun <T> SwipeableRuleCard(
         },
         content = {
             dismissContent(rule)
-        }
+        },
     )
 }
 
@@ -177,8 +181,8 @@ fun SwipeableRuleCardLocationTimeless(
         onDelete = onDelete,
         dismissContent = { RuleCardLocationTimeless(rule = it) },
         modifier = modifier,
-        enableEdit = false,  // Desabilita o swipe para editar
-        enableDelete = true, // Apenas permite deletar
+        enableEdit = false,
+        enableDelete = true,
     )
 }
 

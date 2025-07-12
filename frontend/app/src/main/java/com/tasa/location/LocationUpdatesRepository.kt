@@ -29,6 +29,15 @@ private const val MAX_LOCATION_HISTORY_DISCARDED = 5
 
 private const val MAX_DRIFTED_METERS = 3f
 
+/**
+ * LocationUpdatesRepository is responsible for managing location updates and user activity transitions.
+ * It listens for location updates, validates them based on user activity, and maintains a history of locations.
+ * It also provides a central location based on the last valid locations.
+ *
+ * @property activityRecognitionManager The manager for user activity transitions.
+ * @property locationClient The FusedLocationProviderClient for location services.
+ * @property userInfo The repository for user information, including last activity.
+ */
 class LocationUpdatesRepository(
     private val activityRecognitionManager: UserActivityTransitionManager,
     private val locationClient: FusedLocationProviderClient,
@@ -53,6 +62,10 @@ class LocationUpdatesRepository(
 
     private val locationFlow: MutableStateFlow<Location?> = MutableStateFlow(null)
 
+    /**
+     * A callback that receives location updates and processes them.
+     * It filters out locations based on accuracy and user activity, and saves valid locations.
+     */
     private var locationCallback: LocationCallback =
         object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
@@ -61,20 +74,10 @@ class LocationUpdatesRepository(
                         "LocationManagerMine",
                         "Location received: ${location.latitude}, ${location.longitude}, accuracy: ${location.accuracy}",
                     )
-                    // if (!location.hasSpeed() && !location.hasAltitude()) continue
                     locationFlow.value = location
                 }
             }
         }
-
-    private fun lowestAccuracyIndex(): Int {
-        return lastLocations.indexOf(lastLocations.maxBy { it.accuracy })
-    }
-
-    private fun mostFurtherLocationIndex(): Int {
-        val dist = lastLocations.map { it.distanceTo(calculatedCentralPoint) }
-        return dist.indexOf(dist.max())
-    }
 
     private fun ArrayList<Location>.centralPoint(): Location {
         if (this.isEmpty()) return Location("central")
@@ -86,26 +89,9 @@ class LocationUpdatesRepository(
         }
     }
 
-    // Check if the locations are all a radius of n
-    private fun ArrayList<Location>.isAllInRadius(radius: Float): Boolean {
-        if (this.isEmpty()) return false
-        val centralPoint = this.centralPoint()
-        return this.all { it.distanceTo(centralPoint) <= radius }
-    }
-
     private val calculatedCentralPoint: Location
         get() {
             return lastLocations.centralPoint()
-        }
-
-    private val discardedLocationsCentralPoint: Location
-        get() {
-            val avgLat = discardedLocations.map { it.latitude }.average()
-            val avgLon = discardedLocations.map { it.longitude }.average()
-            return Location("discarded").apply {
-                latitude = avgLat
-                longitude = avgLon
-            }
         }
 
     private val _centralLocationFlow =
@@ -136,8 +122,6 @@ class LocationUpdatesRepository(
                 updates = ++updates,
             )
     }
-
-    private var isStable: Boolean = false
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun validateLocation(location: Location): Boolean {
@@ -311,10 +295,6 @@ class LocationUpdatesRepository(
                 Log.d("LocationManagerMine", "Location updates stopped")
             }
         }
-    }
-
-    private fun List<Location>.calculatePrecision(): Float {
-        return this.map { it.distanceTo(calculatedCentralPoint) }.average().toFloat()
     }
 
     private fun ArrayList<Location>.isClusteredWithin(radiusMeters: Float): Boolean {

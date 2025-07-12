@@ -1,7 +1,6 @@
 package com.tasa.repository
 
 import com.tasa.domain.ApiError
-import com.tasa.domain.AuthenticationException
 import com.tasa.domain.Event
 import com.tasa.domain.UserInfoRepository
 import com.tasa.repository.interfaces.EventRepositoryInterface
@@ -36,13 +35,6 @@ class EventRepository(
         } else {
             return local.remoteDao().hasEvents()
         }
-    }
-
-    private suspend fun getToken(): String {
-        return userInfoRepository.getToken() ?: throw AuthenticationException(
-            "User is not authenticated. Please log in again.",
-            null,
-        )
     }
 
     suspend fun getFromApi(): Either<ApiError, List<Event>> {
@@ -174,10 +166,6 @@ class EventRepository(
         } else {
             local.remoteDao().clearEvents()
         }
-    }
-
-    override suspend fun syncEvents(): Either<ApiError, Unit> {
-        return success(Unit)
     }
 
     override suspend fun insertEvent(

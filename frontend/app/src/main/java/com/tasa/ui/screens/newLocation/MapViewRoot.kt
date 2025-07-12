@@ -50,10 +50,6 @@ fun MapViewRoot(
     }
 }
 
-
-
-
-
 @Preview(showBackground = true)
 @Composable
 fun MapRootPreview() {

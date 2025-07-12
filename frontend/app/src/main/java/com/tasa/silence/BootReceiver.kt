@@ -3,18 +3,20 @@ package com.tasa.silence
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import com.tasa.DependenciesContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+/**
+ * A BroadcastReceiver that listens for the BOOT_COMPLETED action.
+ * It reschedules alarms, registers activity transitions, and geofences after the device boots up.
+ */
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(
         context: Context,
         intent: Intent?,
     ) {
-        Log.d("BootReceiver", "onReceive: BOOT_COMPLETED")
         if (intent?.action == Intent.ACTION_BOOT_COMPLETED) {
             val alarmScheduler = (context.applicationContext as DependenciesContainer).ruleScheduler
             val scope = CoroutineScope(Dispatchers.IO)

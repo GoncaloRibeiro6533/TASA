@@ -3,27 +3,27 @@ package com.tasa.geofence
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
 import com.tasa.location.LocationService
 
+/**
+ * A BroadcastReceiver that listens for geofence transitions.
+ * It starts or stops the LocationService based on the type of geofence transition.
+ */
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(
         context: Context,
         intent: Intent,
     ) {
-        Log.d("GeofenceBroadcastReceiver", "onReceive:")
         val geofencingEvent =
             GeofencingEvent.fromIntent(intent)
                 ?: return
         val geofenceTransition = geofencingEvent.geofenceTransition
-        Log.d("GeofenceBroadcastReceiver", "geofencingEvent: $geofenceTransition")
         if (geofencingEvent.hasError()) {
             return
         }
         val triggeringLocation = geofencingEvent.triggeringLocation
-        Log.d("GeofenceBroadcastReceiver", "triggeringLocation: ${geofencingEvent.triggeringLocation}")
         val serviceIntent =
             Intent(context, LocationService::class.java).apply {
                 putExtra("lat", triggeringLocation?.latitude)
@@ -33,7 +33,6 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
             }
         when (geofenceTransition) {
             Geofence.GEOFENCE_TRANSITION_ENTER -> {
-                Log.d("GeofenceBroadcastReceiver", "GEOFENCE_TRANSITION_ENTER")
                 context.startForegroundService(serviceIntent)
             }
             Geofence.GEOFENCE_TRANSITION_EXIT -> {

@@ -27,7 +27,6 @@ import org.osmdroid.util.GeoPoint
 
 @Composable
 fun MapScreen(
-
     viewModel: MapScreenViewModel,
     onNavigationBack: () -> Unit,
     onLocationSelected: (GeoPoint) -> Unit,
@@ -46,13 +45,13 @@ fun MapScreen(
         String,
         Double,
         Double,
-        Double
+        Double,
     ) -> Unit,
     onConfirmEditingLocation: (
         String,
         Double,
         Double,
-        Double
+        Double,
     ) -> Unit,
 ) {
     val state = viewModel.state.collectAsState().value
@@ -167,8 +166,6 @@ fun MapScreen(
                         viewModel.onFatalError()?.invokeOnCompletion { onSessionExpired() }
                     }
                 }
-
-
             }
         }
     }

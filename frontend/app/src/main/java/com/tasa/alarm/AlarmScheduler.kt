@@ -15,6 +15,12 @@ import com.tasa.silence.MuteReceiver
 import java.util.Calendar
 import kotlin.time.Duration.Companion.minutes
 
+/**
+ * Manages scheduling, updating, and canceling alarms using Android's AlarmManager.
+ * It creates unique PendingIntents for each alarm based on the alarm ID and action.
+ *
+ * @property context The application context used to access system services.
+ */
 class AlarmScheduler(
     private val context: Context,
 ) {
@@ -22,6 +28,14 @@ class AlarmScheduler(
         context.getSystemService(AlarmManager::class.java) as AlarmManager
     }
 
+    /**
+     * Creates a unique PendingIntent for the given alarm ID and action.
+     * The intent includes the action as an extra and uses a custom URI to ensure uniqueness.
+     *
+     * @param alarmId The unique identifier for the alarm.
+     * @param action The action to be performed when the alarm triggers.
+     * @return A PendingIntent that can be used to trigger the alarm.
+     */
     private fun createPendingIntent(
         alarmId: Int,
         action: Action,
@@ -40,6 +54,14 @@ class AlarmScheduler(
         )
     }
 
+    /**
+     * Schedules an alarm with the specified ID, time, and action.
+     * It creates a PendingIntent and sets the alarm using AlarmManager.
+     *
+     * @param alarmId The unique identifier for the alarm.
+     * @param time The time at which the alarm should trigger.
+     * @param action The action to be performed when the alarm triggers.
+     */
     fun scheduleAlarm(
         alarmId: Int,
         time: TriggerTime,
@@ -63,6 +85,14 @@ class AlarmScheduler(
         )
     }
 
+    /**
+     * Updates an existing alarm by canceling it and scheduling a new one with the same ID.
+     * This is useful for changing the time or action of an existing alarm.
+     *
+     * @param alarmId The unique identifier for the alarm to be updated.
+     * @param time The new time at which the alarm should trigger.
+     * @param action The new action to be performed when the alarm triggers.
+     */
     fun updateAlarm(
         alarmId: Int,
         time: TriggerTime,
@@ -72,6 +102,13 @@ class AlarmScheduler(
         scheduleAlarm(alarmId, time, action)
     }
 
+    /**
+     * Cancels an existing alarm by its ID and action.
+     * It retrieves the PendingIntent associated with the alarm and cancels it.
+     *
+     * @param alarmId The unique identifier for the alarm to be canceled.
+     * @param action The action associated with the alarm to be canceled.
+     */
     fun cancelAlarm(
         alarmId: Int,
         action: Action,
@@ -92,6 +129,12 @@ class AlarmScheduler(
         pendingIntent.cancel()
     }
 
+    /**
+     * Reschedules all alarms that are either in the future or have not been triggered in the last 10 minutes.
+     * This is useful for ensuring that alarms are still active and correctly set.
+     *
+     * @param alarms A list of alarms to be rescheduled.
+     */
     fun rescheduleAllAlarms(alarms: List<Alarm>) {
         val now = Calendar.getInstance().timeInMillis
         alarms.filter {

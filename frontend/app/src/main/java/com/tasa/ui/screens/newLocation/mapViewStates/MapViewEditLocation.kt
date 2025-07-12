@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tasa.R
@@ -29,7 +28,6 @@ import com.tasa.domain.Location
 import com.tasa.ui.screens.newLocation.TasaLocation
 import kotlinx.coroutines.flow.StateFlow
 import org.osmdroid.util.GeoPoint
-
 
 @Composable
 fun MapViewEditLocationView(
@@ -46,7 +44,7 @@ fun MapViewEditLocationView(
         String,
         Double,
         Double,
-        Double
+        Double,
     ) -> Unit,
 ) {
     val selectedPoint = selectedPoint.collectAsState().value
