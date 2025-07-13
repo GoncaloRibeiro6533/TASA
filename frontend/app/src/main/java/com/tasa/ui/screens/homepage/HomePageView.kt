@@ -1,13 +1,31 @@
 package com.tasa.ui.screens.homepage
 
 import android.content.res.Configuration
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -18,8 +36,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tasa.R
-import com.tasa.domain.*
-import com.tasa.ui.screens.homepage.components.*
+import com.tasa.domain.Event
+import com.tasa.domain.Location
+import com.tasa.domain.Rule
+import com.tasa.domain.RuleEvent
+import com.tasa.domain.RuleLocation
+import com.tasa.domain.RuleLocationTimeless
+import com.tasa.domain.TimedRule
+import com.tasa.domain.TimelessRule
+import com.tasa.ui.screens.homepage.components.CompactButton
+import com.tasa.ui.screens.homepage.components.RulesToggleBar
+import com.tasa.ui.screens.homepage.components.SquareButton
+import com.tasa.ui.screens.homepage.components.SwipeableRuleCardEvent
+import com.tasa.ui.screens.homepage.components.SwipeableRuleCardLocation
+import com.tasa.ui.screens.homepage.components.SwipeableRuleCardLocationTimeless
 import com.tasa.ui.screens.rule.EditRuleActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -268,28 +298,31 @@ fun HomePageViewHorizontal(
         }
     }
 
-    val rulesToShow = remember(filteredRules, list) {
-        filteredRules.filter {
-            (it is TimelessRule && !list) || (it is TimedRule && list)
+    val rulesToShow =
+        remember(filteredRules, list) {
+            filteredRules.filter {
+                (it is TimelessRule && !list) || (it is TimedRule && list)
+            }
         }
-    }
 
-    val gray = ButtonDefaults.buttonColors(
-        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-    )
+    val gray =
+        ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        )
 
     Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 12.dp, vertical = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(0.dp), // separação manual
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(horizontal = 12.dp, vertical = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(0.dp),
     ) {
-        // 🔹 Menu lateral
         Column(
-            modifier = Modifier
-                .width(180.dp).padding(top = 20.dp)
-                .fillMaxHeight(),
+            modifier =
+                Modifier
+                    .width(180.dp).padding(top = 20.dp)
+                    .fillMaxHeight(),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             CompactButton(
@@ -318,22 +351,22 @@ fun HomePageViewHorizontal(
             )
         }
 
-        // 🔸 Espaço entre menu e conteúdo
         Spacer(modifier = Modifier.width(24.dp))
 
-        // 🔸 Conteúdo principal
         Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .weight(1f),
+            modifier =
+                Modifier
+                    .fillMaxHeight()
+                    .weight(1f),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(
                 text = stringResource(R.string.my_rules),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 20.sp,
-                ),
+                style =
+                    MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 20.sp,
+                    ),
                 color = MaterialTheme.colorScheme.primary,
             )
 
@@ -344,9 +377,10 @@ fun HomePageViewHorizontal(
             )
 
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(end = 8.dp),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(end = 8.dp),
                 contentAlignment = Alignment.TopStart,
             ) {
                 if (rulesToShow.isEmpty()) {
@@ -362,22 +396,25 @@ fun HomePageViewHorizontal(
                     ) {
                         items(rulesToShow, key = { it.toString() }) { rule ->
                             when (rule) {
-                                is RuleEvent -> SwipeableRuleCardEvent(
-                                    rule = rule,
-                                    onEdit = { onEdit(it.toRuleEventParcelable()) },
-                                    onDelete = onDelete,
-                                )
+                                is RuleEvent ->
+                                    SwipeableRuleCardEvent(
+                                        rule = rule,
+                                        onEdit = { onEdit(it.toRuleEventParcelable()) },
+                                        onDelete = onDelete,
+                                    )
 
-                                is RuleLocation -> SwipeableRuleCardLocation(
-                                    rule = rule,
-                                    onEdit = {},
-                                    onDelete = onDelete,
-                                )
+                                is RuleLocation ->
+                                    SwipeableRuleCardLocation(
+                                        rule = rule,
+                                        onEdit = {},
+                                        onDelete = onDelete,
+                                    )
 
-                                is RuleLocationTimeless -> SwipeableRuleCardLocationTimeless(
-                                    rule,
-                                    onDelete = onDelete,
-                                )
+                                is RuleLocationTimeless ->
+                                    SwipeableRuleCardLocationTimeless(
+                                        rule,
+                                        onDelete = onDelete,
+                                    )
                             }
                         }
                     }
@@ -386,7 +423,6 @@ fun HomePageViewHorizontal(
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable
@@ -412,57 +448,58 @@ fun PreviewResponsiveHomePageLandscape() {
     )
 }
 
-fun sampleRules(): List<Rule> = listOf(
-    RuleEvent(
-        id = 1,
-        startTime = LocalDateTime.now(),
-        endTime = LocalDateTime.now().plusHours(1),
-        event = Event(1,1, 1, "Reunião")
-    ),
-    RuleEvent(
-        id = 1,
-        startTime = LocalDateTime.now(),
-        endTime = LocalDateTime.now().plusHours(1),
-        event = Event(1,1, 1, "Reunião")
-    ),
-    RuleEvent(
-        id = 1,
-        startTime = LocalDateTime.now(),
-        endTime = LocalDateTime.now().plusHours(1),
-        event = Event(1,1, 1, "Reunião")
-    ),
-    RuleEvent(
-        id = 1,
-        startTime = LocalDateTime.now(),
-        endTime = LocalDateTime.now().plusHours(1),
-        event = Event(1,1, 1, "Reunião")
-    ),
-    RuleEvent(
-        id = 1,
-        startTime = LocalDateTime.now(),
-        endTime = LocalDateTime.now().plusHours(1),
-        event = Event(1,1, 1, "Reunião")
-    ),
-    RuleEvent(
-        id = 1,
-        startTime = LocalDateTime.now(),
-        endTime = LocalDateTime.now().plusHours(1),
-        event = Event(1,1, 1, "Reunião")
-    ),
-    RuleEvent(
-        id = 1,
-        startTime = LocalDateTime.now(),
-        endTime = LocalDateTime.now().plusHours(1),
-        event = Event(1,1, 1, "Reunião")
-    ),
-    RuleEvent(
-        id = 1,
-        startTime = LocalDateTime.now(),
-        endTime = LocalDateTime.now().plusHours(1),
-        event = Event(1,1, 1, "Reunião")
-    ),
-    RuleLocationTimeless(
-        id = 2,
-        location = Location(1, "Escritório", 38.7169, -9.1399, 100.0)
+fun sampleRules(): List<Rule> =
+    listOf(
+        RuleEvent(
+            id = 1,
+            startTime = LocalDateTime.now(),
+            endTime = LocalDateTime.now().plusHours(1),
+            event = Event(1, 1, 1, "Reunião"),
+        ),
+        RuleEvent(
+            id = 1,
+            startTime = LocalDateTime.now(),
+            endTime = LocalDateTime.now().plusHours(1),
+            event = Event(1, 1, 1, "Reunião"),
+        ),
+        RuleEvent(
+            id = 1,
+            startTime = LocalDateTime.now(),
+            endTime = LocalDateTime.now().plusHours(1),
+            event = Event(1, 1, 1, "Reunião"),
+        ),
+        RuleEvent(
+            id = 1,
+            startTime = LocalDateTime.now(),
+            endTime = LocalDateTime.now().plusHours(1),
+            event = Event(1, 1, 1, "Reunião"),
+        ),
+        RuleEvent(
+            id = 1,
+            startTime = LocalDateTime.now(),
+            endTime = LocalDateTime.now().plusHours(1),
+            event = Event(1, 1, 1, "Reunião"),
+        ),
+        RuleEvent(
+            id = 1,
+            startTime = LocalDateTime.now(),
+            endTime = LocalDateTime.now().plusHours(1),
+            event = Event(1, 1, 1, "Reunião"),
+        ),
+        RuleEvent(
+            id = 1,
+            startTime = LocalDateTime.now(),
+            endTime = LocalDateTime.now().plusHours(1),
+            event = Event(1, 1, 1, "Reunião"),
+        ),
+        RuleEvent(
+            id = 1,
+            startTime = LocalDateTime.now(),
+            endTime = LocalDateTime.now().plusHours(1),
+            event = Event(1, 1, 1, "Reunião"),
+        ),
+        RuleLocationTimeless(
+            id = 2,
+            location = Location(1, "Escritório", 38.7169, -9.1399, 100.0),
+        ),
     )
-)

@@ -25,7 +25,6 @@ import com.tasa.domain.Location
 import com.tasa.ui.screens.mylocations.components.LocationCard
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.osmdroid.util.GeoPoint
 
 @Composable
 fun MyLocationsView(

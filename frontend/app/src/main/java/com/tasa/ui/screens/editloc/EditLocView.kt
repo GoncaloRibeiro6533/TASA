@@ -34,7 +34,7 @@ fun EditLocView(
         radius: Double,
     ) -> Unit,
     onNewCenter: () -> Unit,
-    onAddRule:() -> Unit
+    onAddRule: () -> Unit,
 ) {
     val initialName = location.name
     val initialRadius = location.radius.toString()
@@ -128,7 +128,7 @@ fun EditLocView(
             onClick = {
                 val radius = radiusText.toDoubleOrNull()
                 if (radius != null && !radiusError) {
-                    onSave(location, name, radius, )
+                    onSave(location, name, radius)
                 } else {
                     radiusError = true
                 }
@@ -158,6 +158,6 @@ fun EditLocPreview() {
         location = loc,
         onSave = { _, _, _ -> },
         onNewCenter = {},
-        onAddRule = {}
+        onAddRule = {},
     )
 }

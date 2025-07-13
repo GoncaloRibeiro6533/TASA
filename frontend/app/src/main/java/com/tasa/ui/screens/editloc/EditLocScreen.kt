@@ -18,7 +18,6 @@ import com.tasa.ui.components.TopBar
 import com.tasa.ui.screens.authentication.register.SuccessView
 import com.tasa.ui.screens.editloc.editview.MapViewEditLocationView
 import com.tasa.ui.screens.editloc.editview.MapViewRootEditLocation
-import com.tasa.ui.screens.newLocation.MapViewRoot
 import com.tasa.ui.theme.TasaTheme
 import org.osmdroid.util.GeoPoint
 
@@ -34,10 +33,8 @@ fun EditLocScreen(
     onEditCenterButton: (Location, String, Double, Double, Double) -> Unit,
     onUpdateRadius: (Double) -> Unit,
     onUpdateLocationName: (String) -> Unit,
-    onAddRule: () -> Unit
-
-
-    ) {
+    onAddRule: () -> Unit,
+) {
     TasaTheme {
         val currentState = viewModel.state.collectAsState().value
 
@@ -46,7 +43,6 @@ fun EditLocScreen(
                 viewModel.initializeEditing(location)
             }
         }
-
 
         Scaffold(
             modifier =
@@ -70,10 +66,10 @@ fun EditLocScreen(
                         .padding(innerPaddding),
             ) {
                 when (currentState) {
-
                     is EditLocScreenState.Uninitialized,
 
-                    is EditLocScreenState.Loading -> {
+                    is EditLocScreenState.Loading,
+                    -> {
                         LoadingView()
                     }
                     is EditLocScreenState.ChangingFields -> {
@@ -87,7 +83,7 @@ fun EditLocScreen(
                             },
                             onAddRule = {
                                 onAddRule()
-                            }
+                            },
                         )
                     }
                     is EditLocScreenState.Success ->
@@ -102,7 +98,7 @@ fun EditLocScreen(
                             title = stringResource(R.string.error),
                             message = currentState.error,
                             buttonText = stringResource(R.string.Ok),
-                        ){
+                        ) {
                             onNavigationBack()
                         }
                     }
@@ -118,7 +114,6 @@ fun EditLocScreen(
                     }
                     is EditLocScreenState.ChangingCenter -> {
                         viewModel.updateLocation(location)
-
 
                         MapViewRootEditLocation(
                             radius = viewModel.radius,

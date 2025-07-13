@@ -13,7 +13,6 @@ import com.tasa.ui.screens.authentication.login.LoginScreen
 import com.tasa.ui.screens.authentication.login.LoginScreenState
 import com.tasa.ui.screens.authentication.login.LoginScreenViewModel
 import com.tasa.utils.Either
-import com.tasa.utils.StringResourceResolver
 import com.tasa.utils.success
 import org.junit.Rule
 import org.junit.Test

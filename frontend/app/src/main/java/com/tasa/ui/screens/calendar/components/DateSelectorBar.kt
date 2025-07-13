@@ -95,10 +95,11 @@ fun DateSelectorBar(
             },
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(scrollState)
-                    .padding(vertical = 8.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(scrollState)
+                        .padding(vertical = 8.dp),
             ) {
                 DatePicker(state = datePickerState, showModeToggle = false)
             }

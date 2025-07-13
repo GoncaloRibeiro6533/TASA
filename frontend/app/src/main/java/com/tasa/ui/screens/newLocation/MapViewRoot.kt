@@ -8,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import com.tasa.domain.Location
 import com.tasa.ui.screens.newLocation.components.OSMDroidMap2
 import com.tasa.ui.screens.newLocation.mapViewStates.MapView
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,9 +15,6 @@ import kotlinx.coroutines.flow.StateFlow
 import org.osmdroid.util.GeoPoint
 
 const val OSMDROID_MAP = "osmdroid_map"
-const val LOGIN_TEXT_FIELDS = "login_text_fields"
-const val LOGIN_BUTTON = "login_button"
-const val REGISTER_ANCHOR = "register_anchor"
 
 @Composable
 fun MapViewRoot(

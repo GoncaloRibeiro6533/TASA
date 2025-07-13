@@ -12,7 +12,6 @@ import com.tasa.ui.screens.editloc.EditLocActivity
 import com.tasa.ui.screens.start.StartActivity
 import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
-import org.osmdroid.util.GeoPoint
 
 class MyLocationsActivity : ComponentActivity() {
     private val repo by lazy {

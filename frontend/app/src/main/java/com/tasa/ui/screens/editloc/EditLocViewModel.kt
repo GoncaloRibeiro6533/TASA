@@ -16,7 +16,6 @@ import com.tasa.geofence.GeofenceManager
 import com.tasa.location.LocationService
 import com.tasa.location.LocationUpdatesRepository
 import com.tasa.repository.TasaRepo
-import com.tasa.ui.screens.mylocations.MyLocationsScreenState
 import com.tasa.ui.screens.newLocation.TasaLocation
 import com.tasa.utils.Failure
 import com.tasa.utils.ServiceKiller
@@ -42,7 +41,7 @@ sealed interface EditLocScreenState {
         val locationName: StateFlow<String>,
     ) : EditLocScreenState
 
-    data object Success: EditLocScreenState
+    data object Success : EditLocScreenState
 
     data class Error(val error: String) : EditLocScreenState
 
@@ -54,7 +53,7 @@ sealed interface EditLocScreenState {
         val locationName: StateFlow<String>,
     ) : EditLocScreenState
 
-    data object SessionExpired: EditLocScreenState
+    data object SessionExpired : EditLocScreenState
 }
 
 class EditLocScreenViewModel(
@@ -66,10 +65,8 @@ class EditLocScreenViewModel(
     private val alarmScheduler: AlarmScheduler,
     private val geofenceManager: GeofenceManager,
     initialPoint: GeoPoint,
-
     initialState: EditLocScreenState = EditLocScreenState.Uninitialized,
 ) : ViewModel() {
-
     private val _activityState = MutableStateFlow<String?>(null)
     val activityState: StateFlow<String?> = _activityState.asStateFlow()
 
@@ -96,10 +93,8 @@ class EditLocScreenViewModel(
         if (_state.value is EditLocScreenState.ChangingCenter) {
             val point = GeoPoint(location.latitude, location.longitude)
             _currentLocation.value = TasaLocation(point, 10f, null, null, 0)
-
         }
     }
-
 
     private val _radius = MutableStateFlow<Double>(30.0)
     val radius: StateFlow<Double> = _radius.asStateFlow()
@@ -112,7 +107,6 @@ class EditLocScreenViewModel(
             TextFieldValue(""),
         )
     val query: StateFlow<TextFieldValue> = _query.asStateFlow()
-
 
     fun updateRadius(radius: Double) {
         if (_state.value is EditLocScreenState.ChangingCenter) {
@@ -166,39 +160,41 @@ class EditLocScreenViewModel(
         if (_state.value is EditLocScreenState.ChangingCenter) {
             viewModelScope.launch {
                 try {
-                    if (repo.locationRepo.getLocationByName(locationName) != null
-                        && repo.locationRepo.getLocationByName(locationName)?.id != location.id) {
-                        _state.value = EditLocScreenState.Error(
-                            stringResolver.getString(R.string.error_another_location_name_already_exists))
+                    if (repo.locationRepo.getLocationByName(locationName) != null &&
+                        repo.locationRepo.getLocationByName(locationName)?.id != location.id
+                    ) {
+                        _state.value =
+                            EditLocScreenState.Error(
+                                stringResolver.getString(R.string.error_another_location_name_already_exists),
+                            )
                         return@launch
                     }
-                    when(val result0 = repo.locationRepo.deleteLocationById(location.id)){
+                    when (val result0 = repo.locationRepo.deleteLocationById(location.id)) {
                         is Failure -> {
                             _state.value =
                                 EditLocScreenState.Error(result0.value.message)
                             return@launch
                         }
                         is Success -> {
-                            when(val result1 =
-                                repo.locationRepo.insertLocation(
-                                    name = locationName,
-                                    latitude = latitude,
-                                    longitude = longitude,
-                                    radius = radius,
-                                )
-                            ){
+                            when (
+                                val result1 =
+                                    repo.locationRepo.insertLocation(
+                                        name = locationName,
+                                        latitude = latitude,
+                                        longitude = longitude,
+                                        radius = radius,
+                                    )
+                            ) {
                                 is Failure -> {
                                     _state.value = EditLocScreenState.Error(result1.value.message)
                                     return@launch
                                 }
                                 is Success -> {
                                     val newLocation =
-                                        repo.locationRepo.getLocationByName(locationName)?:location
+                                        repo.locationRepo.getLocationByName(locationName) ?: location
 
                                     when (val result2 = repo.ruleRepo.insertRuleLocationTimeless(newLocation)) {
                                         is Success -> {
-
-
                                             val radius =
                                                 if (newLocation.radius < 100) {
                                                     100f
@@ -229,19 +225,14 @@ class EditLocScreenViewModel(
                             }
                         }
                     }
-
-
-
-                }
-                catch (ex: AuthenticationException){
+                } catch (ex: AuthenticationException) {
                     _state.value =
                         EditLocScreenState.SessionExpired
                     return@launch
-                }
-                catch (ex: Throwable) {
+                } catch (ex: Throwable) {
                     _state.value =
                         EditLocScreenState.Error(
-                            stringResolver.getString(R.string.unexpected_error)
+                            stringResolver.getString(R.string.unexpected_error),
                         )
                 }
             }
@@ -250,7 +241,6 @@ class EditLocScreenViewModel(
 
     fun setEditingCenterState() {
         if (state.value is EditLocScreenState.ChangingFields) {
-
             _state.value =
                 EditLocScreenState.ChangingCenter(
                     selectedPoint = _selectedPoint,
@@ -267,48 +257,49 @@ class EditLocScreenViewModel(
         location: Location,
         locationName: String,
         radius: Double,
-
     ) {
         if (_state.value is EditLocScreenState.ChangingFields) {
             viewModelScope.launch {
                 try {
-                    if (repo.locationRepo.getLocationByName(locationName) != null
-                        && repo.locationRepo.getLocationByName(locationName)?.id != location.id) {
-                        _state.value = EditLocScreenState.Error(
-                            stringResolver.getString(R.string.error_another_location_name_already_exists))
+                    if (repo.locationRepo.getLocationByName(locationName) != null &&
+                        repo.locationRepo.getLocationByName(locationName)?.id != location.id
+                    ) {
+                        _state.value =
+                            EditLocScreenState.Error(
+                                stringResolver.getString(R.string.error_another_location_name_already_exists),
+                            )
                         return@launch
                     }
 
                     val latitude = location.latitude
                     val longitude = location.longitude
 
-                    when(val result0 = repo.locationRepo.deleteLocationById(location.id)){
+                    when (val result0 = repo.locationRepo.deleteLocationById(location.id)) {
                         is Failure -> {
                             _state.value =
                                 EditLocScreenState.Error(result0.value.message)
                             return@launch
                         }
                         is Success -> {
-                            when(val result1 =
-                                repo.locationRepo.insertLocation(
-                                    name = locationName,
-                                    latitude = latitude,
-                                    longitude = longitude,
-                                    radius = radius,
-                                )
-                            ){
+                            when (
+                                val result1 =
+                                    repo.locationRepo.insertLocation(
+                                        name = locationName,
+                                        latitude = latitude,
+                                        longitude = longitude,
+                                        radius = radius,
+                                    )
+                            ) {
                                 is Failure -> {
                                     _state.value = EditLocScreenState.Error(result1.value.message)
                                     return@launch
                                 }
                                 is Success -> {
                                     val newLocation =
-                                    repo.locationRepo.getLocationByName(locationName)?:location
+                                        repo.locationRepo.getLocationByName(locationName) ?: location
 
                                     when (val result2 = repo.ruleRepo.insertRuleLocationTimeless(newLocation)) {
                                         is Success -> {
-
-
                                             val radius =
                                                 if (newLocation.radius < 100) {
                                                     100f
@@ -339,28 +330,21 @@ class EditLocScreenViewModel(
                             }
                         }
                     }
-
-
-
-                }
-                catch (ex: AuthenticationException){
+                } catch (ex: AuthenticationException) {
                     _state.value = EditLocScreenState.SessionExpired
                     return@launch
-                }
-                catch (ex: Throwable) {
-                    _state.value = EditLocScreenState.Error(
-                        stringResolver.getString(R.string.unexpected_error))
+                } catch (ex: Throwable) {
+                    _state.value =
+                        EditLocScreenState.Error(
+                            stringResolver.getString(R.string.unexpected_error),
+                        )
                 }
             }
         }
     }
 
-
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    fun createTimelessRule(
-        location: Location,
-
-        ) {
+    fun createTimelessRule(location: Location) {
         if (_state.value is EditLocScreenState.ChangingFields) {
             viewModelScope.launch {
                 try {
@@ -376,8 +360,6 @@ class EditLocScreenViewModel(
 
                     when (val result = repo.ruleRepo.insertRuleLocationTimeless(location)) {
                         is Success -> {
-
-
                             val radius =
                                 if (location.radius < 100) {
                                     100f
@@ -405,17 +387,16 @@ class EditLocScreenViewModel(
                     }
                     _state.value =
                         EditLocScreenState.Success
-
-
                 } catch (ex: AuthenticationException) {
                     _state.value = EditLocScreenState.SessionExpired
                     return@launch
                 } catch (ex: Throwable) {
-                    _state.value = EditLocScreenState.Error(
-                        stringResolver.getString(
-                            R.string.unexpected_error
+                    _state.value =
+                        EditLocScreenState.Error(
+                            stringResolver.getString(
+                                R.string.unexpected_error,
+                            ),
                         )
-                    )
                 }
             }
         }
@@ -450,10 +431,7 @@ class EditLocScreenViewModel(
      */
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    fun deleteTimelessRule(
-        location: Location,
-
-        ) {
+    fun deleteTimelessRule(location: Location) {
         if (_state.value is EditLocScreenState.ChangingFields) {
             viewModelScope.launch {
                 try {
@@ -469,10 +447,8 @@ class EditLocScreenViewModel(
 
                     when (val result = repo.ruleRepo.deleteRuleLocationTimeless(timelessRulesForLocation[0])) {
                         is Success -> {
-
                             _state.value =
                                 EditLocScreenState.Success
-
                         }
 
                         is Failure -> {
@@ -483,23 +459,20 @@ class EditLocScreenViewModel(
                             return@launch
                         }
                     }
-
-
-
                 } catch (ex: AuthenticationException) {
                     _state.value = EditLocScreenState.SessionExpired
                     return@launch
                 } catch (ex: Throwable) {
-                    _state.value = EditLocScreenState.Error(
-                        stringResolver.getString(
-                            R.string.unexpected_error
+                    _state.value =
+                        EditLocScreenState.Error(
+                            stringResolver.getString(
+                                R.string.unexpected_error,
+                            ),
                         )
-                    )
                 }
             }
         }
     }
-
 
     fun onFatalError(): Job? {
         if (_state.value !is EditLocScreenState.SessionExpired) return null
@@ -546,15 +519,14 @@ class EditLocScreenViewModel(
         val radiusState = MutableStateFlow(location.radius)
         val nameState = MutableStateFlow(location.name)
 
-        _state.value = EditLocScreenState.ChangingFields(
-            location = locState,
-            selectedPoint = selectedPoint,
-            radius = radiusState,
-            locationName = nameState,
-        )
+        _state.value =
+            EditLocScreenState.ChangingFields(
+                location = locState,
+                selectedPoint = selectedPoint,
+                radius = radiusState,
+                locationName = nameState,
+            )
     }
-
-
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -566,7 +538,7 @@ class EditLocScreenViewModelFactory(
     private val serviceKiller: ServiceKiller,
     private val alarmScheduler: AlarmScheduler,
     private val geofenceManager: GeofenceManager,
-    private val initialPoint: GeoPoint
+    private val initialPoint: GeoPoint,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return EditLocScreenViewModel(
@@ -577,7 +549,7 @@ class EditLocScreenViewModelFactory(
             serviceKiller,
             alarmScheduler,
             geofenceManager,
-            initialPoint
+            initialPoint,
         ) as T
     }
 }

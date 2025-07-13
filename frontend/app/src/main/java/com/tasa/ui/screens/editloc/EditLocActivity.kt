@@ -1,7 +1,6 @@
 package com.tasa.ui.screens.editloc
 
 import android.Manifest
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -12,7 +11,6 @@ import androidx.annotation.RequiresPermission
 import com.tasa.DependenciesContainer
 import com.tasa.domain.Location
 import com.tasa.ui.screens.mylocations.MyLocationsActivity
-import com.tasa.ui.screens.newLocation.MapActivity
 import com.tasa.ui.screens.start.StartActivity
 import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
@@ -44,8 +42,6 @@ class EditLocActivity : ComponentActivity() {
     }
     private lateinit var point: GeoPoint
 
-
-
     private val viewModel by viewModels<EditLocScreenViewModel>(
         factoryProducer = {
             EditLocScreenViewModelFactory(
@@ -56,7 +52,7 @@ class EditLocActivity : ComponentActivity() {
                 geofenceManager = geofenceManager,
                 serviceKiller = serviceKiller,
                 alarmScheduler = alarmScheduler,
-                initialPoint = point
+                initialPoint = point,
             )
         },
     )
@@ -79,14 +75,12 @@ class EditLocActivity : ComponentActivity() {
         val longitude = location.longitude
         println("locAt lat:$latitude lon:$longitude")
 
-
         setContent {
             // Text("Editing: ${location?.name}")
 
             TasaTheme {
                 EditLocScreen(
                     viewModel = viewModel,
-
                     onNavigationBack = {
                         finish()
                     },
@@ -94,7 +88,6 @@ class EditLocActivity : ComponentActivity() {
                         navigateTo(this, MyLocationsActivity::class.java)
                     },
                     location = location,
-
                     onSessionExpired = {
                         finishAffinity()
                         navigateTo(
@@ -127,22 +120,15 @@ class EditLocActivity : ComponentActivity() {
                     },
                     onAddRule = {
                         viewModel.createTimelessRule(location)
-                    }
-
+                    },
                 )
             }
         }
     }
-
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun getLocation(): Location? {
         val location = intent.getParcelableExtra("location", Location::class.java)
         return location
     }
-
-
 }
-
-
-

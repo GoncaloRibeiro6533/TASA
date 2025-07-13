@@ -62,7 +62,7 @@ fun OSMDroidMap2(
             accuracyCircleRef.value ?: Polygon().apply {
                 fillPaint.color = 0x22007AFF
                 outlinePaint.color = 0xFF007AFF.toInt()
-                strokeWidth = 2f
+                outlinePaint.strokeWidth = 2f
                 isEnabled = true
                 map.overlays.add(this)
                 accuracyCircleRef.value = this
@@ -117,12 +117,12 @@ fun OSMDroidMap2(
                 zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
                 controller.setZoom(19.0)
                 controller.setCenter(center)
-                if(currentLocation != null) {
+                if (currentLocation != null) {
                     val accuracyCircle =
                         Polygon().apply {
                             fillPaint.color = 0x22007AFF // azul claro transparente
                             outlinePaint.color = 0xFF007AFF.toInt() // azul forte
-                            strokeWidth = 2f
+                            outlinePaint.strokeWidth = 2f
                             isEnabled = true
                             setPoints(Polygon.pointsAsCircle(currentLocation, accuracy?.toDouble() ?: 30.0))
                         }
@@ -195,7 +195,6 @@ fun drawCircle(
         points.add(geoPoint)
     }
 
-
     return Polygon().apply {
         this.points = points
         fillPaint.color = 0x22FF7F50 // orange semi-transparente
@@ -211,7 +210,7 @@ fun OSMDroidMap2Preview() {
     OSMDroidMap2(
         modifier = Modifier,
         center = center,
-        currentLocation = null,
+        currentLocation = center,
         selectedPoint = center,
         radius = 100.0,
     )

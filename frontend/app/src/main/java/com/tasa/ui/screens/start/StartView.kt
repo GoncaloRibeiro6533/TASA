@@ -171,9 +171,10 @@ fun StartView(
                             ),
                     ) {
                         Text(text = stringResource(R.string.register))
-                    }}
+                    }
+                }
                 Spacer(modifier = Modifier.height(20.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp),){
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     val annotatedString =
                         buildAnnotatedString {
                             withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {

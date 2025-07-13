@@ -35,7 +35,7 @@ fun CompactButton(
             style = MaterialTheme.typography.labelMedium,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
 }

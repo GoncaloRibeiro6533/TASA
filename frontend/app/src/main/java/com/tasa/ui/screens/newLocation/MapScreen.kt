@@ -37,7 +37,6 @@ fun MapScreen(
     onRecenterMap: () -> Unit,
     onLocationsIntent: () -> Unit,
     onSessionExpired: () -> Unit,
-
     onConfirmEditingLocation: (String, Double, Double, Double) -> Unit,
 ) {
     val state = viewModel.state.collectAsState().value
@@ -46,7 +45,6 @@ fun MapScreen(
             onLocationsIntent()
         }
     }
-
 
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
@@ -82,7 +80,6 @@ fun MapScreen(
                         selectedPoint = viewModel.selectedPoint,
                         onLocationSelected = onLocationSelected,
                     ) {
-
                         when (state) {
                             is MapsScreenState.Success -> {
                                 MapView(
@@ -114,7 +111,6 @@ fun MapScreen(
                                     onRecenterMap = onRecenterMap,
                                 )
                             }
-
 
                             else -> {
                                 // Do nothing, handled in the outer scope

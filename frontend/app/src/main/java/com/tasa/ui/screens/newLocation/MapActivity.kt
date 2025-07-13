@@ -3,7 +3,6 @@ package com.tasa.ui.screens.newLocation
 import android.Manifest
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -11,7 +10,6 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import com.google.android.gms.location.LocationServices
 import com.tasa.DependenciesContainer
-import com.tasa.domain.Location
 import com.tasa.location.LocationService
 import com.tasa.ui.screens.mylocations.MyLocationsActivity
 import com.tasa.ui.screens.start.StartActivity
@@ -68,7 +66,6 @@ class MapActivity : ComponentActivity() {
         },
     )
 
-
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @RequiresPermission(
         anyOf = [
@@ -80,10 +77,6 @@ class MapActivity : ComponentActivity() {
     )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
-
-
 
         viewModel.keepGivenCurrentLocation()
 
@@ -115,7 +108,6 @@ class MapActivity : ComponentActivity() {
                     onDismissEditingLocation = {
                         viewModel.onDismissEditingLocation()
                     },
-
                     onConfirmEditingLocation = { name, radius, latitude, longitude ->
                         viewModel.onCreateLocation(
                             locationName = name,
@@ -141,7 +133,6 @@ class MapActivity : ComponentActivity() {
                             StartActivity::class.java,
                         )
                     },
-
                 )
             }
         }
