@@ -6,6 +6,7 @@ import com.tasa.domain.UserInfoRepository
 import com.tasa.repository.interfaces.EventRepositoryInterface
 import com.tasa.service.TasaService
 import com.tasa.service.http.models.event.EventInput
+import com.tasa.service.http.models.event.EventOutput
 import com.tasa.service.interfaces.ServiceWithRetry
 import com.tasa.storage.TasaDB
 import com.tasa.storage.entities.localMode.EventLocal
@@ -209,4 +210,40 @@ class EventRepository(
             is Failure -> failure(remoteResult.value)
         }
     }
+
+    override suspend fun syncEvents(): Either<ApiError, Unit> {
+        when(val events = retryOnFailure {  token -> remote.eventService.fetchEventAll(token) }){
+            is Success -> {
+                val events: Map<EventOutput, Event> =
+                    mapToLocalEvent(events.value)
+                local.remoteDao().insertEventRemote(
+                    *events.values.map { event ->
+                        event.toEventRemote()
+                    }.toTypedArray(),
+                )
+                return success(Unit)
+            }
+            is Failure -> return failure(events.value)
+        }
+
+    }
+
+    private fun mapToLocalEvent(events : List<EventOutput>): Map<EventOutput, Event> {
+        val now = LocalDateTime.now()
+        val events: Map<EventOutput, Event> =
+            events.filter { it.startTime.isAfter(now)}
+                .mapNotNull { it ->
+                    val localEvent =
+                        queryCalendarService.toLocalEvent(
+                            it.id,
+                            it.title,
+                            it.startTime,
+                            it.endTime,
+                        )
+                    if (localEvent != null) it to localEvent else null
+                }.toMap()
+        return events
+    }
+
+
 }

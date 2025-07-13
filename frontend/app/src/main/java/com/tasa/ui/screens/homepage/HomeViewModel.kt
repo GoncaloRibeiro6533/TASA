@@ -141,7 +141,10 @@ class HomePageScreenViewModel(
             try {
                 when (val result = repo.ruleRepo.fetchAllRules()) {
                     is Success -> {
-                        if (!isLocal.value) repo.locationRepo.syncLocations()
+                        if (!isLocal.value) {
+                            repo.locationRepo.syncLocations()
+                            repo.eventRepo.syncEvents()
+                        }
                         result.value.collect { stream ->
                             _rules.value = stream
                             if (_state.value is HomeScreenState.Loading) {

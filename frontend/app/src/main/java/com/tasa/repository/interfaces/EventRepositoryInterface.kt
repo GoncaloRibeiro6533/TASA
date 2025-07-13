@@ -68,4 +68,10 @@ interface EventRepositoryInterface {
         startTime: LocalDateTime,
         endTime: LocalDateTime,
     ): Either<ApiError, Event>
+
+    /**
+     * Synchronizes events with a remote source.
+     * @return Either an ApiError or Unit if successful.
+     */
+    suspend fun syncEvents(): Either<ApiError, Unit>
 }
