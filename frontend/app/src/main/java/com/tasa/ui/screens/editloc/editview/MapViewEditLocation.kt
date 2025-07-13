@@ -25,7 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tasa.R
 import com.tasa.domain.Location
-import com.tasa.ui.screens.newLocation.mapViewStates.coral
+import com.tasa.ui.screens.newLocation.views.coral
 import kotlinx.coroutines.flow.StateFlow
 import org.osmdroid.util.GeoPoint
 

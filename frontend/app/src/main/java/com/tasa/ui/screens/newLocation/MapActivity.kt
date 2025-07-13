@@ -66,7 +66,7 @@ class MapActivity : ComponentActivity() {
         },
     )
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @RequiresApi(Build.VERSION_CODES.Q)
     @RequiresPermission(
         anyOf = [
             Manifest.permission.ACCESS_COARSE_LOCATION,

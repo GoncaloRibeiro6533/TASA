@@ -1,4 +1,4 @@
-package com.tasa.ui.screens.newLocation.mapViewStates
+package com.tasa.ui.screens.newLocation.views
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,21 +22,20 @@ import com.tasa.ui.screens.newLocation.components.SearchBox
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
-fun MapViewSearching(
-    query: StateFlow<TextFieldValue>,
-    onSearch: () -> Unit,
-    onWriteSearchBox: (TextFieldValue) -> Unit,
+fun MapView(
+    onEditSearchBox: (TextFieldValue) -> Unit,
     onCreateLocation: () -> Unit,
+    onSearchQuery: () -> Unit,
+    query: StateFlow<TextFieldValue>,
     onRecenterMap: () -> Unit,
 ) {
-    var searchQuery = query.collectAsState().value
     SearchBox(
-        query = searchQuery,
+        query = query.collectAsState().value,
         onQueryChange = { newValue ->
-            onWriteSearchBox(newValue)
+            onEditSearchBox(newValue)
         },
         onSearch = {
-            onSearch()
+            onSearchQuery()
         },
         modifier = Modifier.fillMaxWidth(),
     )
@@ -73,4 +72,5 @@ fun MapViewSearching(
             )
         }
     }
+    // }
 }

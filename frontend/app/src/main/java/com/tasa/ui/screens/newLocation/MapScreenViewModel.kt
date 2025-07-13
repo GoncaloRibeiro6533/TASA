@@ -14,7 +14,6 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import com.tasa.R
 import com.tasa.alarm.AlarmScheduler
 import com.tasa.domain.AuthenticationException
-import com.tasa.domain.Location
 import com.tasa.domain.UserInfoRepository
 import com.tasa.domain.toLocalDateTime
 import com.tasa.geofence.GeofenceManager
@@ -77,6 +76,9 @@ sealed interface MapsScreenState {
         val locationName: StateFlow<String>,
     ) : MapsScreenState
 
+    data class Error(val error: String) : MapsScreenState
+    data object SessionExpired: MapsScreenState
+
     data class EditingLocation(
         val selectedPoint: StateFlow<GeoPoint?>,
         val currentLocation: StateFlow<TasaLocation>,
@@ -86,10 +88,6 @@ sealed interface MapsScreenState {
         val locationName: StateFlow<String>,
     ) : MapsScreenState
 
-
-
-    data class Error(val error: String) : MapsScreenState
-    data object SessionExpired: MapsScreenState
 
     data object SuccessCreatingLocation : MapsScreenState
 }
@@ -179,32 +177,6 @@ class MapScreenViewModel(
         }
     }
 
-
-
-    fun setEditingLocationState() {
-        if (state.value is MapsScreenState.Success || state.value is MapsScreenState.SuccessSearching) {
-            _state.value =
-                MapsScreenState.EditingLocation(
-                    selectedPoint = _selectedPoint,
-                    currentLocation = _currentLocation,
-                    radius = _radius,
-                    locationName = _locationName,
-                    searchQuery = _query,
-                    userActivity = activityState,
-                )
-        }
-    }
-
-    fun updateRadius(radius: Double) {
-        if (_state.value is MapsScreenState.EditingLocation) {
-            _radius.value = radius
-            _state.value =
-                (_state.value as MapsScreenState.EditingLocation).copy(
-                    radius = _radius,
-                )
-        }
-    }
-
     fun updateSelectedPoint(point: GeoPoint) {
         if (_state.value is MapsScreenState.Success) {
             _selectedPoint.value = point
@@ -226,42 +198,14 @@ class MapScreenViewModel(
         }
     }
 
-    fun editLocationName(string: String) {
-        if (_state.value is MapsScreenState.EditingLocation) {
-            _locationName.value = string
-            _state.value =
-                (_state.value as MapsScreenState.EditingLocation).copy(
-                    locationName = _locationName,
-                )
-        }
-    }
-
-    fun onDismissEditingLocation() {
-        if (_state.value is MapsScreenState.EditingLocation) {
-            _state.value =
-                MapsScreenState.Success(
-                    selectedPoint = _selectedPoint,
-                    currentLocation = _currentLocation,
-                    searchQuery = _query,
-                    userActivity = activityState,
-                    radius = _radius,
-                    locationName = _locationName,
-                )
-        }
-    }
-
-
-
     fun onCreateLocation(
         locationName: String,
         radius: Double,
         latitude: Double,
         longitude: Double,
     ) {
-
-        println("loccr lat:$latitude lon:$longitude")
-
         if (_state.value is MapsScreenState.EditingLocation) {
+            _state.value = MapsScreenState.Loading
             viewModelScope.launch {
                 try {
                     if (repo.locationRepo.getLocationByName(locationName) != null) {
@@ -381,6 +325,56 @@ class MapScreenViewModel(
             )
         }
     }
+
+    fun setEditingLocationState() {
+        if (state.value is MapsScreenState.Success || state.value is MapsScreenState.SuccessSearching) {
+            _state.value =
+                MapsScreenState.EditingLocation(
+                    selectedPoint = _selectedPoint,
+                    currentLocation = _currentLocation,
+                    radius = _radius,
+                    locationName = _locationName,
+                    searchQuery = _query,
+                    userActivity = activityState,
+                )
+        }
+    }
+
+    fun updateRadius(radius: Double) {
+        if (_state.value is MapsScreenState.EditingLocation) {
+            _radius.value = radius
+            _state.value =
+                (_state.value as MapsScreenState.EditingLocation).copy(
+                    radius = _radius,
+                )
+        }
+    }
+
+
+    fun editLocationName(string: String) {
+        if (_state.value is MapsScreenState.EditingLocation) {
+            _locationName.value = string
+            _state.value =
+                (_state.value as MapsScreenState.EditingLocation).copy(
+                    locationName = _locationName,
+                )
+        }
+    }
+
+    fun onDismissEditingLocation() {
+        if (_state.value is MapsScreenState.EditingLocation) {
+            _state.value =
+                MapsScreenState.Success(
+                    selectedPoint = _selectedPoint,
+                    currentLocation = _currentLocation,
+                    searchQuery = _query,
+                    userActivity = activityState,
+                    radius = _radius,
+                    locationName = _locationName,
+                )
+        }
+    }
+
 
     fun onFatalError(): Job? {
         if (_state.value !is MapsScreenState.SessionExpired) return null

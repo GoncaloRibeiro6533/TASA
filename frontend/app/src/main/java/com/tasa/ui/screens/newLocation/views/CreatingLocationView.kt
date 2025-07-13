@@ -1,4 +1,4 @@
-package com.tasa.ui.screens.newLocation.mapViewStates
+package com.tasa.ui.screens.newLocation.views
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

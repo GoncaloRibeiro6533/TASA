@@ -9,7 +9,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.tasa.ui.screens.newLocation.components.OSMDroidMap2
-import com.tasa.ui.screens.newLocation.mapViewStates.MapView
+import com.tasa.ui.screens.newLocation.views.MapView
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.osmdroid.util.GeoPoint

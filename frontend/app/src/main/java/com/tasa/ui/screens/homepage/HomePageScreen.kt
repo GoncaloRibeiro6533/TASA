@@ -77,9 +77,9 @@ fun HomePageScreen(
                         )
                     }
                     HomeScreenState.Loading -> LoadingView()
-                    is HomeScreenState.Success ->
+                    is HomeScreenState.Success, is HomeScreenState.DeletingRule ->
                         HomePageView(
-                            rules = state.rules,
+                            rules = viewModel.rules,
                             onNavigateToMyLocations = onNavigateToMyLocations,
                             onNavigationToMap = onNavigationToMap,
                             onNavigateToCreateRuleEvent = onNavigateToCreateRuleEvent,

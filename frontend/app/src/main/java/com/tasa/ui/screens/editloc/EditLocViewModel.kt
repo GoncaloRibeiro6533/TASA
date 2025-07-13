@@ -1,7 +1,6 @@
 package com.tasa.ui.screens.editloc
 
 import android.Manifest
-import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
@@ -131,19 +130,6 @@ class EditLocScreenViewModel(
     fun updateSelectedPoint(point: GeoPoint) {
         if (_state.value is EditLocScreenState.ChangingCenter) {
             _selectedPoint.value = point
-        }
-    }
-
-    fun updateLocCenter(location: Location) {
-        if (_state.value is EditLocScreenState.Loading) return
-        _state.value = EditLocScreenState.Loading
-        viewModelScope.launch {
-            try {
-                repo.locationRepo.updateLocation(location)
-            } catch (e: Exception) {
-                _state.value = EditLocScreenState.Error(e.message ?: "Unknown Error")
-                Log.e("EditLocViewModel", "Error updating location: ${e.message}")
-            }
         }
     }
 

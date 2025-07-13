@@ -37,6 +37,8 @@ sealed interface HomeScreenState {
 
     data class Success(val rules: StateFlow<List<Rule>>) : HomeScreenState
 
+    data class DeletingRule(val rules: StateFlow<List<Rule>>) : HomeScreenState
+
     data class FatalError(val message: String) : HomeScreenState
 
     data class Error(val message: String) : HomeScreenState
@@ -138,13 +140,15 @@ class HomePageScreenViewModel(
         return viewModelScope.launch {
             try {
                 when (val result = repo.ruleRepo.fetchAllRules()) {
-                    is Success ->
+                    is Success -> {
+                        if (!isLocal.value) repo.locationRepo.syncLocations()
                         result.value.collect { stream ->
                             _rules.value = stream
                             if (_state.value is HomeScreenState.Loading) {
                                 _state.value = HomeScreenState.Success(_rules)
                             }
                         }
+                    }
                     is Failure -> {
                         _state.value = HomeScreenState.Error(result.value.message)
                     }
@@ -180,6 +184,8 @@ class HomePageScreenViewModel(
     }
 
     fun cancelRule(rule: Rule) {
+        if (_state.value is HomeScreenState.DeletingRule) return
+        _state.value = HomeScreenState.DeletingRule(_rules)
         viewModelScope.launch {
             try {
                 when (rule) {

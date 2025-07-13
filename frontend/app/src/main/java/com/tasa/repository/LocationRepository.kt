@@ -141,62 +141,18 @@ class LocationRepository(
         }
     }
 
-    override suspend fun updateLocation(location: Location)/*: Either<ApiError, Unit>*/ {
-        /*return if (userInfoRepository.isLocal()) {
-            local.localDao().updateLocationLocal(
-                id = location.id,
-                name = location.name,
-                latitude = location.latitude,
-                longitude = location.longitude,
-            )
-            success(Unit)
-        } else {
-            val result = retryOnFailure { token ->
-                remote.locationService.updateLocation(
-                    id = location.id,
-                    name = location.name,
-                    latitude = location.latitude,
-                    longitude = location.longitude,
-                    radius = location.radius,
-                    token = token
+    override suspend fun syncLocations(): Either<ApiError, Unit> {
+        when (val result = getFromApi()) {
+            is Success -> {
+                local.remoteDao().insertLocationRemote(
+                    *result.value.map { it.toRemoteLocation() }.toTypedArray(),
                 )
+                return success(Unit)
             }
-            when (result) {
-                is Success -> {
-                    local.remoteDao().updateLocationRemote(
-                        location.id,
-                        location.name,
-                        location.latitude,
-                        location.longitude,
-                        location.radius
-                    )
-                    success(Unit)
-                }
-                is Failure -> failure(result.value)
+            is Failure -> {
+                return failure(result.value)
             }
         }
-
-         */
-    }
-
-    override suspend fun updateLocationFields(
-        name: String,
-        radius: Double,
-        location: Location,
-    ) {
-        /*val newLocation = Location(
-            id = location.id,
-            name = name,
-            latitude = location.latitude,
-            longitude = location.longitude,
-            radius = radius
-        )
-
-        if (location.id != null){
-            deleteLocationById(location.id)
-        }
-        insertLocation(newLocation)*/
-        TODO()
     }
 
     override suspend fun clear() {

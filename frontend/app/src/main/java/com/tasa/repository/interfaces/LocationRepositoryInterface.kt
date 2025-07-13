@@ -53,27 +53,14 @@ interface LocationRepositoryInterface {
     suspend fun deleteLocation(location: Location): Either<ApiError, Unit>
 
     /**
-     * Updates an existing location.
-     * @param location The location to be updated.
-     * @return Either an ApiError or Unit if successful.
-     */
-    suspend fun updateLocation(location: Location) // : Either<ApiError, Unit>
-
-    /**
-     * Updates the fields of a location.
-     * @param name The name of the location.
-     * @param radius The radius of the location.
-     * @param location The Location object containing updated coordinates.
-     */
-    suspend fun updateLocationFields(
-        name: String,
-        radius: Double,
-        location: Location,
-    )
-
-    /**
      * Clears all locations from the repository.
      * @return Unit if successful.
      */
     suspend fun clear()
+
+    /**
+     * Synchronizes the local locations with the remote source.
+     * @return Either an ApiError or Unit if successful.
+     */
+    suspend fun syncLocations(): Either<ApiError, Unit>
 }

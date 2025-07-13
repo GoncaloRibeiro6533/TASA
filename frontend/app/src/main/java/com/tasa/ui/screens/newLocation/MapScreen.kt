@@ -18,9 +18,9 @@ import com.tasa.ui.components.ErrorAlert
 import com.tasa.ui.components.LoadingView
 import com.tasa.ui.components.NavigationHandlers
 import com.tasa.ui.components.TopBar
-import com.tasa.ui.screens.newLocation.mapViewStates.CreatingLocationView
-import com.tasa.ui.screens.newLocation.mapViewStates.MapView
-import com.tasa.ui.screens.newLocation.mapViewStates.MapViewSearching
+import com.tasa.ui.screens.newLocation.views.CreatingLocationView
+import com.tasa.ui.screens.newLocation.views.MapView
+import com.tasa.ui.screens.newLocation.views.MapViewSearching
 import org.osmdroid.util.GeoPoint
 
 @Composable
@@ -34,10 +34,10 @@ fun MapScreen(
     onEditSearchBox: (TextFieldValue) -> Unit,
     onCreateLocationButton: () -> Unit,
     onDismissEditingLocation: () -> Unit,
+    onConfirmEditingLocation: (String, Double, Double, Double) -> Unit,
     onRecenterMap: () -> Unit,
     onLocationsIntent: () -> Unit,
     onSessionExpired: () -> Unit,
-    onConfirmEditingLocation: (String, Double, Double, Double) -> Unit,
 ) {
     val state = viewModel.state.collectAsState().value
     LaunchedEffect(state) {
@@ -45,7 +45,6 @@ fun MapScreen(
             onLocationsIntent()
         }
     }
-
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
