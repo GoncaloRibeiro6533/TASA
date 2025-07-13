@@ -86,15 +86,7 @@ sealed interface MapsScreenState {
         val locationName: StateFlow<String>,
     ) : MapsScreenState
 
-    data class ChangingCenter(
-        val previousLocation: StateFlow<Location>,
-        val selectedPoint: StateFlow<GeoPoint?>,
-        val currentLocation: StateFlow<TasaLocation>,
-        val searchQuery: StateFlow<TextFieldValue>,
-        val userActivity: StateFlow<String?>,
-        val radius: StateFlow<Double>,
-        val locationName: StateFlow<String>,
-    ) : MapsScreenState
+
 
     data class Error(val error: String) : MapsScreenState
     data object SessionExpired: MapsScreenState
@@ -221,16 +213,16 @@ class MapScreenViewModel(
 
     fun updateSearchQuery(query: TextFieldValue) {
         if (_state.value is MapsScreenState.Success || _state.value is MapsScreenState.SuccessSearching) {
-            _query.value = query
-            _state.value =
-                MapsScreenState.Success(
-                    selectedPoint = _selectedPoint,
-                    currentLocation = _currentLocation,
-                    searchQuery = _query,
-                    userActivity = activityState,
-                    radius = _radius,
-                    locationName = _locationName,
-                )
+        _query.value = query
+        _state.value =
+            MapsScreenState.Success(
+                selectedPoint = _selectedPoint,
+                currentLocation = _currentLocation,
+                searchQuery = _query,
+                userActivity = activityState,
+                radius = _radius,
+                locationName = _locationName,
+            )
         }
     }
 
@@ -258,66 +250,7 @@ class MapScreenViewModel(
         }
     }
 
-    fun onChangeCenter(
-        location: Location,
-        locationName: String,
-        radius: Double,
-        latitude: Double,
-        longitude: Double,
-    ) {
-        if (_state.value is MapsScreenState.ChangingCenter) {
-            viewModelScope.launch {
-                try {
-                    if (repo.locationRepo.getLocationByName(locationName) != null
-                        && repo.locationRepo.getLocationByName(locationName)?.id != location.id) {
-                        _state.value = MapsScreenState.Error(
-                            stringResolver.getString(R.string.error_another_location_name_already_exists))
-                        return@launch
-                    }
-                    when(val result0 = repo.locationRepo.deleteLocationById(location.id)){
-                        is Failure -> {
-                            _state.value =
-                                MapsScreenState.Error(result0.value.message)
-                            return@launch
-                        }
-                        is Success -> {
-                            when(val result1 =
-                                repo.locationRepo.insertLocation(
-                                    name = locationName,
-                                    latitude = latitude,
-                                    longitude = longitude,
-                                    radius = radius,
-                                )
-                            ){
-                                is Failure -> {
-                                    _state.value = MapsScreenState.Error(result1.value.message)
-                                    return@launch
-                                }
-                                is Success -> {
-                                    _state.value =
-                                        MapsScreenState.SuccessCreatingLocation
-                                }
-                            }
-                        }
-                    }
 
-
-
-                }
-                catch (ex: AuthenticationException){
-                    _state.value =
-                        MapsScreenState.SessionExpired
-                    return@launch
-                }
-                catch (ex: Throwable) {
-                    _state.value =
-                        MapsScreenState.Error(
-                            stringResolver.getString(R.string.unexpected_error)
-                        )
-                }
-            }
-        }
-    }
 
     fun onCreateLocation(
         locationName: String,
@@ -325,6 +258,9 @@ class MapScreenViewModel(
         latitude: Double,
         longitude: Double,
     ) {
+
+        println("loccr lat:$latitude lon:$longitude")
+
         if (_state.value is MapsScreenState.EditingLocation) {
             viewModelScope.launch {
                 try {
@@ -416,6 +352,7 @@ class MapScreenViewModel(
             }
         }
     }
+
 
     fun stopLocationUpdates() {
         if (locationUpdatesRepository.isActive) locationUpdatesRepository.stop()

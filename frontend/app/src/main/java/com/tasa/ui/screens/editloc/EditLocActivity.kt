@@ -14,6 +14,7 @@ import com.tasa.ui.screens.newLocation.MapActivity
 import com.tasa.ui.screens.start.StartActivity
 import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
+import org.osmdroid.util.GeoPoint
 
 class EditLocActivity : ComponentActivity() {
     private val repo by lazy {
@@ -39,6 +40,9 @@ class EditLocActivity : ComponentActivity() {
     private val locationManager by lazy {
         (application as DependenciesContainer).locationUpdatesRepository
     }
+    private lateinit var point: GeoPoint
+
+
 
     private val viewModel by viewModels<EditLocScreenViewModel>(
         factoryProducer = {
@@ -50,6 +54,7 @@ class EditLocActivity : ComponentActivity() {
                 geofenceManager = geofenceManager,
                 serviceKiller = serviceKiller,
                 alarmScheduler = alarmScheduler,
+                initialPoint = point
             )
         },
     )
@@ -57,13 +62,7 @@ class EditLocActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-/*
-        val location = intent.getParcelableExtra("location", Location::class.java)
-        if (location == null) {
-            navigateTo(this, MyLocationsActivity::class.java)
-            finish()
-            return
-        }*/
+
         val location = intent.getParcelableExtra("location", Location::class.java)
         if (location == null) {
             navigateTo(this, MyLocationsActivity::class.java)
@@ -71,21 +70,20 @@ class EditLocActivity : ComponentActivity() {
             return
         }
 
+        point = GeoPoint(location.latitude, location.longitude)
+
+        val latitude = location.latitude
+        val longitude = location.longitude
+        println("locAt lat:$latitude lon:$longitude")
+
+
         setContent {
             // Text("Editing: ${location?.name}")
 
             TasaTheme {
                 EditLocScreen(
                     viewModel = viewModel,
-                    onNewCenter = {
-                            location ->
-                        val intent =
-                            Intent(this, MapActivity::class.java).apply {
-                                putExtra("origin", "FromMyLocations")
-                                putExtra("location", location)
-                            }
-                        startActivity(intent)
-                    },
+
                     onNavigationBack = {
                         finish()
                     },
@@ -100,9 +98,45 @@ class EditLocActivity : ComponentActivity() {
                             this@EditLocActivity,
                             StartActivity::class.java,
                         )
+                    },
+                    onUpdateLocationName = { name ->
+                        viewModel.editLocationName(name)
+                    },
+                    onUpdateRadius = { it ->
+                        viewModel.updateRadius(it)
+                    },
+                    onEditCenterButton = { _, name, radius, latitude, longitude ->
+
+                        println("locactfun lat:$latitude lon:$longitude")
+                        viewModel.onChangeCenter(
+                            location = location,
+                            locationName = name,
+                            radius = radius,
+                            latitude = latitude,
+                            longitude = longitude,
+                        )
+                    },
+                    onDismissChangingCenter = {
+                        finish()
+                    },
+                    onLocationSelected = { geoPoint ->
+                        viewModel.updateSelectedPoint(geoPoint)
                     }
+
                 )
             }
         }
     }
+
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun getLocation(): Location? {
+        val location = intent.getParcelableExtra("location", Location::class.java)
+        return location
+    }
+
+
 }
+
+
+

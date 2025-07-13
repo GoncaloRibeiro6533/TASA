@@ -1,5 +1,6 @@
-package com.tasa.ui.screens.newLocation
+package com.tasa.ui.screens.editloc.editview
 
+import com.tasa.ui.screens.newLocation.TasaLocation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -13,6 +14,7 @@ import com.tasa.ui.screens.newLocation.components.OSMDroidMap2
 import com.tasa.ui.screens.newLocation.mapViewStates.MapView
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.selects.select
 import org.osmdroid.util.GeoPoint
 
 const val OSMDROID_MAP = "osmdroid_map"
@@ -21,36 +23,36 @@ const val LOGIN_BUTTON = "login_button"
 const val REGISTER_ANCHOR = "register_anchor"
 
 @Composable
-fun MapViewRoot(
-    locationV: StateFlow<TasaLocation>,
+fun MapViewRootEditLocation(
+
     radius: StateFlow<Double>? = null,
-    selectedPoint: StateFlow<GeoPoint?>? = null,
+    selectedPoint: StateFlow<GeoPoint>,
     onLocationSelected: (GeoPoint) -> Unit,
     composable: @Composable () -> Unit,
 ) {
-    val locationV = locationV.collectAsState().value
+
     val radius = radius?.collectAsState()?.value
-    val selectedPoint = selectedPoint?.collectAsState()?.value
+    val selectedPoint = selectedPoint.collectAsState().value
     Box(
         modifier =
             Modifier
                 .fillMaxSize(),
     ) {
-        OSMDroidMap2(
+        OSMDroidMap3(
             modifier = Modifier.fillMaxSize().testTag(OSMDROID_MAP),
-            center = locationV.point,
-            currentLocation = locationV.point,
+            center = selectedPoint,
+            currentLocation = selectedPoint,
             onCoordinateSelected = { point ->
                 onLocationSelected(point)
             },
-            accuracy = locationV.accuracy,
+            accuracy = null,
             radius = radius,
             selectedPoint = selectedPoint,
         )
         composable()
     }
 }
-
+/*
 @Preview(showBackground = true)
 @Composable
 fun MapRootPreview() {
@@ -78,3 +80,6 @@ fun MapRootPreview() {
         )
     }
 }
+
+
+ */

@@ -68,14 +68,6 @@ class MapActivity : ComponentActivity() {
         },
     )
 
-    val fakeLoc =
-        Location(
-            id = 0,
-            name = "loc",
-            latitude = 0.0,
-            longitude = 0.0,
-            radius = 1.0,
-        )
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @RequiresPermission(
@@ -89,23 +81,9 @@ class MapActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Log.e("MapActivity", "Activity started")
 
-        val origin = intent.getStringExtra("origin")
-        Log.e("MapActivity", "Origin: $origin")
 
-        val location =
-            try {
-                intent.getParcelableExtra("location", Location::class.java)
-            } catch (e: Exception) {
-                Log.e("MapActivity", "Failed to get location: ${e.message}")
-                null
-            }
-        if (location == null && origin == "FromMyLocations") {
-            navigateTo(this, MyLocationsActivity::class.java)
-            finish()
-            return
-        }
+
 
         viewModel.keepGivenCurrentLocation()
 
@@ -137,6 +115,7 @@ class MapActivity : ComponentActivity() {
                     onDismissEditingLocation = {
                         viewModel.onDismissEditingLocation()
                     },
+
                     onConfirmEditingLocation = { name, radius, latitude, longitude ->
                         viewModel.onCreateLocation(
                             locationName = name,
@@ -162,16 +141,7 @@ class MapActivity : ComponentActivity() {
                             StartActivity::class.java,
                         )
                     },
-                    onEditCenterButton = { _, name, radius, latitude, longitude ->
-                        viewModel.onChangeCenter(
-                            location = location ?: fakeLoc,
-                            locationName = name,
-                            radius = radius,
-                            latitude = latitude,
-                            longitude = longitude,
-                        )
-                    },
-                    previousLocation = location ?: fakeLoc,
+
                 )
             }
         }

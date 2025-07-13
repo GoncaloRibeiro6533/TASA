@@ -12,6 +12,7 @@ import com.tasa.ui.screens.editloc.EditLocActivity
 import com.tasa.ui.screens.start.StartActivity
 import com.tasa.ui.theme.TasaTheme
 import com.tasa.utils.navigateTo
+import org.osmdroid.util.GeoPoint
 
 class MyLocationsActivity : ComponentActivity() {
     private val repo by lazy {
@@ -71,6 +72,9 @@ class MyLocationsActivity : ComponentActivity() {
                             Intent(this, EditLocActivity::class.java).apply {
                                 putExtra("location", location)
                             }
+                        val latitude = location.latitude
+                        val longitude = location.longitude
+                        println("locML lat:$latitude lon:$longitude")
                         startActivity(intent)
                     },
                     onNavigateBack = {

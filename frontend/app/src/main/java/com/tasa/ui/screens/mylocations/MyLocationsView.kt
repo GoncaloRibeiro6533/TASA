@@ -25,6 +25,7 @@ import com.tasa.domain.Location
 import com.tasa.ui.screens.mylocations.components.LocationCard
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import org.osmdroid.util.GeoPoint
 
 @Composable
 fun MyLocationsView(
@@ -72,6 +73,10 @@ fun MyLocationsView(
                 }
             } else {
                 items(locationsList) { location ->
+                    val latitude = location.latitude
+                    val longitude = location.longitude
+
+                    println("loc1 lat:$latitude lon:$longitude")
                     LocationCard(
                         location = location,
                         onEdit = { onEdit(location) },

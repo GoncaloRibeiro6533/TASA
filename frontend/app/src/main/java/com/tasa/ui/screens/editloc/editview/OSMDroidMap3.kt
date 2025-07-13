@@ -1,4 +1,4 @@
-package com.tasa.ui.screens.newLocation.components
+package com.tasa.ui.screens.editloc.editview
 
 import android.content.Context
 import androidx.compose.runtime.Composable
@@ -23,7 +23,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 @Composable
-fun OSMDroidMap2(
+fun OSMDroidMap3(
     modifier: Modifier = Modifier,
     center: GeoPoint = GeoPoint(38.7169, -9.1399),
     currentLocation: GeoPoint? = null,
@@ -118,6 +118,7 @@ fun OSMDroidMap2(
                 controller.setZoom(19.0)
                 controller.setCenter(center)
                 if(currentLocation != null) {
+                    /*
                     val accuracyCircle =
                         Polygon().apply {
                             fillPaint.color = 0x22007AFF // azul claro transparente
@@ -129,11 +130,13 @@ fun OSMDroidMap2(
                     overlays.add(accuracyCircle)
                     accuracyCircleRef.value = accuracyCircle
 
+                     */
+
                     val currentLocationMarker =
                         Marker(this).apply {
                             position = currentLocation
                             title = "Current Location"
-                            icon = ResourcesCompat.getDrawable(ctx.resources, R.drawable.ic_gps_blue_dot, ctx.theme)
+                            icon = ResourcesCompat.getDrawable(ctx.resources, R.drawable.ic_gps_black_target, ctx.theme)
                             setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
                             isDraggable = false
                         }
@@ -206,9 +209,9 @@ fun drawCircle(
 
 @Composable
 @Preview
-fun OSMDroidMap2Preview() {
+fun OSMDroidMap3Preview() {
     val center = GeoPoint(38.7169, -9.1399) // Lisbon
-    OSMDroidMap2(
+    OSMDroidMap3(
         modifier = Modifier,
         center = center,
         currentLocation = null,

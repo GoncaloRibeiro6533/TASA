@@ -1,4 +1,4 @@
-package com.tasa.ui.screens.newLocation.mapViewStates
+package com.tasa.ui.screens.editloc.editview
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,30 +25,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tasa.R
 import com.tasa.domain.Location
-import com.tasa.ui.screens.newLocation.TasaLocation
+import com.tasa.ui.screens.newLocation.mapViewStates.coral
 import kotlinx.coroutines.flow.StateFlow
 import org.osmdroid.util.GeoPoint
 
 @Composable
 fun MapViewEditLocationView(
     previousLocation: Location,
-    location: StateFlow<TasaLocation>,
     selectedPoint: StateFlow<GeoPoint?>,
     locationName: StateFlow<String>,
     radius: StateFlow<Double>,
     onDismiss: () -> Unit,
     onChangeLocationName: (String) -> Unit,
     onChangeRadius: (Double) -> Unit,
-    onConfirm: (
-        Location,
-        String,
-        Double,
-        Double,
-        Double,
-    ) -> Unit,
+    onConfirm: (Location, String, Double, Double, Double) -> Unit,
 ) {
     val selectedPoint = selectedPoint.collectAsState().value
-    val location = location.collectAsState().value
     val locationName = locationName.collectAsState().value
     val radius = radius.collectAsState().value
     Box(
@@ -100,23 +92,26 @@ fun MapViewEditLocationView(
                     horizontalArrangement = Arrangement.End,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
+                    val latitude = selectedPoint?.latitude ?: previousLocation.latitude
+                    val longitude = selectedPoint?.longitude ?: previousLocation.longitude
+                    println("selectPoint: lat: $latitude lon: $longitude")
                     TextButton(onClick = { onDismiss() }) {
                         Text(stringResource(R.string.cancel))
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     TextButton(
-                        enabled = locationName.isNotBlank() && radius > 0,
+                        enabled = (locationName.isNotBlank() && radius > 0),
                         onClick = {
                             onConfirm(
                                 previousLocation,
                                 locationName,
                                 radius,
-                                selectedPoint?.latitude ?: location.point.latitude,
-                                selectedPoint?.longitude ?: location.point.longitude,
+                                latitude,
+                                longitude,
                             )
                         },
                     ) {
-                        Text(stringResource(R.string.create))
+                        Text(stringResource(R.string.save))
                     }
                 }
             }

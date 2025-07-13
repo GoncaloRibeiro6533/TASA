@@ -14,14 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import com.tasa.R
-import com.tasa.domain.Location
 import com.tasa.ui.components.ErrorAlert
 import com.tasa.ui.components.LoadingView
 import com.tasa.ui.components.NavigationHandlers
 import com.tasa.ui.components.TopBar
 import com.tasa.ui.screens.newLocation.mapViewStates.CreatingLocationView
 import com.tasa.ui.screens.newLocation.mapViewStates.MapView
-import com.tasa.ui.screens.newLocation.mapViewStates.MapViewEditLocationView
 import com.tasa.ui.screens.newLocation.mapViewStates.MapViewSearching
 import org.osmdroid.util.GeoPoint
 
@@ -39,20 +37,8 @@ fun MapScreen(
     onRecenterMap: () -> Unit,
     onLocationsIntent: () -> Unit,
     onSessionExpired: () -> Unit,
-    previousLocation: Location,
-    onEditCenterButton: (
-        Location,
-        String,
-        Double,
-        Double,
-        Double,
-    ) -> Unit,
-    onConfirmEditingLocation: (
-        String,
-        Double,
-        Double,
-        Double,
-    ) -> Unit,
+
+    onConfirmEditingLocation: (String, Double, Double, Double) -> Unit,
 ) {
     val state = viewModel.state.collectAsState().value
     LaunchedEffect(state) {
@@ -60,6 +46,8 @@ fun MapScreen(
             onLocationsIntent()
         }
     }
+
+
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -82,7 +70,6 @@ fun MapScreen(
                 is MapsScreenState.Success,
                 is MapsScreenState.EditingLocation,
                 is MapsScreenState.SuccessSearching,
-                is MapsScreenState.ChangingCenter,
                 -> {
                     MapViewRoot(
                         locationV = viewModel.currentLocation,
@@ -95,6 +82,7 @@ fun MapScreen(
                         selectedPoint = viewModel.selectedPoint,
                         onLocationSelected = onLocationSelected,
                     ) {
+
                         when (state) {
                             is MapsScreenState.Success -> {
                                 MapView(
@@ -126,19 +114,7 @@ fun MapScreen(
                                     onRecenterMap = onRecenterMap,
                                 )
                             }
-                            is MapsScreenState.ChangingCenter -> {
-                                MapViewEditLocationView(
-                                    previousLocation = previousLocation,
-                                    location = state.currentLocation,
-                                    selectedPoint = state.selectedPoint,
-                                    locationName = state.locationName,
-                                    radius = state.radius,
-                                    onDismiss = onDismissEditingLocation,
-                                    onConfirm = onEditCenterButton,
-                                    onChangeRadius = onUpdateRadius,
-                                    onChangeLocationName = onUpdateLocationName,
-                                )
-                            }
+
 
                             else -> {
                                 // Do nothing, handled in the outer scope
