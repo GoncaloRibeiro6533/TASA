@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import com.tasa.DependenciesContainer
+import com.tasa.location.LocationService
 import com.tasa.ui.screens.about.AboutActivity
 import com.tasa.ui.screens.authentication.login.LoginActivity
 import com.tasa.ui.screens.authentication.register.RegisterActivity
@@ -14,15 +15,21 @@ import com.tasa.utils.navigateTo
 
 class StartActivity : ComponentActivity() {
     private val userInfoRepository by lazy { (application as DependenciesContainer).userInfoRepository }
+    private val locationUpdatesRepository by lazy {
+        (application as DependenciesContainer).locationUpdatesRepository
+    }
 
     private val viewModel by viewModels<StartScreenViewModel>(
         factoryProducer = {
-            StartScreenViewModelFactory(userInfoRepository)
+            StartScreenViewModelFactory(userInfoRepository, locationUpdatesRepository)
         },
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (!LocationService.isRunning) {
+            viewModel.stopLocationUpdates()
+        }
         viewModel.getSession()
         enableEdgeToEdge()
         setContent {

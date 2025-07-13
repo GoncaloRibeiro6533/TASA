@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.tasa.domain.UserInfoRepository
+import com.tasa.location.LocationUpdatesRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,6 +24,7 @@ sealed interface StartScreenState {
 
 class StartScreenViewModel(
     private val repo: UserInfoRepository,
+    private val locationUpdatesRepository: LocationUpdatesRepository,
     initialState: StartScreenState = StartScreenState.Idle,
 ) : ViewModel() {
     private val _state = MutableStateFlow<StartScreenState>(initialState)
@@ -65,13 +67,24 @@ class StartScreenViewModel(
         if (_state.value is StartScreenState.Logged) return
         _state.value = StartScreenState.Logged
     }
+
+    fun stopLocationUpdates() {
+        viewModelScope.launch {
+            try {
+                locationUpdatesRepository.forceStop()
+            } catch (e: Throwable) {
+                Log.e("StartScreenViewModel", "Error stopping location updates: ${e.message}")
+            }
+        }
+    }
 }
 
 @Suppress("UNCHECKED_CAST")
 class StartScreenViewModelFactory(
     private val repo: UserInfoRepository,
+    private val locationUpdatesRepository: LocationUpdatesRepository,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return StartScreenViewModel(repo) as T
+        return StartScreenViewModel(repo, locationUpdatesRepository) as T
     }
 }

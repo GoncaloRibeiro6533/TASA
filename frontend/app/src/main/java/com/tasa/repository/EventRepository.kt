@@ -212,7 +212,7 @@ class EventRepository(
     }
 
     override suspend fun syncEvents(): Either<ApiError, Unit> {
-        when(val events = retryOnFailure {  token -> remote.eventService.fetchEventAll(token) }){
+        when (val events = retryOnFailure { token -> remote.eventService.fetchEventAll(token) }) {
             is Success -> {
                 val events: Map<EventOutput, Event> =
                     mapToLocalEvent(events.value)
@@ -225,13 +225,12 @@ class EventRepository(
             }
             is Failure -> return failure(events.value)
         }
-
     }
 
-    private fun mapToLocalEvent(events : List<EventOutput>): Map<EventOutput, Event> {
+    private fun mapToLocalEvent(events: List<EventOutput>): Map<EventOutput, Event> {
         val now = LocalDateTime.now()
         val events: Map<EventOutput, Event> =
-            events.filter { it.startTime.isAfter(now)}
+            events.filter { it.startTime.isAfter(now) }
                 .mapNotNull { it ->
                     val localEvent =
                         queryCalendarService.toLocalEvent(
@@ -244,6 +243,4 @@ class EventRepository(
                 }.toMap()
         return events
     }
-
-
 }
