@@ -205,22 +205,22 @@ class EventControllerTests {
                     passwordValidationInfo.validationInfo,
                 )
             }
-            trxManager.run {
-                eventRepo.create(
-                    "Team Meeting",
-                    rose,
-                    LocalDateTime.of(2025, 10, 1, 10, 0, 0),
-                    LocalDateTime.of(2025, 10, 1, 11, 0, 0),
-                )
-            }
-            trxManager.run {
-                eventRepo.create(
-                    "Project Kickoff",
-                    rose,
-                    LocalDateTime.of(2025, 10, 2, 9, 0, 0),
-                    LocalDateTime.of(2025, 10, 2, 10, 0, 0),
-                )
-            }
+        trxManager.run {
+            eventRepo.create(
+                "Team Meeting",
+                rose,
+                LocalDateTime.of(2025, 10, 1, 10, 0, 0),
+                LocalDateTime.of(2025, 10, 1, 11, 0, 0),
+            )
+        }
+        trxManager.run {
+            eventRepo.create(
+                "Project Kickoff",
+                rose,
+                LocalDateTime.of(2025, 10, 2, 9, 0, 0),
+                LocalDateTime.of(2025, 10, 2, 10, 0, 0),
+            )
+        }
         val controllerEvents = createEventController(EventService(trxManager))
         val response = controllerEvents.getAllEvents(AuthenticatedUser(rose, newTokenValidationData()))
         val body = response.body
