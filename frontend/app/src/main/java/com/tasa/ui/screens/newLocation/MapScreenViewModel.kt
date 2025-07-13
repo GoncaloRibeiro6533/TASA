@@ -370,7 +370,7 @@ class MapScreenViewModel(
         ],
     )
     fun keepGivenCurrentLocation(): Job? {
-        if (_state.value == MapsScreenState.Loading) return null
+        if (_state.value !is MapsScreenState.Uninitialized) return null
         _state.value = MapsScreenState.Loading
         return viewModelScope.launch {
             try {
@@ -398,6 +398,17 @@ class MapScreenViewModel(
                 locationUpdatesRepository.centralLocationFlow.collect { location ->
                     if (location != null){
                         _currentLocation.value = location
+                    }
+                    if (_state.value is MapsScreenState.Loading) {
+                        _state.value =
+                            MapsScreenState.Success(
+                                selectedPoint = _selectedPoint,
+                                currentLocation = _currentLocation,
+                                searchQuery = _query,
+                                userActivity = activityState,
+                                radius = _radius,
+                                locationName = _locationName,
+                            )
                     }
                 }
             } catch (ex: Throwable) {
