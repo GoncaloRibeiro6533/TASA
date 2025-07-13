@@ -103,6 +103,9 @@
     <string name="invalid_password">Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one digit, and one special character.</string>
     <string name="password_label">Password</string>
     <string name="error_another_location_name_already_exists">Another location with the given name already exists</string>
+    <string name="add_rule">Add Rule</string>
+    <string name="no_rule_for_this_location">There is no rule for this location.</string>
+
 
 
 </resources>

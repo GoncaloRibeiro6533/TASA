@@ -34,6 +34,7 @@ fun EditLocScreen(
     onEditCenterButton: (Location, String, Double, Double, Double) -> Unit,
     onUpdateRadius: (Double) -> Unit,
     onUpdateLocationName: (String) -> Unit,
+    onAddRule: () -> Unit
 
 
     ) {
@@ -84,6 +85,9 @@ fun EditLocScreen(
                             onNewCenter = {
                                 viewModel.setEditingCenterState()
                             },
+                            onAddRule = {
+                                onAddRule()
+                            }
                         )
                     }
                     is EditLocScreenState.Success ->

@@ -101,6 +101,8 @@
     <string name="invalid_password">A palavra-passe deve ter pelo menos 8 carateres, um número, uma letra maiúscula e um caratere especial</string>
     <string name="password_label">Palavra-passe</string>
     <string name="error_another_location_name_already_exists">Já existe uma outra localização com esse nome.</string>
+    <string name="add_rule">Adicionar Regra</string>
+    <string name="no_rule_for_this_location">Não existe regra para esta localização.</string>
 
 
 

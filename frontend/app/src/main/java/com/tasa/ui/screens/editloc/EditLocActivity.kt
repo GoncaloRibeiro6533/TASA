@@ -1,5 +1,6 @@
 package com.tasa.ui.screens.editloc
 
+import android.Manifest
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -7,6 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresPermission
 import com.tasa.DependenciesContainer
 import com.tasa.domain.Location
 import com.tasa.ui.screens.mylocations.MyLocationsActivity
@@ -60,6 +62,7 @@ class EditLocActivity : ComponentActivity() {
     )
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -121,6 +124,9 @@ class EditLocActivity : ComponentActivity() {
                     },
                     onLocationSelected = { geoPoint ->
                         viewModel.updateSelectedPoint(geoPoint)
+                    },
+                    onAddRule = {
+                        viewModel.createTimelessRule(location)
                     }
 
                 )

@@ -17,7 +17,6 @@ import com.tasa.location.LocationService
 import com.tasa.location.LocationUpdatesRepository
 import com.tasa.repository.TasaRepo
 import com.tasa.ui.screens.mylocations.MyLocationsScreenState
-import com.tasa.ui.screens.newLocation.MapsScreenState
 import com.tasa.ui.screens.newLocation.TasaLocation
 import com.tasa.utils.Failure
 import com.tasa.utils.ServiceKiller
@@ -154,6 +153,7 @@ class EditLocScreenViewModel(
         }
     }
 
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     fun onChangeCenter(
         location: Location,
         locationName: String,
@@ -192,6 +192,37 @@ class EditLocScreenViewModel(
                                     return@launch
                                 }
                                 is Success -> {
+                                    val newLocation =
+                                        repo.locationRepo.getLocationByName(locationName)?:location
+
+                                    when (val result2 = repo.ruleRepo.insertRuleLocationTimeless(newLocation)) {
+                                        is Success -> {
+
+
+                                            val radius =
+                                                if (newLocation.radius < 100) {
+                                                    100f
+                                                } else {
+                                                    newLocation.radius.toFloat()
+                                                }
+                                            geofenceManager.registerGeofence(
+                                                newLocation.name,
+                                                newLocation.toLocation(),
+                                                radius,
+                                            )
+                                            repo.geofenceRepo.createGeofence(
+                                                newLocation,
+                                                result2.value,
+                                            )
+                                        }
+                                        is Failure -> {
+                                            _state.value =
+                                                EditLocScreenState.Error(
+                                                    result2.value.message,
+                                                )
+                                            return@launch
+                                        }
+                                    }
                                     _state.value =
                                         EditLocScreenState.Success
                                 }
@@ -324,23 +355,150 @@ class EditLocScreenViewModel(
         }
     }
 
-    fun editLocFields(
-        name: String,
-        radius: Double,
+
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    fun createTimelessRule(
         location: Location,
-    ) {
-        if (_state.value is EditLocScreenState.Loading) return
-        _state.value = EditLocScreenState.Loading
-        viewModelScope.launch {
-            try {
-                repo.locationRepo.updateLocationFields(name, radius, location)
-            } catch (e: Exception) {
-                _state.value = EditLocScreenState.Error(e.message ?: "Unknown Error")
-                Log.e("EditLocViewModel", "Error updating location: ${e.message}")
+
+        ) {
+        if (_state.value is EditLocScreenState.ChangingFields) {
+            viewModelScope.launch {
+                try {
+                    val timelessRulesForLocation =
+                        repo.ruleRepo.getTimelessRulesForLocation(location)
+                    if (timelessRulesForLocation.isNotEmpty()) {
+                        _state.value =
+                            EditLocScreenState.Error(
+                                stringResolver.getString(R.string.rule_already_exists_for_this_location),
+                            )
+                        return@launch
+                    }
+
+                    when (val result = repo.ruleRepo.insertRuleLocationTimeless(location)) {
+                        is Success -> {
+
+
+                            val radius =
+                                if (location.radius < 100) {
+                                    100f
+                                } else {
+                                    location.radius.toFloat()
+                                }
+                            geofenceManager.registerGeofence(
+                                location.name,
+                                location.toLocation(),
+                                radius,
+                            )
+                            repo.geofenceRepo.createGeofence(
+                                location,
+                                result.value,
+                            )
+                        }
+
+                        is Failure -> {
+                            _state.value =
+                                EditLocScreenState.Error(
+                                    result.value.message,
+                                )
+                            return@launch
+                        }
+                    }
+                    _state.value =
+                        EditLocScreenState.Success
+
+
+                } catch (ex: AuthenticationException) {
+                    _state.value = EditLocScreenState.SessionExpired
+                    return@launch
+                } catch (ex: Throwable) {
+                    _state.value = EditLocScreenState.Error(
+                        stringResolver.getString(
+                            R.string.unexpected_error
+                        )
+                    )
+                }
             }
         }
     }
 
+    /*
+    fun hasRule(
+        location: Location
+    ): Boolean {
+        if (_state.value is EditLocScreenState.ChangingFields) {
+            viewModelScope.launch {
+                try {
+                    val timelessRulesForLocation =
+                        repo.ruleRepo.getTimelessRulesForLocation(location)
+                    return@launch timelessRulesForLocation.isNotEmpty()
+
+
+                } catch (ex: AuthenticationException) {
+                    _state.value = EditLocScreenState.SessionExpired
+                    return@launch
+                } catch (ex: Throwable) {
+                    _state.value = EditLocScreenState.Error(
+                        stringResolver.getString(
+                            R.string.unexpected_error
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+     */
+
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    fun deleteTimelessRule(
+        location: Location,
+
+        ) {
+        if (_state.value is EditLocScreenState.ChangingFields) {
+            viewModelScope.launch {
+                try {
+                    val timelessRulesForLocation =
+                        repo.ruleRepo.getTimelessRulesForLocation(location)
+                    if (timelessRulesForLocation.isEmpty()) {
+                        _state.value =
+                            EditLocScreenState.Error(
+                                stringResolver.getString(R.string.no_rule_for_this_location),
+                            )
+                        return@launch
+                    }
+
+                    when (val result = repo.ruleRepo.deleteRuleLocationTimeless(timelessRulesForLocation[0])) {
+                        is Success -> {
+
+                            _state.value =
+                                EditLocScreenState.Success
+
+                        }
+
+                        is Failure -> {
+                            _state.value =
+                                EditLocScreenState.Error(
+                                    result.value.message,
+                                )
+                            return@launch
+                        }
+                    }
+
+
+
+                } catch (ex: AuthenticationException) {
+                    _state.value = EditLocScreenState.SessionExpired
+                    return@launch
+                } catch (ex: Throwable) {
+                    _state.value = EditLocScreenState.Error(
+                        stringResolver.getString(
+                            R.string.unexpected_error
+                        )
+                    )
+                }
+            }
+        }
+    }
 
 
     fun onFatalError(): Job? {
