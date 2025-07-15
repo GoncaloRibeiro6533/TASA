@@ -63,7 +63,7 @@ class GeofenceManager(
             .addOnSuccessListener { result ->
                 Log.d(TAG, "registerGeofence: SUCCESS")
             }.addOnFailureListener { exception ->
-                Log.d(TAG, "registerGeofence: Failure\n$exception")
+                Log.d(TAG, "registerGeofence: Failure\n${exception.message}")
             }
     }
 

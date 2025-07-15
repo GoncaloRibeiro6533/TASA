@@ -9,8 +9,6 @@
     <uses-permission android:name="android.permission.READ_CALENDAR"/>
     <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-
-
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
@@ -23,6 +21,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
 
 
     <permission
@@ -51,9 +50,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Tasa"
-        tools:targetApi="31">
+        tools:targetApi="36">
 
-
+        <meta-data
+            android:name="com.google.android.gms.attribution.ATTRIBUTION_TAG"
+            android:value="com.google.android.gms.location_base" />
         <receiver android:name=".silence.MuteReceiver" android:exported="true"
             android:permission="com.tasa.permission.MUTE"/>
         <receiver android:name=".silence.BootReceiver" android:exported="true"

@@ -141,11 +141,16 @@ class EditLocScreenViewModel(
         latitude: Double,
         longitude: Double,
     ) {
-        println("oldLoc: lat:${location.latitude} lon: ${location.longitude}")
-        println("newLoc: lat:$latitude lon:$longitude")
         if (_state.value is EditLocScreenState.ChangingCenter) {
             viewModelScope.launch {
                 try {
+                    if(repo.ruleRepo.getTimelessRulesForLocation(location).isNotEmpty()) {
+                        _state.value =
+                            EditLocScreenState.Error(
+                                stringResolver.getString(R.string.rule_already_exists_for_this_location),
+                            )
+                        return@launch
+                    }
                     if (repo.locationRepo.getLocationByName(locationName) != null &&
                         repo.locationRepo.getLocationByName(locationName)?.id != location.id
                     ) {
@@ -388,33 +393,6 @@ class EditLocScreenViewModel(
         }
     }
 
-    /*
-    fun hasRule(
-        location: Location
-    ): Boolean {
-        if (_state.value is EditLocScreenState.ChangingFields) {
-            viewModelScope.launch {
-                try {
-                    val timelessRulesForLocation =
-                        repo.ruleRepo.getTimelessRulesForLocation(location)
-                    return@launch timelessRulesForLocation.isNotEmpty()
-
-
-                } catch (ex: AuthenticationException) {
-                    _state.value = EditLocScreenState.SessionExpired
-                    return@launch
-                } catch (ex: Throwable) {
-                    _state.value = EditLocScreenState.Error(
-                        stringResolver.getString(
-                            R.string.unexpected_error
-                        )
-                    )
-                }
-            }
-        }
-    }
-
-     */
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     fun deleteTimelessRule(location: Location) {

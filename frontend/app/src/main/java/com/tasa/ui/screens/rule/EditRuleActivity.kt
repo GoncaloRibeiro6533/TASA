@@ -1,11 +1,13 @@
 package com.tasa.ui.screens.rule
 
+import android.Manifest
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.annotation.RequiresPermission
 import com.tasa.DependenciesContainer
 import com.tasa.domain.Event
 import com.tasa.domain.RuleEvent
@@ -100,6 +102,7 @@ class EditRuleActivity : ComponentActivity() {
         }
     }
 
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val ruleParcelableEvent =

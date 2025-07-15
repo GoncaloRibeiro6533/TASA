@@ -8,8 +8,8 @@ import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -78,25 +78,29 @@ class LocationService : Service() {
         flags: Int,
         startId: Int,
     ): Int {
-        isRunning = true
-        val notification = buildNotification()
-        startForeground(NOTIFICATION_ID, notification)
-        val requestId = intent?.getStringExtra("requestId").toString()
-        reqId = requestId
-        locationName = requestId
-        // get the location by requestId
-        scope.launch {
-            val result = repo.locationRepo.getLocationByName(requestId)
-            if (result != null) {
-                radius = result.radius.toFloat()
-                locationOfSilence = result.toLocation()
-                listenToLocationUpdates()
-            } else {
-                Log.e("LocationService", "Location not found for requestId: |$requestId|")
-                onDestroy()
+        try {
+            isRunning = true
+            val notification = buildNotification()
+            startForeground(NOTIFICATION_ID, notification)
+            val requestId = intent?.getStringExtra("requestId").toString()
+            reqId = requestId
+            locationName = requestId
+            // get the location by requestId
+            scope.launch {
+                val result = repo.locationRepo.getLocationByName(requestId)
+                if (result != null) {
+                    radius = result.radius.toFloat()
+                    locationOfSilence = result.toLocation()
+                    listenToLocationUpdates()
+                } else {
+                    onDestroy()
+                }
             }
+            return START_STICKY // Ensures the system restarts the service if it's killed
+        } catch (e: Exception) {
+            onDestroy()
+            return START_NOT_STICKY // Stops the service if an error occurs
         }
-        return START_STICKY // Ensures the system restarts the service if it's killed
     }
 
     /**
@@ -112,6 +116,12 @@ class LocationService : Service() {
         ],
     )
     private suspend fun listenToLocationUpdates() {
+        val activityPermission =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                Manifest.permission.ACTIVITY_RECOGNITION
+            } else {
+                "com.google.android.gms.permission.ACTIVITY_RECOGNITION"
+            }
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION,
@@ -120,7 +130,7 @@ class LocationService : Service() {
                 Manifest.permission.ACCESS_COARSE_LOCATION,
             ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
                 this,
-                Manifest.permission.ACTIVITY_RECOGNITION,
+                activityPermission,
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             return
@@ -128,7 +138,6 @@ class LocationService : Service() {
         locationUpdates.startUp()
         val locationOfSilence: Location = locationOfSilence ?: return
         locationUpdates.centralLocationFlow.collect { location ->
-            Log.d("LocationService", "Location: $location")
             if (location != null) {
                 if (location.toLocation().distanceTo(locationOfSilence) - location.accuracy <= radius) {
                     if (!DndManager.isMuted(notificationManager)) {

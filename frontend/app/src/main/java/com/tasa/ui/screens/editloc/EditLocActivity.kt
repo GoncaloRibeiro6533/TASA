@@ -1,13 +1,11 @@
 package com.tasa.ui.screens.editloc
 
-import android.Manifest
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
-import androidx.annotation.RequiresPermission
 import com.tasa.DependenciesContainer
 import com.tasa.domain.Location
 import com.tasa.ui.screens.mylocations.MyLocationsActivity
@@ -57,12 +55,15 @@ class EditLocActivity : ComponentActivity() {
         },
     )
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val location = intent.getParcelableExtra("location", Location::class.java)
+        val location =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableExtra("location", Location::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                intent.getParcelableExtra("location") as? Location
+            }
         if (location == null) {
             navigateTo(this, MyLocationsActivity::class.java)
             finish()
@@ -76,8 +77,6 @@ class EditLocActivity : ComponentActivity() {
         println("locAt lat:$latitude lon:$longitude")
 
         setContent {
-            // Text("Editing: ${location?.name}")
-
             TasaTheme {
                 EditLocScreen(
                     viewModel = viewModel,
@@ -102,8 +101,6 @@ class EditLocActivity : ComponentActivity() {
                         viewModel.updateRadius(it)
                     },
                     onEditCenterButton = { _, name, radius, latitude, longitude ->
-
-                        println("locactfun lat:$latitude lon:$longitude")
                         viewModel.onChangeCenter(
                             location = location,
                             locationName = name,

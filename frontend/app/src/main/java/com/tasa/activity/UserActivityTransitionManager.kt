@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import com.google.android.gms.location.ActivityRecognition
@@ -153,7 +154,13 @@ class UserActivityTransitionManager(private val context: Context) {
     )
     suspend fun registerActivityTransitions() =
         runCatching {
-            if (context.checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
+            val activityPermission =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    Manifest.permission.ACTIVITY_RECOGNITION
+                } else {
+                    "com.google.android.gms.permission.ACTIVITY_RECOGNITION"
+                }
+            if (context.checkSelfPermission(activityPermission) == PackageManager.PERMISSION_GRANTED) {
                 activityClient.requestActivityUpdates(500L, pendingIntent).await()
             } else {
                 throw SecurityException("ACTIVITY_RECOGNITION permission not granted")
