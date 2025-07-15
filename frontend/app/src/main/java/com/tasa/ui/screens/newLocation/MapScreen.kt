@@ -59,6 +59,7 @@ fun MapScreen(
                     .padding(innerPadding),
         ) {
             when (state) {
+                is MapsScreenState.SuccessCreatingLocation,
                 is MapsScreenState.Uninitialized,
                 is MapsScreenState.Loading,
                 -> {
@@ -125,8 +126,6 @@ fun MapScreen(
                     ) {
                         onNavigationBack()
                     }
-                }
-                is MapsScreenState.SuccessCreatingLocation -> {
                 }
                 is MapsScreenState.SessionExpired -> {
                     ErrorAlert(
