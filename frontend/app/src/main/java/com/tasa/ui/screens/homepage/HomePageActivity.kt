@@ -1,9 +1,11 @@
 package com.tasa.ui.screens.homepage
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.IntentSender
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
@@ -14,6 +16,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresPermission
 import androidx.core.net.toUri
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
 import com.tasa.DependenciesContainer
 import com.tasa.location.LocationService
 import com.tasa.silence.LocationStateReceiver
@@ -83,6 +89,7 @@ class HomePageActivity : ComponentActivity() {
                 Intent.FLAG_ACTIVITY_NO_HISTORY
             startActivity(intent)*/
         } else {
+            requestGoogleLocationAccuracyPopup(this)
             if (!LocationService.isRunning) viewModel.registerGeofences()
         }
         registerReceiver(locationStatusReceiver, IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION))
@@ -227,5 +234,33 @@ class HomePageActivity : ComponentActivity() {
         } catch (e: Settings.SettingNotFoundException) {
             false
         }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun requestGoogleLocationAccuracyPopup(activity: Activity) {
+        val locationRequest =
+            LocationRequest.create().apply {
+                priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            }
+
+        val builder =
+            LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest)
+                .setAlwaysShow(true)
+
+        val settingsClient = LocationServices.getSettingsClient(activity)
+
+        settingsClient.checkLocationSettings(builder.build())
+            .addOnSuccessListener {
+            }
+            .addOnFailureListener { exception ->
+                if (exception is ResolvableApiException) {
+                    try {
+                        exception.startResolutionForResult(activity, 1234)
+                    } catch (e: IntentSender.SendIntentException) {
+                        e.printStackTrace()
+                    }
+                }
+            }
     }
 }

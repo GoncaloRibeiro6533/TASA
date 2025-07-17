@@ -51,10 +51,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Tasa"
         tools:targetApi="36">
-
-        <meta-data
-            android:name="com.google.android.gms.attribution.ATTRIBUTION_TAG"
-            android:value="com.google.android.gms.location_base" />
         <receiver android:name=".silence.MuteReceiver" android:exported="true"
             android:permission="com.tasa.permission.MUTE"/>
         <receiver android:name=".silence.BootReceiver" android:exported="true"

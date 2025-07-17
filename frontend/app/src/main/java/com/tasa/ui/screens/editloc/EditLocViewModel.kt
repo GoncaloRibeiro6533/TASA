@@ -86,7 +86,6 @@ class EditLocScreenViewModel(
             ),
         )
 
-
     fun updateLocation(location: Location) {
         if (_state.value is EditLocScreenState.ChangingCenter) {
             val point = GeoPoint(location.latitude, location.longitude)
