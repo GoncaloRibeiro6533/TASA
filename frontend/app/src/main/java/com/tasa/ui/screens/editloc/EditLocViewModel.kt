@@ -86,7 +86,6 @@ class EditLocScreenViewModel(
             ),
         )
 
-    val currentLocation: StateFlow<TasaLocation> = _currentLocation.asStateFlow()
 
     fun updateLocation(location: Location) {
         if (_state.value is EditLocScreenState.ChangingCenter) {
@@ -144,7 +143,7 @@ class EditLocScreenViewModel(
         if (_state.value is EditLocScreenState.ChangingCenter) {
             viewModelScope.launch {
                 try {
-                    if(repo.ruleRepo.getTimelessRulesForLocation(location).isNotEmpty()) {
+                    if (repo.ruleRepo.getTimelessRulesForLocation(location).isNotEmpty()) {
                         _state.value =
                             EditLocScreenState.Error(
                                 stringResolver.getString(R.string.rule_already_exists_for_this_location),
@@ -392,7 +391,6 @@ class EditLocScreenViewModel(
             }
         }
     }
-
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     fun deleteTimelessRule(location: Location) {

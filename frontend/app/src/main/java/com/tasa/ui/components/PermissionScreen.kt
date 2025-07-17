@@ -1,8 +1,8 @@
 package com.tasa.ui.components
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
@@ -16,64 +16,70 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.app.ActivityCompat
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
 import com.google.accompanist.permissions.PermissionState
 import com.tasa.R
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun PermissionScreen(
-    state: MultiplePermissionsState,
+    permissions: List<String>,
+    onAllGranted: () -> Unit,
     onSentToSettings: () -> Unit,
     onDenied: () -> Unit,
 ) {
-    var hasRequested by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val activity = context as Activity
 
     var showDialog by remember { mutableStateOf(false) }
-    LaunchedEffect(state, state.revokedPermissions) {
-        if (!hasRequested) {
-            hasRequested = true
-            state.launchMultiplePermissionRequest()
+    var permanentlyDenied by remember { mutableStateOf(false) }
+
+    val launcher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions(),
+        ) { result ->
+            val denied = result.filterValues { !it }.keys
+
+            if (denied.isEmpty()) {
+                onAllGranted()
+            } else {
+                // Verifica se alguma foi marcada como "não perguntar novamente"
+                permanentlyDenied =
+                    denied.any {
+                        !ActivityCompat.shouldShowRequestPermissionRationale(activity, it)
+                    }
+                showDialog = true
+            }
         }
-        if (state.revokedPermissions.isNotEmpty()) {
-            showDialog = true
-        }
+
+    LaunchedEffect(Unit) {
+        launcher.launch(permissions.toTypedArray())
     }
 
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier =
-            Modifier
-                .fillMaxSize(),
-    ) {
-        if (showDialog && state.revokedPermissions.isNotEmpty()) {
-            PermissionRationaleDialog(
-                permissions = state.revokedPermissions.joinToString { it.permission },
-                onDismiss = {
-                    onDenied()
-                },
-                onConfirm = {
-                    if (state.shouldShowRationale) {
-                        state.launchMultiplePermissionRequest()
-                    } else {
-                        onSentToSettings()
-                        hasRequested = true
-                    }
-                },
-            )
-        }
+    if (showDialog) {
+        PermissionRationaleDialog(
+            onDismiss = {
+                showDialog = false
+                onDenied()
+            },
+            onConfirm = {
+                showDialog = false
+                if (permanentlyDenied) {
+                    onSentToSettings()
+                } else {
+                    launcher.launch(permissions.toTypedArray())
+                }
+            },
+        )
     }
 }
 
 @Composable
 fun PermissionRationaleDialog(
-    permissions: String,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
@@ -111,22 +117,10 @@ fun PermissionRationaleDialog(
 @Preview(showBackground = true)
 @Composable
 fun PermissionScreenPreview() {
-    val dummyState =
-        object : MultiplePermissionsState {
-            override val permissions: List<PermissionState> = emptyList<PermissionState>()
-            override val revokedPermissions: List<PermissionState>
-                get() =
-                    {
-                        emptyList<PermissionState>()
-                    }()
-            override val shouldShowRationale = false
-            override val allPermissionsGranted = false
-
-            override fun launchMultiplePermissionRequest() {}
-        }
     PermissionScreen(
-        state = dummyState,
         onSentToSettings = { /* Handle sent to settings */ },
         onDenied = { /* Handle denied permissions */ },
+        permissions = listOf(),
+        onAllGranted = {},
     )
 }

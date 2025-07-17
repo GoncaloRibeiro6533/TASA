@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
@@ -14,8 +13,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresPermission
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import com.tasa.DependenciesContainer
 import com.tasa.location.LocationService
@@ -98,24 +95,12 @@ class HomePageActivity : ComponentActivity() {
         val permissions =
             mutableListOf(
                 Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
                 activityPermission,
                 Manifest.permission.READ_CALENDAR,
                 Manifest.permission.WRITE_CALENDAR,
             )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissions += Manifest.permission.POST_NOTIFICATIONS
-        }
-        val permissions1 =
-            arrayOf(
-                Manifest.permission.WRITE_CALENDAR,
-                Manifest.permission.READ_CALENDAR,
-            )
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(this, permissions1, 9999)
         }
         setContent {
             TasaTheme {
@@ -126,7 +111,9 @@ class HomePageActivity : ComponentActivity() {
                         val intent =
                             Intent(ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                                 data = "package:$packageName".toUri()
-                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                                    Intent.FLAG_ACTIVITY_NO_HISTORY
                             }
                         startActivity(intent)
                     },

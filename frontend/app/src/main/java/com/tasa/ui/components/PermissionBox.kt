@@ -28,7 +28,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -51,46 +50,29 @@ fun PermissionBox(
     permissions: List<String>,
     requiredPermissions: List<String> = permissions,
     description: String? = null,
-    contentAlignment: Alignment = Alignment.Companion.TopStart,
+    contentAlignment: Alignment = Alignment.TopStart,
     onSentToSettings: () -> Unit,
     onDenied: () -> Unit,
-    onGranted: @Composable BoxScope.(List<String>) -> Unit,
+    onGranted: @Composable BoxScope.() -> Unit,
 ) {
-    var errorText by remember {
-        mutableStateOf("")
-    }
-    val permissionState =
-        rememberMultiplePermissionsState(permissions = permissions) { map ->
-            val rejectedPermissions = map.filterValues { !it }.keys
-        }
-    val allRequiredPermissionsGranted =
-        permissionState.revokedPermissions.none { it.permission in requiredPermissions }
-
+    val permissionState = rememberMultiplePermissionsState(permissions)
+    val allGranted =
+        permissionState.permissions
+            .filter { it.permission in requiredPermissions }
+            .all { it.status.isGranted }
     Box(
-        modifier =
-            Modifier.Companion
-                .fillMaxSize()
-                .then(modifier),
-        contentAlignment =
-            if (allRequiredPermissionsGranted) {
-                contentAlignment
-            } else {
-                Alignment.Companion.Center
-            },
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = if (allGranted) contentAlignment else Alignment.Center,
     ) {
-        if (allRequiredPermissionsGranted) {
-            onGranted(
-                permissionState.permissions
-                    .filter { it.status.isGranted }
-                    .map { it.permission },
-            )
+        if (allGranted) {
+            onGranted()
         } else {
             PermissionScreen(
-                permissionState,
-                onSentToSettings = onSentToSettings,
-                onDenied = {
-                    onDenied()
+                permissions = permissions,
+                onAllGranted = {
                 },
+                onSentToSettings = onSentToSettings,
+                onDenied = onDenied,
             )
         }
     }
@@ -178,12 +160,6 @@ fun SpecialPermissionsHandler(
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                             backgroundPermission?.launchPermissionRequest()
                         }
-                        val intent =
-                            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                data = "package:${context.packageName}".toUri()
-                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                            }
-                        context.startActivity(intent)
                     },
                     onDismiss = {
                         showBackgroundLocationDialog = false
@@ -199,7 +175,10 @@ fun SpecialPermissionsHandler(
                         // Abrir configurações específicas de DND
                         val intent =
                             Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS).apply {
-                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                                    Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                                    Intent.FLAG_ACTIVITY_NO_HISTORY or
+                                    Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
                             }
                         context.startActivity(intent)
                     },

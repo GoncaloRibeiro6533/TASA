@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -79,6 +80,7 @@ class LocationService : Service() {
         startId: Int,
     ): Int {
         try {
+            Log.d("GeofenceManager", "onStartCommand: Service started with intent: $intent")
             isRunning = true
             val notification = buildNotification()
             startForeground(NOTIFICATION_ID, notification)
@@ -116,6 +118,7 @@ class LocationService : Service() {
         ],
     )
     private suspend fun listenToLocationUpdates() {
+        Log.d("GeofenceManager", "listenToLocationUpdates: started")
         val activityPermission =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 Manifest.permission.ACTIVITY_RECOGNITION
@@ -133,11 +136,13 @@ class LocationService : Service() {
                 activityPermission,
             ) != PackageManager.PERMISSION_GRANTED
         ) {
+            Log.d("GeofenceManager", "listenToLocationUpdates: failed due to permissions")
             return
         }
         locationUpdates.startUp()
         val locationOfSilence: Location = locationOfSilence ?: return
         locationUpdates.centralLocationFlow.collect { location ->
+            Log.d("GeofenceManager", "listenToLocationUpdates: location update received")
             if (location != null) {
                 if (location.toLocation().distanceTo(locationOfSilence) - location.accuracy <= radius) {
                     if (!DndManager.isMuted(notificationManager)) {
@@ -157,6 +162,7 @@ class LocationService : Service() {
      * unmutes the device, and cancels the coroutine scope.
      */
     override fun onDestroy() {
+        Log.d("GeofenceManager", "onDestroy: Service is being destroyed")
         super.onDestroy()
         isRunning = false
         DndManager.unmute(notificationManager)
