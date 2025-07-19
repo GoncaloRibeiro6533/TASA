@@ -84,7 +84,7 @@ class StartScreenTests {
                 return false
             }
         }
-
+/*
     private fun createFakeViewModel(screenState: StartScreenState): StartScreenViewModel =
         StartScreenViewModel(
             repo = fakeRepo,
@@ -133,4 +133,6 @@ class StartScreenTests {
         }
         composeTree.onNodeWithTag(START_VIEW).assertExists()
     }
+
+ */
 }

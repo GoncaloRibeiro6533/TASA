@@ -18,12 +18,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tasa.R
 import com.tasa.domain.Location
+
+const val EDIT_LOC_VIEW = "edit_loc_view"
+const val EDIT_LOC_NAME_TEXT_FIELD = "edit_loc_name_text_fields"
+const val EDIT_LOC_RADIUS_TEXT_FIELD = "edit_loc_radius_fields"
+const val EDIT_LOC_CENTER_BUTTON = "center_button"
+const val EDIT_LOC_RULE_BUTTON = "rule_button"
+const val EDIT_LOC_SAVE_BUTTON = "save_button"
 
 @Composable
 fun EditLocView(
@@ -42,11 +50,13 @@ fun EditLocView(
     var radiusText by remember { mutableStateOf(initialRadius) }
     var radiusError by remember { mutableStateOf(false) }
 
+
     Column(
         modifier =
             Modifier
                 .padding(16.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .testTag(EDIT_LOC_VIEW),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         OutlinedTextField(
@@ -57,7 +67,9 @@ fun EditLocView(
                     text = stringResource(R.string.name),
                 )
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag(EDIT_LOC_NAME_TEXT_FIELD),
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -75,7 +87,9 @@ fun EditLocView(
             },
             isError = radiusError,
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag(EDIT_LOC_RADIUS_TEXT_FIELD),
         )
 
         if (radiusError) {
@@ -96,7 +110,8 @@ fun EditLocView(
                 modifier =
                     Modifier
                         .weight(1f)
-                        .padding(end = 4.dp),
+                        .padding(end = 4.dp)
+                        .testTag(EDIT_LOC_CENTER_BUTTON),
                 onClick = {
                     onNewCenter()
                 },
@@ -110,7 +125,8 @@ fun EditLocView(
                 modifier =
                     Modifier
                         .weight(1f)
-                        .padding(start = 4.dp),
+                        .padding(start = 4.dp)
+                        .testTag(EDIT_LOC_RULE_BUTTON),
                 onClick = {
                     onAddRule()
                 },
@@ -124,7 +140,8 @@ fun EditLocView(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            modifier = Modifier,
+            modifier = Modifier
+                .testTag(EDIT_LOC_SAVE_BUTTON),
             onClick = {
                 val radius = radiusText.toDoubleOrNull()
                 if (radius != null && !radiusError) {

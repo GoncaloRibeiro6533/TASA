@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.tasa.R
@@ -28,6 +29,12 @@ import com.tasa.domain.Location
 import com.tasa.ui.screens.newLocation.views.coral
 import kotlinx.coroutines.flow.StateFlow
 import org.osmdroid.util.GeoPoint
+
+const val EDIT_LOC_MAP_VIEW = "edit_loc_map_view"
+const val EDIT_LOC_MAP_NAME_TEXT_FIELD = "edit_loc_map_name_text_fields"
+const val EDIT_LOC_MAP_RADIUS_SLIDER = "edit_loc_radius_slider"
+const val EDIT_LOC_MAP_CANCEL_BUTTON = "cancel_button"
+const val EDIT_LOC_MAP_SAVE_BUTTON = "save_button"
 
 @Composable
 fun MapViewEditLocationView(
@@ -47,7 +54,8 @@ fun MapViewEditLocationView(
         modifier =
             Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(16.dp)
+                .testTag(EDIT_LOC_MAP_VIEW),
         contentAlignment = Alignment.BottomEnd,
     ) {
         Surface(
@@ -64,10 +72,14 @@ fun MapViewEditLocationView(
                     value = locationName,
                     onValueChange = { onChangeLocationName(it) },
                     label = { Text(stringResource(R.string.name)) },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(EDIT_LOC_MAP_NAME_TEXT_FIELD),
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Slider(
+                    modifier = Modifier
+                        .testTag(EDIT_LOC_MAP_RADIUS_SLIDER),
                     value = radius.toFloat(),
                     onValueChange = {
                         onChangeRadius(it.toDouble())
@@ -95,11 +107,17 @@ fun MapViewEditLocationView(
                     val latitude = selectedPoint?.latitude ?: previousLocation.latitude
                     val longitude = selectedPoint?.longitude ?: previousLocation.longitude
                     println("selectPoint: lat: $latitude lon: $longitude")
-                    TextButton(onClick = { onDismiss() }) {
+                    TextButton(
+                        modifier = Modifier
+                            .testTag(EDIT_LOC_MAP_CANCEL_BUTTON),
+                        onClick = { onDismiss() }
+                    ) {
                         Text(stringResource(R.string.cancel))
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     TextButton(
+                        modifier = Modifier
+                            .testTag(EDIT_LOC_MAP_SAVE_BUTTON),
                         enabled = (locationName.isNotBlank() && radius > 0),
                         onClick = {
                             onConfirm(
